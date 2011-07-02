@@ -1,5 +1,8 @@
 (function($, MITHGrid) {
-    MITHGrid.Set = function(values) {
+	MITHGrid.namespace('Data');
+	var Data = MITHGrid.Data;
+
+    Data.Set = function(values) {
         var that = {},
         items = {},
         count = 0,
@@ -67,7 +70,7 @@
         return that;
     };
 
-    MITHGrid.Type = function(t) {
+    Data.Type = function(t) {
         var that = {};
 
         that.name = t;
@@ -76,7 +79,7 @@
         return that;
     };
 
-    MITHGrid.Property = function(p) {
+    Data.Property = function(p) {
         var that = {};
 
         that.name = p;
@@ -90,16 +93,16 @@
 
     var sources = {};
 
-    MITHGrid.DataSource = function(options) {
+    Data.Source = function(options) {
         var that,
         prop,
         quiesc_events = false,
-        set = MITHGrid.Set();
+        set = Data.Set();
 
         if (typeof(sources[options.source]) != "undefined") {
             return sources[options.source];
         }
-        that = fluid.initView("MITHGrid.DataSource", $(window), options);
+        that = fluid.initView("MITHGrid.Data.Source", $(window), options);
         sources[options.source] = that;
 
         that.source = options.source;
@@ -111,13 +114,13 @@
         that.items = set.items;
 
         that.addProperty = function(nom, options) {
-            var prop = MITHGrid.Property(nom);
+            var prop = Data.Property(nom);
             prop.valueType = options.valueType;
             that.properties[nom] = prop;
         };
 
         that.addType = function(nom, options) {
-            var type = MITHGrid.Type(nom);
+            var type = Data.Type(nom);
             that.types[nom] = type;
         };
 
@@ -518,7 +521,7 @@
         that.prepare = function(expressions) {
             return $.map(expressions,
             function(ex) {
-                return MITHGrid.ExpressionParser().parse(ex);
+                return MITHGrid.Expression.Parser().parse(ex);
             });
         };
 
@@ -560,7 +563,7 @@
 
         var getUnion = function(index, xSet, y, set, filter) {
             if (!set) {
-                set = MITHGrid.Set();
+                set = Data.Set();
             }
 
             xSet.visit(function(x) {
@@ -583,15 +586,15 @@
 
     var views = {};
 
-    MITHGrid.DataView = function(options) {
+    Data.View = function(options) {
         var that,
-        set = MITHGrid.Set();
+        set = Data.Set();
 
         if (typeof(views[options.label]) != "undefined") {
             return views[options.label];
         }
 
-        that = fluid.initView("MITHGrid.DataView", $(window), options);
+        that = fluid.initView("MITHGrid.Data.View", $(window), options);
 
         that.registerFilter = function(ob) {
             that.events.onFilterItem.addListener(function(x, y) {
@@ -623,7 +626,7 @@
             chunk_size,
             f;
 
-            set = MITHGrid.Set();
+            set = Data.Set();
 
             that.items = set.items;
             that.size = set.size;
@@ -678,7 +681,7 @@
 
         that.eventFilterChange = that.eventModelChange;
 
-        that.dataSource = MITHGrid.DataSource({
+        that.dataSource = Data.Source({
             source: options.source
         });
 

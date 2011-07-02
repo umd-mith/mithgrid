@@ -1,5 +1,7 @@
 (function($, MITHGrid) {
-    MITHGrid.Controls = {
+	var Expression = MITHGrid.namespace("Expression");
+	
+    Expression.Controls = {
         "if": {
             f: function(args, roots, rootValueTypes, defaultRootName, database) {
                 var conditionCollection = args[0].evaluate(roots, rootValueTypes, defaultRootName, database),
@@ -43,7 +45,7 @@
                 roots.value = oldValue;
                 rootValueTypes.value = oldValueType;
 
-                return MITHGrid.Expression.Collection(results, valueType);
+                return Expression.Collection(results, valueType);
             }
         },
         "default": {
@@ -57,12 +59,12 @@
                         return collection;
                     }
                 }
-                return MITHGrid.Expression.Collection([], "text");
+                return Expression.Collection([], "text");
             }
         }
     };
 
-    MITHGrid.Expression = function(rootNode) {
+    Expression.Expression = function(rootNode) {
         var that = {};
 
         that.evaluate = function(
@@ -169,7 +171,7 @@
         return that;
     };
 
-    MITHGrid.Expression.Collection = function(values, valueType) {
+    Expression.Collection = function(values, valueType) {
         var that = {
             valueType: valueType
         };
@@ -189,7 +191,7 @@
             };
 
             that.getSet = function() {
-                return MITHGrid.Set(values);
+                return MITHGrid.Data.Set(values);
             };
 
             that.contains = function(v) {
@@ -233,7 +235,7 @@
         return that;
     };
 
-    MITHGrid.Expression.Constant = function(value, valueType) {
+    Expression.Constant = function(value, valueType) {
         var that = {};
 
         that.evaluate = function(
@@ -242,7 +244,7 @@
         defaultRootName,
         database
         ) {
-            return MITHGrid.Expression.Collection([value], valueType);
+            return Expression.Collection([value], valueType);
         };
 
         that.isPath = false;
@@ -323,7 +325,7 @@
         }
     };
 
-    MITHGrid.Expression.Operator = function(operator, args) {
+    Expression.Operator = function(operator, args) {
         var that = {},
         _operator = operator,
         _args = args;
@@ -370,7 +372,7 @@
                 });
             }
 
-            return MITHGrid.Expression.Collection(values, operator.valueType);
+            return Expression.Collection(values, operator.valueType);
         };
 
         that.isPath = false;
@@ -378,7 +380,7 @@
         return that;
     };
 
-    MITHGrid.Expression.FunctionCall = function(name, args) {
+    Expression.FunctionCall = function(name, args) {
         var that = {},
         _name = name,
         _args = args;
@@ -397,8 +399,8 @@
                 args.push(_args[i].evaluate(roots, rootValueTypes, defaultRootName, database));
             }
 
-            if (_name in MITHGrid.Functions) {
-                return MITHGrid.Functions[_name].f(args);
+            if (_name in Expression.Functions) {
+                return Expression.Functions[_name].f(args);
             }
             else {
                 throw new Error("No such function named " + _name);
@@ -410,7 +412,7 @@
         return that;
     };
 
-    MITHGrid.Expression.ControlCall = function(name, args) {
+    Expression.ControlCall = function(name, args) {
         var that = {},
         _name = name,
         _args = args;
@@ -421,7 +423,7 @@
         defaultRootName,
         database
         ) {
-            return MITHGrid.Controls[_name].f(_args, roots, rootValueTypes, defaultRootName, database);
+            return Expression.Controls[_name].f(_args, roots, rootValueTypes, defaultRootName, database);
         };
 
         that.isPath = false;
@@ -429,7 +431,7 @@
         return that;
     };
 
-    MITHGrid.Expression.Path = function(property, forward) {
+    Expression.Path = function(property, forward) {
         var that = {},
         _rootName = null,
         _segments = [];
@@ -511,18 +513,18 @@
                         });
                         valueType = "item";
                     }
-                    collection = MITHGrid.Expression.Collection(a, valueType);
+                    collection = Expression.Collection(a, valueType);
                 }
                 else {
                     if (segment.forward) {
                         values = database.getObjectsUnion(collection.getSet(), segment.property);
                         property = database.getProperty(segment.property);
                         valueType = property !== null ? property.getValueType() : "text";
-                        collection = MITHGrid.Expression.Collection(values, valueType);
+                        collection = Expression.Collection(values, valueType);
                     }
                     else {
                         values = database.getSubjectsUnion(collection.getSet(), segment.property);
-                        collection = MITHGrid.Expression.Collection(values, "item");
+                        collection = Expression.Collection(values, "item");
                     }
                 }
             }
@@ -539,7 +541,7 @@
             values;
 
             if (filter instanceof Array) {
-                filter = MITHGrid.Set(filter);
+                filter = MITHGrid.Data.Set(filter);
             }
             for (i = _segments.length - 1; i >= 0; i--) {
                 segment = _segments[i];
@@ -567,18 +569,18 @@
                         });
                         valueType = "item";
                     }
-                    collection = MITHGrid.Expression.Collection(a, valueType);
+                    collection = Expression.Collection(a, valueType);
                 }
                 else {
                     if (segment.forward) {
                         values = database.getSubjectsUnion(collection.getSet(), segment.property, null, i === 0 ? filter: null);
-                        collection = MITHGrid.Expression.Collection(values, "item");
+                        collection = Expression.Collection(values, "item");
                     }
                     else {
                         values = database.getObjectsUnion(collection.getSet(), segment.property, null, i === 0 ? filter: null);
                         property = database.getProperty(segment.property);
                         valueType = property !== null ? property.getValueType() : "text";
-                        collection = MITHGrid.Expression.Collection(values, valueType);
+                        collection = Expression.Collection(values, valueType);
                     }
                 }
             }
@@ -592,7 +594,7 @@
         filter,
         database
         ) {
-            var set = MITHGrid.Set(),
+            var set = MITHGrid.Data.Set(),
             valueType = "item",
             segment,
             i;
@@ -642,10 +644,10 @@
                 root = roots[rootName];
 
                 if (root.isSet || root instanceof Array) {
-                    collection = MITHGrid.Expression.Collection(root, valueType);
+                    collection = Expression.Collection(root, valueType);
                 }
                 else {
-                    collection = MITHGrid.Expression.Collection([root], valueType);
+                    collection = Expression.Collection([root], valueType);
                 }
 
                 return walkForward(collection, database);
@@ -670,7 +672,7 @@
         filter,
         database
         ) {
-            var collection = MITHGrid.Expression.Collection([value], valueType);
+            var collection = Expression.Collection([value], valueType);
             return walkBackward(collection, filter, database);
         };
 
@@ -679,7 +681,7 @@
         valueType,
         database
         ) {
-            return walkForward(MITHGrid.Expression.Collection(values, valueType), database);
+            return walkForward(Expression.Collection(values, valueType), database);
         };
 
         that.walkBackward = function(
@@ -688,13 +690,13 @@
         filter,
         database
         ) {
-            return walkBackward(MITHGrid.Expression.Collection(values, valueType), filter, database);
+            return walkBackward(Expression.Collection(values, valueType), filter, database);
         };
 
         return that;
     };
 
-    MITHGrid.ExpressionParser = function() {
+    Expression.Parser = function() {
         var that = {};
 
         var internalParse = function(scanner, several) {
@@ -703,7 +705,7 @@
             expressions,
             r,
             n,
-            Scanner = MITHGrid.ExpressionScanner,
+            Scanner = Expression.Scanner,
             next = function() {
                 scanner.next();
                 token = scanner.token();
@@ -713,7 +715,7 @@
             };
 
             var parsePath = function() {
-                var path = MITHGrid.Expression.Path(),
+                var path = Expression.Path(),
                 hopOperator;
                 while (token !== null && token.type == Scanner.PATH_OPERATOR) {
                     hopOperator = token.value;
@@ -740,11 +742,11 @@
 
                 switch (token.type) {
                 case Scanner.NUMBER:
-                    result = MITHGrid.Expression.Constant(token.value, "number");
+                    result = Expression.Constant(token.value, "number");
                     next();
                     break;
                 case Scanner.STRING:
-                    result = MITHGrid.Expression.Constant(token.value, "text");
+                    result = Expression.Constant(token.value, "text");
                     next();
                     break;
                 case Scanner.PATH_OPERATOR:
@@ -754,13 +756,13 @@
                     identifier = token.value;
                     next();
 
-                    if (identifier in MITHGrid.Controls) {
+                    if (identifier in Expression.Controls) {
                         if (token !== null && token.type == Scanner.DELIMITER && token.value == "(") {
                             next();
 
                             args = (token !== null && token.type == Scanner.DELIMITER && token.value == ")") ?
                             [] : parseExpressionList();
-                            result = MITHGrid.Expression.ControlCall(identifier, args);
+                            result = Expression.ControlCall(identifier, args);
 
                             if (token !== null && token.type == Scanner.DELIMITER && token.value == ")") {
                                 next();
@@ -779,7 +781,7 @@
 
                             args = (token !== null && token.type == Scanner.DELIMITER && token.value == ")") ?
                             [] : parseExpressionList();
-                            result = MITHGrid.Expression.FunctionCall(identifier, args);
+                            result = Expression.FunctionCall(identifier, args);
 
                             if (token !== null && token.type == Scanner.DELIMITER && token.value == ")") {
                                 next();
@@ -827,7 +829,7 @@
                     operator = token.value;
                     next();
 
-                    term = MITHGrid.Expression.Operator(operator, [term, parseFactor()]);
+                    term = Expression.Operator(operator, [term, parseFactor()]);
                 }
                 return term;
             };
@@ -841,7 +843,7 @@
                     operator = token.value;
                     next();
 
-                    subExpression = MITHGrid.Expression.Operator(operator, [subExpression, parseTerm()]);
+                    subExpression = Expression.Operator(operator, [subExpression, parseTerm()]);
                 }
                 return subExpression;
             };
@@ -858,7 +860,7 @@
                     operator = token.value;
                     next();
 
-                    expression = MITHGrid.Expression.Operator(operator, [expression, parseSubExpression]);
+                    expression = Expression.Operator(operator, [expression, parseSubExpression]);
                 }
                 return expression;
             };
@@ -876,12 +878,12 @@
                 roots = parseExpressionList();
                 expressions = [];
                 for (r = 0, n = roots.length; r < n; r++) {
-                    expressions.push(MITHGrid.Expression(roots[r]));
+                    expressions.push(Expression.Expression(roots[r]));
                 }
                 return expressions;
             }
             else {
-                return MITHGrid.Expression(parseExpression());
+                return Expression.Expression(parseExpression());
             }
         };
 
@@ -891,7 +893,7 @@
             startIndex = startIndex || 0;
             results = results || {};
 
-            scanner = MITHGrid.ExpressionScanner(s, startIndex);
+            scanner = Expression.Scanner(s, startIndex);
             try {
                 return internalParse(scanner, false);
             }
@@ -903,7 +905,7 @@
         return that;
     };
 
-    MITHGrid.ExpressionScanner = function(text, startIndex) {
+    Expression.Scanner = function(text, startIndex) {
         var that = {},
         _text = text + " ",
         _maxIndex = text.length,
@@ -942,7 +944,7 @@
                 if (".!".indexOf(c1) >= 0) {
                     if (c2 == "@") {
                         _token = {
-                            type: MITHGrid.ExpressionScanner.PATH_OPERATOR,
+                            type: Expression.Scanner.PATH_OPERATOR,
                             value: c1 + c2,
                             start: _index,
                             end: _index + 2
@@ -951,7 +953,7 @@
                     }
                     else {
                         _token = {
-                            type: MITHGrid.ExpressionScanner.PATH_OPERATOR,
+                            type: Expression.Scanner.PATH_OPERATOR,
                             value: c1,
                             start: _index,
                             end: _index + 1
@@ -962,7 +964,7 @@
                 else if ("<>".indexOf(c1) >= 0) {
                     if ((c2 == "=") || ("<>".indexOf(c2) >= 0 && c1 != c2)) {
                         _token = {
-                            type: MITHGrid.ExpressionScanner.OPERATOR,
+                            type: Expression.Scanner.OPERATOR,
                             value: c1 + c2,
                             start: _index,
                             end: _index + 2
@@ -971,7 +973,7 @@
                     }
                     else {
                         _token = {
-                            type: MITHGrid.ExpressionScanner.OPERATOR,
+                            type: Expression.Scanner.OPERATOR,
                             value: c1,
                             start: _index,
                             end: _index + 1
@@ -981,7 +983,7 @@
                 }
                 else if ("+-*/=".indexOf(c1) >= 0) {
                     _token = {
-                        type: MITHGrid.ExpressionScanner.OPERATOR,
+                        type: Expression.Scanner.OPERATOR,
                         value: c1,
                         start: _index,
                         end: _index + 1
@@ -990,7 +992,7 @@
                 }
                 else if ("()".indexOf(c1) >= 0) {
                     _token = {
-                        type: MITHGrid.ExpressionScanner.DELIMITER,
+                        type: Expression.Scanner.DELIMITER,
                         value: c1,
                         start: _index,
                         end: _index + 1
@@ -1009,7 +1011,7 @@
 
                     if (i < _maxIndex) {
                         _token = {
-                            type: MITHGrid.ExpressionScanner.STRING,
+                            type: Expression.Scanner.STRING,
                             value: _text.substring(_index + 1, i).replace(/\\'/g, "'").replace(/\\"/g, '"'),
                             start: _index,
                             end: i + 1
@@ -1035,7 +1037,7 @@
                     }
 
                     _token = {
-                        type: MITHGrid.ExpressionScanner.NUMBER,
+                        type: Expression.Scanner.NUMBER,
                         value: parseFloat(_text.substring(_index, i)),
                         start: _index,
                         end: i
@@ -1058,7 +1060,7 @@
                     }
 
                     _token = {
-                        type: MITHGrid.ExpressionScanner.IDENTIFIER,
+                        type: Expression.Scanner.IDENTIFIER,
                         value: _text.substring(_index, i),
                         start: _index,
                         end: i
@@ -1073,11 +1075,11 @@
         return that;
     };
 
-    MITHGrid.ExpressionScanner.DELIMITER = 0;
-    MITHGrid.ExpressionScanner.NUMBER = 1;
-    MITHGrid.ExpressionScanner.STRING = 2;
-    MITHGrid.ExpressionScanner.IDENTIFIER = 3;
-    MITHGrid.ExpressionScanner.OPERATOR = 4;
-    MITHGrid.ExpressionScanner.PATH_OPERATOR = 5;
+    Expression.Scanner.DELIMITER = 0;
+    Expression.Scanner.NUMBER = 1;
+    Expression.Scanner.STRING = 2;
+    Expression.Scanner.IDENTIFIER = 3;
+    Expression.Scanner.OPERATOR = 4;
+    Expression.Scanner.PATH_OPERATOR = 5;
 
 })(jQuery, MITHGrid);

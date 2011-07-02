@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Sat Jul 2 16:49:46 2011 -0400
+ * Date: Sat Jul 2 17:39:41 2011 -0400 Sat Jul 2 17:34:52 2011 -0400 Sat Jul 2 17:33:27 2011 -0400 Sat Jul 2 17:26:07 2011 -0400 Sat Jul 2 16:49:46 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -54,12 +54,13 @@ var MITHGrid = MITHGrid || {};
     }
 
     var genericNamespacer = function(base, nom) {
-        if (typeof(base[nom]) == "undefined") {
-            base[nom] = {};
-            base[nom].namespace = function(nom2) {
-                return genericNamespacer(base[nom], nom2);
-            };
-            base[nom].debug = MITHGrid.debug;
+        if (base[nom] === undefined) {
+            base[nom] = {
+				namespace: function(nom2) {
+					return genericNamespacer(base[nom], nom2);
+				},
+				debug: MITHGrid.debug
+			};
         }
         return base[nom];
     };
@@ -68,7 +69,10 @@ var MITHGrid = MITHGrid || {};
         return genericNamespacer(MITHGrid, nom);
     };
 
-    MITHGrid.Set = function(values) {
+	MITHGrid.namespace('Data');
+	var Data = MITHGrid.Data;
+
+    Data.Set = function(values) {
         var that = {},
         items = {},
         count = 0,
@@ -136,7 +140,7 @@ var MITHGrid = MITHGrid || {};
         return that;
     };
 
-    MITHGrid.Type = function(t) {
+    Data.Type = function(t) {
         var that = {};
 
         that.name = t;
@@ -145,7 +149,7 @@ var MITHGrid = MITHGrid || {};
         return that;
     };
 
-    MITHGrid.Property = function(p) {
+    Data.Property = function(p) {
         var that = {};
 
         that.name = p;
@@ -159,16 +163,16 @@ var MITHGrid = MITHGrid || {};
 
     var sources = {};
 
-    MITHGrid.DataSource = function(options) {
+    Data.Source = function(options) {
         var that,
         prop,
         quiesc_events = false,
-        set = MITHGrid.Set();
+        set = Data.Set();
 
         if (typeof(sources[options.source]) != "undefined") {
             return sources[options.source];
         }
-        that = fluid.initView("MITHGrid.DataSource", $(window), options);
+        that = fluid.initView("MITHGrid.Data.Source", $(window), options);
         sources[options.source] = that;
 
         that.source = options.source;
@@ -180,13 +184,13 @@ var MITHGrid = MITHGrid || {};
         that.items = set.items;
 
         that.addProperty = function(nom, options) {
-            var prop = MITHGrid.Property(nom);
+            var prop = Data.Property(nom);
             prop.valueType = options.valueType;
             that.properties[nom] = prop;
         };
 
         that.addType = function(nom, options) {
-            var type = MITHGrid.Type(nom);
+            var type = Data.Type(nom);
             that.types[nom] = type;
         };
 
@@ -587,7 +591,7 @@ var MITHGrid = MITHGrid || {};
         that.prepare = function(expressions) {
             return $.map(expressions,
             function(ex) {
-                return MITHGrid.ExpressionParser().parse(ex);
+                return MITHGrid.Expression.Parser().parse(ex);
             });
         };
 
@@ -629,7 +633,7 @@ var MITHGrid = MITHGrid || {};
 
         var getUnion = function(index, xSet, y, set, filter) {
             if (!set) {
-                set = MITHGrid.Set();
+                set = Data.Set();
             }
 
             xSet.visit(function(x) {
@@ -652,15 +656,15 @@ var MITHGrid = MITHGrid || {};
 
     var views = {};
 
-    MITHGrid.DataView = function(options) {
+    Data.View = function(options) {
         var that,
-        set = MITHGrid.Set();
+        set = Data.Set();
 
         if (typeof(views[options.label]) != "undefined") {
             return views[options.label];
         }
 
-        that = fluid.initView("MITHGrid.DataView", $(window), options);
+        that = fluid.initView("MITHGrid.Data.View", $(window), options);
 
         that.registerFilter = function(ob) {
             that.events.onFilterItem.addListener(function(x, y) {
@@ -692,7 +696,7 @@ var MITHGrid = MITHGrid || {};
             chunk_size,
             f;
 
-            set = MITHGrid.Set();
+            set = Data.Set();
 
             that.items = set.items;
             that.size = set.size;
@@ -747,7 +751,7 @@ var MITHGrid = MITHGrid || {};
 
         that.eventFilterChange = that.eventModelChange;
 
-        that.dataSource = MITHGrid.DataSource({
+        that.dataSource = Data.Source({
             source: options.source
         });
 
@@ -761,7 +765,9 @@ var MITHGrid = MITHGrid || {};
         return that;
     };
 
-    MITHGrid.Controls = {
+	var Expression = MITHGrid.namespace("Expression");
+	
+    Expression.Controls = {
         "if": {
             f: function(args, roots, rootValueTypes, defaultRootName, database) {
                 var conditionCollection = args[0].evaluate(roots, rootValueTypes, defaultRootName, database),
@@ -805,7 +811,7 @@ var MITHGrid = MITHGrid || {};
                 roots.value = oldValue;
                 rootValueTypes.value = oldValueType;
 
-                return MITHGrid.Expression.Collection(results, valueType);
+                return Expression.Collection(results, valueType);
             }
         },
         "default": {
@@ -819,12 +825,12 @@ var MITHGrid = MITHGrid || {};
                         return collection;
                     }
                 }
-                return MITHGrid.Expression.Collection([], "text");
+                return Expression.Collection([], "text");
             }
         }
     };
 
-    MITHGrid.Expression = function(rootNode) {
+    Expression.Expression = function(rootNode) {
         var that = {};
 
         that.evaluate = function(
@@ -931,7 +937,7 @@ var MITHGrid = MITHGrid || {};
         return that;
     };
 
-    MITHGrid.Expression.Collection = function(values, valueType) {
+    Expression.Collection = function(values, valueType) {
         var that = {
             valueType: valueType
         };
@@ -951,7 +957,7 @@ var MITHGrid = MITHGrid || {};
             };
 
             that.getSet = function() {
-                return MITHGrid.Set(values);
+                return MITHGrid.Data.Set(values);
             };
 
             that.contains = function(v) {
@@ -995,7 +1001,7 @@ var MITHGrid = MITHGrid || {};
         return that;
     };
 
-    MITHGrid.Expression.Constant = function(value, valueType) {
+    Expression.Constant = function(value, valueType) {
         var that = {};
 
         that.evaluate = function(
@@ -1004,7 +1010,7 @@ var MITHGrid = MITHGrid || {};
         defaultRootName,
         database
         ) {
-            return MITHGrid.Expression.Collection([value], valueType);
+            return Expression.Collection([value], valueType);
         };
 
         that.isPath = false;
@@ -1085,7 +1091,7 @@ var MITHGrid = MITHGrid || {};
         }
     };
 
-    MITHGrid.Expression.Operator = function(operator, args) {
+    Expression.Operator = function(operator, args) {
         var that = {},
         _operator = operator,
         _args = args;
@@ -1132,7 +1138,7 @@ var MITHGrid = MITHGrid || {};
                 });
             }
 
-            return MITHGrid.Expression.Collection(values, operator.valueType);
+            return Expression.Collection(values, operator.valueType);
         };
 
         that.isPath = false;
@@ -1140,7 +1146,7 @@ var MITHGrid = MITHGrid || {};
         return that;
     };
 
-    MITHGrid.Expression.FunctionCall = function(name, args) {
+    Expression.FunctionCall = function(name, args) {
         var that = {},
         _name = name,
         _args = args;
@@ -1159,8 +1165,8 @@ var MITHGrid = MITHGrid || {};
                 args.push(_args[i].evaluate(roots, rootValueTypes, defaultRootName, database));
             }
 
-            if (_name in MITHGrid.Functions) {
-                return MITHGrid.Functions[_name].f(args);
+            if (_name in Expression.Functions) {
+                return Expression.Functions[_name].f(args);
             }
             else {
                 throw new Error("No such function named " + _name);
@@ -1172,7 +1178,7 @@ var MITHGrid = MITHGrid || {};
         return that;
     };
 
-    MITHGrid.Expression.ControlCall = function(name, args) {
+    Expression.ControlCall = function(name, args) {
         var that = {},
         _name = name,
         _args = args;
@@ -1183,7 +1189,7 @@ var MITHGrid = MITHGrid || {};
         defaultRootName,
         database
         ) {
-            return MITHGrid.Controls[_name].f(_args, roots, rootValueTypes, defaultRootName, database);
+            return Expression.Controls[_name].f(_args, roots, rootValueTypes, defaultRootName, database);
         };
 
         that.isPath = false;
@@ -1191,7 +1197,7 @@ var MITHGrid = MITHGrid || {};
         return that;
     };
 
-    MITHGrid.Expression.Path = function(property, forward) {
+    Expression.Path = function(property, forward) {
         var that = {},
         _rootName = null,
         _segments = [];
@@ -1273,18 +1279,18 @@ var MITHGrid = MITHGrid || {};
                         });
                         valueType = "item";
                     }
-                    collection = MITHGrid.Expression.Collection(a, valueType);
+                    collection = Expression.Collection(a, valueType);
                 }
                 else {
                     if (segment.forward) {
                         values = database.getObjectsUnion(collection.getSet(), segment.property);
                         property = database.getProperty(segment.property);
                         valueType = property !== null ? property.getValueType() : "text";
-                        collection = MITHGrid.Expression.Collection(values, valueType);
+                        collection = Expression.Collection(values, valueType);
                     }
                     else {
                         values = database.getSubjectsUnion(collection.getSet(), segment.property);
-                        collection = MITHGrid.Expression.Collection(values, "item");
+                        collection = Expression.Collection(values, "item");
                     }
                 }
             }
@@ -1301,7 +1307,7 @@ var MITHGrid = MITHGrid || {};
             values;
 
             if (filter instanceof Array) {
-                filter = MITHGrid.Set(filter);
+                filter = MITHGrid.Data.Set(filter);
             }
             for (i = _segments.length - 1; i >= 0; i--) {
                 segment = _segments[i];
@@ -1329,18 +1335,18 @@ var MITHGrid = MITHGrid || {};
                         });
                         valueType = "item";
                     }
-                    collection = MITHGrid.Expression.Collection(a, valueType);
+                    collection = Expression.Collection(a, valueType);
                 }
                 else {
                     if (segment.forward) {
                         values = database.getSubjectsUnion(collection.getSet(), segment.property, null, i === 0 ? filter: null);
-                        collection = MITHGrid.Expression.Collection(values, "item");
+                        collection = Expression.Collection(values, "item");
                     }
                     else {
                         values = database.getObjectsUnion(collection.getSet(), segment.property, null, i === 0 ? filter: null);
                         property = database.getProperty(segment.property);
                         valueType = property !== null ? property.getValueType() : "text";
-                        collection = MITHGrid.Expression.Collection(values, valueType);
+                        collection = Expression.Collection(values, valueType);
                     }
                 }
             }
@@ -1354,7 +1360,7 @@ var MITHGrid = MITHGrid || {};
         filter,
         database
         ) {
-            var set = MITHGrid.Set(),
+            var set = MITHGrid.Data.Set(),
             valueType = "item",
             segment,
             i;
@@ -1404,10 +1410,10 @@ var MITHGrid = MITHGrid || {};
                 root = roots[rootName];
 
                 if (root.isSet || root instanceof Array) {
-                    collection = MITHGrid.Expression.Collection(root, valueType);
+                    collection = Expression.Collection(root, valueType);
                 }
                 else {
-                    collection = MITHGrid.Expression.Collection([root], valueType);
+                    collection = Expression.Collection([root], valueType);
                 }
 
                 return walkForward(collection, database);
@@ -1432,7 +1438,7 @@ var MITHGrid = MITHGrid || {};
         filter,
         database
         ) {
-            var collection = MITHGrid.Expression.Collection([value], valueType);
+            var collection = Expression.Collection([value], valueType);
             return walkBackward(collection, filter, database);
         };
 
@@ -1441,7 +1447,7 @@ var MITHGrid = MITHGrid || {};
         valueType,
         database
         ) {
-            return walkForward(MITHGrid.Expression.Collection(values, valueType), database);
+            return walkForward(Expression.Collection(values, valueType), database);
         };
 
         that.walkBackward = function(
@@ -1450,13 +1456,13 @@ var MITHGrid = MITHGrid || {};
         filter,
         database
         ) {
-            return walkBackward(MITHGrid.Expression.Collection(values, valueType), filter, database);
+            return walkBackward(Expression.Collection(values, valueType), filter, database);
         };
 
         return that;
     };
 
-    MITHGrid.ExpressionParser = function() {
+    Expression.Parser = function() {
         var that = {};
 
         var internalParse = function(scanner, several) {
@@ -1465,7 +1471,7 @@ var MITHGrid = MITHGrid || {};
             expressions,
             r,
             n,
-            Scanner = MITHGrid.ExpressionScanner,
+            Scanner = Expression.Scanner,
             next = function() {
                 scanner.next();
                 token = scanner.token();
@@ -1475,7 +1481,7 @@ var MITHGrid = MITHGrid || {};
             };
 
             var parsePath = function() {
-                var path = MITHGrid.Expression.Path(),
+                var path = Expression.Path(),
                 hopOperator;
                 while (token !== null && token.type == Scanner.PATH_OPERATOR) {
                     hopOperator = token.value;
@@ -1502,11 +1508,11 @@ var MITHGrid = MITHGrid || {};
 
                 switch (token.type) {
                 case Scanner.NUMBER:
-                    result = MITHGrid.Expression.Constant(token.value, "number");
+                    result = Expression.Constant(token.value, "number");
                     next();
                     break;
                 case Scanner.STRING:
-                    result = MITHGrid.Expression.Constant(token.value, "text");
+                    result = Expression.Constant(token.value, "text");
                     next();
                     break;
                 case Scanner.PATH_OPERATOR:
@@ -1516,13 +1522,13 @@ var MITHGrid = MITHGrid || {};
                     identifier = token.value;
                     next();
 
-                    if (identifier in MITHGrid.Controls) {
+                    if (identifier in Expression.Controls) {
                         if (token !== null && token.type == Scanner.DELIMITER && token.value == "(") {
                             next();
 
                             args = (token !== null && token.type == Scanner.DELIMITER && token.value == ")") ?
                             [] : parseExpressionList();
-                            result = MITHGrid.Expression.ControlCall(identifier, args);
+                            result = Expression.ControlCall(identifier, args);
 
                             if (token !== null && token.type == Scanner.DELIMITER && token.value == ")") {
                                 next();
@@ -1541,7 +1547,7 @@ var MITHGrid = MITHGrid || {};
 
                             args = (token !== null && token.type == Scanner.DELIMITER && token.value == ")") ?
                             [] : parseExpressionList();
-                            result = MITHGrid.Expression.FunctionCall(identifier, args);
+                            result = Expression.FunctionCall(identifier, args);
 
                             if (token !== null && token.type == Scanner.DELIMITER && token.value == ")") {
                                 next();
@@ -1589,7 +1595,7 @@ var MITHGrid = MITHGrid || {};
                     operator = token.value;
                     next();
 
-                    term = MITHGrid.Expression.Operator(operator, [term, parseFactor()]);
+                    term = Expression.Operator(operator, [term, parseFactor()]);
                 }
                 return term;
             };
@@ -1603,7 +1609,7 @@ var MITHGrid = MITHGrid || {};
                     operator = token.value;
                     next();
 
-                    subExpression = MITHGrid.Expression.Operator(operator, [subExpression, parseTerm()]);
+                    subExpression = Expression.Operator(operator, [subExpression, parseTerm()]);
                 }
                 return subExpression;
             };
@@ -1620,7 +1626,7 @@ var MITHGrid = MITHGrid || {};
                     operator = token.value;
                     next();
 
-                    expression = MITHGrid.Expression.Operator(operator, [expression, parseSubExpression]);
+                    expression = Expression.Operator(operator, [expression, parseSubExpression]);
                 }
                 return expression;
             };
@@ -1638,12 +1644,12 @@ var MITHGrid = MITHGrid || {};
                 roots = parseExpressionList();
                 expressions = [];
                 for (r = 0, n = roots.length; r < n; r++) {
-                    expressions.push(MITHGrid.Expression(roots[r]));
+                    expressions.push(Expression.Expression(roots[r]));
                 }
                 return expressions;
             }
             else {
-                return MITHGrid.Expression(parseExpression());
+                return Expression.Expression(parseExpression());
             }
         };
 
@@ -1653,7 +1659,7 @@ var MITHGrid = MITHGrid || {};
             startIndex = startIndex || 0;
             results = results || {};
 
-            scanner = MITHGrid.ExpressionScanner(s, startIndex);
+            scanner = Expression.Scanner(s, startIndex);
             try {
                 return internalParse(scanner, false);
             }
@@ -1665,7 +1671,7 @@ var MITHGrid = MITHGrid || {};
         return that;
     };
 
-    MITHGrid.ExpressionScanner = function(text, startIndex) {
+    Expression.Scanner = function(text, startIndex) {
         var that = {},
         _text = text + " ",
         _maxIndex = text.length,
@@ -1704,7 +1710,7 @@ var MITHGrid = MITHGrid || {};
                 if (".!".indexOf(c1) >= 0) {
                     if (c2 == "@") {
                         _token = {
-                            type: MITHGrid.ExpressionScanner.PATH_OPERATOR,
+                            type: Expression.Scanner.PATH_OPERATOR,
                             value: c1 + c2,
                             start: _index,
                             end: _index + 2
@@ -1713,7 +1719,7 @@ var MITHGrid = MITHGrid || {};
                     }
                     else {
                         _token = {
-                            type: MITHGrid.ExpressionScanner.PATH_OPERATOR,
+                            type: Expression.Scanner.PATH_OPERATOR,
                             value: c1,
                             start: _index,
                             end: _index + 1
@@ -1724,7 +1730,7 @@ var MITHGrid = MITHGrid || {};
                 else if ("<>".indexOf(c1) >= 0) {
                     if ((c2 == "=") || ("<>".indexOf(c2) >= 0 && c1 != c2)) {
                         _token = {
-                            type: MITHGrid.ExpressionScanner.OPERATOR,
+                            type: Expression.Scanner.OPERATOR,
                             value: c1 + c2,
                             start: _index,
                             end: _index + 2
@@ -1733,7 +1739,7 @@ var MITHGrid = MITHGrid || {};
                     }
                     else {
                         _token = {
-                            type: MITHGrid.ExpressionScanner.OPERATOR,
+                            type: Expression.Scanner.OPERATOR,
                             value: c1,
                             start: _index,
                             end: _index + 1
@@ -1743,7 +1749,7 @@ var MITHGrid = MITHGrid || {};
                 }
                 else if ("+-*/=".indexOf(c1) >= 0) {
                     _token = {
-                        type: MITHGrid.ExpressionScanner.OPERATOR,
+                        type: Expression.Scanner.OPERATOR,
                         value: c1,
                         start: _index,
                         end: _index + 1
@@ -1752,7 +1758,7 @@ var MITHGrid = MITHGrid || {};
                 }
                 else if ("()".indexOf(c1) >= 0) {
                     _token = {
-                        type: MITHGrid.ExpressionScanner.DELIMITER,
+                        type: Expression.Scanner.DELIMITER,
                         value: c1,
                         start: _index,
                         end: _index + 1
@@ -1771,7 +1777,7 @@ var MITHGrid = MITHGrid || {};
 
                     if (i < _maxIndex) {
                         _token = {
-                            type: MITHGrid.ExpressionScanner.STRING,
+                            type: Expression.Scanner.STRING,
                             value: _text.substring(_index + 1, i).replace(/\\'/g, "'").replace(/\\"/g, '"'),
                             start: _index,
                             end: i + 1
@@ -1797,7 +1803,7 @@ var MITHGrid = MITHGrid || {};
                     }
 
                     _token = {
-                        type: MITHGrid.ExpressionScanner.NUMBER,
+                        type: Expression.Scanner.NUMBER,
                         value: parseFloat(_text.substring(_index, i)),
                         start: _index,
                         end: i
@@ -1820,7 +1826,7 @@ var MITHGrid = MITHGrid || {};
                     }
 
                     _token = {
-                        type: MITHGrid.ExpressionScanner.IDENTIFIER,
+                        type: Expression.Scanner.IDENTIFIER,
                         value: _text.substring(_index, i),
                         start: _index,
                         end: i
@@ -1835,12 +1841,12 @@ var MITHGrid = MITHGrid || {};
         return that;
     };
 
-    MITHGrid.ExpressionScanner.DELIMITER = 0;
-    MITHGrid.ExpressionScanner.NUMBER = 1;
-    MITHGrid.ExpressionScanner.STRING = 2;
-    MITHGrid.ExpressionScanner.IDENTIFIER = 3;
-    MITHGrid.ExpressionScanner.OPERATOR = 4;
-    MITHGrid.ExpressionScanner.PATH_OPERATOR = 5;
+    Expression.Scanner.DELIMITER = 0;
+    Expression.Scanner.NUMBER = 1;
+    Expression.Scanner.STRING = 2;
+    Expression.Scanner.IDENTIFIER = 3;
+    Expression.Scanner.OPERATOR = 4;
+    Expression.Scanner.PATH_OPERATOR = 5;
 
 
 
@@ -1952,7 +1958,7 @@ var MITHGrid = MITHGrid || {};
         if ('dataSources' in options) {
             $.each(options.dataSources,
             function(idx, config) {
-                var store = MITHGrid.DataSource({
+                var store = MITHGrid.Data.Source({
                     source: config.label
                 });
                 that.dataSource[config.label] = store;
@@ -1984,7 +1990,7 @@ var MITHGrid = MITHGrid || {};
         if ('dataViews' in options) {
             $.each(options.dataViews,
             function(idx, config) {
-                var view = MITHGrid.DataView({
+                var view = MITHGrid.Data.View({
                     source: config.dataSource,
                     label: config.label
                 });
@@ -2023,7 +2029,7 @@ var MITHGrid = MITHGrid || {};
 
 })(jQuery, MITHGrid);
 
-fluid.defaults("MITHGrid.DataSource", {
+fluid.defaults("MITHGrid.Data.Source", {
     events: {
         onModelChange: null,
         onBeforeLoading: null,
@@ -2033,7 +2039,7 @@ fluid.defaults("MITHGrid.DataSource", {
     }
 });
 
-fluid.defaults("MITHGrid.DataView", {
+fluid.defaults("MITHGrid.Data.View", {
     events: {
         onModelChange: null,
         onFilterItem: "preventable"

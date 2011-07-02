@@ -12,12 +12,13 @@
     }
 
     var genericNamespacer = function(base, nom) {
-        if (typeof(base[nom]) == "undefined") {
-            base[nom] = {};
-            base[nom].namespace = function(nom2) {
-                return genericNamespacer(base[nom], nom2);
-            };
-            base[nom].debug = MITHGrid.debug;
+        if (base[nom] === undefined) {
+            base[nom] = {
+				namespace: function(nom2) {
+					return genericNamespacer(base[nom], nom2);
+				},
+				debug: MITHGrid.debug
+			};
         }
         return base[nom];
     };

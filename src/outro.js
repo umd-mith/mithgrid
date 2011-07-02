@@ -1,6 +1,6 @@
 })(jQuery, MITHGrid);
 
-fluid.defaults("MITHGrid.DataSource", {
+fluid.defaults("MITHGrid.Data.Source", {
     events: {
         onModelChange: null,
         onBeforeLoading: null,
@@ -10,7 +10,7 @@ fluid.defaults("MITHGrid.DataSource", {
     }
 });
 
-fluid.defaults("MITHGrid.DataView", {
+fluid.defaults("MITHGrid.Data.View", {
     events: {
         onModelChange: null,
         onFilterItem: "preventable"

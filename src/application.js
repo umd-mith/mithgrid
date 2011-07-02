@@ -16,7 +16,7 @@
         if ('dataSources' in options) {
             $.each(options.dataSources,
             function(idx, config) {
-                var store = MITHGrid.DataSource({
+                var store = MITHGrid.Data.Source({
                     source: config.label
                 });
                 that.dataSource[config.label] = store;
@@ -48,7 +48,7 @@
         if ('dataViews' in options) {
             $.each(options.dataViews,
             function(idx, config) {
-                var view = MITHGrid.DataView({
+                var view = MITHGrid.Data.View({
                     source: config.dataSource,
                     label: config.label
                 });
