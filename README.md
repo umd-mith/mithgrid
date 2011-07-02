@@ -40,4 +40,4 @@ To remove all built files, run `make clean`.
 How to test MITHGrid
 --------------------
 
-Once you have built MITHGrid, you can browse to the `text/` subdirectory and view the `index.html` file.  This file loads the minified version of MITHGrid by default.
+Once you have built MITHGrid, you can browse to the `test/` subdirectory and view the `index.html` file.  This file loads the minified version of MITHGrid by default.
