@@ -1,0 +1,22 @@
+html, body {
+	background-color: #cccccc;
+	padding: 0px;
+	margin: 0px;
+	overflow: hidden;
+}
+#edit-canvas {
+	border: 2px solid #ccccd0;
+	background-color: #ffffff;
+    margin: 0px;
+	padding: 0px;
+	position: absolute;
+	top: 40px;
+}
+
+#header{
+	margin-bottom: 0px;
+	height: 42px;
+	position: absolute;
+	top: -20px;
+	left: 0px;
+}
