@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: @DATE
+ * Date: Sat Jul 2 16:49:46 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *

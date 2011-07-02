@@ -27,7 +27,7 @@ MG_MIN = ${DIST_DIR}/mithgrid.min.js
 MG_VER = $(shell cat version.txt)
 VER = sed "s/@VERSION/${MG_VER}/"
 
-DATE=$(shell git log -l --pretty=format:%ad)
+DATE=$(shell git log --pretty=format:%ad)
 
 all: core
 
@@ -44,9 +44,9 @@ ${MG}: ${MODULES} | ${DIST_DIR}
 		
 		@@cat ${BASE_FILES} | \
 			sed 's/.function....MITHGrid..{//' | \
-			sed 's/}..jQuery..MITHGrid.;//' | \
-			sed 's/@DATE/'"${DATE}"'/' > ${MG}.tmp;
+			sed 's/}..jQuery..MITHGrid.;//' > ${MG}.tmp;
 		@@cat ${SRC_DIR}/intro.js ${MG}.tmp ${SRC_DIR}/outro.js | \
+			sed 's/@DATE/'"${DATE}"'/' | \
 			${VER} > ${MG};
 		@@rm -f ${MG}.tmp;
 
