@@ -78,11 +78,26 @@ $(document).ready(function() {
 	module("Data.Source");
 	
 	test("Check data source construction", function() {
-		var ds;
+		var ds, ds2;
 		
-		expect(2);
+		expect(5);
 		ok( MITHGrid.Data.Source !== undefined, "Data.Source exists" );
 		ok( $.isFunction(MITHGrid.Data.Source), "Data.Source is a function" );
+		
+		ds = MITHGrid.Data.Source({
+			source: "test"
+		});
+		equals( "object", typeof ds, "Source constructor returns an object" );
+		
+		ds2 = MITHGrid.Data.Source({
+			source: "test"
+		});
+		equals( ds.id, ds2.id, "Source constructor returns the same object for the same source name" );
+		
+		ds2 = MITHGrid.Data.Source({
+			source: "test2"
+		});
+		notEqual( ds2.id, ds.id, "Source constructor returns different objects for different source names" );
 	});
 	
 	module("Data.View");

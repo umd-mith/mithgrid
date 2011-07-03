@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Sat Jul 2 19:45:11 2011 -0400 Sat Jul 2 19:44:40 2011 -0400 Sat Jul 2 19:37:56 2011 -0400 Sat Jul 2 17:39:41 2011 -0400 Sat Jul 2 17:34:52 2011 -0400 Sat Jul 2 17:33:27 2011 -0400 Sat Jul 2 17:26:07 2011 -0400 Sat Jul 2 16:49:46 2011 -0400
+ * Date: Sun Jul 3 09:30:40 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -43,9 +43,7 @@ var MITHGrid = MITHGrid || {};
 
 
     if (window.console !== undefined && window.console.log !== undefined) {
-        MITHGrid.debug = function() {
-	        //console.log.call(arguments);
-    
+        MITHGrid.debug = function() {    
             console.log(Array.prototype.slice.call(arguments));
         };
     }
@@ -771,6 +769,8 @@ var MITHGrid = MITHGrid || {};
         that.updateItems = that.dataSource.updateItems;
         that.prepare = that.dataSource.prepare;
         that.evaluate = that.dataSource.evaluate;
+		that.addType = that.dataSource.addType;
+		that.addProperty = that.dataSource.addProperty;
         that.dataSource.events.onModelChange.addListener(that.eventModelChange);
 
         return that;
@@ -1968,12 +1968,12 @@ var MITHGrid = MITHGrid || {};
             dataView: {}
         };
 
-		var onReady = [ ];
-		
-		that.ready = function(fn) {
-			onReady.push(fn);
-		};
-		
+        var onReady = [];
+
+        that.ready = function(fn) {
+            onReady.push(fn);
+        };
+
 
         if ('dataSources' in options) {
             $.each(options.dataSources,
@@ -2037,15 +2037,122 @@ var MITHGrid = MITHGrid || {};
             });
         }
 
-		$(document).ready(function() {
-			$.each(onReady, function(idx, fn) {
-				fn();
-			});
-			that.ready = function(fn) { setTimeout(fn, 0); };
-		});
+        if ('plugins' in options) {
+            that.ready(function() {
+                $.each(options.plugins,
+                function(idx, pconfig) {
+                    var plugin = pconfig.type(pconfig);
+                    if (plugin !== undefined) {
+						if('dataView' in pconfig) {
+							// hook plugin up with dataView requested by app configuration
+							plugin.dataView = that.dataView[pconfig.dataView];
+							// add 
+							$.each(plugin.types(), function(idx, t) {
+								plugin.dataView.addType(t);
+							});
+							$.each(plugin.properties(), function(idx, p) {
+								plugin.dataView.addProperty(p.label, p);
+							});
+						}
+						$.each(plugin.presentations(),
+						function(idx, config) {
+							var options = $.extend(true, {},
+								config.options);
+							var container = $(config.container);
+							if ($.isArray(container)) {
+								container = container[0];
+							}
+							if("dataView" in config) {
+								options.source = that.dataView[config.dataView];
+							}
+							else if("dataView" in pconfig) {
+								options.source = that.dataView[pconfig.dataView];
+							}
+							
+							var presentation = config.type(container, options);
+							plugin.presentation[config.label] = presentation;
+							presentation.selfRender();
+						});
+					}
+                });
+            });
+        }
+
+        $(document).ready(function() {
+            $.each(onReady,
+            function(idx, fn) {
+                fn();
+            });
+            that.ready = function(fn) {
+                setTimeout(fn, 0);
+            };
+        });
 
         return that;
     };
+
+
+	MITHGrid.namespace("Plugin");	
+	/*
+	 * This is the base of a plugin, which can package together various things that augment
+	 * an application.
+	 *
+     *
+     *  MITHGrid.Plugin.MyPlugin = function(options) {
+     *    var that = MITHGrid.Plugin.initPlugin('MyPlugin', options, { ... })
+     *  };
+     *
+     *  var myApp = MITHGrid.Application({
+     *    plugins: [ { name: 'MyPlugin', ... } ]
+     *  });
+	 */
+		
+	MITHGrid.Plugin.initPlugin = function(klass, options) {
+		var that = { options: options, presentation: { } }, readyFns = [ ];
+		
+		that.types = function() {
+			if('types' in options) {
+				return options.types;
+			}
+			else {
+				return [ ];
+			}
+		};
+		
+		that.properties = function() {
+			if('properties' in options) {
+				return options.properties;
+			}
+			else {
+				return [ ];
+			}
+		};
+		
+		that.presentations = function() {
+			if('presentations' in options) {
+				return options.presentations;
+			}
+			else {
+				return [ ];
+			}
+		};
+		
+		that.ready = function(fn) {
+			readyFns.push(fn);
+		};
+		
+		that.eventReady = function(app) {
+			$.each(readyFns, function(idx, fn) {
+				fn(app);
+			});
+			that.ready = function(fn) {
+				fn(app);
+			};
+		};
+		
+		return that;
+	};
+	
 
 })(jQuery, MITHGrid);
 

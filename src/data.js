@@ -701,6 +701,8 @@
         that.updateItems = that.dataSource.updateItems;
         that.prepare = that.dataSource.prepare;
         that.evaluate = that.dataSource.evaluate;
+		that.addType = that.dataSource.addType;
+		that.addProperty = that.dataSource.addProperty;
         that.dataSource.events.onModelChange.addListener(that.eventModelChange);
 
         return that;

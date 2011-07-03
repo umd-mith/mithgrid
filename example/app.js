@@ -1,66 +1,33 @@
 (function($, MITHGrid) {
-    // app won't have presentations populated until the document is ready
     var app = MITHGrid.Application({
         dataSources: [{
-            label: 'internal',
-            types: [{
-                label: 'Application'
-            },
-            {
-                label: 'View'
-            },
-            {
-                label: 'Transition'
-            }],
-            properties: [{
-                label: 'view',
-                valueType: 'item'
-            },
-            {
-                label: 'transition-from',
-                valueType: 'item'
-            },
-            {
-                label: 'transition-to',
-                valueType: 'item'
-            },
-            {
-                label: 'transition',
-                valueType: 'item'
-            },
-            {
-                label: 'initialization-action',
-                valueType: 'item'
-            },
-            {
-                label: 'position-x',
-                valueType: 'numeric'
-            },
-            {
-                label: 'position-y',
-                valueType: 'numeric'
-            }]
-        }],
-        dataViews: [{
+            label: 'internal'
+		}],
+		dataViews: [{
             label: 'internal',
             dataSource: 'internal'
         }],
-        presentations: [{
-            type: MITHGrid.Presentation.Flow,
-            container: '#edit-canvas',
-            label: 'sheet',
-            dataView: 'internal',
-            options: {
-                margins: {
-                    right: 0,
-                    left: 0,
-                    top: function() {
-                        return $('#header').outerHeight()
-                    },
-                    bottom: 0
-                }
-            }
-        }]
+		plugins: [{
+			type: MITHGrid.Plugin.StateMachineEditor,
+			dataView: 'internal',
+			types: {
+				StateMachine: 'Application',
+				State: 'View',
+				Transition: 'Transition'
+			},
+			properties: {
+				state: 'view'
+			},
+			container: '#edit-canvas',
+			margins: {
+				right: 0,
+				left: 0,
+				top: function() {
+					return $('#header').outerHeight()
+				},
+				bottom: 0
+			}
+		}]
     });
 
     app.ready(function() {

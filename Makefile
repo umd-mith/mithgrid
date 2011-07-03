@@ -15,7 +15,8 @@ BASE_FILES = ${SRC_DIR}/core.js \
 			${SRC_DIR}/data.js \
 			${SRC_DIR}/expression.js \
 			${SRC_DIR}/presentation.js \
-			${SRC_DIR}/application.js
+			${SRC_DIR}/application.js \
+			${SRC_DIR}/plugin.js
 
 MODULES = ${SRC_DIR}/intro.js \
 		${BASE_FILES} \
@@ -27,7 +28,7 @@ MG_MIN = ${DIST_DIR}/mithgrid.min.js
 MG_VER = $(shell cat version.txt)
 VER = sed "s/@VERSION/${MG_VER}/"
 
-DATE=$(shell git log --pretty=format:%ad)
+DATE=$(shell git log --pretty=format:%ad | head -1)
 
 all: core
 
