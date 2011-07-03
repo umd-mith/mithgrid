@@ -489,28 +489,37 @@
             a,
             valueType,
             property,
-            values;
+            values,
+			forwardArraySegmentFn = function(segment) {
+				var a = [];
+				collection.forEachValue(function(v) {
+					database.getObjects(v, segment.property).visit(function(v2) {
+						a.push(v2);
+					});
+				});
+				return a;
+			},
+			backwardArraySegmentFn = function(segment) {
+				var a = [];
+				collection.forEachValue(function(v) {
+					database.getSubjects(v, segment.property).visit(function(v2) {
+						a.push(v2);
+					});
+				});
+				return a;
+			};
 
             for (i = 0, n = _segments.length; i < n; i++) {
                 segment = _segments[i];
                 if (segment.isArray) {
                     a = [];
                     if (segment.forward) {
-                        collection.forEachValue(function(v) {
-                            database.getObjects(v, segment.property).visit(function(v2) {
-                                a.push(v2);
-                            });
-                        });
-
+						a = forwardArraySegmentFn(segment);
                         property = database.getProperty(segment.property);
                         valueType = property !== null ? property.getValueType() : "text";
                     }
                     else {
-                        collection.forEachValue(function(v) {
-                            database.getSubjects(v, segment.property).visit(function(v2) {
-                                a.push(v2);
-                            });
-                        });
+						a = backwardArraySegmentFn(segment);
                         valueType = "item";
                     }
                     collection = Expression.Collection(a, valueType);

@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Sat Jul 2 17:39:41 2011 -0400 Sat Jul 2 17:34:52 2011 -0400 Sat Jul 2 17:33:27 2011 -0400 Sat Jul 2 17:26:07 2011 -0400 Sat Jul 2 16:49:46 2011 -0400
+ * Date: Sat Jul 2 19:45:11 2011 -0400 Sat Jul 2 19:44:40 2011 -0400 Sat Jul 2 19:37:56 2011 -0400 Sat Jul 2 17:39:41 2011 -0400 Sat Jul 2 17:34:52 2011 -0400 Sat Jul 2 17:33:27 2011 -0400 Sat Jul 2 17:26:07 2011 -0400 Sat Jul 2 16:49:46 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -372,6 +372,32 @@ var MITHGrid = MITHGrid || {};
 
                 old_item = that.getItem(id);
 
+				var itemListIdentical = function(to, from) {
+				    var items_same = true;
+				    if (to.length != from.length) {
+				        return false;
+				    }
+				    $.each(to,
+				    function(idx, i) {
+				        if (i != from[idx]) {
+				            items_same = false;
+				        }
+				    });
+				    return items_same;
+				};
+				
+				var removeValues = function(id, p, list) {
+					$.each(list, function(idx, o) {
+						indexRemoveFn(id, p, o);
+					});
+				};
+				
+				var putValues = function(id, p, list) {
+					$.each(list, function(idx, o) {
+						indexPutFn(id, p, o);
+					});
+				};
+
                 for (var p in entry) {
                     if (typeof(p) != "string" || p == "id" || p == "type") {
                         continue;
@@ -383,36 +409,21 @@ var MITHGrid = MITHGrid || {};
                         items = [items];
                     }
                     var s = items.length;
-                    if ((p in old_item) && s == old_item[p].length) {
-                        var items_same = true;
-                        $.each(items,
-                        function(idx, i) {
-                            if (i != old_item[p][idx]) {
-                                items_same = false;
-                            }
-                        });
-                        if (items_same) {
-                            continue;
-                        }
-                    }
-                    changed = true;
                     if (p in old_item) {
-                        $.each(old_item[p],
-                        function(idx, o) {
-                            indexRemoveFn(id, p, o);
-                        });
+						if(itemListIdentical(items, old_item[p])) {
+							continue;
+						}
+						changed = true;
+						removeValues(id, p, old_item[p]);
                     }
-                    $.each(items,
-                    function(idx, o) {
-                        indexPutFn(id, p, o);
-                    });
+					putValues(id, p, items);
                 }
                 return changed;
             };
 
             that.events.onBeforeUpdating.fire(that);
 
-            try {
+ //           try {
                 n = items.length;
                 chunk_size = parseInt(n / 100, 10);
                 if (chunk_size > 200) {
@@ -431,7 +442,7 @@ var MITHGrid = MITHGrid || {};
                         end = n;
                     }
 
-                    try {
+//                    try {
                         for (i = start; i < end; i += 1) {
                             entry = items[i];
                             if (typeof(entry) == "object") {
@@ -440,10 +451,10 @@ var MITHGrid = MITHGrid || {};
                                 }
                             }
                         }
-                    }
-                    catch(e) {
-                        MITHGrid.debug("loadData failed: ", e);
-                    }
+//                    }
+//                    catch(e) {
+ //                       MITHGrid.debug("loadData failed: ", e);
+   //                 }
 
                     if (end < n) {
                         setTimeout(function() {
@@ -463,10 +474,10 @@ var MITHGrid = MITHGrid || {};
                     }
                 };
                 f(0);
-            }
-            catch(e) {
-                MITHGrid.debug("updateItems failed:", e);
-            }
+//            }
+//            catch(e) {
+//                MITHGrid.debug("updateItems failed:", e);
+//            }
         };
 
 
@@ -1255,28 +1266,37 @@ var MITHGrid = MITHGrid || {};
             a,
             valueType,
             property,
-            values;
+            values,
+			forwardArraySegmentFn = function(segment) {
+				var a = [];
+				collection.forEachValue(function(v) {
+					database.getObjects(v, segment.property).visit(function(v2) {
+						a.push(v2);
+					});
+				});
+				return a;
+			},
+			backwardArraySegmentFn = function(segment) {
+				var a = [];
+				collection.forEachValue(function(v) {
+					database.getSubjects(v, segment.property).visit(function(v2) {
+						a.push(v2);
+					});
+				});
+				return a;
+			};
 
             for (i = 0, n = _segments.length; i < n; i++) {
                 segment = _segments[i];
                 if (segment.isArray) {
                     a = [];
                     if (segment.forward) {
-                        collection.forEachValue(function(v) {
-                            database.getObjects(v, segment.property).visit(function(v2) {
-                                a.push(v2);
-                            });
-                        });
-
+						a = forwardArraySegmentFn(segment);
                         property = database.getProperty(segment.property);
                         valueType = property !== null ? property.getValueType() : "text";
                     }
                     else {
-                        collection.forEachValue(function(v) {
-                            database.getSubjects(v, segment.property).visit(function(v2) {
-                                a.push(v2);
-                            });
-                        });
+						a = backwardArraySegmentFn(segment);
                         valueType = "item";
                     }
                     collection = Expression.Collection(a, valueType);
