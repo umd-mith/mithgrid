@@ -1,5 +1,77 @@
 (function($, MITHGrid) {
-	var Expression = MITHGrid.namespace("Expression");
+	var Expression = MITHGrid.namespace("Expression"),
+	_operators = {
+        "+": {
+            argumentType: "number",
+            valueType: "number",
+            f: function(a, b) {
+                return a + b;
+            }
+        },
+        "-": {
+            argumentType: "number",
+            valueType: "number",
+            f: function(a, b) {
+                return a - b;
+            }
+        },
+        "*": {
+            argumentType: "number",
+            valueType: "number",
+            f: function(a, b) {
+                return a * b;
+            }
+        },
+        "/": {
+            argumentType: "number",
+            valueType: "number",
+            f: function(a, b) {
+                return a / b;
+            }
+        },
+        "=": {
+            valueType: "boolean",
+            f: function(a, b) {
+                return a === b;
+            }
+        },
+        "<>": {
+            valueType: "boolean",
+            f: function(a, b) {
+                return a !== b;
+            }
+        },
+        "><": {
+            valueType: "boolean",
+            f: function(a, b) {
+                return a !== b;
+            }
+        },
+        "<": {
+            valueType: "boolean",
+            f: function(a, b) {
+                return a < b;
+            }
+        },
+        ">": {
+            valueType: "boolean",
+            f: function(a, b) {
+                return a > b;
+            }
+        },
+        "<=": {
+            valueType: "boolean",
+            f: function(a, b) {
+                return a <= b;
+            }
+        },
+        ">=": {
+            valueType: "boolean",
+            f: function(a, b) {
+                return a >= b;
+            }
+        }
+    };
 	
     Expression.Controls = {
         "if": {
@@ -53,7 +125,7 @@
                 var i,
                 n,
                 collection;
-                for (i = 0, n = args.length; i < n; i++) {
+                for (i = 0, n = args.length; i < n; i += 1) {
                     collection = args[i].evaluate(roots, rootValueTypes, defaultRootName, database);
                     if (collection.size() > 0) {
                         return collection;
@@ -77,7 +149,7 @@
             return {
                 values: collection.getSet(),
                 valueType: collection.valueType,
-                size: collection.size()
+                size: collection.size //()
             };
         };
 
@@ -183,7 +255,7 @@
                 i,
                 n;
 
-                for (i = 0, n = a.length; i < n; i++) {
+                for (i = 0, n = a.length; i < n; i += 1) {
                     if (f(a[i]) === true) {
                         break;
                     }
@@ -199,8 +271,8 @@
                 i,
                 n;
 
-                for (i = 0, n = a.length; i < n; i++) {
-                    if (a[i] == v) {
+                for (i = 0, n = a.length; i < n; i += 1) {
+                    if (a[i] === v) {
                         return true;
                     }
                 }
@@ -252,79 +324,6 @@
         return that;
     };
 
-    var _operators = {
-        "+": {
-            argumentType: "number",
-            valueType: "number",
-            f: function(a, b) {
-                return a + b;
-            }
-        },
-        "-": {
-            argumentType: "number",
-            valueType: "number",
-            f: function(a, b) {
-                return a - b;
-            }
-        },
-        "*": {
-            argumentType: "number",
-            valueType: "number",
-            f: function(a, b) {
-                return a * b;
-            }
-        },
-        "/": {
-            argumentType: "number",
-            valueType: "number",
-            f: function(a, b) {
-                return a / b;
-            }
-        },
-        "=": {
-            valueType: "boolean",
-            f: function(a, b) {
-                return a == b;
-            }
-        },
-        "<>": {
-            valueType: "boolean",
-            f: function(a, b) {
-                return a != b;
-            }
-        },
-        "><": {
-            valueType: "boolean",
-            f: function(a, b) {
-                return a != b;
-            }
-        },
-        "<": {
-            valueType: "boolean",
-            f: function(a, b) {
-                return a < b;
-            }
-        },
-        ">": {
-            valueType: "boolean",
-            f: function(a, b) {
-                return a > b;
-            }
-        },
-        "<=": {
-            valueType: "boolean",
-            f: function(a, b) {
-                return a <= b;
-            }
-        },
-        ">=": {
-            valueType: "boolean",
-            f: function(a, b) {
-                return a >= b;
-            }
-        }
-    };
-
     Expression.Operator = function(operator, args) {
         var that = {},
         _operator = operator,
@@ -343,20 +342,20 @@
             operator,
             f;
 
-            for (i = 0, n = _args.length; i < n; i++) {
+            for (i = 0, n = _args.length; i < n; i += 1) {
                 args.push(_args[i].evaluate(roots, rootValueTypes, defaultRootName, database));
             }
 
             operator = _operators[_operator];
             f = operator.f;
-            if (operator.argumentType == "number") {
+            if (operator.argumentType === "number") {
                 args[0].forEachValue(function(v1) {
-                    if (typeof(v1) != "number") {
+                    if (typeof(v1) !== "number") {
                         v1 = parseFloat(v1);
                     }
 
                     args[1].forEachValue(function(v2) {
-                        if (typeof(v2) != "number") {
+                        if (typeof(v2) !== "number") {
                             v2 = parseFloat(v2);
                         }
 
@@ -395,11 +394,11 @@
             i,
             n;
 
-            for (i = 0, n = _args.length; i < n; i++) {
+            for (i = 0, n = _args.length; i < n; i += 1) {
                 args.push(_args[i].evaluate(roots, rootValueTypes, defaultRootName, database));
             }
 
-            if (_name in Expression.Functions) {
+            if (Expression.Functions[_name] !== undefined) {
                 return Expression.Functions[_name].f(args);
             }
             else {
@@ -436,7 +435,7 @@
         _rootName = null,
         _segments = [];
 
-        if (typeof(property) != "undefined") {
+        if (property !== undefined) {
             _segments.push({
                 property: property,
                 forward: forward,
@@ -453,7 +452,7 @@
         that.appendSegment = function(property, hopOperator) {
             _segments.push({
                 property: property,
-                forward: hopOperator.charAt(0) == ".",
+                forward: hopOperator.charAt(0) === ".",
                 isArray: hopOperator.length > 1
             });
         };
@@ -509,7 +508,7 @@
 				return a;
 			};
 
-            for (i = 0, n = _segments.length; i < n; i++) {
+            for (i = 0, n = _segments.length; i < n; i += 1) {
                 segment = _segments[i];
                 if (segment.isArray) {
                     a = [];
@@ -552,7 +551,7 @@
             if (filter instanceof Array) {
                 filter = MITHGrid.Data.Set(filter);
             }
-            for (i = _segments.length - 1; i >= 0; i--) {
+            for (i = _segments.length - 1; i >= 0; i -= 1) {
                 segment = _segments[i];
                 if (segment.isArray) {
                     a = [];
@@ -611,13 +610,13 @@
             if (_segments.length > 0) {
                 segment = _segments[_segments.length - 1];
                 if (segment.forward) {
-                    database.getSubjectsInRange(segment.property, from, to, false, set, _segments.length == 1 ? filter: null);
+                    database.getSubjectsInRange(segment.property, from, to, false, set, _segments.length === 1 ? filter: null);
                 }
                 else {
                     throw new Error("Last path of segment must be forward");
                 }
 
-                for (i = _segments.length - 2; i >= 0; i--) {
+                for (i = _segments.length - 2; i >= 0; i -= 1) {
                     segment = _segments[i];
                     if (segment.forward) {
                         set = database.getSubjectsUnion(set, segment.property, null, i === 0 ? filter: null);
@@ -726,11 +725,11 @@
             var parsePath = function() {
                 var path = Expression.Path(),
                 hopOperator;
-                while (token !== null && token.type == Scanner.PATH_OPERATOR) {
+                while (token !== null && token.type === Scanner.PATH_OPERATOR) {
                     hopOperator = token.value;
                     next();
 
-                    if (token !== null && token.type == Scanner.IDENTIFIER) {
+                    if (token !== null && token.type === Scanner.IDENTIFIER) {
                         path.appendSegment(token.value, hopOperator);
                         next();
                     }
@@ -766,14 +765,14 @@
                     next();
 
                     if (identifier in Expression.Controls) {
-                        if (token !== null && token.type == Scanner.DELIMITER && token.value == "(") {
+                        if (token !== null && token.type === Scanner.DELIMITER && token.value === "(") {
                             next();
 
-                            args = (token !== null && token.type == Scanner.DELIMITER && token.value == ")") ?
+                            args = (token !== null && token.type === Scanner.DELIMITER && token.value === ")") ?
                             [] : parseExpressionList();
                             result = Expression.ControlCall(identifier, args);
 
-                            if (token !== null && token.type == Scanner.DELIMITER && token.value == ")") {
+                            if (token !== null && token.type === Scanner.DELIMITER && token.value === ")") {
                                 next();
                             }
                             else {
@@ -785,14 +784,14 @@
                         }
                     }
                     else {
-                        if (token !== null && token.type == Scanner.DELIMITER && token.value == "(") {
+                        if (token !== null && token.type === Scanner.DELIMITER && token.value === "(") {
                             next();
 
-                            args = (token !== null && token.type == Scanner.DELIMITER && token.value == ")") ?
+                            args = (token !== null && token.type === Scanner.DELIMITER && token.value === ")") ?
                             [] : parseExpressionList();
                             result = Expression.FunctionCall(identifier, args);
 
-                            if (token !== null && token.type == Scanner.DELIMITER && token.value == ")") {
+                            if (token !== null && token.type === Scanner.DELIMITER && token.value === ")") {
                                 next();
                             }
                             else {
@@ -806,11 +805,11 @@
                     }
                     break;
                 case Scanner.DELIMITER:
-                    if (token.value == "(") {
+                    if (token.value === "(") {
                         next();
 
                         result = parseExpression();
-                        if (token !== null && token.type == Scanner.DELIMITER && token.value == ")") {
+                        if (token !== null && token.type === Scanner.DELIMITER && token.value === ")") {
                             next();
                             break;
                         }
@@ -833,8 +832,8 @@
                 var term = parseFactor(),
                 operator;
 
-                while (token !== null && token.type == Scanner.OPERATOR &&
-                (token.value == "*" || token.value == "/")) {
+                while (token !== null && token.type === Scanner.OPERATOR &&
+                (token.value === "*" || token.value === "/")) {
                     operator = token.value;
                     next();
 
@@ -847,8 +846,8 @@
                 var subExpression = parseTerm(),
                 operator;
 
-                while (token !== null && token.type == Scanner.OPERATOR &&
-                (token.value == "+" || token.value == "-")) {
+                while (token !== null && token.type === Scanner.OPERATOR &&
+                (token.value === "+" || token.value === "-")) {
                     operator = token.value;
                     next();
 
@@ -861,10 +860,10 @@
                 var expression = parseSubExpression(),
                 operator;
 
-                while (token !== null && token.type == Scanner.OPERATOR &&
-                (token.value == "=" || token.value == "<>" ||
-                token.value == "<" || token.value == "<=" ||
-                token.value == ">" || token.value == ">=")) {
+                while (token !== null && token.type === Scanner.OPERATOR &&
+                (token.value === "=" || token.value === "<>" ||
+                token.value === "<" || token.value === "<=" ||
+                token.value === ">" || token.value === ">=")) {
 
                     operator = token.value;
                     next();
@@ -876,7 +875,7 @@
 
             var parseExpressionList = function() {
                 var expressions = [parseExpression()];
-                while (token !== null && token.type == Scanner.DELIMITER && token.value == ",") {
+                while (token !== null && token.type === Scanner.DELIMITER && token.value === ",") {
                     next();
                     expressions.push(parseExpression());
                 }
@@ -886,7 +885,7 @@
             if (several) {
                 roots = parseExpressionList();
                 expressions = [];
-                for (r = 0, n = roots.length; r < n; r++) {
+                for (r = 0, n = roots.length; r < n; r += 1) {
                     expressions.push(Expression.Expression(roots[r]));
                 }
                 return expressions;
@@ -943,7 +942,7 @@
 
             while (_index < _maxIndex &&
             " \t\r\n".indexOf(_text.charAt(_index)) >= 0) {
-                _index++;
+                _index += 1;
             }
 
             if (_index < _maxIndex) {
@@ -1038,7 +1037,7 @@
                         i += 1;
                     }
 
-                    if (i < _maxIndex && _text.charAt(i) == ".") {
+                    if (i < _maxIndex && _text.charAt(i) === ".") {
                         i += 1;
                         while (i < _maxIndex && isDigit(_text.charAt(i))) {
                             i += 1;
@@ -1091,4 +1090,4 @@
     Expression.Scanner.OPERATOR = 4;
     Expression.Scanner.PATH_OPERATOR = 5;
 
-})(jQuery, MITHGrid);
+}(jQuery, MITHGrid));

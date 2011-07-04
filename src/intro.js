@@ -38,5 +38,5 @@
  */
 
 var MITHGrid = MITHGrid || {};
-
-(function($, MITHGrid) {
+var fluid = fluid || {};
+var jQuery = jQuery || {};

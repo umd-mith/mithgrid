@@ -1,6 +1,5 @@
 (function($, MITHGrid) {
-
-    if (window.console !== undefined && window.console.log !== undefined) {
+	if (window.console !== undefined && window.console.log !== undefined) {
         MITHGrid.debug = function() {    
             console.log(Array.prototype.slice.call(arguments));
         };
@@ -24,4 +23,4 @@
     MITHGrid.namespace = function(nom) {
         return genericNamespacer(MITHGrid, nom);
     };
-})(jQuery, MITHGrid);
+}(jQuery, MITHGrid));

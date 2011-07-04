@@ -89,4 +89,4 @@
 		that.options.source.registerView(that);
 		return that;
 	};
-})(jQuery, MITHGrid);
+}(jQuery, MITHGrid));

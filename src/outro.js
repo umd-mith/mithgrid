@@ -1,5 +1,3 @@
-})(jQuery, MITHGrid);
-
 fluid.defaults("MITHGrid.Data.Source", {
     events: {
         onModelChange: null,

@@ -60,4 +60,4 @@
 		return that;
 	};
 	
-})(jQuery, MITHGrid);
+}(jQuery, MITHGrid));

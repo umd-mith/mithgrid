@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Sun Jul 3 09:30:40 2011 -0400
+ * Date: Sun Jul 3 19:34:57 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -38,11 +38,10 @@
  */
 
 var MITHGrid = MITHGrid || {};
-
+var fluid = fluid || {};
+var jQuery = jQuery || {};
 (function($, MITHGrid) {
-
-
-    if (window.console !== undefined && window.console.log !== undefined) {
+	if (window.console !== undefined && window.console.log !== undefined) {
         MITHGrid.debug = function() {    
             console.log(Array.prototype.slice.call(arguments));
         };
@@ -66,10 +65,11 @@ var MITHGrid = MITHGrid || {};
     MITHGrid.namespace = function(nom) {
         return genericNamespacer(MITHGrid, nom);
     };
-
-	MITHGrid.namespace('Data');
-	var Data = MITHGrid.Data;
-
+}(jQuery, MITHGrid));(function($, MITHGrid) {
+	var Data = MITHGrid.namespace('Data'),
+	sources = { },
+	views = { };
+	
     Data.Set = function(values) {
         var that = {},
         items = {},
@@ -80,10 +80,11 @@ var MITHGrid = MITHGrid || {};
         that.isSet = true;
 
         that.items = function() {
+			var i;
             if (recalc_items) {
                 items_list = [];
-                for (var i in items) {
-                    if (typeof(i) == "string" && items[i] === true) {
+                for (i in items) {
+                    if (typeof(i) === "string" && items[i] === true) {
                         items_list.push(i);
                     }
                 }
@@ -92,7 +93,7 @@ var MITHGrid = MITHGrid || {};
         };
 
         that.add = function(item) {
-            if (! (item in items)) {
+            if (items[item] === undefined) {
                 items[item] = true;
                 recalc_items = true;
                 count += 1;
@@ -100,7 +101,7 @@ var MITHGrid = MITHGrid || {};
         };
 
         that.remove = function(item) {
-            if (item in items) {
+            if (items[item] !== undefined) {
                 delete items[item];
                 recalc_items = true;
                 count -= 1;
@@ -117,7 +118,7 @@ var MITHGrid = MITHGrid || {};
         };
 
         that.contains = function(o) {
-            return (o in items);
+            return (items[o] !== undefined);
         };
 
         that.size = function() {
@@ -159,15 +160,83 @@ var MITHGrid = MITHGrid || {};
         return that;
     };
 
-    var sources = {};
-
     Data.Source = function(options) {
         var that,
         prop,
         quiesc_events = false,
-        set = Data.Set();
+        set = Data.Set(),
+		indexPut = function(index, x, y, z) {
+            var hash = index[x],
+            array,
+            counts,
+            i,
+            n;
 
-        if (typeof(sources[options.source]) != "undefined") {
+            if (!hash) {
+                hash = {
+                    values: {},
+                    counts: {}
+                };
+                index[x] = hash;
+            }
+
+            array = hash.values[y];
+            counts = hash.counts[y];
+
+            if (!array) {
+                array = [];
+                hash.values[y] = array;
+            }
+            if (!counts) {
+                counts = {};
+                hash.counts[y] = counts;
+            }
+            else {
+                if ($.inArray(z, array) !== -1) {
+                    counts[z] += 1;
+                    return;
+                }
+            }
+            array.push(z);
+            counts[z] = 1;
+        },
+		indexFillSet = function(index, x, y, set, filter) {
+            var hash = index[x],
+            array,
+            i,
+            n,
+            z;
+            if (hash) {
+                array = hash.values[y];
+                if (array) {
+                    if (filter) {
+                        for (i = 0, n = array.length; i < n; i += 1) {
+                            z = array[i];
+                            if (filter.contains(z)) {
+                                set.add(z);
+                            }
+                        }
+                    }
+                    else {
+                        for (i = 0, n = array.length; i < n; i += 1) {
+                            set.add(array[i]);
+                        }
+                    }
+                }
+            }
+        },
+		getUnion = function(index, xSet, y, set, filter) {
+            if (!set) {
+                set = Data.Set();
+            }
+
+            xSet.visit(function(x) {
+                indexFillSet(index, x, y, set, filter);
+            });
+            return set;
+        };
+
+        if (sources[options.source] !== undefined) {
             return sources[options.source];
         }
         that = fluid.initView("MITHGrid.Data.Source", $(window), options);
@@ -227,7 +296,7 @@ var MITHGrid = MITHGrid || {};
 
 
         that.getItem = function(id) {
-            if (id in that.spo) {
+            if (that.spo[id] !== undefined) { //id in that.spo) {
                 return that.spo[id].values;
             }
             return {};
@@ -254,42 +323,6 @@ var MITHGrid = MITHGrid || {};
             });
         };
 
-        var indexPut = function(index, x, y, z) {
-            var hash = index[x],
-            array,
-            counts,
-            i,
-            n;
-
-            if (!hash) {
-                hash = {
-                    values: {},
-                    counts: {}
-                };
-                index[x] = hash;
-            }
-
-            array = hash.values[y];
-            counts = hash.counts[y];
-
-            if (!array) {
-                array = [];
-                hash.values[y] = array;
-            }
-            if (!counts) {
-                counts = {};
-                hash.counts[y] = counts;
-            }
-            else {
-                if ($.inArray(z, array) != -1) {
-                    counts[z] += 1;
-                    return;
-                }
-            }
-            array.push(z);
-            counts[z] = 1;
-        };
-
         that.updateItems = function(items) {
             var spo,
             ops,
@@ -298,9 +331,8 @@ var MITHGrid = MITHGrid || {};
             chunk_size,
             f,
             id_list = [],
-            entry;
-
-            var indexRemove = function(index, x, y, z) {
+            entry,
+			indexRemove = function(index, x, y, z) {
                 var hash = index[x],
                 array,
                 counts,
@@ -335,7 +367,7 @@ var MITHGrid = MITHGrid || {};
                     if (i === 0) {
                         array = array.slice(1);
                     }
-                    else if (i == array.length - 1) {
+                    else if (i === array.length - 1) {
                         array = array.slice(0, i - 1);
                     }
                     else {
@@ -343,71 +375,68 @@ var MITHGrid = MITHGrid || {};
                     }
                     hash.values[y] = array;
                 }
-            };
-
-            var indexPutFn = function(s, p, o) {
+            },
+			indexPutFn = function(s, p, o) {
                 indexPut(that.spo, s, p, o);
                 indexPut(that.ops, o, p, s);
-            };
-
-            var indexRemoveFn = function(s, p, o) {
+            },
+            indexRemoveFn = function(s, p, o) {
                 indexRemove(that.spo, s, p, o);
                 indexRemove(that.ops, o, p, s);
-            };
-
-            var updateItem = function(entry, indexPutFn, indexRemoveFn) {
+            },
+            updateItem = function(entry, indexPutFn, indexRemoveFn) {
                 // we only update things that are different from the old_item
                 // we also only update properties that are in the new item
                 // if anything is changed, we return true
                 //   otherwise, we return false
                 var old_item,
-                id = item.id,
-                type = item.type,
-                changed = false;
-
-                if ($.isArray(id)) { id = id[0]; }
-                if ($.isArray(type)) { type = type[0]; }
-
-                old_item = that.getItem(id);
-
-				var itemListIdentical = function(to, from) {
+				p,
+				items,
+				s,
+                id = entry.id,
+                type = entry.type,
+                changed = false,
+				itemListIdentical = function(to, from) {
 				    var items_same = true;
-				    if (to.length != from.length) {
+				    if (to.length !== from.length) {
 				        return false;
 				    }
 				    $.each(to,
 				    function(idx, i) {
-				        if (i != from[idx]) {
+				        if (i !== from[idx]) {
 				            items_same = false;
 				        }
 				    });
 				    return items_same;
-				};
-				
-				var removeValues = function(id, p, list) {
+				},
+				removeValues = function(id, p, list) {
 					$.each(list, function(idx, o) {
 						indexRemoveFn(id, p, o);
 					});
-				};
-				
-				var putValues = function(id, p, list) {
+				},
+				putValues = function(id, p, list) {
 					$.each(list, function(idx, o) {
 						indexPutFn(id, p, o);
 					});
 				};
+				
+				if ($.isArray(id)) { id = id[0]; }
+                if ($.isArray(type)) { type = type[0]; }
 
-                for (var p in entry) {
-                    if (typeof(p) != "string" || p == "id" || p == "type") {
+                old_item = that.getItem(id);
+
+                for (p in entry) {
+                    if (typeof(p) !== "string" || p === "id" || p === "type") {
                         continue;
                     }
                     // if entry[p] and old_item[p] have the same members in the same order, then
                     // we do nothing
-                    var items = entry[p];
+                    items = entry[p];
                     if (!$.isArray(items)) {
                         items = [items];
                     }
-                    var s = items.length;
-                    if (p in old_item) {
+                    s = items.length;
+                    if (old_item[p] !== undefined) {
 						if(itemListIdentical(items, old_item[p])) {
 							continue;
 						}
@@ -421,7 +450,7 @@ var MITHGrid = MITHGrid || {};
 
             that.events.onBeforeUpdating.fire(that);
 
- //           try {
+            try {
                 n = items.length;
                 chunk_size = parseInt(n / 100, 10);
                 if (chunk_size > 200) {
@@ -440,19 +469,19 @@ var MITHGrid = MITHGrid || {};
                         end = n;
                     }
 
-//                    try {
+                    try {
                         for (i = start; i < end; i += 1) {
                             entry = items[i];
-                            if (typeof(entry) == "object") {
+                            if (typeof(entry) === "object") {
                                 if (updateItem(entry, indexPutFn, indexRemoveFn)) {
                                     id_list.push(entry.id);
                                 }
                             }
                         }
-//                    }
-//                    catch(e) {
- //                       MITHGrid.debug("loadData failed: ", e);
-   //                 }
+                    }
+                    catch(e) {
+                        MITHGrid.debug("loadData failed: ", e);
+                    }
 
                     if (end < n) {
                         setTimeout(function() {
@@ -472,12 +501,11 @@ var MITHGrid = MITHGrid || {};
                     }
                 };
                 f(0);
-//            }
-//            catch(e) {
-//                MITHGrid.debug("updateItems failed:", e);
-//            }
+            }
+            catch(e) {
+                MITHGrid.debug("updateItems failed:", e);
+            }
         };
-
 
         that.loadItems = function(items) {
             var spo,
@@ -485,26 +513,26 @@ var MITHGrid = MITHGrid || {};
             indexTriple,
             entry,
             n,
+			chunk_size,
             id_list = [],
-            f;
-
-            var indexFn = function(s, p, o) {
+            f,
+			indexFn = function(s, p, o) {
                 indexPut(that.spo, s, p, o);
                 indexPut(that.ops, o, p, s);
-            };
-
-            var loadItem = function(item, indexFN) {
+            },
+            loadItem = function(item, indexFN) {
                 var id,
                 type,
                 p,
                 i,
+				v,
                 n;
 
-                if (! ("id" in item)) {
+                if (item.id === undefined) {
                     MITHGrid.debug("Item entry has no id: ", item);
                     return;
                 }
-                if (! ("type" in item)) {
+                if (item.type === undefined) {
                     MITHGrid.debug("Item entry has no type: ", item);
                     return;
                 }
@@ -522,11 +550,11 @@ var MITHGrid = MITHGrid || {};
                 indexFn(id, "id", id);
 
                 for (p in item) {
-                    if (typeof(p) != "string") {
+                    if (typeof(p) !== "string") {
                         continue;
                     }
 
-                    if (p != "id" && p != "type") {
+                    if (p !== "id" && p !== "type") {
                         v = item[p];
                         if ($.isArray(v)) {
                             for (i = 0, n = v.length; i < n; i += 1) {
@@ -564,7 +592,7 @@ var MITHGrid = MITHGrid || {};
                     try {
                         for (i = start; i < end; i += 1) {
                             entry = items[i];
-                            if (typeof(entry) == "object") {
+                            if (typeof(entry) === "object") {
                                 loadItem(entry);
                             }
                         }
@@ -614,42 +642,6 @@ var MITHGrid = MITHGrid || {};
             return values;
         };
 
-        var indexFillSet = function(index, x, y, set, filter) {
-            var hash = index[x],
-            array,
-            i,
-            n,
-            z;
-            if (hash) {
-                array = hash.values[y];
-                if (array) {
-                    if (filter) {
-                        for (i = 0, n = array.length; i < n; i += 1) {
-                            z = array[i];
-                            if (filter.contains(z)) {
-                                set.add(z);
-                            }
-                        }
-                    }
-                    else {
-                        for (i = 0, n = array.length; i < n; i += 1) {
-                            set.add(array[i]);
-                        }
-                    }
-                }
-            }
-        };
-
-        var getUnion = function(index, xSet, y, set, filter) {
-            if (!set) {
-                set = Data.Set();
-            }
-
-            xSet.visit(function(x) {
-                indexFillSet(index, x, y, set, filter);
-            });
-            return set;
-        };
 
         that.getObjectsUnion = function(subjects, p, set, filter) {
             return getUnion(that.spo, subjects, p, set, filter);
@@ -663,13 +655,11 @@ var MITHGrid = MITHGrid || {};
         return that;
     };
 
-    var views = {};
-
     Data.View = function(options) {
         var that,
         set = Data.Set();
 
-        if (typeof(views[options.label]) != "undefined") {
+        if(views[options.label] !== undefined) {
             return views[options.label];
         }
 
@@ -725,6 +715,7 @@ var MITHGrid = MITHGrid || {};
 
             f = function(start) {
                 var i,
+				free,
                 end;
                 end = start + chunk_size;
                 if (end > n) {
@@ -775,8 +766,80 @@ var MITHGrid = MITHGrid || {};
 
         return that;
     };
-
-	var Expression = MITHGrid.namespace("Expression");
+}(jQuery, MITHGrid));(function($, MITHGrid) {
+	var Expression = MITHGrid.namespace("Expression"),
+	_operators = {
+        "+": {
+            argumentType: "number",
+            valueType: "number",
+            f: function(a, b) {
+                return a + b;
+            }
+        },
+        "-": {
+            argumentType: "number",
+            valueType: "number",
+            f: function(a, b) {
+                return a - b;
+            }
+        },
+        "*": {
+            argumentType: "number",
+            valueType: "number",
+            f: function(a, b) {
+                return a * b;
+            }
+        },
+        "/": {
+            argumentType: "number",
+            valueType: "number",
+            f: function(a, b) {
+                return a / b;
+            }
+        },
+        "=": {
+            valueType: "boolean",
+            f: function(a, b) {
+                return a === b;
+            }
+        },
+        "<>": {
+            valueType: "boolean",
+            f: function(a, b) {
+                return a !== b;
+            }
+        },
+        "><": {
+            valueType: "boolean",
+            f: function(a, b) {
+                return a !== b;
+            }
+        },
+        "<": {
+            valueType: "boolean",
+            f: function(a, b) {
+                return a < b;
+            }
+        },
+        ">": {
+            valueType: "boolean",
+            f: function(a, b) {
+                return a > b;
+            }
+        },
+        "<=": {
+            valueType: "boolean",
+            f: function(a, b) {
+                return a <= b;
+            }
+        },
+        ">=": {
+            valueType: "boolean",
+            f: function(a, b) {
+                return a >= b;
+            }
+        }
+    };
 	
     Expression.Controls = {
         "if": {
@@ -830,7 +893,7 @@ var MITHGrid = MITHGrid || {};
                 var i,
                 n,
                 collection;
-                for (i = 0, n = args.length; i < n; i++) {
+                for (i = 0, n = args.length; i < n; i += 1) {
                     collection = args[i].evaluate(roots, rootValueTypes, defaultRootName, database);
                     if (collection.size() > 0) {
                         return collection;
@@ -854,7 +917,7 @@ var MITHGrid = MITHGrid || {};
             return {
                 values: collection.getSet(),
                 valueType: collection.valueType,
-                size: collection.size()
+                size: collection.size //()
             };
         };
 
@@ -960,7 +1023,7 @@ var MITHGrid = MITHGrid || {};
                 i,
                 n;
 
-                for (i = 0, n = a.length; i < n; i++) {
+                for (i = 0, n = a.length; i < n; i += 1) {
                     if (f(a[i]) === true) {
                         break;
                     }
@@ -976,8 +1039,8 @@ var MITHGrid = MITHGrid || {};
                 i,
                 n;
 
-                for (i = 0, n = a.length; i < n; i++) {
-                    if (a[i] == v) {
+                for (i = 0, n = a.length; i < n; i += 1) {
+                    if (a[i] === v) {
                         return true;
                     }
                 }
@@ -1029,79 +1092,6 @@ var MITHGrid = MITHGrid || {};
         return that;
     };
 
-    var _operators = {
-        "+": {
-            argumentType: "number",
-            valueType: "number",
-            f: function(a, b) {
-                return a + b;
-            }
-        },
-        "-": {
-            argumentType: "number",
-            valueType: "number",
-            f: function(a, b) {
-                return a - b;
-            }
-        },
-        "*": {
-            argumentType: "number",
-            valueType: "number",
-            f: function(a, b) {
-                return a * b;
-            }
-        },
-        "/": {
-            argumentType: "number",
-            valueType: "number",
-            f: function(a, b) {
-                return a / b;
-            }
-        },
-        "=": {
-            valueType: "boolean",
-            f: function(a, b) {
-                return a == b;
-            }
-        },
-        "<>": {
-            valueType: "boolean",
-            f: function(a, b) {
-                return a != b;
-            }
-        },
-        "><": {
-            valueType: "boolean",
-            f: function(a, b) {
-                return a != b;
-            }
-        },
-        "<": {
-            valueType: "boolean",
-            f: function(a, b) {
-                return a < b;
-            }
-        },
-        ">": {
-            valueType: "boolean",
-            f: function(a, b) {
-                return a > b;
-            }
-        },
-        "<=": {
-            valueType: "boolean",
-            f: function(a, b) {
-                return a <= b;
-            }
-        },
-        ">=": {
-            valueType: "boolean",
-            f: function(a, b) {
-                return a >= b;
-            }
-        }
-    };
-
     Expression.Operator = function(operator, args) {
         var that = {},
         _operator = operator,
@@ -1120,20 +1110,20 @@ var MITHGrid = MITHGrid || {};
             operator,
             f;
 
-            for (i = 0, n = _args.length; i < n; i++) {
+            for (i = 0, n = _args.length; i < n; i += 1) {
                 args.push(_args[i].evaluate(roots, rootValueTypes, defaultRootName, database));
             }
 
             operator = _operators[_operator];
             f = operator.f;
-            if (operator.argumentType == "number") {
+            if (operator.argumentType === "number") {
                 args[0].forEachValue(function(v1) {
-                    if (typeof(v1) != "number") {
+                    if (typeof(v1) !== "number") {
                         v1 = parseFloat(v1);
                     }
 
                     args[1].forEachValue(function(v2) {
-                        if (typeof(v2) != "number") {
+                        if (typeof(v2) !== "number") {
                             v2 = parseFloat(v2);
                         }
 
@@ -1172,11 +1162,11 @@ var MITHGrid = MITHGrid || {};
             i,
             n;
 
-            for (i = 0, n = _args.length; i < n; i++) {
+            for (i = 0, n = _args.length; i < n; i += 1) {
                 args.push(_args[i].evaluate(roots, rootValueTypes, defaultRootName, database));
             }
 
-            if (_name in Expression.Functions) {
+            if (Expression.Functions[_name] !== undefined) {
                 return Expression.Functions[_name].f(args);
             }
             else {
@@ -1213,7 +1203,7 @@ var MITHGrid = MITHGrid || {};
         _rootName = null,
         _segments = [];
 
-        if (typeof(property) != "undefined") {
+        if (property !== undefined) {
             _segments.push({
                 property: property,
                 forward: forward,
@@ -1230,7 +1220,7 @@ var MITHGrid = MITHGrid || {};
         that.appendSegment = function(property, hopOperator) {
             _segments.push({
                 property: property,
-                forward: hopOperator.charAt(0) == ".",
+                forward: hopOperator.charAt(0) === ".",
                 isArray: hopOperator.length > 1
             });
         };
@@ -1286,7 +1276,7 @@ var MITHGrid = MITHGrid || {};
 				return a;
 			};
 
-            for (i = 0, n = _segments.length; i < n; i++) {
+            for (i = 0, n = _segments.length; i < n; i += 1) {
                 segment = _segments[i];
                 if (segment.isArray) {
                     a = [];
@@ -1329,7 +1319,7 @@ var MITHGrid = MITHGrid || {};
             if (filter instanceof Array) {
                 filter = MITHGrid.Data.Set(filter);
             }
-            for (i = _segments.length - 1; i >= 0; i--) {
+            for (i = _segments.length - 1; i >= 0; i -= 1) {
                 segment = _segments[i];
                 if (segment.isArray) {
                     a = [];
@@ -1388,13 +1378,13 @@ var MITHGrid = MITHGrid || {};
             if (_segments.length > 0) {
                 segment = _segments[_segments.length - 1];
                 if (segment.forward) {
-                    database.getSubjectsInRange(segment.property, from, to, false, set, _segments.length == 1 ? filter: null);
+                    database.getSubjectsInRange(segment.property, from, to, false, set, _segments.length === 1 ? filter: null);
                 }
                 else {
                     throw new Error("Last path of segment must be forward");
                 }
 
-                for (i = _segments.length - 2; i >= 0; i--) {
+                for (i = _segments.length - 2; i >= 0; i -= 1) {
                     segment = _segments[i];
                     if (segment.forward) {
                         set = database.getSubjectsUnion(set, segment.property, null, i === 0 ? filter: null);
@@ -1503,11 +1493,11 @@ var MITHGrid = MITHGrid || {};
             var parsePath = function() {
                 var path = Expression.Path(),
                 hopOperator;
-                while (token !== null && token.type == Scanner.PATH_OPERATOR) {
+                while (token !== null && token.type === Scanner.PATH_OPERATOR) {
                     hopOperator = token.value;
                     next();
 
-                    if (token !== null && token.type == Scanner.IDENTIFIER) {
+                    if (token !== null && token.type === Scanner.IDENTIFIER) {
                         path.appendSegment(token.value, hopOperator);
                         next();
                     }
@@ -1543,14 +1533,14 @@ var MITHGrid = MITHGrid || {};
                     next();
 
                     if (identifier in Expression.Controls) {
-                        if (token !== null && token.type == Scanner.DELIMITER && token.value == "(") {
+                        if (token !== null && token.type === Scanner.DELIMITER && token.value === "(") {
                             next();
 
-                            args = (token !== null && token.type == Scanner.DELIMITER && token.value == ")") ?
+                            args = (token !== null && token.type === Scanner.DELIMITER && token.value === ")") ?
                             [] : parseExpressionList();
                             result = Expression.ControlCall(identifier, args);
 
-                            if (token !== null && token.type == Scanner.DELIMITER && token.value == ")") {
+                            if (token !== null && token.type === Scanner.DELIMITER && token.value === ")") {
                                 next();
                             }
                             else {
@@ -1562,14 +1552,14 @@ var MITHGrid = MITHGrid || {};
                         }
                     }
                     else {
-                        if (token !== null && token.type == Scanner.DELIMITER && token.value == "(") {
+                        if (token !== null && token.type === Scanner.DELIMITER && token.value === "(") {
                             next();
 
-                            args = (token !== null && token.type == Scanner.DELIMITER && token.value == ")") ?
+                            args = (token !== null && token.type === Scanner.DELIMITER && token.value === ")") ?
                             [] : parseExpressionList();
                             result = Expression.FunctionCall(identifier, args);
 
-                            if (token !== null && token.type == Scanner.DELIMITER && token.value == ")") {
+                            if (token !== null && token.type === Scanner.DELIMITER && token.value === ")") {
                                 next();
                             }
                             else {
@@ -1583,11 +1573,11 @@ var MITHGrid = MITHGrid || {};
                     }
                     break;
                 case Scanner.DELIMITER:
-                    if (token.value == "(") {
+                    if (token.value === "(") {
                         next();
 
                         result = parseExpression();
-                        if (token !== null && token.type == Scanner.DELIMITER && token.value == ")") {
+                        if (token !== null && token.type === Scanner.DELIMITER && token.value === ")") {
                             next();
                             break;
                         }
@@ -1610,8 +1600,8 @@ var MITHGrid = MITHGrid || {};
                 var term = parseFactor(),
                 operator;
 
-                while (token !== null && token.type == Scanner.OPERATOR &&
-                (token.value == "*" || token.value == "/")) {
+                while (token !== null && token.type === Scanner.OPERATOR &&
+                (token.value === "*" || token.value === "/")) {
                     operator = token.value;
                     next();
 
@@ -1624,8 +1614,8 @@ var MITHGrid = MITHGrid || {};
                 var subExpression = parseTerm(),
                 operator;
 
-                while (token !== null && token.type == Scanner.OPERATOR &&
-                (token.value == "+" || token.value == "-")) {
+                while (token !== null && token.type === Scanner.OPERATOR &&
+                (token.value === "+" || token.value === "-")) {
                     operator = token.value;
                     next();
 
@@ -1638,10 +1628,10 @@ var MITHGrid = MITHGrid || {};
                 var expression = parseSubExpression(),
                 operator;
 
-                while (token !== null && token.type == Scanner.OPERATOR &&
-                (token.value == "=" || token.value == "<>" ||
-                token.value == "<" || token.value == "<=" ||
-                token.value == ">" || token.value == ">=")) {
+                while (token !== null && token.type === Scanner.OPERATOR &&
+                (token.value === "=" || token.value === "<>" ||
+                token.value === "<" || token.value === "<=" ||
+                token.value === ">" || token.value === ">=")) {
 
                     operator = token.value;
                     next();
@@ -1653,7 +1643,7 @@ var MITHGrid = MITHGrid || {};
 
             var parseExpressionList = function() {
                 var expressions = [parseExpression()];
-                while (token !== null && token.type == Scanner.DELIMITER && token.value == ",") {
+                while (token !== null && token.type === Scanner.DELIMITER && token.value === ",") {
                     next();
                     expressions.push(parseExpression());
                 }
@@ -1663,7 +1653,7 @@ var MITHGrid = MITHGrid || {};
             if (several) {
                 roots = parseExpressionList();
                 expressions = [];
-                for (r = 0, n = roots.length; r < n; r++) {
+                for (r = 0, n = roots.length; r < n; r += 1) {
                     expressions.push(Expression.Expression(roots[r]));
                 }
                 return expressions;
@@ -1720,7 +1710,7 @@ var MITHGrid = MITHGrid || {};
 
             while (_index < _maxIndex &&
             " \t\r\n".indexOf(_text.charAt(_index)) >= 0) {
-                _index++;
+                _index += 1;
             }
 
             if (_index < _maxIndex) {
@@ -1815,7 +1805,7 @@ var MITHGrid = MITHGrid || {};
                         i += 1;
                     }
 
-                    if (i < _maxIndex && _text.charAt(i) == ".") {
+                    if (i < _maxIndex && _text.charAt(i) === ".") {
                         i += 1;
                         while (i < _maxIndex && isDigit(_text.charAt(i))) {
                             i += 1;
@@ -1868,8 +1858,8 @@ var MITHGrid = MITHGrid || {};
     Expression.Scanner.OPERATOR = 4;
     Expression.Scanner.PATH_OPERATOR = 5;
 
-
-
+}(jQuery, MITHGrid));
+(function($, MITHGrid) {
 	MITHGrid.namespace('Presentation');
     
 	MITHGrid.Presentation.initView = function(type, container, options) {
@@ -1960,7 +1950,7 @@ var MITHGrid = MITHGrid || {};
 		that.options.source.registerView(that);
 		return that;
 	};
-
+}(jQuery, MITHGrid));(function($, MITHGrid) {
     MITHGrid.Application = function(options) {
         var that = {
             presentation: {},
@@ -2090,8 +2080,8 @@ var MITHGrid = MITHGrid || {};
 
         return that;
     };
-
-
+}(jQuery, MITHGrid));
+(function($, MITHGrid) {
 	MITHGrid.namespace("Plugin");	
 	/*
 	 * This is the base of a plugin, which can package together various things that augment
@@ -2153,10 +2143,7 @@ var MITHGrid = MITHGrid || {};
 		return that;
 	};
 	
-
-})(jQuery, MITHGrid);
-
-fluid.defaults("MITHGrid.Data.Source", {
+}(jQuery, MITHGrid));fluid.defaults("MITHGrid.Data.Source", {
     events: {
         onModelChange: null,
         onBeforeLoading: null,

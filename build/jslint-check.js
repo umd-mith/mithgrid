@@ -1,13 +1,26 @@
-var JSLINT = require("./lib/jslint").JSLINT,
+var JSLINT = require("./lib/jslint").check, //.JSLINT,
 	print = require("sys").print,
 	src = require("fs").readFileSync("dist/mithgrid.js", "utf8");
 
-JSLINT(src, { evil: true, forin: true, maxerr: 100 });
+JSLINT(src, { 
+	forin: true, 
+	maxerr: 100, 
+	vars: false, 
+	white: true, 
+	sloppy: true, 
+	browser: true, 
+	devel: true, 
+	plusplus: false,
+	"continue": true,
+	nomen: true  // mainly in the expression.js part
+});
 
 // All of the following are known issues that we think are 'ok'
 // (in contradiction with JSLint) more information here:
 // http://docs.jquery.com/JQuery_Core_Style_Guidelines
 var ok = {
+	"Use a named function genericNamespacer.": true,
+	"Type confusion: .evaluate: function array and 'function': function object.": true
 //	"Don't make functions within a loop.": true,
 };
 
@@ -15,6 +28,7 @@ var e = JSLINT.errors, found = 0, w;
 
 for ( var i = 0; i < e.length; i++ ) {
 	w = e[i];
+	if(w === null) { continue; }
 
 	if ( !ok[ w.reason ] ) {
 		found++;
