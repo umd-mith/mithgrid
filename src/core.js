@@ -8,7 +8,9 @@
         MITHGrid.debug = function() {};
     }
 
-    var genericNamespacer = function(base, nom) {
+    var genericNamespacer;
+
+	genericNamespacer = function(base, nom) {
         if (base[nom] === undefined) {
             base[nom] = {
 				namespace: function(nom2) {

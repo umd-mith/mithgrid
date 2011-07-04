@@ -12,6 +12,7 @@ JSLINT(src, {
 	devel: true, 
 	plusplus: false,
 	"continue": true,
+	confusion: true,
 	nomen: true  // mainly in the expression.js part
 });
 
@@ -19,8 +20,6 @@ JSLINT(src, {
 // (in contradiction with JSLint) more information here:
 // http://docs.jquery.com/JQuery_Core_Style_Guidelines
 var ok = {
-	"Use a named function genericNamespacer.": true,
-	"Type confusion: .evaluate: function array and 'function': function object.": true
 //	"Don't make functions within a loop.": true,
 };
 

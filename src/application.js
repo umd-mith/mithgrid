@@ -4,16 +4,15 @@
             presentation: {},
             dataSource: {},
             dataView: {}
-        };
-
-        var onReady = [];
+        },
+		onReady = [];
 
         that.ready = function(fn) {
             onReady.push(fn);
         };
 
 
-        if ('dataSources' in options) {
+        if (options.dataSources !== undefined) {
             $.each(options.dataSources,
             function(idx, config) {
                 var store = MITHGrid.Data.Source({
@@ -30,13 +29,13 @@
                 store.addProperty('id', {
                     valueType: 'text'
                 });
-                if ('types' in config) {
+                if (config.types !== undefined) {
                     $.each(config.types,
                     function(idx, type) {
                         store.addType(type.label);
                     });
                 }
-                if ('properties' in config) {
+                if (config.properties !== undefined) {
                     $.each(config.properties,
                     function(idx, property) {
                         store.addProperty(property.label, property);
@@ -45,7 +44,7 @@
             });
         }
 
-        if ('dataViews' in options) {
+        if (options.dataViews !== undefined) {
             $.each(options.dataViews,
             function(idx, config) {
                 var view = MITHGrid.Data.View({
@@ -56,32 +55,34 @@
             });
         }
 
-        if ('presentations' in options) {
+        if (options.presentations !== undefined) {
             that.ready(function() {
                 $.each(options.presentations,
                 function(idx, config) {
                     var options = $.extend(true, {},
-                    config.options);
-                    var container = $(config.container);
+                    config.options),
+                    container = $(config.container),
+					presentation;
+					
                     if ($.isArray(container)) {
                         container = container[0];
                     }
                     options.source = that.dataView[config.dataView];
 
-                    var presentation = config.type(container, options);
+                    presentation = config.type(container, options);
                     that.presentation[config.label] = presentation;
                     presentation.selfRender();
                 });
             });
         }
 
-        if ('plugins' in options) {
+        if (options.plugins !== undefined) {
             that.ready(function() {
                 $.each(options.plugins,
                 function(idx, pconfig) {
                     var plugin = pconfig.type(pconfig);
                     if (plugin !== undefined) {
-						if('dataView' in pconfig) {
+						if(pconfig.dataView !== undefined) {
 							// hook plugin up with dataView requested by app configuration
 							plugin.dataView = that.dataView[pconfig.dataView];
 							// add 
@@ -95,19 +96,21 @@
 						$.each(plugin.presentations(),
 						function(idx, config) {
 							var options = $.extend(true, {},
-								config.options);
-							var container = $(config.container);
+								config.options),
+							container = $(config.container),
+							presentation;
+							
 							if ($.isArray(container)) {
 								container = container[0];
 							}
-							if("dataView" in config) {
+							if(config.dataView !== undefined) {
 								options.source = that.dataView[config.dataView];
 							}
-							else if("dataView" in pconfig) {
+							else if(pconfig.dataView !== undefined) {
 								options.source = that.dataView[pconfig.dataView];
 							}
 							
-							var presentation = config.type(container, options);
+							presentation = config.type(container, options);
 							plugin.presentation[config.label] = presentation;
 							presentation.selfRender();
 						});

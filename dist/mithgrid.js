@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Sun Jul 3 19:34:57 2011 -0400
+ * Date: Sun Jul 3 23:01:29 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -50,7 +50,9 @@ var jQuery = jQuery || {};
         MITHGrid.debug = function() {};
     }
 
-    var genericNamespacer = function(base, nom) {
+    var genericNamespacer;
+
+	genericNamespacer = function(base, nom) {
         if (base[nom] === undefined) {
             base[nom] = {
 				namespace: function(nom2) {
@@ -1201,55 +1203,8 @@ var jQuery = jQuery || {};
     Expression.Path = function(property, forward) {
         var that = {},
         _rootName = null,
-        _segments = [];
-
-        if (property !== undefined) {
-            _segments.push({
-                property: property,
-                forward: forward,
-                isArray: false
-            });
-        }
-
-        that.isPath = true;
-
-        that.setRootName = function(rootName) {
-            _rootName = rootName;
-        };
-
-        that.appendSegment = function(property, hopOperator) {
-            _segments.push({
-                property: property,
-                forward: hopOperator.charAt(0) === ".",
-                isArray: hopOperator.length > 1
-            });
-        };
-
-        that.getSegment = function(index) {
-            var segment;
-
-            if (index < _segments.length) {
-                segment = _segments[index];
-                return {
-                    property: segment.property,
-                    forward: segment.forward,
-                    isArray: segment.isArray
-                };
-            }
-            else {
-                return null;
-            }
-        };
-
-        that.getLastSegment = function() {
-            return that.getSegment(_segments.length - 1);
-        };
-
-        that.getSegmentCount = function() {
-            return _segments.length;
-        };
-
-        var walkForward = function(collection, database) {
+        _segments = [],
+        walkForward = function(collection, database) {
             var i,
             n,
             segment,
@@ -1306,15 +1261,36 @@ var jQuery = jQuery || {};
             }
 
             return collection;
-        };
-
-        var walkBackward = function(collection, filter, database) {
+        },
+        walkBackward = function(collection, filter, database) {
             var i,
             segment,
             a,
             valueType,
             property,
-            values;
+            values,
+			forwardArraySegmentFn = function(segment) {
+				var a = [];
+				collection.forEachValue(function(v) {
+					database.getSubjects(v, segment.property).visit(function(v2) {
+						if( i > 0 || filter === null || filter.contains(v2)) {
+							a.push(v2);
+						}
+					});
+				});
+				return a;
+			},
+			backwardArraySegmentFn = function(segment) {
+				var a = [];
+				collection.forEachValue(function(v) {
+					database.getObjects(v, segment.property).visit(function(v2) {
+						if(i > 0 || filter === null || filter.contains(v2)) {
+							a.push(v2);
+						}
+					});
+				});
+				return a;
+			};
 
             if (filter instanceof Array) {
                 filter = MITHGrid.Data.Set(filter);
@@ -1324,25 +1300,12 @@ var jQuery = jQuery || {};
                 if (segment.isArray) {
                     a = [];
                     if (segment.forward) {
-                        collection.forEachValue(function(v) {
-                            database.getSubjects(v, segment.property).visit(function(v2) {
-                                if (i > 0 || filter === null || filter.contains(v2)) {
-                                    a.push(v2);
-                                }
-                            });
-                        });
-
+						a = forwardArraySegmentFn(segment);
                         property = database.getProperty(segment.property);
                         valueType = property !== null ? property.getValueType() : "text";
                     }
                     else {
-                        collection.forEachValue(function(v) {
-                            database.getObjects(v, segment.property).visit(function(v2) {
-                                if (i > 0 || filter === null || filter.contains(v2)) {
-                                    a.push(v2);
-                                }
-                            });
-                        });
+						a = backwardArraySegmentFn(segment);
                         valueType = "item";
                     }
                     collection = Expression.Collection(a, valueType);
@@ -1362,6 +1325,52 @@ var jQuery = jQuery || {};
             }
 
             return collection;
+        };
+
+        if (property !== undefined) {
+            _segments.push({
+                property: property,
+                forward: forward,
+                isArray: false
+            });
+        }
+
+        that.isPath = true;
+
+        that.setRootName = function(rootName) {
+            _rootName = rootName;
+        };
+
+        that.appendSegment = function(property, hopOperator) {
+            _segments.push({
+                property: property,
+                forward: hopOperator.charAt(0) === ".",
+                isArray: hopOperator.length > 1
+            });
+        };
+
+        that.getSegment = function(index) {
+            var segment;
+
+            if (index < _segments.length) {
+                segment = _segments[index];
+                return {
+                    property: segment.property,
+                    forward: segment.forward,
+                    isArray: segment.isArray
+                };
+            }
+            else {
+                return null;
+            }
+        };
+
+        that.getLastSegment = function() {
+            return that.getSegment(_segments.length - 1);
+        };
+
+        that.getSegmentCount = function() {
+            return _segments.length;
         };
 
         that.rangeBackward = function(
@@ -1412,11 +1421,11 @@ var jQuery = jQuery || {};
         database
         ) {
             var rootName = _rootName !== null ? _rootName: defaultRootName,
-            valueType = rootName in rootValueTypes ? rootValueTypes[rootName] : "text",
+            valueType = rootValueTypes[rootName] !== undefined ? rootValueTypes[rootName] : "text",
             collection = null,
             root;
 
-            if (rootName in roots) {
+            if (roots[rootName] !== undefined) {
                 root = roots[rootName];
 
                 if (root.isSet || root instanceof Array) {
@@ -1473,9 +1482,8 @@ var jQuery = jQuery || {};
     };
 
     Expression.Parser = function() {
-        var that = {};
-
-        var internalParse = function(scanner, several) {
+        var that = {},
+        internalParse = function(scanner, several) {
             var token = scanner.token(),
             roots,
             expressions,
@@ -1486,11 +1494,61 @@ var jQuery = jQuery || {};
                 scanner.next();
                 token = scanner.token();
             },
+			parseFactor = function() { },
+            parseTerm = function() {
+                var term = parseFactor(),
+                operator;
+
+                while (token !== null && token.type === Scanner.OPERATOR &&
+                (token.value === "*" || token.value === "/")) {
+                    operator = token.value;
+                    next();
+
+                    term = Expression.Operator(operator, [term, parseFactor()]);
+                }
+                return term;
+            },
+            parseSubExpression = function() {
+                var subExpression = parseTerm(),
+                operator;
+
+                while (token !== null && token.type === Scanner.OPERATOR &&
+                (token.value === "+" || token.value === "-")) {
+                    operator = token.value;
+                    next();
+
+                    subExpression = Expression.Operator(operator, [subExpression, parseTerm()]);
+                }
+                return subExpression;
+            },
+			parseExpression = function() {
+                var expression = parseSubExpression(),
+                operator;
+
+                while (token !== null && token.type === Scanner.OPERATOR &&
+                (token.value === "=" || token.value === "<>" ||
+                token.value === "<" || token.value === "<=" ||
+                token.value === ">" || token.value === ">=")) {
+
+                    operator = token.value;
+                    next();
+
+                    expression = Expression.Operator(operator, [expression, parseSubExpression]);
+                }
+                return expression;
+            },
+            parseExpressionList = function() {
+                var expressions = [parseExpression()];
+                while (token !== null && token.type === Scanner.DELIMITER && token.value === ",") {
+                    next();
+                    expressions.push(parseExpression());
+                }
+                return expressions;
+            },
             makePosition = function() {
                 return token !== null ? token.start: scanner.index();
-            };
-
-            var parsePath = function() {
+            },
+            parsePath = function() {
                 var path = Expression.Path(),
                 hopOperator;
                 while (token !== null && token.type === Scanner.PATH_OPERATOR) {
@@ -1508,8 +1566,9 @@ var jQuery = jQuery || {};
                 return path;
             };
 
-            var parseFactor = function() {
+            parseFactor = function() {
                 var result = null,
+				args = [],
                 identifier;
 
                 if (token === null) {
@@ -1532,7 +1591,7 @@ var jQuery = jQuery || {};
                     identifier = token.value;
                     next();
 
-                    if (identifier in Expression.Controls) {
+                    if (Expression.Controls[identifier] !== undefined) {
                         if (token !== null && token.type === Scanner.DELIMITER && token.value === "(") {
                             next();
 
@@ -1579,7 +1638,6 @@ var jQuery = jQuery || {};
                         result = parseExpression();
                         if (token !== null && token.type === Scanner.DELIMITER && token.value === ")") {
                             next();
-                            break;
                         }
                         else {
                             throw new Error("Missing ) at position " + makePosition());
@@ -1594,60 +1652,6 @@ var jQuery = jQuery || {};
                 }
 
                 return result;
-            };
-
-            var parseTerm = function() {
-                var term = parseFactor(),
-                operator;
-
-                while (token !== null && token.type === Scanner.OPERATOR &&
-                (token.value === "*" || token.value === "/")) {
-                    operator = token.value;
-                    next();
-
-                    term = Expression.Operator(operator, [term, parseFactor()]);
-                }
-                return term;
-            };
-
-            var parseSubExpression = function() {
-                var subExpression = parseTerm(),
-                operator;
-
-                while (token !== null && token.type === Scanner.OPERATOR &&
-                (token.value === "+" || token.value === "-")) {
-                    operator = token.value;
-                    next();
-
-                    subExpression = Expression.Operator(operator, [subExpression, parseTerm()]);
-                }
-                return subExpression;
-            };
-
-            var parseExpression = function() {
-                var expression = parseSubExpression(),
-                operator;
-
-                while (token !== null && token.type === Scanner.OPERATOR &&
-                (token.value === "=" || token.value === "<>" ||
-                token.value === "<" || token.value === "<=" ||
-                token.value === ">" || token.value === ">=")) {
-
-                    operator = token.value;
-                    next();
-
-                    expression = Expression.Operator(operator, [expression, parseSubExpression]);
-                }
-                return expression;
-            };
-
-            var parseExpressionList = function() {
-                var expressions = [parseExpression()];
-                while (token !== null && token.type === Scanner.DELIMITER && token.value === ",") {
-                    next();
-                    expressions.push(parseExpression());
-                }
-                return expressions;
             };
 
             if (several) {
@@ -1686,7 +1690,10 @@ var jQuery = jQuery || {};
         _text = text + " ",
         _maxIndex = text.length,
         _index = startIndex,
-        _token = null;
+        _token = null,
+        isDigit = function(c) {
+            return "0123456789".indexOf(c) >= 0;
+        };
 
         that.token = function() {
             return _token;
@@ -1694,10 +1701,6 @@ var jQuery = jQuery || {};
 
         that.index = function() {
             return _index;
-        };
-
-        var isDigit = function(c) {
-            return "0123456789".indexOf(c) >= 0;
         };
 
         that.next = function() {
@@ -1718,7 +1721,7 @@ var jQuery = jQuery || {};
                 c2 = _text.charAt(_index + 1);
 
                 if (".!".indexOf(c1) >= 0) {
-                    if (c2 == "@") {
+                    if (c2 === "@") {
                         _token = {
                             type: Expression.Scanner.PATH_OPERATOR,
                             value: c1 + c2,
@@ -1738,7 +1741,7 @@ var jQuery = jQuery || {};
                     }
                 }
                 else if ("<>".indexOf(c1) >= 0) {
-                    if ((c2 == "=") || ("<>".indexOf(c2) >= 0 && c1 != c2)) {
+                    if ((c2 === "=") || ("<>".indexOf(c2) >= 0 && c1 !== c2)) {
                         _token = {
                             type: Expression.Scanner.OPERATOR,
                             value: c1 + c2,
@@ -1779,7 +1782,7 @@ var jQuery = jQuery || {};
                     // quoted strings
                     i = _index + 1;
                     while (i < _maxIndex) {
-                        if (_text.charAt(i) == c1 && _text.charAt(i - 1) != "\\") {
+                        if (_text.charAt(i) === c1 && _text.charAt(i - 1) !== "\\") {
                             break;
                         }
                         i += 1;
@@ -1860,112 +1863,117 @@ var jQuery = jQuery || {};
 
 }(jQuery, MITHGrid));
 (function($, MITHGrid) {
-	MITHGrid.namespace('Presentation');
-    
-	MITHGrid.Presentation.initView = function(type, container, options) {
-		var that = fluid.initView("MITHGrid.Presentation." + type, container, options),
-		    renderings = { };		
-		options = that.options;
-		
-		$(container).empty();
-		
-//		$("<div id='" + my_id + "-body'></div>").appendTo($(container));
-//		that.body_container = $('#' + my_id + '-body');
-		
-		that.eventModelChange = function(model, items) {
-			var n;
-			//$(container).empty();
-						
-			// we need to know if items are gone or added or changed
-			// if the item id is no longer in the model, then it was removed
-			// if the item is in the model but not in the renderings object, then it was added
-			// otherwise, it was changed
-			that.renderItems(model, items);
-		};
-		
-		that.renderingFor = function(id) {
-			return renderings[id];
-		};
-		
-		that.renderItems = function(model, items) {
-			n = items.length;
-			var f = function(start) {
-				var end, i;
-				if(start < n) {
-					end = n;
-					if(n > 200) {
-						end = start + parseInt(Math.sqrt(n), 10) + 1;
-						if(end > n) {
-							end = n;
-						}
-					}
-					for(i = start; i < end; i += 1) {
-						var id = items[i];
-						item = model.getItem(id);
-						if(!item) {
-							// item was removed
-							if(renderings[id]) {
-								// we need to remove it from the display
-							    // .remove() should not make changes in the model
-								renderings[id].remove();
-							}
-						}
-						else if(renderings[id]) {
-							renderings[id].update(item);
-						}
-						else {
-						    lens = that.getLens(item);
-							if(lens) {
-								renderings[id] = lens.render(container, that, model, items[i]);
-							}
-						}
-					}
-					
-					that.finishDisplayUpdate();
-					setTimeout(function() {
-						f(end);
-					}, 0);
-				}
-			};
-			that.startDisplayUpdate();
-			f(0);
-		};
-		
-		that.startDisplayUpdate = function() { 
-			$(container).empty();
-		};
-		
-		that.finishDisplayUpdate = function() {
-			$("<div class='clear'></div>").appendTo($(container));
-		};
-		
-		that.selfRender = function() {
-			/* do nothing -- needs to be implemented in subclass */
-			that.startDisplayUpdate();
-			that.renderItems(that.options.source, that.options.source.items());
-			that.finishDisplayUpdate();
-		};
-		
-		that.dataView = that.options.source;
-		that.options.source.registerView(that);
-		return that;
-	};
-}(jQuery, MITHGrid));(function($, MITHGrid) {
+    MITHGrid.namespace('Presentation');
+
+    MITHGrid.Presentation.initView = function(type, container, options) {
+        var that = fluid.initView("MITHGrid.Presentation." + type, container, options),
+        renderings = {};
+        options = that.options;
+
+        $(container).empty();
+
+        //		$("<div id='" + my_id + "-body'></div>").appendTo($(container));
+        //		that.body_container = $('#' + my_id + '-body');
+        that.eventModelChange = function(model, items) {
+            var n;
+            //$(container).empty();
+            // we need to know if items are gone or added or changed
+            // if the item id is no longer in the model, then it was removed
+            // if the item is in the model but not in the renderings object, then it was added
+            // otherwise, it was changed
+            that.renderItems(model, items);
+        };
+
+        that.renderingFor = function(id) {
+            return renderings[id];
+        };
+
+        that.renderItems = function(model, items) {
+            var n = items.length,
+            f;
+
+			f = function(start) {
+                var end,
+                i,
+				id,
+				item,
+                lens;
+
+                if (start < n) {
+                    end = n;
+                    if (n > 200) {
+                        end = start + parseInt(Math.sqrt(n), 10) + 1;
+                        if (end > n) {
+                            end = n;
+                        }
+                    }
+                    for (i = start; i < end; i += 1) {
+                        id = items[i];
+                        item = model.getItem(id);
+                        if (!item) {
+                            // item was removed
+                            if (renderings[id]) {
+                                // we need to remove it from the display
+                                // .remove() should not make changes in the model
+                                renderings[id].remove();
+                            }
+                        }
+                        else if (renderings[id]) {
+                            renderings[id].update(item);
+                        }
+                        else {
+                            lens = that.getLens(item);
+                            if (lens) {
+                                renderings[id] = lens.render(container, that, model, items[i]);
+                            }
+                        }
+                    }
+
+                    that.finishDisplayUpdate();
+                    setTimeout(function() {
+                        f(end);
+                    },
+                    0);
+                }
+            };
+            that.startDisplayUpdate();
+            f(0);
+        };
+
+        that.startDisplayUpdate = function() {
+            $(container).empty();
+        };
+
+        that.finishDisplayUpdate = function() {
+            $("<div class='clear'></div>").appendTo($(container));
+        };
+
+        that.selfRender = function() {
+            /* do nothing -- needs to be implemented in subclass */
+            that.startDisplayUpdate();
+            that.renderItems(that.options.source, that.options.source.items());
+            that.finishDisplayUpdate();
+        };
+
+        that.dataView = that.options.source;
+        that.options.source.registerView(that);
+        return that;
+    };
+} (jQuery, MITHGrid));(function($, MITHGrid) {
     MITHGrid.Application = function(options) {
         var that = {
             presentation: {},
             dataSource: {},
             dataView: {}
-        };
-
-        var onReady = [];
+        },
+		onReady = [];
 
         that.ready = function(fn) {
             onReady.push(fn);
         };
 
 
-        if ('dataSources' in options) {
+        if (options.dataSources !== undefined) {
             $.each(options.dataSources,
             function(idx, config) {
                 var store = MITHGrid.Data.Source({
@@ -1982,13 +1990,13 @@ var jQuery = jQuery || {};
                 store.addProperty('id', {
                     valueType: 'text'
                 });
-                if ('types' in config) {
+                if (config.types !== undefined) {
                     $.each(config.types,
                     function(idx, type) {
                         store.addType(type.label);
                     });
                 }
-                if ('properties' in config) {
+                if (config.properties !== undefined) {
                     $.each(config.properties,
                     function(idx, property) {
                         store.addProperty(property.label, property);
@@ -1997,7 +2005,7 @@ var jQuery = jQuery || {};
             });
         }
 
-        if ('dataViews' in options) {
+        if (options.dataViews !== undefined) {
             $.each(options.dataViews,
             function(idx, config) {
                 var view = MITHGrid.Data.View({
@@ -2008,32 +2016,34 @@ var jQuery = jQuery || {};
             });
         }
 
-        if ('presentations' in options) {
+        if (options.presentations !== undefined) {
             that.ready(function() {
                 $.each(options.presentations,
                 function(idx, config) {
                     var options = $.extend(true, {},
-                    config.options);
-                    var container = $(config.container);
+                    config.options),
+                    container = $(config.container),
+					presentation;
+					
                     if ($.isArray(container)) {
                         container = container[0];
                     }
                     options.source = that.dataView[config.dataView];
 
-                    var presentation = config.type(container, options);
+                    presentation = config.type(container, options);
                     that.presentation[config.label] = presentation;
                     presentation.selfRender();
                 });
             });
         }
 
-        if ('plugins' in options) {
+        if (options.plugins !== undefined) {
             that.ready(function() {
                 $.each(options.plugins,
                 function(idx, pconfig) {
                     var plugin = pconfig.type(pconfig);
                     if (plugin !== undefined) {
-						if('dataView' in pconfig) {
+						if(pconfig.dataView !== undefined) {
 							// hook plugin up with dataView requested by app configuration
 							plugin.dataView = that.dataView[pconfig.dataView];
 							// add 
@@ -2047,19 +2057,21 @@ var jQuery = jQuery || {};
 						$.each(plugin.presentations(),
 						function(idx, config) {
 							var options = $.extend(true, {},
-								config.options);
-							var container = $(config.container);
+								config.options),
+							container = $(config.container),
+							presentation;
+							
 							if ($.isArray(container)) {
 								container = container[0];
 							}
-							if("dataView" in config) {
+							if(config.dataView !== undefined) {
 								options.source = that.dataView[config.dataView];
 							}
-							else if("dataView" in pconfig) {
+							else if(pconfig.dataView !== undefined) {
 								options.source = that.dataView[pconfig.dataView];
 							}
 							
-							var presentation = config.type(container, options);
+							presentation = config.type(container, options);
 							plugin.presentation[config.label] = presentation;
 							presentation.selfRender();
 						});
@@ -2101,7 +2113,7 @@ var jQuery = jQuery || {};
 		var that = { options: options, presentation: { } }, readyFns = [ ];
 		
 		that.types = function() {
-			if('types' in options) {
+			if(options.types !== undefined) {
 				return options.types;
 			}
 			else {
@@ -2110,7 +2122,7 @@ var jQuery = jQuery || {};
 		};
 		
 		that.properties = function() {
-			if('properties' in options) {
+			if(options.properties !== undefined) {
 				return options.properties;
 			}
 			else {
@@ -2119,7 +2131,7 @@ var jQuery = jQuery || {};
 		};
 		
 		that.presentations = function() {
-			if('presentations' in options) {
+			if(options.presentations !== undefined) {
 				return options.presentations;
 			}
 			else {

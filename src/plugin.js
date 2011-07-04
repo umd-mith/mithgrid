@@ -18,7 +18,7 @@
 		var that = { options: options, presentation: { } }, readyFns = [ ];
 		
 		that.types = function() {
-			if('types' in options) {
+			if(options.types !== undefined) {
 				return options.types;
 			}
 			else {
@@ -27,7 +27,7 @@
 		};
 		
 		that.properties = function() {
-			if('properties' in options) {
+			if(options.properties !== undefined) {
 				return options.properties;
 			}
 			else {
@@ -36,7 +36,7 @@
 		};
 		
 		that.presentations = function() {
-			if('presentations' in options) {
+			if(options.presentations !== undefined) {
 				return options.presentations;
 			}
 			else {

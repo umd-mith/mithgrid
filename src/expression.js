@@ -433,55 +433,8 @@
     Expression.Path = function(property, forward) {
         var that = {},
         _rootName = null,
-        _segments = [];
-
-        if (property !== undefined) {
-            _segments.push({
-                property: property,
-                forward: forward,
-                isArray: false
-            });
-        }
-
-        that.isPath = true;
-
-        that.setRootName = function(rootName) {
-            _rootName = rootName;
-        };
-
-        that.appendSegment = function(property, hopOperator) {
-            _segments.push({
-                property: property,
-                forward: hopOperator.charAt(0) === ".",
-                isArray: hopOperator.length > 1
-            });
-        };
-
-        that.getSegment = function(index) {
-            var segment;
-
-            if (index < _segments.length) {
-                segment = _segments[index];
-                return {
-                    property: segment.property,
-                    forward: segment.forward,
-                    isArray: segment.isArray
-                };
-            }
-            else {
-                return null;
-            }
-        };
-
-        that.getLastSegment = function() {
-            return that.getSegment(_segments.length - 1);
-        };
-
-        that.getSegmentCount = function() {
-            return _segments.length;
-        };
-
-        var walkForward = function(collection, database) {
+        _segments = [],
+        walkForward = function(collection, database) {
             var i,
             n,
             segment,
@@ -538,15 +491,36 @@
             }
 
             return collection;
-        };
-
-        var walkBackward = function(collection, filter, database) {
+        },
+        walkBackward = function(collection, filter, database) {
             var i,
             segment,
             a,
             valueType,
             property,
-            values;
+            values,
+			forwardArraySegmentFn = function(segment) {
+				var a = [];
+				collection.forEachValue(function(v) {
+					database.getSubjects(v, segment.property).visit(function(v2) {
+						if( i > 0 || filter === null || filter.contains(v2)) {
+							a.push(v2);
+						}
+					});
+				});
+				return a;
+			},
+			backwardArraySegmentFn = function(segment) {
+				var a = [];
+				collection.forEachValue(function(v) {
+					database.getObjects(v, segment.property).visit(function(v2) {
+						if(i > 0 || filter === null || filter.contains(v2)) {
+							a.push(v2);
+						}
+					});
+				});
+				return a;
+			};
 
             if (filter instanceof Array) {
                 filter = MITHGrid.Data.Set(filter);
@@ -556,25 +530,12 @@
                 if (segment.isArray) {
                     a = [];
                     if (segment.forward) {
-                        collection.forEachValue(function(v) {
-                            database.getSubjects(v, segment.property).visit(function(v2) {
-                                if (i > 0 || filter === null || filter.contains(v2)) {
-                                    a.push(v2);
-                                }
-                            });
-                        });
-
+						a = forwardArraySegmentFn(segment);
                         property = database.getProperty(segment.property);
                         valueType = property !== null ? property.getValueType() : "text";
                     }
                     else {
-                        collection.forEachValue(function(v) {
-                            database.getObjects(v, segment.property).visit(function(v2) {
-                                if (i > 0 || filter === null || filter.contains(v2)) {
-                                    a.push(v2);
-                                }
-                            });
-                        });
+						a = backwardArraySegmentFn(segment);
                         valueType = "item";
                     }
                     collection = Expression.Collection(a, valueType);
@@ -594,6 +555,52 @@
             }
 
             return collection;
+        };
+
+        if (property !== undefined) {
+            _segments.push({
+                property: property,
+                forward: forward,
+                isArray: false
+            });
+        }
+
+        that.isPath = true;
+
+        that.setRootName = function(rootName) {
+            _rootName = rootName;
+        };
+
+        that.appendSegment = function(property, hopOperator) {
+            _segments.push({
+                property: property,
+                forward: hopOperator.charAt(0) === ".",
+                isArray: hopOperator.length > 1
+            });
+        };
+
+        that.getSegment = function(index) {
+            var segment;
+
+            if (index < _segments.length) {
+                segment = _segments[index];
+                return {
+                    property: segment.property,
+                    forward: segment.forward,
+                    isArray: segment.isArray
+                };
+            }
+            else {
+                return null;
+            }
+        };
+
+        that.getLastSegment = function() {
+            return that.getSegment(_segments.length - 1);
+        };
+
+        that.getSegmentCount = function() {
+            return _segments.length;
         };
 
         that.rangeBackward = function(
@@ -644,11 +651,11 @@
         database
         ) {
             var rootName = _rootName !== null ? _rootName: defaultRootName,
-            valueType = rootName in rootValueTypes ? rootValueTypes[rootName] : "text",
+            valueType = rootValueTypes[rootName] !== undefined ? rootValueTypes[rootName] : "text",
             collection = null,
             root;
 
-            if (rootName in roots) {
+            if (roots[rootName] !== undefined) {
                 root = roots[rootName];
 
                 if (root.isSet || root instanceof Array) {
@@ -705,9 +712,8 @@
     };
 
     Expression.Parser = function() {
-        var that = {};
-
-        var internalParse = function(scanner, several) {
+        var that = {},
+        internalParse = function(scanner, several) {
             var token = scanner.token(),
             roots,
             expressions,
@@ -718,11 +724,61 @@
                 scanner.next();
                 token = scanner.token();
             },
+			parseFactor = function() { },
+            parseTerm = function() {
+                var term = parseFactor(),
+                operator;
+
+                while (token !== null && token.type === Scanner.OPERATOR &&
+                (token.value === "*" || token.value === "/")) {
+                    operator = token.value;
+                    next();
+
+                    term = Expression.Operator(operator, [term, parseFactor()]);
+                }
+                return term;
+            },
+            parseSubExpression = function() {
+                var subExpression = parseTerm(),
+                operator;
+
+                while (token !== null && token.type === Scanner.OPERATOR &&
+                (token.value === "+" || token.value === "-")) {
+                    operator = token.value;
+                    next();
+
+                    subExpression = Expression.Operator(operator, [subExpression, parseTerm()]);
+                }
+                return subExpression;
+            },
+			parseExpression = function() {
+                var expression = parseSubExpression(),
+                operator;
+
+                while (token !== null && token.type === Scanner.OPERATOR &&
+                (token.value === "=" || token.value === "<>" ||
+                token.value === "<" || token.value === "<=" ||
+                token.value === ">" || token.value === ">=")) {
+
+                    operator = token.value;
+                    next();
+
+                    expression = Expression.Operator(operator, [expression, parseSubExpression]);
+                }
+                return expression;
+            },
+            parseExpressionList = function() {
+                var expressions = [parseExpression()];
+                while (token !== null && token.type === Scanner.DELIMITER && token.value === ",") {
+                    next();
+                    expressions.push(parseExpression());
+                }
+                return expressions;
+            },
             makePosition = function() {
                 return token !== null ? token.start: scanner.index();
-            };
-
-            var parsePath = function() {
+            },
+            parsePath = function() {
                 var path = Expression.Path(),
                 hopOperator;
                 while (token !== null && token.type === Scanner.PATH_OPERATOR) {
@@ -740,8 +796,9 @@
                 return path;
             };
 
-            var parseFactor = function() {
+            parseFactor = function() {
                 var result = null,
+				args = [],
                 identifier;
 
                 if (token === null) {
@@ -764,7 +821,7 @@
                     identifier = token.value;
                     next();
 
-                    if (identifier in Expression.Controls) {
+                    if (Expression.Controls[identifier] !== undefined) {
                         if (token !== null && token.type === Scanner.DELIMITER && token.value === "(") {
                             next();
 
@@ -811,7 +868,6 @@
                         result = parseExpression();
                         if (token !== null && token.type === Scanner.DELIMITER && token.value === ")") {
                             next();
-                            break;
                         }
                         else {
                             throw new Error("Missing ) at position " + makePosition());
@@ -826,60 +882,6 @@
                 }
 
                 return result;
-            };
-
-            var parseTerm = function() {
-                var term = parseFactor(),
-                operator;
-
-                while (token !== null && token.type === Scanner.OPERATOR &&
-                (token.value === "*" || token.value === "/")) {
-                    operator = token.value;
-                    next();
-
-                    term = Expression.Operator(operator, [term, parseFactor()]);
-                }
-                return term;
-            };
-
-            var parseSubExpression = function() {
-                var subExpression = parseTerm(),
-                operator;
-
-                while (token !== null && token.type === Scanner.OPERATOR &&
-                (token.value === "+" || token.value === "-")) {
-                    operator = token.value;
-                    next();
-
-                    subExpression = Expression.Operator(operator, [subExpression, parseTerm()]);
-                }
-                return subExpression;
-            };
-
-            var parseExpression = function() {
-                var expression = parseSubExpression(),
-                operator;
-
-                while (token !== null && token.type === Scanner.OPERATOR &&
-                (token.value === "=" || token.value === "<>" ||
-                token.value === "<" || token.value === "<=" ||
-                token.value === ">" || token.value === ">=")) {
-
-                    operator = token.value;
-                    next();
-
-                    expression = Expression.Operator(operator, [expression, parseSubExpression]);
-                }
-                return expression;
-            };
-
-            var parseExpressionList = function() {
-                var expressions = [parseExpression()];
-                while (token !== null && token.type === Scanner.DELIMITER && token.value === ",") {
-                    next();
-                    expressions.push(parseExpression());
-                }
-                return expressions;
             };
 
             if (several) {
@@ -918,7 +920,10 @@
         _text = text + " ",
         _maxIndex = text.length,
         _index = startIndex,
-        _token = null;
+        _token = null,
+        isDigit = function(c) {
+            return "0123456789".indexOf(c) >= 0;
+        };
 
         that.token = function() {
             return _token;
@@ -926,10 +931,6 @@
 
         that.index = function() {
             return _index;
-        };
-
-        var isDigit = function(c) {
-            return "0123456789".indexOf(c) >= 0;
         };
 
         that.next = function() {
@@ -950,7 +951,7 @@
                 c2 = _text.charAt(_index + 1);
 
                 if (".!".indexOf(c1) >= 0) {
-                    if (c2 == "@") {
+                    if (c2 === "@") {
                         _token = {
                             type: Expression.Scanner.PATH_OPERATOR,
                             value: c1 + c2,
@@ -970,7 +971,7 @@
                     }
                 }
                 else if ("<>".indexOf(c1) >= 0) {
-                    if ((c2 == "=") || ("<>".indexOf(c2) >= 0 && c1 != c2)) {
+                    if ((c2 === "=") || ("<>".indexOf(c2) >= 0 && c1 !== c2)) {
                         _token = {
                             type: Expression.Scanner.OPERATOR,
                             value: c1 + c2,
@@ -1011,7 +1012,7 @@
                     // quoted strings
                     i = _index + 1;
                     while (i < _maxIndex) {
-                        if (_text.charAt(i) == c1 && _text.charAt(i - 1) != "\\") {
+                        if (_text.charAt(i) === c1 && _text.charAt(i - 1) !== "\\") {
                             break;
                         }
                         i += 1;
