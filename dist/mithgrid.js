@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Mon Jul 4 11:28:52 2011 -0400
+ * Date: Tue Jul 5 09:29:49 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -258,6 +258,15 @@ var jQuery = jQuery || {};
             that.properties[nom] = prop;
         };
 
+		that.getProperty = function(nom) {
+			if(that.properties[nom] === undefined) {
+				return Data.Property(nom);
+			}
+			else {
+				return that.properties[nom];
+			}
+		};
+
         that.addType = function(nom, options) {
             var type = Data.Type(nom);
             that.types[nom] = type;
@@ -509,7 +518,7 @@ var jQuery = jQuery || {};
             }
         };
 
-        that.loadItems = function(items) {
+        that.loadItems = function(items, endFn) {
             var spo,
             ops,
             indexTriple,
@@ -571,17 +580,20 @@ var jQuery = jQuery || {};
             };
 
             that.events.onBeforeLoading.fire(that);
-
             try {
                 n = items.length;
-                chunk_size = parseInt(n / 100, 10);
-                if (chunk_size > 200) {
-                    chunk_size = 200;
-                }
-                if (chunk_size < 1) {
-                    chunk_size = 1;
-                }
-
+				if($.isFunction(endFn)) {
+                    chunk_size = parseInt(n / 100, 10);
+	                if (chunk_size > 200) {
+	                    chunk_size = 200;
+	                }
+	                if (chunk_size < 1) {
+	                    chunk_size = 1;
+	                }
+				}
+				else {
+					chunk_size = n;
+				}
                 f = function(start) {
                     var end,
                     i;
@@ -614,6 +626,9 @@ var jQuery = jQuery || {};
                             that.events.onAfterLoading.fire(that);
                             setTimeout(function() {
                                 that.events.onModelChange.fire(that, id_list);
+								if($.isFunction(endFn)) { 
+									endFn();
+								}
                             },
                             0);
                         },
