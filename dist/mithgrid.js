@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Tue Jul 5 09:29:49 2011 -0400
+ * Date: Tue Jul 5 11:41:20 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -642,12 +642,18 @@ var jQuery = jQuery || {};
             }
         };
 
-        that.prepare = function(expressions) {
-            return $.map(expressions,
-            function(ex) {
-                return MITHGrid.Expression.Parser().parse(ex);
-            });
-        };
+		that.prepare = function(expressions) {
+		    var parsed = $.map(expressions,
+		    function(ex) {
+		        return MITHGrid.Expression.Parser().parse(ex);
+		    });
+
+			return {
+			    evaluate: function(id) {
+			        return that.evaluate(id, parsed);
+			    }
+			};
+		};
 
         that.evaluate = function(id, expressions) {
             var values = [];

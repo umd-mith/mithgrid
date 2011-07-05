@@ -109,7 +109,7 @@
                     // TODO: we need to find all transitions to/from this view and redraw them
                     // Get all transitions pointing to this View
                     // if rendered, call their update function
-                    var transition_ids = $.unique(model.evaluate(itemId, transition_id_exprs));
+                    var transition_ids = $.unique(transition_id_exprs.evaluate(itemId));
 
                     $.each(transition_ids,
                     function(idx, id) {

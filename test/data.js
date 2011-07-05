@@ -243,7 +243,7 @@ $(document).ready(function() {
         stmt,
         ids;
 
-        expect(16);
+        expect(14);
         ds = MITHGrid.Data.Source({
             source: "Data.Source.test5"
         });
@@ -274,24 +274,24 @@ $(document).ready(function() {
             valueType: "item"
         });
 
+		// .ptr should return the item pointed to by item-0's ptr property
         stmt = ds.prepare([".ptr"]);
         notEqual(stmt, undefined, ".prepare returns something");
-        ok($.isArray(stmt), ".prepare returns an array");
-		equals(stmt.length, 1, ".prepare returns a single item in the array");
-        ok($.isFunction(stmt[0].evaluate), ".prepare returns something with a .evaluate property as a function");
+        ok($.isPlainObject(stmt), ".prepare returns a plain object");
+        ok($.isFunction(stmt.evaluate), ".prepare returns something with a .evaluate property as a function");
 
-        ids = ds.evaluate("item-0", stmt);
+        ids = stmt.evaluate("item-0");
         ok($.isArray(ids), ".evaluate returns an array");
         equals(ids.length, 1, "There's a single item");
         equals(ids[0], "item-1", "It's the correct item");
 
+		// !ptr should return the item pointing to item-0 through the ptr property
         stmt = ds.prepare(["!ptr"]);
         notEqual(stmt, undefined, ".prepare returns something");
-        ok($.isArray(stmt), ".prepare returns an array");
-		equals(stmt.length, 1, ".prepare returns a single item in the array");
-        ok($.isFunction(stmt[0].evaluate), ".prepare returns something with a .evaluate property as a function");
+        ok($.isPlainObject(stmt), ".prepare returns a plain object");
+        ok($.isFunction(stmt.evaluate), ".prepare returns something with a .evaluate property as a function");
 
-        ids = ds.evaluate("item-0", stmt);
+        ids = stmt.evaluate("item-0");
         ok($.isArray(ids), ".evaluate returns an array");
         equals(ids.length, 1, "There's a single item");
         equals(ids[0], "item-2", "It's the correct item");

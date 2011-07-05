@@ -575,12 +575,18 @@
             }
         };
 
-        that.prepare = function(expressions) {
-            return $.map(expressions,
-            function(ex) {
-                return MITHGrid.Expression.Parser().parse(ex);
-            });
-        };
+		that.prepare = function(expressions) {
+		    var parsed = $.map(expressions,
+		    function(ex) {
+		        return MITHGrid.Expression.Parser().parse(ex);
+		    });
+
+			return {
+			    evaluate: function(id) {
+			        return that.evaluate(id, parsed);
+			    }
+			};
+		};
 
         that.evaluate = function(id, expressions) {
             var values = [];
