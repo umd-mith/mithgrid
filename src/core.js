@@ -6,6 +6,11 @@
         MITHGrid.debug = function() {};
     }
 
+	MITHGrid.error = function() {
+		MITHGrid.debug.call({}, arguments);
+		return { 'arguments': arguments };
+	};
+
     var genericNamespacer;
 
 	genericNamespacer = function(base, nom) {

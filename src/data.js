@@ -394,61 +394,51 @@
 
             that.events.onBeforeUpdating.fire(that);
 
-            try {
-                n = items.length;
-                chunk_size = parseInt(n / 100, 10);
-                if (chunk_size > 200) {
-                    chunk_size = 200;
-                }
-                if (chunk_size < 1) {
-                    chunk_size = 1;
-                }
+			n = items.length;
+			chunk_size = parseInt(n / 100, 10);
+			if (chunk_size > 200) {
+			    chunk_size = 200;
+			}
+			if (chunk_size < 1) {
+			    chunk_size = 1;
+			}
 
-                f = function(start) {
-                    var end,
-                    i;
+			f = function(start) {
+			    var end,
+			    i;
 
-                    end = start + chunk_size;
-                    if (end > n) {
-                        end = n;
-                    }
+			    end = start + chunk_size;
+			    if (end > n) {
+			        end = n;
+			    }
 
-                    try {
-                        for (i = start; i < end; i += 1) {
-                            entry = items[i];
-                            if (typeof(entry) === "object") {
-                                if (updateItem(entry, indexPutFn, indexRemoveFn)) {
-                                    id_list.push(entry.id);
-                                }
-                            }
-                        }
-                    }
-                    catch(e) {
-                        MITHGrid.debug("loadData failed: ", e);
-                    }
+			    for (i = start; i < end; i += 1) {
+			        entry = items[i];
+			        if (typeof(entry) === "object") {
+			            if (updateItem(entry, indexPutFn, indexRemoveFn)) {
+			                id_list.push(entry.id);
+			            }
+			        }
+			    }
 
-                    if (end < n) {
-                        setTimeout(function() {
-                            f(end);
-                        },
-                        0);
-                    }
-                    else {
-                        setTimeout(function() {
-                            that.events.onAfterUpdating.fire(that);
-                            setTimeout(function() {
-                                that.events.onModelChange.fire(that, id_list);
-                            },
-                            0);
-                        },
-                        0);
-                    }
-                };
-                f(0);
-            }
-            catch(e) {
-                MITHGrid.debug("updateItems failed:", e);
-            }
+			    if (end < n) {
+			        setTimeout(function() {
+			            f(end);
+			        },
+			        0);
+			    }
+			    else {
+			        setTimeout(function() {
+			            that.events.onAfterUpdating.fire(that);
+			            setTimeout(function() {
+			                that.events.onModelChange.fire(that, id_list);
+			            },
+			            0);
+			        },
+			        0);
+			    }
+			};
+			f(0);
         };
 
         that.loadItems = function(items, endFn) {
@@ -473,12 +463,10 @@
                 n;
 
                 if (item.id === undefined) {
-                    MITHGrid.debug("Item entry has no id: ", item);
-                    return;
+                    throw MITHGrid.error("Item entry has no id: ", item);
                 }
                 if (item.type === undefined) {
-                    MITHGrid.debug("Item entry has no type: ", item);
-                    return;
+                    throw MITHGrid.error("Item entry has no type: ", item);
                 }
 
                 id = item.id;
@@ -513,66 +501,56 @@
             };
 
             that.events.onBeforeLoading.fire(that);
-            try {
-                n = items.length;
-				if($.isFunction(endFn)) {
-                    chunk_size = parseInt(n / 100, 10);
-	                if (chunk_size > 200) {
-	                    chunk_size = 200;
-	                }
-	                if (chunk_size < 1) {
-	                    chunk_size = 1;
-	                }
-				}
-				else {
-					chunk_size = n;
-				}
-                f = function(start) {
-                    var end,
-                    i;
+			n = items.length;
+			if ($.isFunction(endFn)) {
+			    chunk_size = parseInt(n / 100, 10);
+			    if (chunk_size > 200) {
+			        chunk_size = 200;
+			    }
+			    if (chunk_size < 1) {
+			        chunk_size = 1;
+			    }
+			}
+			 else {
+			    chunk_size = n;
+			}
+			f = function(start) {
+			    var end,
+			    i;
 
-                    end = start + chunk_size;
-                    if (end > n) {
-                        end = n;
-                    }
+			    end = start + chunk_size;
+			    if (end > n) {
+			        end = n;
+			    }
 
-                    try {
-                        for (i = start; i < end; i += 1) {
-                            entry = items[i];
-                            if (typeof(entry) === "object") {
-                                loadItem(entry);
-                            }
-                        }
-                    }
-                    catch(e) {
-                        MITHGrid.debug("loadData failed: ", e);
-                    }
+			    for (i = start; i < end; i += 1) {
+			        entry = items[i];
+			        if (typeof(entry) === "object") {
+			            loadItem(entry);
+			        }
+			    }
 
-                    if (end < n) {
-                        setTimeout(function() {
-                            f(end);
-                        },
-                        0);
-                    }
-                    else {
-                        setTimeout(function() {
-                            that.events.onAfterLoading.fire(that);
-                            setTimeout(function() {
-                                that.events.onModelChange.fire(that, id_list);
-								if($.isFunction(endFn)) { 
-									endFn();
-								}
-                            },
-                            0);
-                        },
-                        0);
-                    }
-                };
-                f(0);
-            }
-            catch(e) {
-                MITHGrid.debug("loadData failed: ", e);
-            }
+			    if (end < n) {
+			        setTimeout(function() {
+			            f(end);
+			        },
+			        0);
+			    }
+			    else {
+			        setTimeout(function() {
+			            that.events.onAfterLoading.fire(that);
+			            setTimeout(function() {
+			                that.events.onModelChange.fire(that, id_list);
+			                if ($.isFunction(endFn)) {
+			                    endFn();
+			                }
+			            },
+			            0);
+			        },
+			        0);
+			    }
+			};
+			f(0);
         };
 
 		that.prepare = function(expressions) {
