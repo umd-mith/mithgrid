@@ -1,5 +1,5 @@
 (function($, MITHGrid) {
-	MITHGrid.Presentation.DataMapper = function(options) {
+	MITHGrid.Presentation.DataMapper = function(container, options) {
 		
 	};
 })(jQuery, MITHGrid);

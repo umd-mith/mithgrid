@@ -1,4 +1,5 @@
 (function($, MITHGrid) {
+	/*jslint nomen: true */
 	var Expression = MITHGrid.namespace("Expression"),
 	_operators = {
         "+": {

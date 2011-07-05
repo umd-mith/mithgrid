@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Sun Jul 3 23:01:29 2011 -0400
+ * Date: Mon Jul 4 11:28:52 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -42,9 +42,7 @@ var fluid = fluid || {};
 var jQuery = jQuery || {};
 (function($, MITHGrid) {
 	if (window.console !== undefined && window.console.log !== undefined) {
-        MITHGrid.debug = function() {    
-            console.log(Array.prototype.slice.call(arguments));
-        };
+        MITHGrid.debug = window.console.log;
     }
     else {
         MITHGrid.debug = function() {};
@@ -254,7 +252,9 @@ var jQuery = jQuery || {};
 
         that.addProperty = function(nom, options) {
             var prop = Data.Property(nom);
-            prop.valueType = options.valueType;
+			if( options !== undefined && options.valueType !== undefined ) {
+				prop.valueType = options.valueType;
+			}
             that.properties[nom] = prop;
         };
 
@@ -653,7 +653,6 @@ var jQuery = jQuery || {};
             return getUnion(that.ops, objects, p, set, filter);
         };
 
-
         return that;
     };
 
@@ -769,6 +768,7 @@ var jQuery = jQuery || {};
         return that;
     };
 }(jQuery, MITHGrid));(function($, MITHGrid) {
+	/*jslint nomen: true */
 	var Expression = MITHGrid.namespace("Expression"),
 	_operators = {
         "+": {

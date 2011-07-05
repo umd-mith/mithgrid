@@ -185,7 +185,9 @@
 
         that.addProperty = function(nom, options) {
             var prop = Data.Property(nom);
-            prop.valueType = options.valueType;
+			if( options !== undefined && options.valueType !== undefined ) {
+				prop.valueType = options.valueType;
+			}
             that.properties[nom] = prop;
         };
 
@@ -583,7 +585,6 @@
         that.getSubjectsUnion = function(objects, p, set, filter) {
             return getUnion(that.ops, objects, p, set, filter);
         };
-
 
         return that;
     };

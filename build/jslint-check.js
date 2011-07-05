@@ -9,11 +9,9 @@ JSLINT(src, {
 	white: true, 
 	sloppy: true, 
 	browser: true, 
-	devel: true, 
 	plusplus: false,
 	"continue": true,
-	confusion: true,
-	nomen: true  // mainly in the expression.js part
+	confusion: true
 });
 
 // All of the following are known issues that we think are 'ok'

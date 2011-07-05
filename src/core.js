@@ -1,8 +1,6 @@
 (function($, MITHGrid) {
 	if (window.console !== undefined && window.console.log !== undefined) {
-        MITHGrid.debug = function() {    
-            console.log(Array.prototype.slice.call(arguments));
-        };
+        MITHGrid.debug = window.console.log;
     }
     else {
         MITHGrid.debug = function() {};
