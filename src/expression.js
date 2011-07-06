@@ -1,7 +1,7 @@
 (function($, MITHGrid) {
-	/*jslint nomen: true */
-	var Expression = MITHGrid.namespace("Expression"),
-	_operators = {
+    /*jslint nomen: true */
+    var Expression = MITHGrid.namespace("Expression"),
+    _operators = {
         "+": {
             argumentType: "number",
             valueType: "number",
@@ -73,7 +73,7 @@
             }
         }
     };
-	
+
     Expression.Controls = {
         "if": {
             f: function(args, roots, rootValueTypes, defaultRootName, database) {
@@ -140,17 +140,13 @@
     Expression.Expression = function(rootNode) {
         var that = {};
 
-        that.evaluate = function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
+        that.evaluate = function(roots, rootValueTypes, defaultRootName, database) {
             var collection = rootNode.evaluate(roots, rootValueTypes, defaultRootName, database);
             return {
                 values: collection.getSet(),
                 valueType: collection.valueType,
-                size: collection.size //()
+                size: collection.size
+                //()
             };
         };
 
@@ -167,12 +163,7 @@
             );
         };
 
-        that.evaluateSingle = function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
+        that.evaluateSingle = function(roots, rootValueTypes, defaultRootName, database) {
             var collection = rootNode.evaluate(roots, rootValueTypes, defaultRootName, database),
             result = {
                 value: null,
@@ -189,55 +180,32 @@
 
         that.isPath = rootNode.isPath;
 
-        that.getPath = that.isPath ?
-        function() {
-            return rootNode;
-        }:
-        function() {
-            return null;
-        };
-
-        that.testExists = that.isPath ?
-        function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
-            return rootNode.testExists(roots, rootValueTypes, defaultRootName, database);
-        }:
-        function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
-            return that.evaluate(roots, rootValueTypes, defaultRootName, database).values.size() > 0;
-        };
-
-        that.evaluateBackward = function(
-        value,
-        valueType,
-        filter,
-        database
-        ) {
+		if(that.isPath) {
+			that.getPath = function() { 
+				return rootNode; 
+			};
+            that.testExists = function(roots, rootValueTypes, defaultRootName, database) {
+                return rootNode.testExists(roots, rootValueTypes, defaultRootName, database);
+            };
+		}
+		else {
+			that.getPath = function() {
+				return null;
+			};
+            that.testExists = function(roots, rootValueTypes, defaultRootName, database) {
+                return that.evaluate(roots, rootValueTypes, defaultRootName, database).values.size() > 0;
+            };
+		}
+		
+        that.evaluateBackward = function(value, valueType, filter, database) {
             return rootNode.walkBackward([value], valueType, filter, database);
         };
 
-        that.walkForward = function(
-        values,
-        valueType,
-        database
-        ) {
+        that.walkForward = function(values, valueType, database) {
             return rootNode.walkForward(values, valueType, database);
         };
 
-        that.walkBackward = function(
-        values,
-        valueType,
-        filter,
-        database
-        ) {
+        that.walkBackward = function(values, valueType, filter, database) {
             return rootNode.walkBackward(values, valueType, filter, database);
         };
 
@@ -311,12 +279,7 @@
     Expression.Constant = function(value, valueType) {
         var that = {};
 
-        that.evaluate = function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
+        that.evaluate = function(roots, rootValueTypes, defaultRootName, database) {
             return Expression.Collection([value], valueType);
         };
 
@@ -330,12 +293,7 @@
         _operator = operator,
         _args = args;
 
-        that.evaluate = function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
+        that.evaluate = function(roots, rootValueTypes, defaultRootName, database) {
             var values = [],
             args = [],
             i,
@@ -385,12 +343,7 @@
         _name = name,
         _args = args;
 
-        that.evaluate = function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
+        that.evaluate = function(roots, rootValueTypes, defaultRootName, database) {
             var args = [],
             i,
             n;
@@ -417,12 +370,7 @@
         _name = name,
         _args = args;
 
-        that.evaluate = function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
+        that.evaluate = function(roots, rootValueTypes, defaultRootName, database) {
             return Expression.Controls[_name].f(_args, roots, rootValueTypes, defaultRootName, database);
         };
 
@@ -443,36 +391,36 @@
             valueType,
             property,
             values,
-			forwardArraySegmentFn = function(segment) {
-				var a = [];
-				collection.forEachValue(function(v) {
-					database.getObjects(v, segment.property).visit(function(v2) {
-						a.push(v2);
-					});
-				});
-				return a;
-			},
-			backwardArraySegmentFn = function(segment) {
-				var a = [];
-				collection.forEachValue(function(v) {
-					database.getSubjects(v, segment.property).visit(function(v2) {
-						a.push(v2);
-					});
-				});
-				return a;
-			};
+            forwardArraySegmentFn = function(segment) {
+                var a = [];
+                collection.forEachValue(function(v) {
+                    database.getObjects(v, segment.property).visit(function(v2) {
+                        a.push(v2);
+                    });
+                });
+                return a;
+            },
+            backwardArraySegmentFn = function(segment) {
+                var a = [];
+                collection.forEachValue(function(v) {
+                    database.getSubjects(v, segment.property).visit(function(v2) {
+                        a.push(v2);
+                    });
+                });
+                return a;
+            };
 
             for (i = 0, n = _segments.length; i < n; i += 1) {
                 segment = _segments[i];
                 if (segment.isArray) {
                     a = [];
                     if (segment.forward) {
-						a = forwardArraySegmentFn(segment);
+                        a = forwardArraySegmentFn(segment);
                         property = database.getProperty(segment.property);
                         valueType = property !== null ? property.getValueType() : "text";
                     }
                     else {
-						a = backwardArraySegmentFn(segment);
+                        a = backwardArraySegmentFn(segment);
                         valueType = "item";
                     }
                     collection = Expression.Collection(a, valueType);
@@ -500,28 +448,28 @@
             valueType,
             property,
             values,
-			forwardArraySegmentFn = function(segment) {
-				var a = [];
-				collection.forEachValue(function(v) {
-					database.getSubjects(v, segment.property).visit(function(v2) {
-						if( i > 0 || filter === null || filter.contains(v2)) {
-							a.push(v2);
-						}
-					});
-				});
-				return a;
-			},
-			backwardArraySegmentFn = function(segment) {
-				var a = [];
-				collection.forEachValue(function(v) {
-					database.getObjects(v, segment.property).visit(function(v2) {
-						if(i > 0 || filter === null || filter.contains(v2)) {
-							a.push(v2);
-						}
-					});
-				});
-				return a;
-			};
+            forwardArraySegmentFn = function(segment) {
+                var a = [];
+                collection.forEachValue(function(v) {
+                    database.getSubjects(v, segment.property).visit(function(v2) {
+                        if (i > 0 || filter === null || filter.contains(v2)) {
+                            a.push(v2);
+                        }
+                    });
+                });
+                return a;
+            },
+            backwardArraySegmentFn = function(segment) {
+                var a = [];
+                collection.forEachValue(function(v) {
+                    database.getObjects(v, segment.property).visit(function(v2) {
+                        if (i > 0 || filter === null || filter.contains(v2)) {
+                            a.push(v2);
+                        }
+                    });
+                });
+                return a;
+            };
 
             if (filter instanceof Array) {
                 filter = MITHGrid.Data.Set(filter);
@@ -531,12 +479,12 @@
                 if (segment.isArray) {
                     a = [];
                     if (segment.forward) {
-						a = forwardArraySegmentFn(segment);
+                        a = forwardArraySegmentFn(segment);
                         property = database.getProperty(segment.property);
                         valueType = property !== null ? property.getValueType() : "text";
                     }
                     else {
-						a = backwardArraySegmentFn(segment);
+                        a = backwardArraySegmentFn(segment);
                         valueType = "item";
                     }
                     collection = Expression.Collection(a, valueType);
@@ -604,12 +552,7 @@
             return _segments.length;
         };
 
-        that.rangeBackward = function(
-        from,
-        to,
-        filter,
-        database
-        ) {
+        that.rangeBackward = function(from, to, filter, database) {
             var set = MITHGrid.Data.Set(),
             valueType = "item",
             segment,
@@ -645,12 +588,7 @@
             };
         };
 
-        that.evaluate = function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
+        that.evaluate = function(roots, rootValueTypes, defaultRootName, database) {
             var rootName = _rootName !== null ? _rootName: defaultRootName,
             valueType = rootValueTypes[rootName] !== undefined ? rootValueTypes[rootName] : "text",
             collection = null,
@@ -673,39 +611,20 @@
             }
         };
 
-        that.testExists = function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
+        that.testExists = function(roots, rootValueTypes, defaultRootName, database) {
             return that.evaluate(roots, rootValueTypes, defaultRootName, database).size() > 0;
         };
 
-        that.evaluateBackward = function(
-        value,
-        valueType,
-        filter,
-        database
-        ) {
+        that.evaluateBackward = function(value, valueType, filter, database) {
             var collection = Expression.Collection([value], valueType);
             return walkBackward(collection, filter, database);
         };
 
-        that.walkForward = function(
-        values,
-        valueType,
-        database
-        ) {
+        that.walkForward = function(values, valueType, database) {
             return walkForward(Expression.Collection(values, valueType), database);
         };
 
-        that.walkBackward = function(
-        values,
-        valueType,
-        filter,
-        database
-        ) {
+        that.walkBackward = function(values, valueType, filter, database) {
             return walkBackward(Expression.Collection(values, valueType), filter, database);
         };
 
@@ -725,7 +644,7 @@
                 scanner.next();
                 token = scanner.token();
             },
-			parseFactor = function() { },
+            parseFactor = function() {},
             parseTerm = function() {
                 var term = parseFactor(),
                 operator;
@@ -752,7 +671,7 @@
                 }
                 return subExpression;
             },
-			parseExpression = function() {
+            parseExpression = function() {
                 var expression = parseSubExpression(),
                 operator;
 
@@ -799,7 +718,7 @@
 
             parseFactor = function() {
                 var result = null,
-				args = [],
+                args = [],
                 identifier;
 
                 if (token === null) {
@@ -874,10 +793,10 @@
                             throw new Error("Missing ) at position " + makePosition());
                         }
                     }
-					else {
-						throw new Error("Unexpected text " + token.value + " at position " + makePosition());
-					}
-					break;
+                    else {
+                        throw new Error("Unexpected text " + token.value + " at position " + makePosition());
+                    }
+                    break;
                 default:
                     throw new Error("Unexpected text " + token.value + " at position " + makePosition());
                 }
@@ -1092,4 +1011,4 @@
     Expression.Scanner.OPERATOR = 4;
     Expression.Scanner.PATH_OPERATOR = 5;
 
-}(jQuery, MITHGrid));
+} (jQuery, MITHGrid));
