@@ -11,6 +11,17 @@ $(document).ready(function() {
 
     module("Data.Set");
 
+	test("Check interface",
+	function() {
+		var set;
+		
+		expect(6);
+		set = MITHGrid.Data.Set([]);
+		$.each(["items", "add", "remove", "visit", "contains", "size"], function(idx, prop) {
+			ok($.isFunction(set[prop]), "."+prop+" is a function");
+		});
+	});
+
     test("Check set construction",
     function() {
         var set,
@@ -82,6 +93,21 @@ $(document).ready(function() {
 
     module("Data.Source");
 
+	test("Check interface",
+	function() {
+		var ds,
+		props = [ "items", "addProperty", "getProperty", "addType", "getType", "getItem", "getItems",
+		          "fetchData", "updateItems", "loadItems", "prepare", "getObjectsUnion", "getSubjectsUnion" ];
+		
+		expect(props.length);
+		ds = MITHGrid.Data.Source({
+			source: "Data.Source.interface_test"
+		});
+		$.each(props, function(idx, prop) {
+			ok($.isFunction(ds[prop]), "."+prop+" is a function");
+		});
+	});
+	
     test("Check data source construction",
     function() {
         var ds,
@@ -305,6 +331,21 @@ $(document).ready(function() {
     });
 
     module("Data.View");
+
+	test("Check interface",
+	function() {
+		var dv,
+		props = [ "items", "addProperty", "getProperty", "addType", "getType", "getItem", "getItems",
+		          "fetchData", "updateItems", "loadItems", "prepare", "getObjectsUnion", "getSubjectsUnion" ];
+		
+		expect(props.length);
+		dv = MITHGrid.Data.View({
+			source: "Data.Source.interface_test"
+		});
+		$.each(props, function(idx, prop) {
+			ok($.isFunction(dv[prop]), "."+prop+" is a function");
+		});
+	});
 
     test("Check data view construction",
     function() {

@@ -566,21 +566,16 @@
 
 			return {
 			    evaluate: function(id) {
-			        return that.evaluate(id, parsed);
+					var values = [];
+					$.each(parsed,
+					function(idx, ex) {
+						var items = ex.evaluateOnItem(id, that);
+						values = values.concat(items.values.items());
+					});
+			        return values;
 			    }
 			};
 		};
-
-        that.evaluate = function(id, expressions) {
-            var values = [];
-            $.each(expressions,
-            function(idx, ex) {
-                var items = ex.evaluateOnItem(id, that);
-                values = values.concat(items.values.items());
-            });
-            return values;
-        };
-
 
         that.getObjectsUnion = function(subjects, p, set, filter) {
             return getUnion(spo, subjects, p, set, filter);
@@ -693,13 +688,20 @@
             source: options.source
         });
 
+		// these mappings allow a data View to stand in for a data Source
         that.getItems = that.dataSource.getItems;
         that.getItem = that.dataSource.getItem;
+		that.fetchData = that.dataSource.fetchData;
         that.updateItems = that.dataSource.updateItems;
+		that.loadItems = that.dataSource.loadItems;
         that.prepare = that.dataSource.prepare;
-        that.evaluate = that.dataSource.evaluate;
 		that.addType = that.dataSource.addType;
+		that.getType = that.dataSource.getType;
 		that.addProperty = that.dataSource.addProperty;
+		that.getProperty = that.dataSource.getProperty;
+		that.getObjectsUnion = that.dataSource.getObjectsUnion;
+		that.getSubjectsUnion = that.dataSource.getSubjectsUnion;
+		
         that.dataSource.events.onModelChange.addListener(that.eventModelChange);
 
         return that;

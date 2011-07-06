@@ -86,14 +86,14 @@
 							// hook plugin up with dataView requested by app configuration
 							plugin.dataView = that.dataView[pconfig.dataView];
 							// add 
-							$.each(plugin.types(), function(idx, t) {
+							$.each(plugin.getTypes(), function(idx, t) {
 								plugin.dataView.addType(t);
 							});
-							$.each(plugin.properties(), function(idx, p) {
+							$.each(plugin.getProperties(), function(idx, p) {
 								plugin.dataView.addProperty(p.label, p);
 							});
 						}
-						$.each(plugin.presentations(),
+						$.each(plugin.getPresentations(),
 						function(idx, config) {
 							var options = $.extend(true, {},
 								config.options),

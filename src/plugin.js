@@ -17,7 +17,7 @@
 	MITHGrid.Plugin.initPlugin = function(klass, options) {
 		var that = { options: options, presentation: { } }, readyFns = [ ];
 		
-		that.types = function() {
+		that.getTypes = function() {
 			if(options.types !== undefined) {
 				return options.types;
 			}
@@ -26,7 +26,7 @@
 			}
 		};
 		
-		that.properties = function() {
+		that.getProperties = function() {
 			if(options.properties !== undefined) {
 				return options.properties;
 			}
@@ -35,7 +35,7 @@
 			}
 		};
 		
-		that.presentations = function() {
+		that.getPresentations = function() {
 			if(options.presentations !== undefined) {
 				return options.presentations;
 			}

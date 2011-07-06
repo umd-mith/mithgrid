@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Tue Jul 5 13:45:03 2011 -0400
+ * Date: Wed Jul 6 08:34:12 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -638,21 +638,16 @@ var jQuery = jQuery || {};
 
 			return {
 			    evaluate: function(id) {
-			        return that.evaluate(id, parsed);
+					var values = [];
+					$.each(parsed,
+					function(idx, ex) {
+						var items = ex.evaluateOnItem(id, that);
+						values = values.concat(items.values.items());
+					});
+			        return values;
 			    }
 			};
 		};
-
-        that.evaluate = function(id, expressions) {
-            var values = [];
-            $.each(expressions,
-            function(idx, ex) {
-                var items = ex.evaluateOnItem(id, that);
-                values = values.concat(items.values.items());
-            });
-            return values;
-        };
-
 
         that.getObjectsUnion = function(subjects, p, set, filter) {
             return getUnion(spo, subjects, p, set, filter);
@@ -765,21 +760,28 @@ var jQuery = jQuery || {};
             source: options.source
         });
 
+		// these mappings allow a data View to stand in for a data Source
         that.getItems = that.dataSource.getItems;
         that.getItem = that.dataSource.getItem;
+		that.fetchData = that.dataSource.fetchData;
         that.updateItems = that.dataSource.updateItems;
+		that.loadItems = that.dataSource.loadItems;
         that.prepare = that.dataSource.prepare;
-        that.evaluate = that.dataSource.evaluate;
 		that.addType = that.dataSource.addType;
+		that.getType = that.dataSource.getType;
 		that.addProperty = that.dataSource.addProperty;
+		that.getProperty = that.dataSource.getProperty;
+		that.getObjectsUnion = that.dataSource.getObjectsUnion;
+		that.getSubjectsUnion = that.dataSource.getSubjectsUnion;
+		
         that.dataSource.events.onModelChange.addListener(that.eventModelChange);
 
         return that;
     };
 }(jQuery, MITHGrid));(function($, MITHGrid) {
-	/*jslint nomen: true */
-	var Expression = MITHGrid.namespace("Expression"),
-	_operators = {
+    /*jslint nomen: true */
+    var Expression = MITHGrid.namespace("Expression"),
+    _operators = {
         "+": {
             argumentType: "number",
             valueType: "number",
@@ -851,7 +853,7 @@ var jQuery = jQuery || {};
             }
         }
     };
-	
+
     Expression.Controls = {
         "if": {
             f: function(args, roots, rootValueTypes, defaultRootName, database) {
@@ -918,17 +920,13 @@ var jQuery = jQuery || {};
     Expression.Expression = function(rootNode) {
         var that = {};
 
-        that.evaluate = function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
+        that.evaluate = function(roots, rootValueTypes, defaultRootName, database) {
             var collection = rootNode.evaluate(roots, rootValueTypes, defaultRootName, database);
             return {
                 values: collection.getSet(),
                 valueType: collection.valueType,
-                size: collection.size //()
+                size: collection.size
+                //()
             };
         };
 
@@ -945,12 +943,7 @@ var jQuery = jQuery || {};
             );
         };
 
-        that.evaluateSingle = function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
+        that.evaluateSingle = function(roots, rootValueTypes, defaultRootName, database) {
             var collection = rootNode.evaluate(roots, rootValueTypes, defaultRootName, database),
             result = {
                 value: null,
@@ -967,55 +960,32 @@ var jQuery = jQuery || {};
 
         that.isPath = rootNode.isPath;
 
-        that.getPath = that.isPath ?
-        function() {
-            return rootNode;
-        }:
-        function() {
-            return null;
-        };
-
-        that.testExists = that.isPath ?
-        function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
-            return rootNode.testExists(roots, rootValueTypes, defaultRootName, database);
-        }:
-        function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
-            return that.evaluate(roots, rootValueTypes, defaultRootName, database).values.size() > 0;
-        };
-
-        that.evaluateBackward = function(
-        value,
-        valueType,
-        filter,
-        database
-        ) {
+		if(that.isPath) {
+			that.getPath = function() { 
+				return rootNode; 
+			};
+            that.testExists = function(roots, rootValueTypes, defaultRootName, database) {
+                return rootNode.testExists(roots, rootValueTypes, defaultRootName, database);
+            };
+		}
+		else {
+			that.getPath = function() {
+				return null;
+			};
+            that.testExists = function(roots, rootValueTypes, defaultRootName, database) {
+                return that.evaluate(roots, rootValueTypes, defaultRootName, database).values.size() > 0;
+            };
+		}
+		
+        that.evaluateBackward = function(value, valueType, filter, database) {
             return rootNode.walkBackward([value], valueType, filter, database);
         };
 
-        that.walkForward = function(
-        values,
-        valueType,
-        database
-        ) {
+        that.walkForward = function(values, valueType, database) {
             return rootNode.walkForward(values, valueType, database);
         };
 
-        that.walkBackward = function(
-        values,
-        valueType,
-        filter,
-        database
-        ) {
+        that.walkBackward = function(values, valueType, filter, database) {
             return rootNode.walkBackward(values, valueType, filter, database);
         };
 
@@ -1089,12 +1059,7 @@ var jQuery = jQuery || {};
     Expression.Constant = function(value, valueType) {
         var that = {};
 
-        that.evaluate = function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
+        that.evaluate = function(roots, rootValueTypes, defaultRootName, database) {
             return Expression.Collection([value], valueType);
         };
 
@@ -1108,12 +1073,7 @@ var jQuery = jQuery || {};
         _operator = operator,
         _args = args;
 
-        that.evaluate = function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
+        that.evaluate = function(roots, rootValueTypes, defaultRootName, database) {
             var values = [],
             args = [],
             i,
@@ -1163,12 +1123,7 @@ var jQuery = jQuery || {};
         _name = name,
         _args = args;
 
-        that.evaluate = function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
+        that.evaluate = function(roots, rootValueTypes, defaultRootName, database) {
             var args = [],
             i,
             n;
@@ -1195,12 +1150,7 @@ var jQuery = jQuery || {};
         _name = name,
         _args = args;
 
-        that.evaluate = function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
+        that.evaluate = function(roots, rootValueTypes, defaultRootName, database) {
             return Expression.Controls[_name].f(_args, roots, rootValueTypes, defaultRootName, database);
         };
 
@@ -1221,36 +1171,36 @@ var jQuery = jQuery || {};
             valueType,
             property,
             values,
-			forwardArraySegmentFn = function(segment) {
-				var a = [];
-				collection.forEachValue(function(v) {
-					database.getObjects(v, segment.property).visit(function(v2) {
-						a.push(v2);
-					});
-				});
-				return a;
-			},
-			backwardArraySegmentFn = function(segment) {
-				var a = [];
-				collection.forEachValue(function(v) {
-					database.getSubjects(v, segment.property).visit(function(v2) {
-						a.push(v2);
-					});
-				});
-				return a;
-			};
+            forwardArraySegmentFn = function(segment) {
+                var a = [];
+                collection.forEachValue(function(v) {
+                    database.getObjects(v, segment.property).visit(function(v2) {
+                        a.push(v2);
+                    });
+                });
+                return a;
+            },
+            backwardArraySegmentFn = function(segment) {
+                var a = [];
+                collection.forEachValue(function(v) {
+                    database.getSubjects(v, segment.property).visit(function(v2) {
+                        a.push(v2);
+                    });
+                });
+                return a;
+            };
 
             for (i = 0, n = _segments.length; i < n; i += 1) {
                 segment = _segments[i];
                 if (segment.isArray) {
                     a = [];
                     if (segment.forward) {
-						a = forwardArraySegmentFn(segment);
+                        a = forwardArraySegmentFn(segment);
                         property = database.getProperty(segment.property);
                         valueType = property !== null ? property.getValueType() : "text";
                     }
                     else {
-						a = backwardArraySegmentFn(segment);
+                        a = backwardArraySegmentFn(segment);
                         valueType = "item";
                     }
                     collection = Expression.Collection(a, valueType);
@@ -1278,28 +1228,28 @@ var jQuery = jQuery || {};
             valueType,
             property,
             values,
-			forwardArraySegmentFn = function(segment) {
-				var a = [];
-				collection.forEachValue(function(v) {
-					database.getSubjects(v, segment.property).visit(function(v2) {
-						if( i > 0 || filter === null || filter.contains(v2)) {
-							a.push(v2);
-						}
-					});
-				});
-				return a;
-			},
-			backwardArraySegmentFn = function(segment) {
-				var a = [];
-				collection.forEachValue(function(v) {
-					database.getObjects(v, segment.property).visit(function(v2) {
-						if(i > 0 || filter === null || filter.contains(v2)) {
-							a.push(v2);
-						}
-					});
-				});
-				return a;
-			};
+            forwardArraySegmentFn = function(segment) {
+                var a = [];
+                collection.forEachValue(function(v) {
+                    database.getSubjects(v, segment.property).visit(function(v2) {
+                        if (i > 0 || filter === null || filter.contains(v2)) {
+                            a.push(v2);
+                        }
+                    });
+                });
+                return a;
+            },
+            backwardArraySegmentFn = function(segment) {
+                var a = [];
+                collection.forEachValue(function(v) {
+                    database.getObjects(v, segment.property).visit(function(v2) {
+                        if (i > 0 || filter === null || filter.contains(v2)) {
+                            a.push(v2);
+                        }
+                    });
+                });
+                return a;
+            };
 
             if (filter instanceof Array) {
                 filter = MITHGrid.Data.Set(filter);
@@ -1309,12 +1259,12 @@ var jQuery = jQuery || {};
                 if (segment.isArray) {
                     a = [];
                     if (segment.forward) {
-						a = forwardArraySegmentFn(segment);
+                        a = forwardArraySegmentFn(segment);
                         property = database.getProperty(segment.property);
                         valueType = property !== null ? property.getValueType() : "text";
                     }
                     else {
-						a = backwardArraySegmentFn(segment);
+                        a = backwardArraySegmentFn(segment);
                         valueType = "item";
                     }
                     collection = Expression.Collection(a, valueType);
@@ -1382,12 +1332,7 @@ var jQuery = jQuery || {};
             return _segments.length;
         };
 
-        that.rangeBackward = function(
-        from,
-        to,
-        filter,
-        database
-        ) {
+        that.rangeBackward = function(from, to, filter, database) {
             var set = MITHGrid.Data.Set(),
             valueType = "item",
             segment,
@@ -1423,12 +1368,7 @@ var jQuery = jQuery || {};
             };
         };
 
-        that.evaluate = function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
+        that.evaluate = function(roots, rootValueTypes, defaultRootName, database) {
             var rootName = _rootName !== null ? _rootName: defaultRootName,
             valueType = rootValueTypes[rootName] !== undefined ? rootValueTypes[rootName] : "text",
             collection = null,
@@ -1451,39 +1391,20 @@ var jQuery = jQuery || {};
             }
         };
 
-        that.testExists = function(
-        roots,
-        rootValueTypes,
-        defaultRootName,
-        database
-        ) {
+        that.testExists = function(roots, rootValueTypes, defaultRootName, database) {
             return that.evaluate(roots, rootValueTypes, defaultRootName, database).size() > 0;
         };
 
-        that.evaluateBackward = function(
-        value,
-        valueType,
-        filter,
-        database
-        ) {
+        that.evaluateBackward = function(value, valueType, filter, database) {
             var collection = Expression.Collection([value], valueType);
             return walkBackward(collection, filter, database);
         };
 
-        that.walkForward = function(
-        values,
-        valueType,
-        database
-        ) {
+        that.walkForward = function(values, valueType, database) {
             return walkForward(Expression.Collection(values, valueType), database);
         };
 
-        that.walkBackward = function(
-        values,
-        valueType,
-        filter,
-        database
-        ) {
+        that.walkBackward = function(values, valueType, filter, database) {
             return walkBackward(Expression.Collection(values, valueType), filter, database);
         };
 
@@ -1503,7 +1424,7 @@ var jQuery = jQuery || {};
                 scanner.next();
                 token = scanner.token();
             },
-			parseFactor = function() { },
+            parseFactor = function() {},
             parseTerm = function() {
                 var term = parseFactor(),
                 operator;
@@ -1530,7 +1451,7 @@ var jQuery = jQuery || {};
                 }
                 return subExpression;
             },
-			parseExpression = function() {
+            parseExpression = function() {
                 var expression = parseSubExpression(),
                 operator;
 
@@ -1577,7 +1498,7 @@ var jQuery = jQuery || {};
 
             parseFactor = function() {
                 var result = null,
-				args = [],
+                args = [],
                 identifier;
 
                 if (token === null) {
@@ -1652,10 +1573,10 @@ var jQuery = jQuery || {};
                             throw new Error("Missing ) at position " + makePosition());
                         }
                     }
-					else {
-						throw new Error("Unexpected text " + token.value + " at position " + makePosition());
-					}
-					break;
+                    else {
+                        throw new Error("Unexpected text " + token.value + " at position " + makePosition());
+                    }
+                    break;
                 default:
                     throw new Error("Unexpected text " + token.value + " at position " + makePosition());
                 }
@@ -1870,7 +1791,7 @@ var jQuery = jQuery || {};
     Expression.Scanner.OPERATOR = 4;
     Expression.Scanner.PATH_OPERATOR = 5;
 
-}(jQuery, MITHGrid));
+} (jQuery, MITHGrid));
 (function($, MITHGrid) {
     MITHGrid.namespace('Presentation');
 
@@ -2056,14 +1977,14 @@ var jQuery = jQuery || {};
 							// hook plugin up with dataView requested by app configuration
 							plugin.dataView = that.dataView[pconfig.dataView];
 							// add 
-							$.each(plugin.types(), function(idx, t) {
+							$.each(plugin.getTypes(), function(idx, t) {
 								plugin.dataView.addType(t);
 							});
-							$.each(plugin.properties(), function(idx, p) {
+							$.each(plugin.getProperties(), function(idx, p) {
 								plugin.dataView.addProperty(p.label, p);
 							});
 						}
-						$.each(plugin.presentations(),
+						$.each(plugin.getPresentations(),
 						function(idx, config) {
 							var options = $.extend(true, {},
 								config.options),
@@ -2121,7 +2042,7 @@ var jQuery = jQuery || {};
 	MITHGrid.Plugin.initPlugin = function(klass, options) {
 		var that = { options: options, presentation: { } }, readyFns = [ ];
 		
-		that.types = function() {
+		that.getTypes = function() {
 			if(options.types !== undefined) {
 				return options.types;
 			}
@@ -2130,7 +2051,7 @@ var jQuery = jQuery || {};
 			}
 		};
 		
-		that.properties = function() {
+		that.getProperties = function() {
 			if(options.properties !== undefined) {
 				return options.properties;
 			}
@@ -2139,7 +2060,7 @@ var jQuery = jQuery || {};
 			}
 		};
 		
-		that.presentations = function() {
+		that.getPresentations = function() {
 			if(options.presentations !== undefined) {
 				return options.presentations;
 			}
