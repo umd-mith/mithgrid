@@ -11,15 +11,14 @@ JSLINT(src, {
 	sloppy: true, 
 	browser: true, 
 	plusplus: false,
-	"continue": true,
-	confusion: true
+	"continue": true
 });
 
 // All of the following are known issues that we think are 'ok'
 // (in contradiction with JSLint) more information here:
 // http://docs.jquery.com/JQuery_Core_Style_Guidelines
 var ok = {
-//	"Don't make functions within a loop.": true,
+	"Type confusion: .evaluate: function array and 'function': function object.": true
 };
 
 var e = JSLINT.errors, found = 0, w;

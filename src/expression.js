@@ -412,7 +412,7 @@
 
             for (i = 0, n = _segments.length; i < n; i += 1) {
                 segment = _segments[i];
-                if (segment.isArray) {
+                if (segment.isMultiple) {
                     a = [];
                     if (segment.forward) {
                         a = forwardArraySegmentFn(segment);
@@ -476,7 +476,7 @@
             }
             for (i = _segments.length - 1; i >= 0; i -= 1) {
                 segment = _segments[i];
-                if (segment.isArray) {
+                if (segment.isMultiple) {
                     a = [];
                     if (segment.forward) {
                         a = forwardArraySegmentFn(segment);
@@ -510,7 +510,7 @@
             _segments.push({
                 property: property,
                 forward: forward,
-                isArray: false
+                isMultiple: false
             });
         }
 
@@ -524,7 +524,7 @@
             _segments.push({
                 property: property,
                 forward: hopOperator.charAt(0) === ".",
-                isArray: hopOperator.length > 1
+                isMultiple: hopOperator.length > 1
             });
         };
 
@@ -536,7 +536,7 @@
                 return {
                     property: segment.property,
                     forward: segment.forward,
-                    isArray: segment.isArray
+                    isMultiple: segment.isMultiple
                 };
             }
             else {
@@ -813,7 +813,7 @@
                 return expressions;
             }
             else {
-                return Expression.Expression(parseExpression());
+                return [Expression.Expression(parseExpression())];
             }
         };
 
@@ -825,7 +825,7 @@
 
             scanner = Expression.Scanner(s, startIndex);
             try {
-                return internalParse(scanner, false);
+                return internalParse(scanner, false)[0];
             }
             finally {
                 results.index = scanner.token() !== null ? scanner.token().start: scanner.index();
@@ -948,7 +948,7 @@
                         _index = i + 1;
                     }
                     else {
-                        throw new Error("Unterminated string starting at " + _index);
+                        throw new Error("Unterminated string starting at " + String(_index));
                     }
                 }
                 else if (isDigit(c1)) {
