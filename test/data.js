@@ -109,7 +109,7 @@ $(document).ready(function() {
 
     test("Check data source types and properties",
     function() {
-        var ds;
+        var ds, t;
 
         expect(9);
         ds = MITHGrid.Data.Source({
@@ -120,19 +120,26 @@ $(document).ready(function() {
         ds.addType("Item");
         ds.addType("Foo");
 
-        notEqual(ds.types.Item, undefined, "Item type is available");
-        notEqual(ds.types.Foo, undefined, "Foo type is available");
-        equals(ds.types.Item.name, "Item", "Item type name is correct");
-        equals(ds.types.Foo.name, "Foo", "Foo type name is correct");
+		t = ds.getType("Item");
+        notEqual(t, undefined, "Item type is available");
+        equals(t.name, "Item", "Item type name is correct");
+
+		t = ds.getType("Foo");
+        notEqual(t, undefined, "Foo type is available");
+        equals(t.name, "Foo", "Foo type name is correct");
 
         ds.addProperty("foo", {
             valueType: "numeric"
         });
         ds.addProperty("bar");
-        notEqual(ds.properties.foo, undefined, "foo property is available");
-        notEqual(ds.properties.bar, undefined, "bar property is available");
-        equals(ds.properties.foo.getValueType(), "numeric", "foo is numeric");
-        equals(ds.properties.bar.getValueType(), "text", "bar is numeric");
+
+		t = ds.getProperty("foo");
+        notEqual(t, undefined, "foo property is available");
+        equals(t.getValueType(), "numeric", "foo is numeric");
+
+		t = ds.getProperty("bar");
+        notEqual(t, undefined, "bar property is available");
+        equals(t.getValueType(), "text", "bar is text");
     });
 
     test("Check data source data loading",

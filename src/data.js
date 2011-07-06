@@ -98,6 +98,10 @@
         prop,
         quiesc_events = false,
         set = Data.Set(),
+        types = {},
+        properties = {},
+        spo = {},
+        ops = {},
 		indexPut = function(index, x, y, z) {
             var hash = index[x],
             array,
@@ -177,10 +181,6 @@
 
         that.source = options.source;
 
-        that.types = {};
-        that.properties = {};
-        that.spo = {};
-        that.ops = {};
         that.items = set.items;
 
         that.addProperty = function(nom, options) {
@@ -188,22 +188,31 @@
 			if( options !== undefined && options.valueType !== undefined ) {
 				prop.valueType = options.valueType;
 			}
-            that.properties[nom] = prop;
+            properties[nom] = prop;
         };
 
 		that.getProperty = function(nom) {
-			if(that.properties[nom] === undefined) {
+			if(properties[nom] === undefined) {
 				return Data.Property(nom);
 			}
 			else {
-				return that.properties[nom];
+				return properties[nom];
 			}
 		};
 
         that.addType = function(nom, options) {
             var type = Data.Type(nom);
-            that.types[nom] = type;
+            types[nom] = type;
         };
+
+		that.getType = function(nom) {
+			if(types[nom] === undefined) {
+				return Data.Type(nom);
+			}
+			else {
+				return types[nom];
+			}
+		};
 
         /* In MITHGrid, the app and plugins would populate the types and properties based on what they need */
         /* For us, we have:
@@ -240,8 +249,8 @@
 
 
         that.getItem = function(id) {
-            if (that.spo[id] !== undefined) { //id in that.spo) {
-                return that.spo[id].values;
+            if (spo[id] !== undefined) { //id in that.spo) {
+                return spo[id].values;
             }
             return {};
         };
@@ -268,9 +277,7 @@
         };
 
         that.updateItems = function(items) {
-            var spo,
-            ops,
-            indexTriple,
+            var indexTriple,
             n,
             chunk_size,
             f,
@@ -321,12 +328,12 @@
                 }
             },
 			indexPutFn = function(s, p, o) {
-                indexPut(that.spo, s, p, o);
-                indexPut(that.ops, o, p, s);
+                indexPut(spo, s, p, o);
+                indexPut(ops, o, p, s);
             },
             indexRemoveFn = function(s, p, o) {
-                indexRemove(that.spo, s, p, o);
-                indexRemove(that.ops, o, p, s);
+                indexRemove(spo, s, p, o);
+                indexRemove(ops, o, p, s);
             },
             updateItem = function(entry, indexPutFn, indexRemoveFn) {
                 // we only update things that are different from the old_item
@@ -442,17 +449,15 @@
         };
 
         that.loadItems = function(items, endFn) {
-            var spo,
-            ops,
-            indexTriple,
+            var indexTriple,
             entry,
             n,
 			chunk_size,
             id_list = [],
             f,
 			indexFn = function(s, p, o) {
-                indexPut(that.spo, s, p, o);
-                indexPut(that.ops, o, p, s);
+                indexPut(spo, s, p, o);
+                indexPut(ops, o, p, s);
             },
             loadItem = function(item, indexFN) {
                 var id,
@@ -578,11 +583,11 @@
 
 
         that.getObjectsUnion = function(subjects, p, set, filter) {
-            return getUnion(that.spo, subjects, p, set, filter);
+            return getUnion(spo, subjects, p, set, filter);
         };
 
         that.getSubjectsUnion = function(objects, p, set, filter) {
-            return getUnion(that.ops, objects, p, set, filter);
+            return getUnion(ops, objects, p, set, filter);
         };
 
         return that;
