@@ -7,6 +7,17 @@
  */
 
  (function($, MITHGrid) {
+	/*
+	 * Since MITHGrid doesn't have any predefined presentations right now, we define a few for the game.
+	 *
+	 * The first is a list of text items.
+	 *
+	 * The itemLens is an object that can render the item, adding content to the container as well as
+	 * returning an object that can be used to update or remove the content.
+	 * 
+	 * The lens for the text list renders the item name as a list element.  The item name is a property
+	 * of objects in the Adventure game.
+	 */
     MITHGrid.Presentation.TextList = function(container, options) {
         var that = MITHGrid.Presentation.initView("TextList", container, options),
         itemLens = {
@@ -40,6 +51,16 @@
         return that;
     };
 
+    /*
+     * The room description presentation pulls together a description of the room, the allowed actions in
+     * the room, and a list of objects present in the room.
+     *
+     * This information is appended to the container instead of replacing the previous results.
+     *
+     * The 'render' function in the roomLens is called when the game starts.  After that, the
+     * update function on the object that render() returns is called when the player's object is updated.
+     *
+     */
     MITHGrid.Presentation.RoomDescription = function(container, options) {
         var that = MITHGrid.Presentation.initView("RoomDescription", container, options),
         roomLens = {
@@ -49,6 +70,10 @@
 				thingsInEnvExpr = model.prepare(["!environment.id"]),
                 room = model.getItem(model.getItem('player').environment[0]);
 
+				/* thingsInEnvExpr is a prepared expression that will find all of the things in the game database
+				 * that share the same environment as the provided object id - in this case, it will be the id
+				 * of the room that the player is in
+				 */
 				var doRender = function() {
 					var things = { "Word": [], "Object": [] },
 					thingIds = thingsInEnvExpr.evaluate([room.id[0]]);
@@ -65,6 +90,7 @@
 						}
 					});
 					
+					/* available actions have a type of 'Word' */
 					if(things.Word.length > 0) {
 						el = $('<ul class="words"></ul>');
 						$.each(things.Word, function(idx, word) {
@@ -73,6 +99,8 @@
 							if(dest !== undefined && dest.id !== undefined) {
 								cmdEl = $('<li>' + word.word[0] + '</li>');
 								$(el).append(cmdEl);
+								
+								// we allow the player to move to the destination by clicking on the word
 								cmdEl.click(function() {
 									if(word.condition[0] === 0 && model.getItem("player").environment[0] === word.environment[0]) {
 										model.updateItems([{
@@ -88,6 +116,7 @@
 						$(container).append(el2);
 					}
 					
+					/* available items have a type of 'Object' */
 					if(things.Object.length > 0) {
 						el = $('<ul class="objects"></ul>');
 						$.each(things.Object, function(idx, object) {
@@ -95,6 +124,8 @@
 							
 							objEl = $('<li>' + object.name[0] + '</li>');
 							$(el).append(objEl);
+							
+							// we allow the player to pick up the item by clicking on the item name
 							objEl.click(function() {
 								if(model.getItem("player").environment[0] === object.environment[0]) {
 									model.updateItems([{
@@ -110,9 +141,15 @@
 					}
 				};
 
+				/*
+				 * an update just updates the room if the player's environment is different than the
+				 * previously rendered room
+				 */
                 that.update = function(item) {
-					room = model.getItem(item.environment[0]);
-					doRender();
+					if(room.id[0] !== item.environment[0]) {
+						room = model.getItem(item.environment[0]);
+						doRender();
+					}
 				};
 
 				doRender();
@@ -133,6 +170,10 @@
         return that;
     }
 
+	/*
+	 * This is the main application configuration, providing information about the game database, the
+	 * various filtered data views, and the DOM content inside the container.
+	 */
     MITHGrid.Application.Adventure = function(container, options) {
         var that = MITHGrid.Application.initApp("MITHGrid.Application.Adventure", container, {
             dataSources: [{
@@ -157,6 +198,8 @@
                 label: 'inventory',
                 dataSource: 'adventure',
                 collection: function(model, id) {
+	
+					// only allow items that have the 'player' as their environment
                     var item = model.getItem(id);
                     if (item.environment === undefined || item.type === undefined) {
                         return false;
@@ -173,6 +216,9 @@
                 label: 'player',
                 dataSource: 'adventure',
                 collection: function(model, id) {
+	
+					// only allow the 'player' object in this -- useful for listening for changes to
+					// the player object
 					if(id === "player") {
 						return;
 					}
@@ -219,6 +265,7 @@
             lastLoc = room.id;
             caveData.push(room);
         },
+		// creates an action word for the most recent location created
         makeInst = function(word, condition, destination) {
             var inst = {
                 id: 'inst:' + ids.inst,
@@ -232,7 +279,9 @@
             ids.inst += 1;
             caveData.push(inst);
         },
+		// creates an action synonym for the most recently created action word
         ditto = function(word) {
+			lastInst = $.extend(true, {}, lastInst);
             lastInst.id = "inst:" + ids.inst;
             ids.inst += 1;
             lastInst.word = word;
@@ -250,6 +299,7 @@
             lastObj = obj;
             caveData.push(obj);
         },
+		// attaches a note to the last item created
         newNote = function(note) {
             var n = {
                 id: "note:" + ids.note,
@@ -300,6 +350,7 @@
             return that.dataView.inventory.items().length;
         };
 
+		// the following create the locations and movement between locations
         makeLoc("road",
         "You are standing at the end of a road before a small brick building.\n" +
         "Around you is a forest.  A small stream flows out of the building and\n" +
@@ -441,9 +492,4 @@
 
         return that;
     };
-
-    $(document).ready(function() {
-        var game = MITHGrid.Application.Adventure("#game");
-        game.run();
-    });
 } (jQuery, MITHGrid));

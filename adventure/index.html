@@ -5,6 +5,12 @@
 <script src="../lib/infusion.js" type="text/javascript"></script> 
 <script src="../dist/mithgrid.js" type="text/javascript"></script>
 <script src="game.js" type="text/javascript"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    var game = MITHGrid.Application.Adventure("#game");
+    game.run();
+});
+</script>
 <link rel="stylesheet" href="game.css" type="text/css" /> 
     </head> 
     <body> 
