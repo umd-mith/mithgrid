@@ -158,7 +158,7 @@
 						el2.append(el);
 						$(container).append(el2);
 					}
-				}
+				};
 				
 				/*
 				 * an update just updates the room if the player's environment is different than the
@@ -284,6 +284,7 @@
         lastInst = {},
         lastObj = {},
 		newLoc = "",
+		thingsInEnvExpr = {},
         // location creation functions
         makeLoc = function(location, longDesc, shortDesc, flags) {
             var room = {
@@ -402,11 +403,49 @@
 			commands[cmd] = fn;
 		},
 		parseCommand = function(cmd) {
-			var bits = $.trim(cmd).split(" "),
+			var bits = $.trim(cmd.toLowerCase()).split(" "),
 			words = [ ];
+			
+			newLoc = "";
+			
+			if(thingsInEnvExpr.evaluate === undefined) {
+				thingsInEnvExpr = that.dataSource.adventure.prepare(["!environment.id"]);
+			}
+			
+			if(bits.length == 2 && bits[0] === "go") {
+				bits = [ bits[1] ];
+			}
 			
 			if(bits.length == 1) {
 				// likely a word in the environment
+				if(bits[0] == "east") { bits[0] = "e"; }
+				if(bits[0] == "west") { bits[0] = "w"; }
+				if(bits[0] == "north") { bits[0] = "n"; }
+				if(bits[0] == "south") { bits[0] = "s"; }
+				if(bits[0] == "up") { bits[0] = "u"; }
+				if(bits[0] == "down") { bits[0] = "d"; }
+				
+				bits[0] = bits[0].toUpperCase();
+				words = $.grep(that.dataSource.adventure.getItems(thingsInEnvExpr.evaluate([player().environment[0]])),
+				function(word, idx) {
+					return word.type[0] === "Word" && word.word[0] === bits[0];
+				});
+				if(words !== undefined && words.length > 0) {
+					$.each(words, function(idx, word) {
+						if(newLoc !== "") { return; }
+						if(word.condition[0] === 0) {
+							// we can move
+							newLoc = word.destination[0];
+						}
+					});
+				}
+			}
+			
+			if(newLoc !== "") {
+				that.dataSource.adventure.updateItems([{
+					id: "player",
+					environment: newLoc
+				}]);
 			}
 		}
 		;
