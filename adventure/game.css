@@ -24,15 +24,20 @@ html, body {
 
 #game > .room {
 	width: 600px;
+	padding-left: 3px;
+	padding-right: 3px;
 	background-color: #ffffff;
 	float: left;
 	height: 600px;
 	overflow-y: scroll;
 }
 
-#game > .room > .description {
-	background-color: #f0f0f0;
-	border: 1px solid #f8f8f8;
+#game > .room > .description > .desc {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	margin-bottom: 2px;
+	margin-right: 5px;
+	margin-left: 5px;
 	padding: 10px;
 }
 

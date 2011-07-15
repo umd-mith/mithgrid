@@ -92,30 +92,42 @@
 					
 					/* available actions have a type of 'Word' */
 					if(things.Word.length > 0) {
-						el = $('<ul class="words"></ul>');
+						things.WordHash = { };
+						things.WordList = [ ];
 						$.each(things.Word, function(idx, word) {
-							var dest = model.getItem(word.destination[0]),
+							if(things.WordHash[word.word[0]] === undefined) {
+								things.WordHash[word.word[0]] = [ ];
+								things.WordList.push(word.word[0]);
+							}
+							things.WordHash[word.word[0]].push(word);
+						});
+						el = $('<ul class="words"></ul>');
+						$.each(things.WordList.sort(), function(idx, w) {
+							var words = things.WordHash[w],
 							cmdEl;
-							if(dest !== undefined && dest.id !== undefined) {
-								cmdEl = $('<li>' + word.word[0] + '</li>');
-								if(word.word[0].length === 1) {
-									$(el).prepend(cmdEl);
-								}
-								else {
-									$(el).append(cmdEl);
-								}
-								
-								// we allow the player to move to the destination by clicking on the word
-								cmdEl.click(function() {
-									if(word.condition[0] === 0 && 
-													model.getItem("player").environment[0] === word.environment[0]) {
-										model.updateItems([{
-											id: "player",
-											environment: word.destination[0]
-										}]);
+							cmdEl = $('<li>' + w + '</li>');
+							if(w.length === 1) {
+								$(el).prepend(cmdEl);
+							}
+							else {
+								$(el).append(cmdEl);
+							}
+							// we allow the player to move to the destination by clicking on the word
+							cmdEl.click(function() {
+								var player = model.getItem("player");
+								$.each(words, function(idx, word) {
+									var dest = model.getItem(word.destination[0]);
+									if(dest === undefined || dest.id === undefined) { return; }
+									if(player.environment[0] === word.environment[0]) {
+										if(word.condition[0] === 0) {
+											model.updateItems([{
+												id: "player",
+												environment: word.destination[0]
+											}]);
+										}
 									}
 								});
-							}
+							});
 						});
 						el2 = $('<div>Movement: </div>');
 						el2.append(el);
@@ -466,6 +478,49 @@
         ditto("D");
         makeInst("WOODS", 0, "forest");
         ditto("S");
+
+		makeLoc("slit",
+		"At your feet all the water of the stream splashes into a 2-inch slit\n" +
+		"in the rock.  Downstream the streambed is bare rock.",
+		"You're at slit in streambed.",
+		["lighted", "liquid"]
+		);
+		makeInst("HOUSE", 0, "road");
+		makeInst("UPSTREAM", 0, "valley");
+		ditto("N");
+		makeInst("WOODS", 0, "forest");
+		ditto("E");
+		ditto("W");
+		makeInst("DOWNSTREAM", 0, "outside");
+		ditto("ROCK");
+		ditto("BED");
+		ditto("S");
+		//remark("You don't fit through a two-inch slit!");
+		makeInst("SLIT", 0, "sayit");
+		ditto("STREAM");
+		ditto("D");
+		
+		makeLoc("outside",
+		"You are in a 20-foot depression floored with bare dirt.  Set into the\n" +
+		"dirt is a strong steel grate mounted in concrete.  A dry streambed\n" +
+		"leads into the depression.",
+		"You're outside grate.",
+		[ "lighted", "cave_hint" ]
+		);
+		makeInst("WOODS", 0, "forest");
+		ditto("E");
+		ditto("W");
+		ditto("S");
+		makeInst("HOUSE", 0, "road");
+		makeInst("UPSTREAM", 0, "slit");
+		ditto("GULLY");
+		ditto("N");
+		makeInst("ENTER", /*not(GRATE, 0) */ 0, "inside");
+		ditto("ENTER");
+		ditto("IN");
+		ditto("D");
+		//remark("You can't go through a locked steel grate!");
+		makeInst("ENTER", 0, "sayit");
 
         // next location: section 28, page 18 ("slit")
         // now add a few one-place objects (section 70, page 48)
