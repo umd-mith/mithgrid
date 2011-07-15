@@ -98,7 +98,12 @@
 							cmdEl;
 							if(dest !== undefined && dest.id !== undefined) {
 								cmdEl = $('<li>' + word.word[0] + '</li>');
-								$(el).append(cmdEl);
+								if(word.word[0].length === 1) {
+									$(el).prepend(cmdEl);
+								}
+								else {
+									$(el).append(cmdEl);
+								}
 								
 								// we allow the player to move to the destination by clicking on the word
 								cmdEl.click(function() {
@@ -175,9 +180,11 @@
 	 * various filtered data views, and the DOM content inside the container.
 	 */
     MITHGrid.Application.Adventure = function(container, options) {
+		// the initApp call sets up the basic data sources, views, and presentations we want to use
         var that = MITHGrid.Application.initApp("MITHGrid.Application.Adventure", container, {
             dataSources: [{
                 label: 'adventure',
+				// let the database know what kinds of items we expect to have
 				types: [{
 					label: "Player"
 				}, {
@@ -189,6 +196,7 @@
 				}, {
 					label: "Note"
 				}],
+				// let the database know that the 'environment' property points to other items
 				properties: [{
 					label: "environment",
 					valueType: "Item"
@@ -227,9 +235,17 @@
 					}
                 }
             }],
+			/*
+			 * This is the DOM content we want within our configured container, but we need to wait
+			 * until the DOM is ready before we try to add this
+			 */
             viewSetup: "<div class='room'><div class='description'></div><div class='objects'></div></div>" +
             "<div class='cli'></div><div class='directions''></div>" +
             "<div class='inventory-holder'><h2>Inventory</h2><ul class='inventory'></ul></div>",
+			/*
+			 * here, we tie the presentation definitions from above to the DOM elements that will house the presentation
+			 * we also point the presentation at the appropriate filtered data view
+			 */
             presentations: [{
                 type: MITHGrid.Presentation.TextList,
                 container: "#" + $(container).attr('id') + " > .inventory-holder > .inventory",
@@ -242,7 +258,7 @@
             }]
         }),
         selector = {},
-        caveData = [],
+        caveData = [], // this contains the initial data we want to load into the database
         words = {},
         ids = {
             inst: 0,
