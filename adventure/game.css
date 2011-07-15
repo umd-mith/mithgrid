@@ -28,7 +28,7 @@ html, body {
 	padding-right: 3px;
 	background-color: #ffffff;
 	float: left;
-	height: 600px;
+	height: 400px;
 	overflow-y: scroll;
 }
 
@@ -41,6 +41,19 @@ html, body {
 	padding: 10px;
 }
 
+ p.info {
+	margin-left: 30px;
+	margin-right: 30px;
+}
+
+ p.error {
+	margin-left: 20px;
+	margin-right: 20px;
+	padding-left: 10px;
+	padding-right: 10px;
+	background-color: #fff8f8;
+	border: 1px solid #fff0f0;
+}
 #game > .room > .description ul {
 	display: inline;
 	margin: 0px;

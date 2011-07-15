@@ -129,16 +129,13 @@
 							things.WordHash[word.word[0]].push(word);
 						});
 						el = $('<ul class="words"></ul>');
-						$.each(things.WordList.sort(), function(idx, w) {
+						$.each(["N", "E", "S", "W", "U", "D"], function(idx, w) {
 							var words = things.WordHash[w],
 							cmdEl;
+							if(words === undefined) { return; }
 							cmdEl = $('<li>' + w + '</li>');
-							if(w.length === 1) {
-								$(el).prepend(cmdEl);
-							}
-							else {
-								$(el).append(cmdEl);
-							}
+							$(el).append(cmdEl);
+
 							// we allow the player to move to the destination by clicking on the word
 							cmdEl.click(function() {
 								var player = model.getItem("player");
@@ -154,10 +151,13 @@
 								});
 							});
 						});
-						el2 = $('<div>Exits: </div>');
+						el2 = $('<div>Obvious Exits: </div>');
 						el2.append(el);
 						$(container).append(el2);
 					}
+					$(container).parent().animate({
+						scrollTop: $(el).offset().top - $(container).parent().offset().top + $(container).parent().scrollTop()
+					});
 				};
 				
 				/*
@@ -273,9 +273,9 @@
             }]
         }),
         selector = {},
-        caveData = [], // this contains the initial data we want to load into the database
         words = {},
 		commands = {},
+		lastCmd = "",
         ids = {
             inst: 0,
             note: 0
@@ -297,7 +297,7 @@
             };
             // travels: each entry has 'command', 'condition', 'destination'
             lastLoc = room.id;
-            caveData.push(room);
+			that.dataSource.adventure.loadItems([room]);
         },
 		// creates an action word for the most recent location created
         makeInst = function(word, condition, destination) {
@@ -311,7 +311,7 @@
             };
             lastInst = inst;
             ids.inst += 1;
-            caveData.push(inst);
+			that.dataSource.adventure.loadItems([inst]);
         },
 		// creates an action synonym for the most recently created action word
         ditto = function(word) {
@@ -319,7 +319,7 @@
             lastInst.id = "inst:" + ids.inst;
             ids.inst += 1;
             lastInst.word = word;
-            caveData.push(lastInst);
+			that.dataSource.adventure.loadItems([lastInst]);
         },
         // item creation functions
         newObj = function(label, name, base, location) {
@@ -331,7 +331,7 @@
                 type: 'Object'
             }
             lastObj = obj;
-            caveData.push(obj);
+			that.dataSource.adventure.loadItems([obj]);
         },
 		// attaches a note to the last item created
         newNote = function(note) {
@@ -342,7 +342,7 @@
                 type: 'Note'
             };
             ids.note += 1;
-            caveData.push(n);
+			that.dataSource.adventure.loadItems([n]);
         },
         player = function() {
             return that.dataSource.adventure.getItem('player');
@@ -357,17 +357,23 @@
         },
         toting = function(treasure) {
             // is the player carrying this treasure?
-            var t = that.dataSource.adventure.getItem("obj:" + treasure);
+			if(treasure.substr(0,4) !== "obj:") {
+				treasure = "obj:" + treasure;
+			}
+            var t = that.dataSource.adventure.getItem(treasure);
             return t.environment[0] === "player";
         },
         move = function(treasure, location) {
+			if(treasure.substring(0,4) !== "obj:") {
+				treasure = "obj:" + treasure;
+			}
             that.dataSource.adventure.updateItems([{
-                id: "obj:" + treasure,
+                id: treasure,
                 environment: location
             }]);
         },
         drop = function(treasure) {
-            if (toting(teasure)) {
+            if (toting(treasure)) {
                 move(treasure, player().environment[0]);
             }
         },
@@ -398,13 +404,33 @@
 		waterHere = function() {
 			var here = that.dataSource.adventure.getItem(player().environment[0]);
 			return $.inArray("liquid", here.flags) >= 0 && $.inArray("oil", here.flags) === -1;
-		}
+		},
+		number_commands = 0,
 		makeCommand = function(cmd, fn) {
 			commands[cmd] = fn;
+			lastCmd = cmd;
+			number_commands += 1;
 		},
+		alias = function(cmd) {
+			commands[cmd] = commands[lastCmd];
+			number_commands += 1;
+		},
+		thingsInEnvironment = function(env) {
+			if(thingsInEnvExpr.evaluate === undefined) {
+				thingsInEnvExpr = that.dataSource.adventure.prepare(["!environment.id"]);
+			}
+			if(env === undefined) {
+				env = player().environment[0];
+			}
+			return that.dataSource.adventure.getItems(thingsInEnvExpr.evaluate([env]));
+		},
+		inventory = function() {
+			return thingsInEnvironment("player");
+		},
+		// our parsing here is going to be a bit different than in the literate programming example
 		parseCommand = function(cmd) {
 			var bits = $.trim(cmd.toLowerCase()).split(" "),
-			words = [ ];
+			things = [ ];
 			
 			newLoc = "";
 			
@@ -426,12 +452,12 @@
 				if(bits[0] == "down") { bits[0] = "d"; }
 				
 				bits[0] = bits[0].toUpperCase();
-				words = $.grep(that.dataSource.adventure.getItems(thingsInEnvExpr.evaluate([player().environment[0]])),
+				things = $.grep(thingsInEnvironment(),
 				function(word, idx) {
 					return word.type[0] === "Word" && word.word[0] === bits[0];
 				});
-				if(words !== undefined && words.length > 0) {
-					$.each(words, function(idx, word) {
+				if(things !== undefined && things.length > 0) {
+					$.each(things, function(idx, word) {
 						if(newLoc !== "") { return; }
 						if(word.condition[0] === 0) {
 							// we can move
@@ -441,14 +467,180 @@
 				}
 			}
 			
+			bits[0] = bits[0].toLowerCase();
+			if(newLoc === "") { // no movement, so we still haven't done anything
+				if(commands[bits[0]] !== undefined) {
+					commands[bits[0]](bits);
+				}
+				else {
+					error("I don't understand what you mean.");
+				}
+			}
+
 			if(newLoc !== "") {
 				that.dataSource.adventure.updateItems([{
 					id: "player",
 					environment: newLoc
 				}]);
 			}
+		},
+		print = function(stuff) {
+			var el,
+			container = $(selector.description);
+			el = $('<p class="info"></p>');
+			el.append(stuff);
+			$(container).append(el);
+			$(container).parent().animate({
+				scrollTop: $(el).offset().top - $(container).parent().offset().top + $(container).parent().scrollTop()
+			});
+		},
+		error = function(stuff) {
+			var el,
+			container = $(selector.description);
+			el = $('<p class="error"></p>');
+			el.append(stuff);
+			$(container).append(el);
+			$(container).parent().animate({
+				scrollTop: $(el).offset().top - $(container).parent().offset().top + $(container).parent().scrollTop()
+			});
+		},
+		messWord = function(word, msg) {
+			makeCommand(word, function(bits) { print(msg); });
 		}
 		;
+		
+		messWord("abra", "Good try, but that is an old worn-out magic word.");
+		alias("abracadabra"); alias("opensesame"); alias("sesame");
+		alias("shazam"); alias("hocus"); alias("pocus"); alias("hocuspocus");
+
+		messWord("?", "I know of places, actions, and things.  Most of my vocabulary describes places and is used " +
+			"to move you there.  To move, try words like forest, building, downstream, enter, east, west, north, " +
+			"south, up, or down.  I know about a few special objects, like a black rod hidden in the cave.  These " +
+			"objects can be manipulated using some of the action words that I know.  Usually you will need to " + 
+			"give both the object and action words (in either order), but sometimes I can infer the object from " +
+			"the verb alone.  Some objects also imply verbs; in particular, \"inventory\" implies \"take inventory\", " +
+			"which causes me to give you a list of what you're carrying.  The objects have side effects; for " +
+			"instance, the rod scares the bird.  Usually people having trouble moving just need to try a few more " +
+			"words.  Usually people trying unsuccessfully to manipulate an object are attempting something beyond " +
+			"their (or my!) capabilities and should try a completely different tack.  To speed the game you can " +
+			"sometimes move long distances with a single word.  For example, \"building\" usually gets you to the " +
+			"building from anywhere bove ground except when lost in the forest.  Also, note that cave passages " +
+			"turn a lot, and that leaving a room to the north does not guarantee entering the next from the south. " +
+			"<br/>Good luck!"
+		);
+		alias("help");
+		
+		messWord("tree", "The trees of the forest are large hardwood oak and maple, with an occasional grove of " +
+			"pine or spruce.  There is quite a bit of undergrowth, largely birch and ash saplings plus nondescript " +
+			"brushes of various sorts.  This time of year visibility is quite restricted by all the leaves, but " +
+			"travel is quite easy if you detour around the spruce and berry bushes."
+		);
+		alias("trees");
+		
+		messWord("dig", "Digging without a shovel is quite impractical.  Even with a shovel progress is unlikely.");
+		alias("excavate");
+		
+		messWord("lost", "I'm as confused as you are.");
+		
+		messWord("mist", "Mist is a white vapor, usually water, seen from time to time in caverns.  It can be found " +
+		    "anywhere but is frequently a sign of a deep pit leading down to water."
+		);
+		
+		
+		
+		makeCommand("take", function(bits) {
+			// is there something in the player's environment that is named by bits[1]?
+			var things = $.grep(thingsInEnvironment(), function(thing, idx) {
+				return thing.type[0] === "Object" && (
+					$.inArray(bits[1], thing.label) || $.inArray(bits.slice(1).join(" "), thing.name)
+				);
+			});
+			if( things.length === 0 ) {
+				things = $.grep(inventory(), function(thing, idx) {
+					return thing.type[0] === "Object" && (
+						$.inArray(bits[1], thing.label) || $.inArray(bits.slice(1).join(" "), thing.name)
+					);
+				});
+				if( things.length === 0) {
+					error("I don't see anything like that here.");
+				}
+				else {
+					print("You already have that.");
+				}
+			}
+			else if(things.length === 1) {
+				carry(things[0].id[0]);
+				if(toting(things[0].id[0])) {
+					print("You " + bits[0] + " the "+ things[0].label[0] + ".");
+				}
+				else {
+					print("You try to " + bits[0] + " the " + things[0].label[0] + ", but they slip through your fingers.");
+				}
+			}
+			else {
+				print("I'm not sure which of these you're talking about: " + 
+				      $.map(things, function(thing) { return thing.label[0]; }).join(", ") + ".");
+			}
+		});
+		alias("carry"); alias("keep"); alias("catch");
+		alias("capture"); alias("steal"); alias("get");
+		alias("tote");
+		
+		makeCommand("drop", function(bits) {
+			var things = $.grep(inventory(), function(thing, idx) {
+				return thing.type[0] === "Object" && (
+					$.inArray(bits[1], thing.label) || $.inArray(bits.slice(1).join(" "), thing.name)
+				);
+			});
+			if(things.length === 0) {
+				print("You have to have that before you can "+ bits[0] + " it.");
+			}
+			else if(things.length === 1) {
+				drop(things[0].id[0]);
+				if(!toting(things[0].id[0])) {
+					print("You " + bits[0] + " the " + things[0].label[0] + ".");
+				}
+				else {
+					print("You try to " + bits[0] + " the " + things[0].label[0] + ", but they stick to your hands.");
+				}
+			}
+			else if(things.length > 1) {
+				print("I'm not sure which of these you're talking about: " +
+				      $.map(things, function(thing) { return thing.label[0]; }).join(", ") + ".");
+			}
+		});
+		alias("release"); alias("free"); alias("discard");
+		alias("dump");
+		
+		makeCommand("open", function(bits) {
+			
+		});
+		alias("unlock");
+		
+		makeCommand("close", function(bits) {
+			
+		});
+		alias("lock");
+		
+		makeCommand("light", function(bits) {
+			
+		});
+		alias("on");
+		
+		makeCommand("extinguish", function(bits) {
+			
+		});
+		alias("off");
+
+		makeCommand("wave", function(bits) {
+			
+		});
+		alias("shake"); alias("swing");
+		
+		makeCommand("calm", function(bits) {
+			
+		});
+		alias("placate"); alias("tame");
 
 		// the following create the locations and movement between locations
         makeLoc("road",
@@ -624,7 +816,6 @@
         //   directions: ... ".directions"
         //   inventory: ... ".inventory"
         that.ready(function() {
-            that.dataSource.adventure.loadItems(caveData);
 			that.dataSource.adventure.loadItems([{
 	            id: "player",
 	            label: "You, the Player",
@@ -638,6 +829,7 @@
 			$('#number-objects').text($.grep(that.dataSource.adventure.items(), function(id, idx) {
 				return that.dataSource.adventure.getItem(id).type[0] === "Object"
 			}).length);
+			$('#number-verbs').text(number_commands + 1); // +1 for "go"
 			
 			$(selector.cli).keypress(function(event) {
 				var cmd;
@@ -648,6 +840,7 @@
 					parseCommand(cmd);
 				}
 			});
+			$(selector.cli).focus();
         });
 
         return that;
