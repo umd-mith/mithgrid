@@ -107,7 +107,8 @@
 								
 								// we allow the player to move to the destination by clicking on the word
 								cmdEl.click(function() {
-									if(word.condition[0] === 0 && model.getItem("player").environment[0] === word.environment[0]) {
+									if(word.condition[0] === 0 && 
+													model.getItem("player").environment[0] === word.environment[0]) {
 										model.updateItems([{
 											id: "player",
 											environment: word.destination[0]
@@ -116,7 +117,7 @@
 								});
 							}
 						});
-						el2 = $('<p>Movement: </p>');
+						el2 = $('<div>Movement: </div>');
 						el2.append(el);
 						$(container).append(el2);
 					}
@@ -140,7 +141,7 @@
 								}
 							});
 						});
-						el2 = $('<p>Objects: </p>');
+						el2 = $('<div>Objects: </div>');
 						el2.append(el);
 						$(container).append(el2);
 					}
