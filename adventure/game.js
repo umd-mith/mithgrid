@@ -90,6 +90,31 @@
 						}
 					});
 					
+					/* available items have a type of 'Object' */
+					if (things.Object.length > 0) {
+					    el = $('<ul class="objects"></ul>');
+					    $.each(things.Object,
+					    function(idx, object) {
+					        var objEl;
+
+					        objEl = $('<li>' + object.name[0] + '</li>');
+					        $(el).append(objEl);
+
+					        // we allow the player to pick up the item by clicking on the item name
+					        objEl.click(function() {
+					            if (model.getItem("player").environment[0] === object.environment[0]) {
+					                model.updateItems([{
+					                    id: object.id[0],
+					                    environment: "player"
+					                }]);
+					            }
+					        });
+					    });
+					    el2 = $('<div>Objects: </div>');
+					    el2.append(el);
+					    $(container).append(el2);
+					}
+					
 					/* available actions have a type of 'Word' */
 					if(things.Word.length > 0) {
 						things.WordHash = { };
@@ -129,36 +154,12 @@
 								});
 							});
 						});
-						el2 = $('<div>Movement: </div>');
+						el2 = $('<div>Exits: </div>');
 						el2.append(el);
 						$(container).append(el2);
 					}
-					
-					/* available items have a type of 'Object' */
-					if(things.Object.length > 0) {
-						el = $('<ul class="objects"></ul>');
-						$.each(things.Object, function(idx, object) {
-							var objEl;
-							
-							objEl = $('<li>' + object.name[0] + '</li>');
-							$(el).append(objEl);
-							
-							// we allow the player to pick up the item by clicking on the item name
-							objEl.click(function() {
-								if(model.getItem("player").environment[0] === object.environment[0]) {
-									model.updateItems([{
-										id: object.id[0],
-										environment: "player"
-									}]);
-								}
-							});
-						});
-						el2 = $('<div>Objects: </div>');
-						el2.append(el);
-						$(container).append(el2);
-					}
-				};
-
+				}
+				
 				/*
 				 * an update just updates the room if the player's environment is different than the
 				 * previously rendered room
@@ -253,8 +254,9 @@
 			 * until the DOM is ready before we try to add this
 			 */
             viewSetup: "<div class='room'><div class='description'></div><div class='objects'></div></div>" +
-            "<div class='cli'></div><div class='directions''></div>" +
-            "<div class='inventory-holder'><h2>Inventory</h2><ul class='inventory'></ul></div>",
+            "<div class='directions'></div>" +
+            "<div class='inventory-holder'><h2>Inventory</h2><ul class='inventory'></ul></div>"+
+			"<div class='cli'><input class='cli-input' type='text' name='command'></input></div>",
 			/*
 			 * here, we tie the presentation definitions from above to the DOM elements that will house the presentation
 			 * we also point the presentation at the appropriate filtered data view
@@ -273,6 +275,7 @@
         selector = {},
         caveData = [], // this contains the initial data we want to load into the database
         words = {},
+		commands = {},
         ids = {
             inst: 0,
             note: 0
@@ -280,6 +283,7 @@
         lastLoc = "",
         lastInst = {},
         lastObj = {},
+		newLoc = "",
         // location creation functions
         makeLoc = function(location, longDesc, shortDesc, flags) {
             var room = {
@@ -377,7 +381,35 @@
         holding = function() {
             // returns how many items the player is carrying
             return that.dataView.inventory.items().length;
-        };
+        },
+		here = function(treasure) {
+			var t = that.dataSource.adventure.getItem("obj:" + treasure);
+			return t.environment[0] === "player" || t.environment[0] == player().environment[0];
+		},
+		oilHere = function() {
+			var here = that.dataSource.adventure.getItem(player().environment[0]);
+			return $.inArray("liquid", here.flags) >= 0 && $.inArray("oil", here.flags) >= 0;
+		},
+		noLiquidHere = function() {
+			var here = that.dataSource.adventure.getItem(player().environment[0]);
+			return $.inArray("liquid", here.flags) === -1;
+		},
+		waterHere = function() {
+			var here = that.dataSource.adventure.getItem(player().environment[0]);
+			return $.inArray("liquid", here.flags) >= 0 && $.inArray("oil", here.flags) === -1;
+		}
+		makeCommand = function(cmd, fn) {
+			commands[cmd] = fn;
+		},
+		parseCommand = function(cmd) {
+			var bits = $.trim(cmd).split(" "),
+			words = [ ];
+			
+			if(bits.length == 1) {
+				// likely a word in the environment
+			}
+		}
+		;
 
 		// the following create the locations and movement between locations
         makeLoc("road",
@@ -522,7 +554,7 @@
 		//remark("You can't go through a locked steel grate!");
 		makeInst("ENTER", 0, "sayit");
 
-        // next location: section 28, page 18 ("slit")
+        // next location: section 30, page 18 ("inside")
         // now add a few one-place objects (section 70, page 48)
         newObj("chain", "Golden chain", "chain", "barr");
         newNote("There is a golden chain lying in a heap on the floor!");
@@ -540,11 +572,11 @@
         //
         // we also have a CLI for commands
         that.ready(function() {
-            selector.description = "#" + $(container).id + " > .room > .description";
-            selector.objects = "#" + $(container).id + " > .room > .objects";
-            selector.cli = "#" + $(container).id + " > .cli";
-            selector.directions = "#" + $(container).id + " > .directions";
-            selector.inventory = "#" + $(container).id + " > .inventory";
+	        selector.description = "#" + $(container).attr('id') + " > .room > .description";
+            selector.objects = "#" + $(container).attr('id') + " > .room > .objects";
+            selector.directions = "#" + $(container).attr('id') + " > .directions";
+            selector.inventory = "#" + $(container).attr('id') + " > .inventory";
+			selector.cli = "#" + $(container).attr('id') + " > .cli > .cli-input";
         });
         // selectors:
         //   description: "#" + $(container).id + " .room .description"
@@ -560,13 +592,23 @@
 	            environment: "room:road",
 	            type: 'Player'
 	        }]);
-	
+			
 			$('#number-rooms').text($.grep(that.dataSource.adventure.items(), function(id, idx) {
 				return that.dataSource.adventure.getItem(id).type[0] === "Room"
 			}).length);
 			$('#number-objects').text($.grep(that.dataSource.adventure.items(), function(id, idx) {
 				return that.dataSource.adventure.getItem(id).type[0] === "Object"
 			}).length);
+			
+			$(selector.cli).keypress(function(event) {
+				var cmd;
+				if( event.which === 13 ) {
+					event.preventDefault();
+					cmd = $(selector.cli).val();
+					$(selector.cli).val('');
+					parseCommand(cmd);
+				}
+			});
         });
 
         return that;
