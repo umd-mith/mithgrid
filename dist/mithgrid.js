@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Wed Jul 6 09:13:11 2011 -0400
+ * Date: Wed Jul 6 09:30:07 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -692,6 +692,18 @@ var jQuery = jQuery || {};
         that.items = set.items;
         that.size = set.size;
 
+		if(options.collection !== undefined) {
+			that.registerFilter({
+				eventFilterItem: options.collection,
+				eventModelChange: function(x, y) { },
+				events: {
+					onFilterChange: {
+						addListener: function(x) { }
+					}
+				}
+			});
+		}
+
         that.filterItems = function(endFn) {
             var id,
             fres,
@@ -749,8 +761,20 @@ var jQuery = jQuery || {};
         };
 
         that.eventModelChange = function(model, items) {
+			var allowed_set = Data.Set(that.items());
             that.filterItems(function() {
-                that.events.onModelChange.fire(that, items);
+				var changed_set = Data.Set(),
+				i, n;
+				$.each(that.items(), function(idx, id) { allowed_set.add(id); });
+				n = items.length;
+				for(i = 0; i < n; i += 1) {
+					if(allowed_set.contains(items[i])) {
+						changed_set.add(items[i]);
+					}
+				}
+				if(changed_set.size() > 0) {
+                    that.events.onModelChange.fire(that, changed_set.items());
+				}
             });
         };
 
@@ -1791,6 +1815,34 @@ var jQuery = jQuery || {};
     Expression.Scanner.OPERATOR = 4;
     Expression.Scanner.PATH_OPERATOR = 5;
 
+	Expression.Functions = { };
+	Expression.FunctionUtilities = { };
+	
+	Expression.FunctionUtilities.registerSimpleMappingFunction = function(name, f, valueType) {
+		Expression.Functions[name] = {
+			f: function(args) {
+				var set = MITHGrid.Data.Set(),
+				evalArg = function(arg) {
+					arg.forEachValue(function(v) {
+						var v2 = f(v);
+						if(v2 !== undefined) {
+							set.add(v2);
+						}
+					});
+				},
+				i;
+				
+				for(i = 0; i < args.length; i += 1) {
+					evalArg(args[i]);
+				}
+				return Expression.Collection(set, valueType);
+			}
+		};
+	};
+
+	Expression.FunctionUtilities.registerSimpleMappingFunction("$", function(arg) {
+		return arg;
+	}, 'Item');
 } (jQuery, MITHGrid));
 (function($, MITHGrid) {
     MITHGrid.namespace('Presentation');
@@ -1890,13 +1942,14 @@ var jQuery = jQuery || {};
         return that;
     };
 } (jQuery, MITHGrid));(function($, MITHGrid) {
-    MITHGrid.Application = function(options) {
+    var Application = MITHGrid.namespace('Application');
+    Application.initApp = function(klass, container, options) {
         var that = {
             presentation: {},
             dataSource: {},
             dataView: {}
         },
-		onReady = [];
+        onReady = [];
 
         that.ready = function(fn) {
             onReady.push(fn);
@@ -1938,13 +1991,28 @@ var jQuery = jQuery || {};
         if (options.dataViews !== undefined) {
             $.each(options.dataViews,
             function(idx, config) {
-                var view = MITHGrid.Data.View({
-                    source: config.dataSource,
-                    label: config.label
-                });
+				var view = {},
+				viewOptions = {
+					source: config.dataSource,
+					label: config.label
+				};
+				
+				if(config.collection !== undefined) {
+					viewOptions.collection = config.collection;
+				}
+                view = MITHGrid.Data.View(viewOptions);
                 that.dataView[config.label] = view;
             });
         }
+
+		if (options.viewSetup !== undefined) {
+			if($.isFunction(options.viewSetup)) {
+				that.ready(function() { options.viewSetup($(container)); });
+			}
+			else {
+				that.ready(function() { $(container).append(options.viewSetup); });
+			}
+		}
 
         if (options.presentations !== undefined) {
             that.ready(function() {
@@ -1953,8 +2021,8 @@ var jQuery = jQuery || {};
                     var options = $.extend(true, {},
                     config.options),
                     container = $(config.container),
-					presentation;
-					
+                    presentation;
+
                     if ($.isArray(container)) {
                         container = container[0];
                     }
@@ -1973,56 +2041,60 @@ var jQuery = jQuery || {};
                 function(idx, pconfig) {
                     var plugin = pconfig.type(pconfig);
                     if (plugin !== undefined) {
-						if(pconfig.dataView !== undefined) {
-							// hook plugin up with dataView requested by app configuration
-							plugin.dataView = that.dataView[pconfig.dataView];
-							// add 
-							$.each(plugin.getTypes(), function(idx, t) {
-								plugin.dataView.addType(t);
-							});
-							$.each(plugin.getProperties(), function(idx, p) {
-								plugin.dataView.addProperty(p.label, p);
-							});
-						}
-						$.each(plugin.getPresentations(),
-						function(idx, config) {
-							var options = $.extend(true, {},
-								config.options),
-							container = $(config.container),
-							presentation;
-							
-							if ($.isArray(container)) {
-								container = container[0];
-							}
-							if(config.dataView !== undefined) {
-								options.source = that.dataView[config.dataView];
-							}
-							else if(pconfig.dataView !== undefined) {
-								options.source = that.dataView[pconfig.dataView];
-							}
-							
-							presentation = config.type(container, options);
-							plugin.presentation[config.label] = presentation;
-							presentation.selfRender();
-						});
-					}
+                        if (pconfig.dataView !== undefined) {
+                            // hook plugin up with dataView requested by app configuration
+                            plugin.dataView = that.dataView[pconfig.dataView];
+                            // add
+                            $.each(plugin.getTypes(),
+                            function(idx, t) {
+                                plugin.dataView.addType(t);
+                            });
+                            $.each(plugin.getProperties(),
+                            function(idx, p) {
+                                plugin.dataView.addProperty(p.label, p);
+                            });
+                        }
+                        $.each(plugin.getPresentations(),
+                        function(idx, config) {
+                            var options = $.extend(true, {},
+                            config.options),
+                            container = $(config.container),
+                            presentation;
+
+                            if ($.isArray(container)) {
+                                container = container[0];
+                            }
+                            if (config.dataView !== undefined) {
+                                options.source = that.dataView[config.dataView];
+                            }
+                            else if (pconfig.dataView !== undefined) {
+                                options.source = that.dataView[pconfig.dataView];
+                            }
+
+                            presentation = config.type(container, options);
+                            plugin.presentation[config.label] = presentation;
+                            presentation.selfRender();
+                        });
+                    }
                 });
             });
         }
 
-        $(document).ready(function() {
-            $.each(onReady,
-            function(idx, fn) {
-                fn();
+        that.run = function() {
+            $(document).ready(function() {
+                $.each(onReady,
+                function(idx, fn) {
+                    fn();
+                });
+                that.ready = function(fn) {
+                    setTimeout(fn, 0);
+                };
             });
-            that.ready = function(fn) {
-                setTimeout(fn, 0);
-            };
-        });
+        };
 
         return that;
     };
-}(jQuery, MITHGrid));
+} (jQuery, MITHGrid));
 (function($, MITHGrid) {
 	MITHGrid.namespace("Plugin");	
 	/*

@@ -1,11 +1,12 @@
 (function($, MITHGrid) {
-    MITHGrid.Application = function(options) {
+    var Application = MITHGrid.namespace('Application');
+    Application.initApp = function(klass, container, options) {
         var that = {
             presentation: {},
             dataSource: {},
             dataView: {}
         },
-		onReady = [];
+        onReady = [];
 
         that.ready = function(fn) {
             onReady.push(fn);
@@ -47,13 +48,28 @@
         if (options.dataViews !== undefined) {
             $.each(options.dataViews,
             function(idx, config) {
-                var view = MITHGrid.Data.View({
-                    source: config.dataSource,
-                    label: config.label
-                });
+				var view = {},
+				viewOptions = {
+					source: config.dataSource,
+					label: config.label
+				};
+				
+				if(config.collection !== undefined) {
+					viewOptions.collection = config.collection;
+				}
+                view = MITHGrid.Data.View(viewOptions);
                 that.dataView[config.label] = view;
             });
         }
+
+		if (options.viewSetup !== undefined) {
+			if($.isFunction(options.viewSetup)) {
+				that.ready(function() { options.viewSetup($(container)); });
+			}
+			else {
+				that.ready(function() { $(container).append(options.viewSetup); });
+			}
+		}
 
         if (options.presentations !== undefined) {
             that.ready(function() {
@@ -62,8 +78,8 @@
                     var options = $.extend(true, {},
                     config.options),
                     container = $(config.container),
-					presentation;
-					
+                    presentation;
+
                     if ($.isArray(container)) {
                         container = container[0];
                     }
@@ -82,53 +98,57 @@
                 function(idx, pconfig) {
                     var plugin = pconfig.type(pconfig);
                     if (plugin !== undefined) {
-						if(pconfig.dataView !== undefined) {
-							// hook plugin up with dataView requested by app configuration
-							plugin.dataView = that.dataView[pconfig.dataView];
-							// add 
-							$.each(plugin.getTypes(), function(idx, t) {
-								plugin.dataView.addType(t);
-							});
-							$.each(plugin.getProperties(), function(idx, p) {
-								plugin.dataView.addProperty(p.label, p);
-							});
-						}
-						$.each(plugin.getPresentations(),
-						function(idx, config) {
-							var options = $.extend(true, {},
-								config.options),
-							container = $(config.container),
-							presentation;
-							
-							if ($.isArray(container)) {
-								container = container[0];
-							}
-							if(config.dataView !== undefined) {
-								options.source = that.dataView[config.dataView];
-							}
-							else if(pconfig.dataView !== undefined) {
-								options.source = that.dataView[pconfig.dataView];
-							}
-							
-							presentation = config.type(container, options);
-							plugin.presentation[config.label] = presentation;
-							presentation.selfRender();
-						});
-					}
+                        if (pconfig.dataView !== undefined) {
+                            // hook plugin up with dataView requested by app configuration
+                            plugin.dataView = that.dataView[pconfig.dataView];
+                            // add
+                            $.each(plugin.getTypes(),
+                            function(idx, t) {
+                                plugin.dataView.addType(t);
+                            });
+                            $.each(plugin.getProperties(),
+                            function(idx, p) {
+                                plugin.dataView.addProperty(p.label, p);
+                            });
+                        }
+                        $.each(plugin.getPresentations(),
+                        function(idx, config) {
+                            var options = $.extend(true, {},
+                            config.options),
+                            container = $(config.container),
+                            presentation;
+
+                            if ($.isArray(container)) {
+                                container = container[0];
+                            }
+                            if (config.dataView !== undefined) {
+                                options.source = that.dataView[config.dataView];
+                            }
+                            else if (pconfig.dataView !== undefined) {
+                                options.source = that.dataView[pconfig.dataView];
+                            }
+
+                            presentation = config.type(container, options);
+                            plugin.presentation[config.label] = presentation;
+                            presentation.selfRender();
+                        });
+                    }
                 });
             });
         }
 
-        $(document).ready(function() {
-            $.each(onReady,
-            function(idx, fn) {
-                fn();
+        that.run = function() {
+            $(document).ready(function() {
+                $.each(onReady,
+                function(idx, fn) {
+                    fn();
+                });
+                that.ready = function(fn) {
+                    setTimeout(fn, 0);
+                };
             });
-            that.ready = function(fn) {
-                setTimeout(fn, 0);
-            };
-        });
+        };
 
         return that;
     };
-}(jQuery, MITHGrid));
+} (jQuery, MITHGrid));

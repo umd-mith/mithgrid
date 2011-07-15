@@ -4,6 +4,6 @@ $(document).ready(function() {
 	test("Check namespace", function() {
 		expect(2);
 		ok( MITHGrid.Application !== undefined, "MITHGrid.Application exists" );
-		ok( $.isFunction(MITHGrid.Application), "MITHGrid.Application is a function" );
+		ok( $.isFunction(MITHGrid.Application.initApp), "MITHGrid.Application.initApp is a function" );
 	});
 });

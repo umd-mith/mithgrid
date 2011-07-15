@@ -620,6 +620,18 @@
         that.items = set.items;
         that.size = set.size;
 
+		if(options.collection !== undefined) {
+			that.registerFilter({
+				eventFilterItem: options.collection,
+				eventModelChange: function(x, y) { },
+				events: {
+					onFilterChange: {
+						addListener: function(x) { }
+					}
+				}
+			});
+		}
+
         that.filterItems = function(endFn) {
             var id,
             fres,
@@ -677,8 +689,20 @@
         };
 
         that.eventModelChange = function(model, items) {
+			var allowed_set = Data.Set(that.items());
             that.filterItems(function() {
-                that.events.onModelChange.fire(that, items);
+				var changed_set = Data.Set(),
+				i, n;
+				$.each(that.items(), function(idx, id) { allowed_set.add(id); });
+				n = items.length;
+				for(i = 0; i < n; i += 1) {
+					if(allowed_set.contains(items[i])) {
+						changed_set.add(items[i]);
+					}
+				}
+				if(changed_set.size() > 0) {
+                    that.events.onModelChange.fire(that, changed_set.items());
+				}
             });
         };
 

@@ -1,0 +1,72 @@
+html, body {
+	background-color: #cccccc;
+	padding: 0px;
+	margin: 0px;
+	overflow: hidden;
+}
+
+#header {
+	margin-bottom: 0px;
+	height: 42px;
+	position: absolute;
+	text-align: center;
+	width: 100%;
+	top: -20px;
+	left: 0px;
+}
+
+#game {
+	width: 830px;
+	margin-top: 50px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#game > .room {
+	width: 600px;
+	background-color: #ffffff;
+	float: left;
+	height: 600px;
+	overflow: scroll;
+}
+
+#game > .room > .description {
+	background-color: #f0f0f0;
+	border: 1px solid #f8f8f8;
+	padding: 10px;
+}
+
+#game > .room > .objects {
+	
+}
+
+#game > .cli {
+	
+}
+
+#game > .directions {
+	
+}
+
+#game > .inventory-holder {
+	width: 200px;
+	height: 400px;
+	margin-left: 20px;
+	background-color: #ffffff;
+	float: left;
+}
+
+#game > .inventory-holder > .inventory {
+	list-style: none;
+	margin-left: 3px;
+	padding-left: 0px;
+}
+
+#game > .inventory-holder > h2 {
+	text-align: center;
+	margin: 0px;
+	padding: 1px;
+	margin-bottom: 3px;
+	background-color: #eeeeee;
+	border-bottom: 1px solid #cccccc;
+}

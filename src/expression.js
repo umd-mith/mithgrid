@@ -1011,4 +1011,32 @@
     Expression.Scanner.OPERATOR = 4;
     Expression.Scanner.PATH_OPERATOR = 5;
 
+	Expression.Functions = { };
+	Expression.FunctionUtilities = { };
+	
+	Expression.FunctionUtilities.registerSimpleMappingFunction = function(name, f, valueType) {
+		Expression.Functions[name] = {
+			f: function(args) {
+				var set = MITHGrid.Data.Set(),
+				evalArg = function(arg) {
+					arg.forEachValue(function(v) {
+						var v2 = f(v);
+						if(v2 !== undefined) {
+							set.add(v2);
+						}
+					});
+				},
+				i;
+				
+				for(i = 0; i < args.length; i += 1) {
+					evalArg(args[i]);
+				}
+				return Expression.Collection(set, valueType);
+			}
+		};
+	};
+
+	Expression.FunctionUtilities.registerSimpleMappingFunction("$", function(arg) {
+		return arg;
+	}, 'Item');
 } (jQuery, MITHGrid));
