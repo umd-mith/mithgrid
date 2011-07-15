@@ -84,3 +84,13 @@ html, body {
 	background-color: #eeeeee;
 	border-bottom: 1px solid #cccccc;
 }
+
+#instructions {
+	clear: both;
+	width: 800px;
+	background-color: #ffffff;
+	padding: 15px;
+	margin-left: auto;
+	margin-right: auto;
+	border-top: 5px solid #cccccc;
+}

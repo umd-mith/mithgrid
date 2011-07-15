@@ -95,6 +95,8 @@
 						things.WordHash = { };
 						things.WordList = [ ];
 						$.each(things.Word, function(idx, word) {
+							var dest = model.getItem(word.destination[0]);
+							if(dest === undefined || dest.id === undefined) { return; }
 							if(things.WordHash[word.word[0]] === undefined) {
 								things.WordHash[word.word[0]] = [ ];
 								things.WordList.push(word.word[0]);
@@ -116,8 +118,6 @@
 							cmdEl.click(function() {
 								var player = model.getItem("player");
 								$.each(words, function(idx, word) {
-									var dest = model.getItem(word.destination[0]);
-									if(dest === undefined || dest.id === undefined) { return; }
 									if(player.environment[0] === word.environment[0]) {
 										if(word.condition[0] === 0) {
 											model.updateItems([{
@@ -560,6 +560,13 @@
 	            environment: "room:road",
 	            type: 'Player'
 	        }]);
+	
+			$('#number-rooms').text($.grep(that.dataSource.adventure.items(), function(id, idx) {
+				return that.dataSource.adventure.getItem(id).type[0] === "Room"
+			}).length);
+			$('#number-objects').text($.grep(that.dataSource.adventure.items(), function(id, idx) {
+				return that.dataSource.adventure.getItem(id).type[0] === "Object"
+			}).length);
         });
 
         return that;
