@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Fri Jul 15 11:15:48 2011 -0400
+ * Date: Fri Jul 15 13:17:41 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -332,7 +332,7 @@ var jQuery = jQuery || {};
                 return [that.getItem(ids)];
             }
 
-            $.map(ids,
+            return $.map(ids,
             function(id, idx) {
                 return that.getItem(id);
             });
