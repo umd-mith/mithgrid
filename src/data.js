@@ -183,6 +183,8 @@
 
         that.items = set.items;
 
+		that.contains = set.contains;
+
         that.addProperty = function(nom, options) {
             var prop = Data.Property(nom);
 			if( options !== undefined && options.valueType !== undefined ) {
@@ -619,6 +621,7 @@
 
         that.items = set.items;
         that.size = set.size;
+		that.contains = set.contains;
 
 		if(options.collection !== undefined) {
 			that.registerFilter({
@@ -644,6 +647,7 @@
 
             that.items = set.items;
             that.size = set.size;
+			that.contains = set.contains;
             ids = that.dataSource.items();
             n = ids.length;
             if (n === 0) {

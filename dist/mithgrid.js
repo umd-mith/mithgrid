@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Fri Jul 15 13:17:41 2011 -0400
+ * Date: Fri Jul 15 13:41:59 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -254,6 +254,8 @@ var jQuery = jQuery || {};
         that.source = options.source;
 
         that.items = set.items;
+
+		that.contains = set.contains;
 
         that.addProperty = function(nom, options) {
             var prop = Data.Property(nom);
@@ -691,6 +693,7 @@ var jQuery = jQuery || {};
 
         that.items = set.items;
         that.size = set.size;
+		that.contains = set.contains;
 
 		if(options.collection !== undefined) {
 			that.registerFilter({
@@ -716,6 +719,7 @@ var jQuery = jQuery || {};
 
             that.items = set.items;
             that.size = set.size;
+			that.contains = set.contains;
             ids = that.dataSource.items();
             n = ids.length;
             if (n === 0) {
@@ -1878,7 +1882,7 @@ var jQuery = jQuery || {};
                 var end,
                 i,
 				id,
-				item,
+				hasItem,
                 lens;
 
                 if (start < n) {
@@ -1891,20 +1895,21 @@ var jQuery = jQuery || {};
                     }
                     for (i = start; i < end; i += 1) {
                         id = items[i];
-                        item = model.getItem(id);
-                        if (!item) {
+                        hasItem = model.contains(id);
+                        if (!hasItem) {
                             // item was removed
                             if (renderings[id]) {
                                 // we need to remove it from the display
                                 // .remove() should not make changes in the model
                                 renderings[id].remove();
+								delete renderings[id];
                             }
                         }
                         else if (renderings[id]) {
-                            renderings[id].update(item);
+                            renderings[id].update(model.getItem(id));
                         }
                         else {
-                            lens = that.getLens(item);
+                            lens = that.getLens(model.getItem(id));
                             if (lens) {
                                 renderings[id] = lens.render(container, that, model, items[i]);
                             }

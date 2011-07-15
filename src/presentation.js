@@ -32,7 +32,7 @@
                 var end,
                 i,
 				id,
-				item,
+				hasItem,
                 lens;
 
                 if (start < n) {
@@ -45,20 +45,21 @@
                     }
                     for (i = start; i < end; i += 1) {
                         id = items[i];
-                        item = model.getItem(id);
-                        if (!item) {
+                        hasItem = model.contains(id);
+                        if (!hasItem) {
                             // item was removed
                             if (renderings[id]) {
                                 // we need to remove it from the display
                                 // .remove() should not make changes in the model
                                 renderings[id].remove();
+								delete renderings[id];
                             }
                         }
                         else if (renderings[id]) {
-                            renderings[id].update(item);
+                            renderings[id].update(model.getItem(id));
                         }
                         else {
-                            lens = that.getLens(item);
+                            lens = that.getLens(model.getItem(id));
                             if (lens) {
                                 renderings[id] = lens.render(container, that, model, items[i]);
                             }
