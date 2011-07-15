@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Wed Jul 6 09:30:07 2011 -0400
+ * Date: Fri Jul 15 11:15:48 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -391,10 +391,10 @@ var jQuery = jQuery || {};
                         array = array.slice(1);
                     }
                     else if (i === array.length - 1) {
-                        array = array.slice(0, i - 1);
+                        array = array.slice(0, i);
                     }
-                    else {
-                        array = array.slice(0, i - 1).concat(array.slice(i + 1));
+                    else if ( i > 0 ) {
+                        array = array.slice(0, i).concat(array.slice(i + 1));
                     }
                     hash.values[y] = array;
                 }

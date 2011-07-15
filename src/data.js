@@ -319,10 +319,10 @@
                         array = array.slice(1);
                     }
                     else if (i === array.length - 1) {
-                        array = array.slice(0, i - 1);
+                        array = array.slice(0, i);
                     }
-                    else {
-                        array = array.slice(0, i - 1).concat(array.slice(i + 1));
+                    else if ( i > 0 ) {
+                        array = array.slice(0, i).concat(array.slice(i + 1));
                     }
                     hash.values[y] = array;
                 }
