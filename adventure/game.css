@@ -28,7 +28,7 @@ html, body {
 	padding-right: 3px;
 	background-color: #ffffff;
 	float: left;
-	height: 600px;
+	height: 400px;
 	overflow-y: scroll;
 }
 
@@ -82,7 +82,7 @@ html, body {
 
 .compass {
 	width: 200px;
-	height: 180px;
+	height: 130px;
 	background-color: #ffffff;
 	float: left;
 	margin-left: 20px;
@@ -95,30 +95,39 @@ html, body {
 	text-align: center;
 	width: 200px;
 	display: block;
-	margin-bottom: 24px;
+	margin-bottom: 12px;
 }
 
 .compass > .e {
 	float: right;
 	text-align: right;
+	margin-right: 24px;
 }
 
 .compass > .w {
 	float: left;
 	text-align: left;
+	margin-left: 24px;
 }
 
 .compass > .s {
 	text-align: center;
 	width: 200px;
 	display: block;
-	margin-top: 72px;
-	margin-bottom: 24px;
+	margin-top: 36px;
+	margin-bottom: 12px;
 }
 
 .compass > .u {
 	float: right;
 	text-align: right;
+	margin-right: 24px;
+}
+
+.compass > .d {
+	float: left;
+	text-align: left;
+	margin-left: 24px;
 }
 
 .compass > .unavailable {
@@ -127,7 +136,7 @@ html, body {
 
  .inventory-holder {
 	width: 200px;
-	height: 400px;
+	height: 250px;
 	margin-left: 20px;
 	background-color: #ffffff;
 	float: left;

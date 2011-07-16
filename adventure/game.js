@@ -69,6 +69,7 @@
                 var that = {},
                 el, el2,
 				thingsInEnvExpr = model.prepare(["!environment.id"]),
+				notesForObjectExpr = model.prepare(["!object.id"]),
                 room = model.getItem(model.getItem('player').environment[0]);
 
 				/* thingsInEnvExpr is a prepared expression that will find all of the things in the game database
@@ -77,11 +78,12 @@
 				 */
 				var doRender = function() {
 					var things = { "Word": [], "Object": [] },
-					thingIds = thingsInEnvExpr.evaluate([room.id[0]]);
+					thingIds = thingsInEnvExpr.evaluate([room.id[0]]),
+					roomDesc = "";
 					
 					//console.log(thingIds);
-                    el = $('<p class="desc">' + room.description[0] + '</p>');
-                    $(container).append(el);
+					roomDesc = room.description[0];
+                    
 	                // look for items with the same environment -- append them to $(container)
 					$.each(thingIds, function(idx, thing) {
 						var item = model.getItem(thing);
@@ -93,28 +95,35 @@
 					
 					/* available items have a type of 'Object' */
 					if (things.Object.length > 0) {
-					    el = $('<ul class="objects"></ul>');
+					   // el = $('<ul class="objects"></ul>');
 					    $.each(things.Object,
 					    function(idx, object) {
-					        var objEl;
+					        var notes = [ ],
+							note_idx = 0;
 
-					        objEl = $('<li>' + object.name[0] + '</li>');
-					        $(el).append(objEl);
+							// we want to find the first note associated with this object
+							// the 'value' property of the item indexes the notes
+							if(object.value !== undefined) {
+								note_idx = object.value[0];
+							}
+							
+							notes = model.getItems(notesForObjectExpr.evaluate([object.id[0]]));
 
-					        // we allow the player to pick up the item by clicking on the item name
-					        objEl.click(function() {
-					            if (model.getItem("player").environment[0] === object.environment[0]) {
-					                model.updateItems([{
-					                    id: object.id[0],
-					                    environment: "player"
-					                }]);
-					            }
-					        });
+							if(notes.length < note_idx) {
+								note_idx = 0;
+							}
+							if(notes.length === 0) {
+								roomDesc += " You see a " + object.name[0].toLowerCase + ". ";
+							}
+							else {
+								if(notes[note_idx].content[0]) {
+									roomDesc += " " + notes[note_idx].content[0] + " ";
+								}
+							}
 					    });
-					    el2 = $('<div>Objects: </div>');
-					    el2.append(el);
-					    $(container).append(el2);
 					}
+					
+					el = $('<p class="desc">' + roomDesc + '</p>');
 					
 					/* available actions have a type of 'Word' */
 					if(things.Word.length > 0) {
@@ -122,9 +131,10 @@
 						things.WordList = [ ];
 						$.each(things.Word, function(idx, word) {
 							if(things.WordHash[word.word[0]] === undefined) {
-								things.WordHash[word.word[0]] = true;
+								things.WordHash[word.word[0]] = [];
 								things.WordList.push(word.word[0]);
 							}
+							things.WordHash[word.word[0]].push(word);
 						});
 						$.each(["N", "E", "S", "W", "U", "D"], function(idx, w) {
 							var words = things.WordHash[w],
@@ -136,7 +146,20 @@
 								cmdEl.removeClass("unavailable");
 							}
 						});
+						
+						if(things.WordHash.FORCE !== undefined && things.WordHash.FORCE.length > 0) {
+							// we force the player to do these
+							el = $("<p class='info'>" + roomDesc + "</p>");
+							setTimeout(function() {
+								model.updateItems([{
+									id: "player",
+									environment: things.WordHash.FORCE[0].destination
+								}]);
+							}, 0); // as soon as this current run is over
+						}
 					}
+					
+                    $(container).append(el);
 
 					$(container).parent().animate({
 						scrollTop: $(el).offset().top - $(container).parent().offset().top + $(container).parent().scrollTop()
@@ -152,6 +175,10 @@
 						room = model.getItem(item.environment[0]);
 						doRender();
 					}
+				};
+				
+				that.reRender = function() {
+					doRender();
 				};
 
 				doRender();
@@ -196,6 +223,9 @@
 				// let the database know that the 'environment' property points to other items
 				properties: [{
 					label: "environment",
+					valueType: "Item"
+				}, {
+					label: "object",
 					valueType: "Item"
 				}]
             }],
@@ -254,7 +284,8 @@
             {
                 type: MITHGrid.Presentation.RoomDescription,
                 container: "#" + $(container).attr('id') + " > .room > .description",
-                dataView: 'player'
+                dataView: 'player',
+				label: "room"
             }]
         }),
         selector = {},
@@ -329,10 +360,22 @@
             var obj = {
                 id: "obj:" + label,
                 label: label,
-                name: name,
-                environment: "room:" + location,
+                //name: name,
+                //environment: "room:" + location,
+				value: 0,
                 type: 'Object'
             }
+			if(name !== 0) {
+				obj.name = name;
+			}
+			if($.isArray(location)) {
+				obj.environment = $.map(location, function(l, i) {
+					return "room:" + l;
+				});
+			}
+			else {
+				obj.environment = "room:" + location;
+			}
             lastObj = obj;
 			that.dataSource.adventure.loadItems([obj]);
         },
@@ -380,17 +423,17 @@
                 move(treasure, player().environment[0]);
             }
         },
+        holding = function() {
+            // returns how many items the player is carrying
+            return that.dataView.inventory.items().length;
+        },
         carry = function(treasure) {
-            if (isAtLocation(treasure, player().environment[0])) {
+            if (isAtLocation(treasure, player().environment[0]) && holding() < 7) {
                 move(treasure, "player");
             }
         },
         destroy = function(treasure) {
             move(treasure, "room:limbo");
-        },
-        holding = function() {
-            // returns how many items the player is carrying
-            return that.dataView.inventory.items().length;
         },
 		here = function(treasure) {
 			var t = that.dataSource.adventure.getItem("obj:" + treasure);
@@ -414,19 +457,38 @@
 		sees = function(treasure) {
 			return function() { return isAtLocation(treasure, player().environment[0]); }
 		},
-		gameProps = {
-			grate: 0
+		getGameProp = function(key) {
+			var item = that.dataSource.adventure.getItem("obj:" + key);
+			if(item === undefined || item.value === undefined) {
+				return 0;
+			}
+			else {
+				return item.value[0];
+			}
 		},
-		notValue = function(key, value) {
+		notValue = function(obj, value) {
 			return function() { 
-				return gameProps[key] !== undefined && gameProps[key] !== value; 
+				var sv = getGameProp(obj);
+				return sv !== value;
 			};
 		},
 		setGameProp = function(key, value) {
-			gameProps[key] = value;
-		},
-		getGameProp = function(key) {
-			return gameProps[key];
+			var item = that.dataSource.adventure.getItem("obj:" + key);
+			if(item === undefined || item.id === undefined) {
+				that.dataSource.adventure.loadItems([{
+					id: "obj:" + key,
+					label: key,
+					value: value,
+					type: "Object",
+					environment: "room:limbo"
+				}]);
+			}
+			else {
+				that.dataSource.adventure.updateItems([{
+					id: "obj:"+key,
+					value: value
+				}]);
+			}
 		},
 		number_commands = 0,
 		makeCommand = function(cmd, fn) {
@@ -438,17 +500,31 @@
 			commands[cmd] = commands[lastCmd];
 			number_commands += 1;
 		},
-		thingsInEnvironment = function(env) {
+		thingsInEnvironment = function(env, bits) {
+			var things;
 			if(thingsInEnvExpr.evaluate === undefined) {
 				thingsInEnvExpr = that.dataSource.adventure.prepare(["!environment.id"]);
 			}
-			if(env === undefined) {
+			if(env === undefined || env === 0) {
 				env = player().environment[0];
 			}
-			return that.dataSource.adventure.getItems(thingsInEnvExpr.evaluate([env]));
+			things = that.dataSource.adventure.getItems(thingsInEnvExpr.evaluate([env]));
+			if(bits === undefined) {
+				return things;
+			}
+			if(!$.isArray(bits)) {
+				bits = [ bits ];
+			}
+			else {
+				return $.grep(things, function(thing, idx) {
+					return thing.type[0] === "Object" && (
+						$.inArray(bits[0], thing.label) > -1 || $.inArray(bits.join(" "), thing.name) > -1
+					);
+				})
+			}
 		},
-		inventory = function() {
-			return thingsInEnvironment("player");
+		inventory = function(bits) {
+			return thingsInEnvironment("player", bits);
 		},
 		print = function(stuff) {
 			var el,
@@ -478,7 +554,8 @@
 		// our parsing here is going to be a bit different than in the literate programming example
 		that.parseCommand = function(cmd) {
 			var bits = [ ],
-			things = [ ];
+			things = [ ],
+			dest = { };
 			
 			newLoc = "";
 			
@@ -550,10 +627,16 @@
 			}
 
 			if(newLoc !== "") {
-				that.dataSource.adventure.updateItems([{
-					id: "player",
-					environment: newLoc
-				}]);
+				dest = that.dataSource.adventure.getItem(newLoc);
+				if(dest === undefined || dest.type === undefined || dest.type[0] !== "Room") {
+					print("You can't go that way! (" + newLoc + ")");
+				}
+				else {
+					that.dataSource.adventure.updateItems([{
+						id: "player",
+						environment: newLoc
+					}]);
+				}
 			}
 		};
 		
@@ -565,9 +648,8 @@
 			"to move you there.  To move, try words like forest, building, downstream, enter, east, west, north, " +
 			"south, up, or down.  I know about a few special objects, like a black rod hidden in the cave.  These " +
 			"objects can be manipulated using some of the action words that I know.  Usually you will need to " + 
-			"give both the object and action words (in either order), but sometimes I can infer the object from " +
-			"the verb alone.  Some objects also imply verbs; in particular, \"inventory\" implies \"take inventory\", " +
-			"which causes me to give you a list of what you're carrying.  The objects have side effects; for " +
+			"give both the object and action words (with the action word first), but sometimes I can infer the object from " +
+			"the verb alone.  The objects have side effects; for " +
 			"instance, the rod scares the bird.  Usually people having trouble moving just need to try a few more " +
 			"words.  Usually people trying unsuccessfully to manipulate an object are attempting something beyond " +
 			"their (or my!) capabilities and should try a completely different tack.  To speed the game you can " +
@@ -594,21 +676,22 @@
 		    "anywhere but is frequently a sign of a deep pit leading down to water."
 		);
 		
-		
+		makeCommand("commands", function(bits) {
+			var cmds = [ ], c;
+			
+			for(c in commands) {
+				if(typeof c === "string") {
+					cmds.push(c);
+				}
+			}
+			print("The following commands are available: " + cmds.sort().join(", ") + ".");
+		})
 		
 		makeCommand("take", function(bits) {
 			// is there something in the player's environment that is named by bits[1]?
-			var things = $.grep(thingsInEnvironment(), function(thing, idx) {
-				return thing.type[0] === "Object" && (
-					$.inArray(bits[1], thing.label) || $.inArray(bits.slice(1).join(" "), thing.name)
-				);
-			});
+			var things = thingsInEnvironment(undefined, bits.slice(1));
 			if( things.length === 0 ) {
-				things = $.grep(inventory(), function(thing, idx) {
-					return thing.type[0] === "Object" && (
-						$.inArray(bits[1], thing.label) || $.inArray(bits.slice(1).join(" "), thing.name)
-					);
-				});
+				things = inventory(bits.slice(1));
 				if( things.length === 0) {
 					error("I don't see anything like that here.");
 				}
@@ -617,12 +700,17 @@
 				}
 			}
 			else if(things.length === 1) {
-				carry(things[0].id[0]);
-				if(toting(things[0].id[0])) {
-					print("You " + bits[0] + " the "+ things[0].label[0] + ".");
+				if(things[0].name === undefined) {
+					print("You can't take that!");
 				}
 				else {
-					print("You try to " + bits[0] + " the " + things[0].label[0] + ", but they slip through your fingers.");
+					carry(things[0].id[0]);
+					if(toting(things[0].id[0])) {
+						print("You " + bits[0] + " the "+ things[0].label[0] + ".");
+					}
+					else {
+						print("You try to " + bits[0] + " the " + things[0].label[0] + ", but it slips through your fingers.");
+					}
 				}
 			}
 			else {
@@ -635,11 +723,7 @@
 		alias("tote");
 		
 		makeCommand("drop", function(bits) {
-			var things = $.grep(inventory(), function(thing, idx) {
-				return thing.type[0] === "Object" && (
-					$.inArray(bits[1], thing.label) || $.inArray(bits.slice(1).join(" "), thing.name)
-				);
-			});
+			var things = inventory(bits.slice(1));
 			if(things.length === 0) {
 				print("You have to have that before you can "+ bits[0] + " it.");
 			}
@@ -661,11 +745,144 @@
 		alias("dump");
 		
 		makeCommand("open", function(bits) {
-			
+			var obj, things, playerEnv = player().environment[0],
+			lockable = ["grate", "door", "clam", "oyster", "chain"],
+			openers = {
+				"obj:oyster": function() {
+					
+				},
+				"obj:clam": function() {
+					
+				},
+				"obj:grate": function() {
+					var k;
+					if(!here("keys")) {
+						print("You have no keys!");
+						return;
+					}
+					k = getGameProp("grate");
+					setGameProp("grate", 1);
+					if(k === 0) {
+						print("The grate is now unlocked.");
+					}
+					else {
+						print("It was already unlocked.");
+					}
+				},
+				"obj:chain": function() {
+					if(!here("keys")) {
+						print("You have no keys!");
+						return;
+					}
+				},
+				"obj:door": function() {
+					if(getGameProp("door") > 0) {
+						print("The door is extremely rusty and refuses to open.");
+					}
+				}
+			};
+
+			if(bits.length == 1) {
+				// we aren't specifying what we want to open, so we walk through the possibilities
+				$.each(lockable, function(idx, nom) {
+					var item;
+					if(obj !== undefined) { return; }
+					
+					item = that.dataSource.adventure.getItem("obj:" + nom);
+					if(item !== undefined && item.environment !== undefined) {
+						if($.inArray(playerEnv, item.environment) > -1) {
+							obj = item;
+							bits.push(nom);
+						}
+					}
+				});
+				if(obj === undefined) {
+					print("There is nothing here with a lock!");
+				}
+			}
+			if(obj === undefined) {
+				things = thingsInEnvironment(0, bits.slice(1));
+				if(things.length == 0) {
+					print("That isn't here.");
+					return;
+				}
+				if(things.length > 1) {
+					print("I'm not sure which of these you're talking about: " +
+					  $.map(things, function(thing) { return thing.label[0]; }).join(", ") + ".");
+					return;
+				}
+				if($.inArray(things[0].label[0], lockable) == -1) {
+					print("You can't " + bits[0] + " that!");
+					return;
+				}
+				obj = things[0];
+			}
+			if(openers[obj.id[0]] === undefined) {
+				print("You can't " + bits[0] + " that!");
+			}
+			else {
+				openers[obj.id[0]]();
+			}
 		});
 		alias("unlock");
 		
 		makeCommand("close", function(bits) {
+			var obj, things, playerEnv = player().environment[0],
+			lockable = ["grate", "door", "clam", "oyster", "chain"],
+			closers = {
+				"obj:oyster": function() {
+					
+				},
+				"obj:clam": function() {
+					
+				},
+				"obj:grate": function() {
+					var k;
+					if(!here("keys")) {
+						print("You have no keys!");
+						return;
+					}
+					k = getGameProp("grate");
+					setGameProp("grate", 0);
+					if(k === 0) {
+						print("It was already locked.");
+					}
+					else {
+						print("The grate is now locked.");
+					}
+				},
+				"obj:chain": function() {
+					if(!here("keys")) {
+						print("You have no keys!");
+						return;
+					}
+				},
+				"obj:door": function() {
+					if(getGameProp("door") > 0) {
+						print("The door is extremely rusty and refuses to open.");
+					}
+				}
+			};
+
+			if(bits.length == 1) {
+				// we aren't specifying what we want to open, so we walk through the possibilities
+				$.each(lockable, function(idx, nom) {
+					var item;
+					if(obj !== undefined) { return; }
+					
+					item = that.dataSource.adventure.getItem("obj:" + nom);
+					if(item !== undefined && item.environment !== undefined) {
+						if($.inArray(playerEnv, item.environment) > -1) {
+							obj = item;
+							bits.push(nom);
+						}
+					}
+				});
+				if(obj === undefined) {
+					print("There is nothing here with a lock!");
+					return
+				}
+			}
 			
 		});
 		alias("lock");
@@ -689,8 +906,15 @@
 			
 		});
 		alias("placate"); alias("tame");
+		
+		makeCommand("look", function(bits) {
+			that.presentation.room.renderingFor("player").reRender();
+		});
 
+		////
 		// the following create the locations and movement between locations
+		////
+		
         makeLoc("road",
         "You are standing at the end of a road before a small brick building.\n" +
         "Around you is a forest.  A small stream flows out of the building and\n" +
@@ -833,23 +1057,461 @@
 		remark("You can't go through a locked steel grate!");
 		makeInst("ENTER", 0, "sayit");
 
-        // next location: section 30, page 18 ("inside")
-        // now add a few one-place objects (section 70, page 48)
+		makeLoc("inside",
+		"You are in a small chamber beneath a 3x3 steel grate to the surface.\n" +
+		"A low crawl over cobbles leads inwards to the west.",
+		"You're below the grate.",
+		"lighted"
+		);
+		makeInst("OUT", notValue("grate", 0), "outside");
+		ditto("OUT");
+		ditto("U");
+		remark("You can't go through a locked steel grate!");
+		makeInst("OUT", 0, "sayit");
+		makeInst("CRAWL", 0, "cobbles");
+		ditto("COBBLES");
+		ditto("IN");
+		ditto("W");
+		makeInst("PIT", 0, "spit");
+		makeInst("DEBRIS", 0, "debris");
+		
+		makeLoc("cobbles",
+		"You are crawling over cobbles in a low passage.  There is a dim light\n" +
+		"at the east end of the passage.",
+		"You're in cobble crawl.",
+		"lighted"
+		);
+		makeInst("OUT", 0, "inside");
+		ditto("SURFACE");
+		ditto("NOWHERE");
+		ditto("E");
+		makeInst("IN", 0, "debris");
+		ditto("DARK");
+		ditto("W");
+		ditto("DEBRIS");
+		makeInst("PIT", 0, "spit");
+		
+		makeLoc("debris",
+		"You are in a debris room filled with stuff washed in from the surface.\n" +
+		"A low wide passage with cobbles becomes plugged with mud and debris\n" +
+		"here, but an awkward canyon leads upward and west.  A note on the wall\n" +
+		"says \"MAGIC WORD XYZZY\".",
+		"You're in debris room."
+		);
+		makeInst("DEPRESSION", notValue("grate", 0), "outside");
+		makeInst("ENTRANCE", 0, "inside");
+		makeInst("CRAWL", 0, "cobbles");
+		ditto("COBBLES");
+		ditto("PASSAGE");
+		ditto("LOW");
+		ditto("E");
+		makeInst("CANYON", 0, "awk");
+		ditto("IN");
+		ditto("U");
+		ditto("W");
+		makeInst("XYZZY", 0, "house");
+		makeInst("PIT", 0, "spit");
+		
+		makeLoc("awk",
+		"You are in an awkward sloping east/west canyon."
+		);
+		makeInst("DEPRESSION", notValue("grate", 0), "outside");
+		makeInst("ENTRANCE", 0, "inside");
+		makeInst("D", 0, "debris");
+		ditto("E");
+		ditto("DEBRIS");
+		makeInst("IN", 0, "bird");
+		ditto("U");
+		ditto("W");
+		makeInst("PIT", 0, "spit");
+
+		makeLoc("bird",
+		"You are in a splendid chamber thirty feet high.  The walls are frozen\n" +
+		"rivers of orange stone.  An awkward canyon and a good passage exit\n" +
+		"from east and west sides of the chamber.",
+		"You're in bird chamber.", 
+		"bird hint"
+		);
+		makeInst("DEPRESSION", notValue("grate", 0), "outside");
+		makeInst("ENTRANCE", 0, "inside" );
+		makeInst("DEBRIS", 0, "debris" );
+		makeInst("CANYON", 0, "awk" ); ditto("E");
+		makeInst("PASSAGE", 0, "spit" ); ditto("PIT"); ditto("W");
+		
+		makeLoc("spit",
+		"At your feet is a small pit breathing traces of white mist.  An east\n" +
+		"passage ends here except for a small crack leading on.",
+		"You're at top of small pit.");
+		makeInst("DEPRESSION", notValue("grate", 0), "outside" );
+		makeInst("ENTRANCE", 0, "inside" );
+		makeInst("DEBRIS", 0, "debris" );
+		makeInst("PASSAGE", 0, "bird" ); ditto ("E");
+		makeInst("D", holds("gold"), "neck"); ditto("PIT"); ditto("STEPS");
+		makeInst("D", 0, "emist");
+		makeInst("CRACK", 0, "crack"); ditto("W");
+		
+		makeLoc("emist",
+		"You are at one end of a vast hall stretching forward out of sight to\n" +
+		"the west.  There are openings to either side.  Nearby, a wide stone\n" +
+		"staircase leads downward.  The hall is filled with wisps of white mist\n" +
+		"swaying to and fro almost as if alive.  A cold wind blows up the\n" +
+		"staircase.  There is a passage at the top of a dome behind you.",
+		"You're in Hall of Mists.");
+		makeInst("L", 0, "nugget"); ditto("S");
+		makeInst("FORWARD", 0, "efiss"); ditto("HALL"); ditto("W");
+		makeInst("STAIRS", 0, "hmk"); ditto("D"); ditto("N");
+		makeInst("U", holds("gold"), "cant"); ditto("PIT"); ditto("STEPS");
+		ditto("DOME"); ditto("PASSAGE"); ditto("E");
+		makeInst("U", 0, "spit");
+		makeInst("Y2", 0, "jumble");
+		
+		makeLoc("nugget",
+		"This is a low room with a crude note on the wall.  The note says,\n" +
+		"\"You won't get it up the steps.\".",
+		"You're in the nugget of gold room.");
+		makeInst("HALL", 0, "emist"); ditto("OUT"); ditto("N");
+		
+		makeLoc("efiss",
+		"You are on the east bank of a fissure slicing clear across the hall.\n" +
+		"The mist is quite thick here, and the fissure is too wide to jump.",
+		"You're on the east bank of fissure.");
+		makeInst("HALL", 0, "emist"); ditto("E");
+		remark("I respectfully suggest you go across the bridge instead of jumping.");
+		makeInst("JUMP", notValue("crystal", 0), "sayit");
+		makeInst("FORWARD", notValue("crystal", 1), "lose");
+		remark("There is no way across the fissure.");
+		makeInst("OVER", notValue("crystal", 1), "sayit");
+		ditto("ACROSS"); ditto("W"); ditto("CROSS");
+		makeInst("OVER", 0, "wfiss");
+		
+		makeLoc("wfiss",
+		"You are on the west side of the fissure in the Hall of Mists.", 0);
+		makeInst("JUMP", notValue("crystal", 0), "bridge_rmk");
+		makeInst("FORWARD", notValue("crystal", 1), "lose");
+		remark("There is no way across the fissure.");
+		makeInst("OVER", notValue("crystal", 1), "sayit"); ditto("ACROSS"); ditto("E"); ditto("CROSS");
+		makeInst("OVER", 0, "efiss");
+		makeInst("N", 0, "thru");
+		makeInst("W", 0, "wmist");
+		
+		makeLoc("wmist",
+		"You are at the west end of the Hall of Mists.  A low wide crawl\n" +
+		"continues west and another goes north.  To the south is a little\n" +
+		"passage 6 feet off the floor.",
+		"You're at west end of Hall of Mists.");
+		makeInst("S", 0, "like1"); ditto("U"); ditto("PASSAGE"); ditto("CLIMB");
+		makeInst("E", 0, "wfiss");
+		makeInst("N", 0, "duck");
+		makeInst("W", 0, "elong"); ditto("CRAWL");
+		
+		(function() {
+			var all_alike = "You are in a maze of twisty little passages, all alike.",
+			rm, dir,
+			passages = {
+				like1: {
+					U: "wmist",
+					N: "like1",
+					E: "like2",
+					S: "like4",
+					W: "like11"
+				},
+				like2: {
+					W: "like1",
+					S: "like3",
+					E: "like4"
+				},
+				like3: {
+					E: "like2",
+					D: "dead5",
+					S: "like6",
+					N: "dead9"
+				},
+				like4: {
+					W: "like1",
+					N: "like2",
+					E: "dead3",
+					S: "dead4",
+					U: "like14",
+					D: "like14"
+				},
+				like5: {
+					E: "like6",
+					W: "like7"
+				},
+				like6: {
+					E: "like3",
+					W: "like5",
+					D: "like7",
+					S: "like8"
+				},
+				like7: {
+					W: "like5",
+					U: "like6",
+					E: "like8",
+					S: "like9"
+				},
+				like8: {
+					W: "like6",
+					E: "like7",
+					S: "like8",
+					U: "like9",
+					N: "like10",
+					D: "dead11"
+				},
+				like9: {
+					W: "like7",
+					N: "like8",
+					S: "dead6"
+				},
+				like10: {
+					W: "like8",
+					N: "like10",
+					D: "dead7",
+					E: "brink"
+				},
+				like11: {
+					N: "like1",
+					W: "like11",
+					S: "like11",
+					E: "dead1"
+				},
+				like12: {
+					S: "brink",
+					E: "like13",
+					W: "dead10"
+				},
+				like13: {
+					N: "brink",
+					W: "like12",
+					NW: "dead2"
+				},
+				like14: {
+					U: "like4",
+					D: "like4"
+				}
+			};
+			
+			for(rm in passages) {
+				makeLoc(rm, all_alike, 0, "twist hint");
+				for(dir in passages[rm]) {
+					makeInst(dir, 0, passages[rm][dir]);
+				}
+			}
+		}());
+		
+		makeLoc("brink",
+		"You are on the brink of a thirty-foot pit with a massive orange column\n" +
+		"down one wall.  You could climb down here but you could not get back\n" +
+		"up.  The maze continues at this level.",
+		"You're at brink of pit.");
+		makeInst("D", 0, "bird"); ditto("CLIMB");
+		makeInst("W", 0, "like10");
+		makeInst("S", 0, "dead8");
+		makeInst("N", 0, "like12");
+		makeInst("E", 0, "like13");
+		
+		(function() {
+			var dead_end = "Dead end.";
+			makeLoc("dead0", dead_end);
+			makeInst("S", 0, "cross"); ditto("OUT");
+		
+			makeLoc("dead1", dead_end, 0, "twist_hint");
+			makeInst("W", 0, "like11"); ditto("OUT");
+		
+			makeLoc("dead2", dead_end);
+			makeInst("SE", 0, "like13");
+		}());
+		
+		makeLoc("cant",
+		"The dome is unclimbable.");
+		makeInst("FORCE", 0, "emist");
+
+        // next location: section 32, page 20 ("emist")
+		newObj("rug", "Persian rug", "rug", ["scan1", "scan3"]);
+		newNote("There is a Persian rub spread out on the floor!");
+		newNote("The dragon is sprawled out on a Persian rug!!");
+		
+		newObj("troll2", 0, "troll2", "limbo");
+		newNote("The troll is nowhere to be seen.");
+
+		newObj("crystal", 0, "crystal", ["wfiss", "efiss"]);
+		newNote("");
+		newNote("A crystal bridge now spans the fissure.");
+		newNote("The crystal bridge has vanished!");
+		
+		newObj("treads", 0, "treads", ["emist", "spit"]);
+		newNote("Rough stone steps lead down the pit.");
+		newNote("Rough stone steps lead up the dome.");
+
+		newObj("grate", 0, "grate", ["inside", "outside"]);
+		newNote("The grate is locked.");
+		newNote("The grate is open.");
+		
+		newObj("mirror", 0, "mirror", ["mirror", "limbo"]);
+		newNote("");
+		
+
+		////
+		// These are all of the objects that are in a single location
+		////
+		
         newObj("chain", "Golden chain", "chain", "barr");
         newNote("There is a golden chain lying in a heap on the floor!");
         newNote("The bear is locked to the wall with a golden chain!");
         newNote("There is a golden chain locked to the wall!");
 
+		newObj("spices", "Rare spices", 0, "chamber");
+		newNote("There are rare spices here!");
+
+		newObj("pearl", "Glistening perl", 0, "limbo");
+		newNote("Off to one side lies a glistening pearl!");
+
+		newObj("pyramid", "Platinum pyramid", 0, "droom");
+		newNote("There is a platinum pyramid here, 8 inches on a side!");
+
+		newObj("emerald", "Egg-sized emerald", 0, "proom");
+		newNote("There is an emerald here the size of a plover's egg!");
+
+		newObj("vase", "Ming vase", 0, "oriental");
+		newNote("There is a delicate, precious, Ming vase here!");
+		newNote("The vase is now resting, delicately, on a velvet pillow.");
+		newNote("The floor is littered with worthless shards of pottery.");
+		newNote("The Ming vase drops with a delicate crash.");
+
+		newObj("trident", "Jeweled trident", 0, "falls");
+		newNote("There is a jewel-encrusted trident here!");
+		
+		newObj("eggs", "Golden eggs", 0, "giant");
+		newNote("There is a large nest here, fill of golden eggs!");
+		newNote("The nest of golden eggs has vanished!");
+		newNote("Done!");
+		
+		newObj("chest", "Treasure chest", 0, "limbo");
+		newNote("The pirate's treasure chest is here!");
+		
+		newObj("coins", "Rare coins", 0, "west");
+		newNote("There are many coins here!");
+		
+		newObj("jewels", "Precious jewelry", 0, "south");
+		newNote("There is precious jewelry here!");
+		
+		newObj("silver", "Bars of silver", 0, "ns");
+		newNote("There are bars of silver here!");
+		
+		newObj("diamonds", "Several diamonds", 0, "wfiss");
+		newNote("There are diamonds here!");
+		
+		newObj("gold", "Large gold nugget", 0, "nugget");
+		newNote("There is a large sparkling nugget of gold here!");
+		
+		newObj("moss", 0, "moss", "soft");
+		newNote("");
+		
+		newObj("batteries", "Batteries", 0, "limbo");
+		newNote("There are fresh batteries here.");
+		newNote("Some worn-out batteries have been discarded nearby.");
+		
+		newObj("pony", 0, "pony", "pony");
+		newNote("There is a massive vending machine here.  The instructions on it read: " +
+		"\"Drop coins here to receive fresh batteries.\"");
+
+		newObj("geyser", 0, "geyser", "view");
+		newNote("");
+
+		newObj("message", 0, "message", "limbo");
+		newNote("There is a message scrawled in the dust in a flowery script, reading: " +
+		"\"This is not the maze where the pirate hides his treasure chest.\"");
+		
+		newObj("bear", 0, "bear", "barr");
+		newNote("There is a ferocious cave bea eying you from the far end of the room!");
+		newNote("There is a gentle cave bear sitting placidly in one corner.");
+		newNote("There is a contented-looking bear wandering about nearby.");
+		newNote("");
+		
+		newObj("pirate", 0, "pirate", "limbo");
+		newNote("");
+
+		newObj("art", 0, "art", "oriental");
+		newNote("");
+		
+		newObj("axe", "Dwarf's axe", 0, "limbo");
+		newNote("There is a little axe here.");
+		newNote("There is a little axe lying beside the bear.");
+		
+		newObj("stalactite", 0, "stalactite", "tite");
+		newNote("");
+		
+		newObj("plant", 0, "plant", "wpit");
+		newNote("There is a tiny little plant in the pit, murmuring \"Water, water, ...\"");
+		newNote("The plant spurts into furious growth for a few seconds.");
+		newNote("There is a 12-foot-tall beanstalk streatching up out of the pit, bellowing \"Water!!  Water!!\"");
+		newNote("The plant grows explosively, almost filling the bottom of the pit.");
+		newNote("There is a gigantic beanstalk stretching all the way up to the hole.");
+		newNote("You've over-watered the plant!  It's shriveling up!  It's, it's...");
+		newNote("");
+		
+		newObj("oil", "Oil in the bottle", 0, "limbo");
+		newObj("water", "Water in the bottle", 0, "limbo");
+		newObj("bottle", "Small bottle", 0, "house");
+		newNote("There is a bottle of water here.");
+		newNote("There is an empty bottle here.");
+		newNote("There is a bottle of oil here.");
+		
+		newObj("food", "Tasty food", 0, "house");
+		newNote("There is food here.");
+		
+		newObj("knife", 0, 0, "limbo");
+		
+		newObj("dwarf", 0, "dwarf", "limbo");
+		
+		newObj("mag", "\"Spelunker Today\"", 0, "ante");
+		newNote("There are a few recent issues of \"Spelunker Today\" magazine here.");
+		
+		newObj("oyster", "Giant oyster. &gt;GROAN!&lt;", 0, "limbo");
+		newNote("There is an enormous oyster here with its shell tightly closed.");
+		newNote("Interesting.  There seems to be something written on the underside of the oyster.");
+		
+		newObj("clam", "Giant clam &gt;GRUNT!&lt;", 0, "shell");
+		newNote("There is an enormous clam here with its shell tightly closed.");
+		
+		newObj("tablet", 0, "tablet", "droom");
+		newNote("A massive stone tablet embedded in the wall reads: \"CONGRATULATIONS ON BRINGING LIGHT INTO THE DARK-ROOM!\"");
+		
+		newObj("snake", 0, "snake", "limbo");
+		newNote("A huge green fierce snake bars the way!");
+		newNote("");
+
+		newObj("pillow", "Velvet pillow", 0, "soft");
+		newNote("A small velvet pillow lies on the floor.");
+		
+		newObj("door", 0, "door", "immense");
+		newNote("The way north is barred by a massive, rusty, iron door.");
+		newNote("The way north leads through a massive, rusty, iron door.");
+
+		newObj("bird", "Little bird in cage", 0, "bird");
+		newNote("A cheerful little bird is sitting here singing.");
+		newNote("There is a little bird in the cage");
+
+		newObj("rod2", "Black rod", 0, "limbo");
+		newNote("A three-foot black rod with a rusty star on an end lies nearby.");
+
+		newObj("rod", "Black rod", 0, "debris");
+		newNote("A three-foot black rod with a rusty star on an end lies nearby.");
+
+		newObj("cage", "Wicker cage", 0, "cobbles");
+		newNote("There is a small wicker cage discarded nearby.");
+
+		newObj("lamp", "Brass lantern", 0, "house");
+		newNote("There is a shiny brass lamp nearby.");
+		newNote("There is a lamp shining nearby.");
+
         newObj("keys", "Set of keys", 0, "house");
         newNote("There are some keys on the ground here.");
 
-        // user interface stuff
-        //
-        // double click on an item in the room will pick it up
-        // double click on an item in the inventory will drop it
-        // clicking on an exit will go through that exit
-        //
-        // we also have a CLI for commands
+		////
+		// done with game data now
+		////
+		
         that.ready(function() {
 	        selector.description = "#" + $(container).attr('id') + " > .room > .description";
             selector.objects = "#" + $(container).attr('id') + " > .room > .objects";
@@ -858,12 +1520,7 @@
 			selector.cli = "#" + $(container).attr('id') + " > .cli > .cli-input";
 			selector.compass = "#" + $(container).attr('id') + " > .compass";
         });
-        // selectors:
-        //   description: "#" + $(container).id + " .room .description"
-        //   objects: ... ".room .description"
-        //   cli: ... ".cli"
-        //   directions: ... ".directions"
-        //   inventory: ... ".inventory"
+
         that.ready(function() {
 			that.dataSource.adventure.loadItems([{
 	            id: "player",
@@ -882,11 +1539,14 @@
 			
 			$(selector.cli).keypress(function(event) {
 				var cmd;
-				if( event.which === 13 ) {
+				if( event.which === 13 ) { // "enter" will parse command
 					event.preventDefault();
 					cmd = $(selector.cli).val();
 					$(selector.cli).val('');
 					that.parseCommand(cmd);
+				}
+				else if( event.which === 21) { // ctrl+U will erase line
+					$(selector.cli).val('');
 				}
 			});
 			
