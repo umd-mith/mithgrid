@@ -63,6 +63,7 @@
      */
     MITHGrid.Presentation.RoomDescription = function(container, options) {
         var that = MITHGrid.Presentation.initView("RoomDescription", container, options),
+		game = that.options.application,
         roomLens = {
             render: function(container, view, model, itemId) {
                 var that = {},
@@ -120,41 +121,23 @@
 						things.WordHash = { };
 						things.WordList = [ ];
 						$.each(things.Word, function(idx, word) {
-							var dest = model.getItem(word.destination[0]);
-							if(dest === undefined || dest.id === undefined) { return; }
 							if(things.WordHash[word.word[0]] === undefined) {
-								things.WordHash[word.word[0]] = [ ];
+								things.WordHash[word.word[0]] = true;
 								things.WordList.push(word.word[0]);
 							}
-							things.WordHash[word.word[0]].push(word);
 						});
-						el = $('<ul class="words"></ul>');
 						$.each(["N", "E", "S", "W", "U", "D"], function(idx, w) {
 							var words = things.WordHash[w],
-							cmdEl;
-							if(words === undefined) { return; }
-							cmdEl = $('<li>' + w + '</li>');
-							$(el).append(cmdEl);
-
-							// we allow the player to move to the destination by clicking on the word
-							cmdEl.click(function() {
-								var player = model.getItem("player");
-								$.each(words, function(idx, word) {
-									if(player.environment[0] === word.environment[0]) {
-										if(word.condition[0] === 0) {
-											model.updateItems([{
-												id: "player",
-												environment: word.destination[0]
-											}]);
-										}
-									}
-								});
-							});
+							cmdEl = $(".compass > ." + w.toLowerCase());
+							if(words === undefined) {
+								cmdEl.addClass("unavailable");
+							}
+							else {
+								cmdEl.removeClass("unavailable");
+							}
 						});
-						el2 = $('<div>Obvious Exits: </div>');
-						el2.append(el);
-						$(container).append(el2);
 					}
+
 					$(container).parent().animate({
 						scrollTop: $(el).offset().top - $(container).parent().offset().top + $(container).parent().scrollTop()
 					});
@@ -256,6 +239,8 @@
             viewSetup: "<div class='room'><div class='description'></div><div class='objects'></div></div>" +
             "<div class='directions'></div>" +
             "<div class='inventory-holder'><h2>Inventory</h2><ul class='inventory'></ul></div>"+
+			"<div class='compass'><span class='n'>N</span><span class='e'>E</span><span class='w'>W</span>" +
+			"<span class='s'>S</span><span class='u'>U</span><span class='d'>D</span></div>" +
 			"<div class='cli'><input class='cli-input' type='text' name='command'></input></div>",
 			/*
 			 * here, we tie the presentation definitions from above to the DOM elements that will house the presentation
@@ -299,16 +284,34 @@
             lastLoc = room.id;
 			that.dataSource.adventure.loadItems([room]);
         },
+		remarkStr = "",
+		remark = function(str) {
+			remarkStr = str;
+		},
+		conditions = [],
 		// creates an action word for the most recent location created
         makeInst = function(word, condition, destination) {
             var inst = {
                 id: 'inst:' + ids.inst,
                 environment: lastLoc,
-                destination: "room:" + destination,
-                condition: condition,
+                //destination: "room:" + destination,
+                //condition: condition,
                 word: word,
                 type: 'Word'
             };
+			if($.isFunction(condition)) {
+				conditions.push(condition);
+				inst.functionCondition = conditions.length-1;
+			}
+			else {
+				inst.condition = condition;
+			}
+			if(destination === "sayit") {
+				inst.remark = remarkStr;
+			}
+			else {
+				inst.destination = "room:" + destination;
+			}
             lastInst = inst;
             ids.inst += 1;
 			that.dataSource.adventure.loadItems([inst]);
@@ -405,6 +408,26 @@
 			var here = that.dataSource.adventure.getItem(player().environment[0]);
 			return $.inArray("liquid", here.flags) >= 0 && $.inArray("oil", here.flags) === -1;
 		},
+		holds = function(treasure) {
+			return function() { return toting(treasure); }
+		},
+		sees = function(treasure) {
+			return function() { return isAtLocation(treasure, player().environment[0]); }
+		},
+		gameProps = {
+			grate: 0
+		},
+		notValue = function(key, value) {
+			return function() { 
+				return gameProps[key] !== undefined && gameProps[key] !== value; 
+			};
+		},
+		setGameProp = function(key, value) {
+			gameProps[key] = value;
+		},
+		getGameProp = function(key) {
+			return gameProps[key];
+		},
 		number_commands = 0,
 		makeCommand = function(cmd, fn) {
 			commands[cmd] = fn;
@@ -426,63 +449,6 @@
 		},
 		inventory = function() {
 			return thingsInEnvironment("player");
-		},
-		// our parsing here is going to be a bit different than in the literate programming example
-		parseCommand = function(cmd) {
-			var bits = $.trim(cmd.toLowerCase()).split(" "),
-			things = [ ];
-			
-			newLoc = "";
-			
-			if(thingsInEnvExpr.evaluate === undefined) {
-				thingsInEnvExpr = that.dataSource.adventure.prepare(["!environment.id"]);
-			}
-			
-			if(bits.length == 2 && bits[0] === "go") {
-				bits = [ bits[1] ];
-			}
-			
-			if(bits.length == 1) {
-				// likely a word in the environment
-				if(bits[0] == "east") { bits[0] = "e"; }
-				if(bits[0] == "west") { bits[0] = "w"; }
-				if(bits[0] == "north") { bits[0] = "n"; }
-				if(bits[0] == "south") { bits[0] = "s"; }
-				if(bits[0] == "up") { bits[0] = "u"; }
-				if(bits[0] == "down") { bits[0] = "d"; }
-				
-				bits[0] = bits[0].toUpperCase();
-				things = $.grep(thingsInEnvironment(),
-				function(word, idx) {
-					return word.type[0] === "Word" && word.word[0] === bits[0];
-				});
-				if(things !== undefined && things.length > 0) {
-					$.each(things, function(idx, word) {
-						if(newLoc !== "") { return; }
-						if(word.condition[0] === 0) {
-							// we can move
-							newLoc = word.destination[0];
-						}
-					});
-				}
-			}
-			
-			bits[0] = bits[0].toLowerCase();
-			if(newLoc === "") { // no movement, so we still haven't done anything
-				if(commands[bits[0]] !== undefined) {
-					commands[bits[0]](bits);
-				}
-				else {
-					error("I don't understand what you mean.");
-				}
-			}
-
-			if(newLoc !== "") {
-				that.dataSource.adventure.updateItems([{
-					id: "player",
-					environment: newLoc
-				}]);
-			}
 		},
 		print = function(stuff) {
 			var el,
@@ -508,6 +474,88 @@
 			makeCommand(word, function(bits) { print(msg); });
 		}
 		;
+		
+		// our parsing here is going to be a bit different than in the literate programming example
+		that.parseCommand = function(cmd) {
+			var bits = [ ],
+			things = [ ];
+			
+			newLoc = "";
+			
+			cmd = $.trim(cmd.toLowerCase());
+			if(cmd === "") {
+				return;
+			}
+			
+			bits = cmd.split(" ");
+			if(bits.length === 0) {
+				return;
+			}
+			
+			if(thingsInEnvExpr.evaluate === undefined) {
+				thingsInEnvExpr = that.dataSource.adventure.prepare(["!environment.id"]);
+			}
+			
+			if(bits.length == 2 && bits[0] === "go") {
+				bits = [ bits[1] ];
+			}
+			
+			if(bits.length == 1) {
+				// likely a word in the environment
+				if(bits[0] == "east") { bits[0] = "e"; }
+				if(bits[0] == "west") { bits[0] = "w"; }
+				if(bits[0] == "north") { bits[0] = "n"; }
+				if(bits[0] == "south") { bits[0] = "s"; }
+				if(bits[0] == "up") { bits[0] = "u"; }
+				if(bits[0] == "down") { bits[0] = "d"; }
+				
+				bits[0] = bits[0].toUpperCase();
+				things = $.grep(thingsInEnvironment(),
+				function(word, idx) {
+					return word.type[0] === "Word" && word.word[0] === bits[0];
+				});
+				if(things !== undefined && things.length > 0) {
+					$.each(things, function(idx, word) {
+						var condSatisfied = false;
+						if(newLoc !== "") { return; }
+						if(word.condition !== undefined) {
+							if(word.condition[0] === 0) {
+								condSatisfied = true;
+							}
+						}
+						else if(word.functionCondition !== undefined) {
+							condSatisfied = conditions[word.functionCondition[0]]();
+						}
+						if(condSatisfied) {
+							if(word.destination !== undefined) {
+								newLoc = word.destination[0];
+							}
+							else if(word.remark !== undefined) {
+								print(word.remark[0]);
+								newLoc = player().environment[0]; // don't move, but don't try to run command
+							}
+						}
+					});
+				}
+			}
+			
+			bits[0] = bits[0].toLowerCase();
+			if(newLoc === "") { // no movement, so we still haven't done anything
+				if(commands[bits[0]] !== undefined) {
+					commands[bits[0]](bits);
+				}
+				else {
+					error("I don't understand what you mean.");
+				}
+			}
+
+			if(newLoc !== "") {
+				that.dataSource.adventure.updateItems([{
+					id: "player",
+					environment: newLoc
+				}]);
+			}
+		};
 		
 		messWord("abra", "Good try, but that is an old worn-out magic word.");
 		alias("abracadabra"); alias("opensesame"); alias("sesame");
@@ -758,7 +806,7 @@
 		ditto("ROCK");
 		ditto("BED");
 		ditto("S");
-		//remark("You don't fit through a two-inch slit!");
+		remark("You don't fit through a two-inch slit!");
 		makeInst("SLIT", 0, "sayit");
 		ditto("STREAM");
 		ditto("D");
@@ -778,11 +826,11 @@
 		makeInst("UPSTREAM", 0, "slit");
 		ditto("GULLY");
 		ditto("N");
-		makeInst("ENTER", /*not(GRATE, 0) */ 0, "inside");
+		makeInst("ENTER", notValue("grate", 0), "inside");
 		ditto("ENTER");
 		ditto("IN");
 		ditto("D");
-		//remark("You can't go through a locked steel grate!");
+		remark("You can't go through a locked steel grate!");
 		makeInst("ENTER", 0, "sayit");
 
         // next location: section 30, page 18 ("inside")
@@ -808,6 +856,7 @@
             selector.directions = "#" + $(container).attr('id') + " > .directions";
             selector.inventory = "#" + $(container).attr('id') + " > .inventory";
 			selector.cli = "#" + $(container).attr('id') + " > .cli > .cli-input";
+			selector.compass = "#" + $(container).attr('id') + " > .compass";
         });
         // selectors:
         //   description: "#" + $(container).id + " .room .description"
@@ -837,9 +886,19 @@
 					event.preventDefault();
 					cmd = $(selector.cli).val();
 					$(selector.cli).val('');
-					parseCommand(cmd);
+					that.parseCommand(cmd);
 				}
 			});
+			
+			// make compass active
+			$.each(['n', 's', 'e', 'w', 'u', 'd'], function(idx, dir) {
+				$(selector.compass + " ." + dir).click(function() {
+					if($(selector.compass + " ." + dir).hasClass("unavailable")) {
+						return;
+					}
+					that.parseCommand(dir);	
+				});
+			})
 			$(selector.cli).focus();
         });
 

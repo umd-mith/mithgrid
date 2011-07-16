@@ -2,7 +2,7 @@ html, body {
 	background-color: #cccccc;
 	padding: 0px;
 	margin: 0px;
-	overflow: hidden;
+	/*overflow: hidden; */
 }
 
 #header {
@@ -28,7 +28,7 @@ html, body {
 	padding-right: 3px;
 	background-color: #ffffff;
 	float: left;
-	height: 400px;
+	height: 600px;
 	overflow-y: scroll;
 }
 
@@ -54,41 +54,78 @@ html, body {
 	background-color: #fff8f8;
 	border: 1px solid #fff0f0;
 }
-#game > .room > .description ul {
+.room > .description ul {
 	display: inline;
 	margin: 0px;
 	padding: 0px;
 }
 
-#game > .room > .description ul > li {
+.room > .description ul > li {
 	display: inline;
 	padding-left: 5px;
 	padding-right: 5px;
 }
-#game > .room > .description ul > li:after {
+.room > .description ul > li:after {
 	content: " ";
 }
 
-#game > .cli {
+ .cli {
 	clear: both;
 	width: 600px;
 }
-#game > .cli > input {
+ .cli > input {
 	width: 600px;
 }
-#game > .room > .objects {
+ .room > .objects {
 	
 }
 
-#game > .cli {
-	
+.compass {
+	width: 200px;
+	height: 180px;
+	background-color: #ffffff;
+	float: left;
+	margin-left: 20px;
+	margin-top: 20px;
+	font-weight: bold;
+	font-size: 24px;
 }
 
-#game > .directions {
-	
+.compass > .n {
+	text-align: center;
+	width: 200px;
+	display: block;
+	margin-bottom: 24px;
 }
 
-#game > .inventory-holder {
+.compass > .e {
+	float: right;
+	text-align: right;
+}
+
+.compass > .w {
+	float: left;
+	text-align: left;
+}
+
+.compass > .s {
+	text-align: center;
+	width: 200px;
+	display: block;
+	margin-top: 72px;
+	margin-bottom: 24px;
+}
+
+.compass > .u {
+	float: right;
+	text-align: right;
+}
+
+.compass > .unavailable {
+	color: #cccccc;
+}
+
+ .inventory-holder {
 	width: 200px;
 	height: 400px;
 	margin-left: 20px;
@@ -96,13 +133,13 @@ html, body {
 	float: left;
 }
 
-#game > .inventory-holder > .inventory {
+ .inventory-holder > .inventory {
 	list-style: none;
 	margin-left: 3px;
 	padding-left: 0px;
 }
 
-#game > .inventory-holder > h2 {
+.inventory-holder > h2 {
 	text-align: center;
 	margin: 0px;
 	padding: 1px;
