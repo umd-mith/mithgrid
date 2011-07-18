@@ -1,203 +1,14 @@
 /*
  * This version of Adventure is based on the literate programming version available at
  * http://www.literateprogramming.com/adventure.pdf
+ * Copyright (C) 1998 by Don Woods and Don Knuth; all rights reserved
  *
  * This illustrates the use of data views providing different filtered versions of the core
  * data store.
+ *
  */
 
  (function($, MITHGrid) {
-	/*
-	 * Since MITHGrid doesn't have any predefined presentations right now, we define a few for the game.
-	 *
-	 * The first is a list of text items.
-	 *
-	 * The itemLens is an object that can render the item, adding content to the container as well as
-	 * returning an object that can be used to update or remove the content.
-	 * 
-	 * The lens for the text list renders the item name as a list element.  The item name is a property
-	 * of objects in the Adventure game.
-	 */
-    MITHGrid.Presentation.TextList = function(container, options) {
-        var that = MITHGrid.Presentation.initView("TextList", container, options),
-        itemLens = {
-            render: function(container, view, model, itemId) {
-                var that = {},
-                el,
-                item = model.getItem(itemId);
-
-                el = $('<li>' + item.name[0] + '</li>');
-                $(container).append(el);
-
-                that.update = function(item) {};
-
-                that.remove = function() {
-                    $(el).remove();
-                };
-
-                return that;
-            }
-        };
-
-        that.startDisplayUpdate = function() {};
-        that.finishDisplayUpdate = function() {};
-
-        that.getLens = function(item) {
-            if (item.type[0] === "Object") {
-                return itemLens;
-            }
-        };
-
-        return that;
-    };
-
-    /*
-     * The room description presentation pulls together a description of the room, the allowed actions in
-     * the room, and a list of objects present in the room.
-     *
-     * This information is appended to the container instead of replacing the previous results.
-     *
-     * The 'render' function in the roomLens is called when the game starts.  After that, the
-     * update function on the object that render() returns is called when the player's object is updated.
-     *
-     */
-    MITHGrid.Presentation.RoomDescription = function(container, options) {
-        var that = MITHGrid.Presentation.initView("RoomDescription", container, options),
-		game = that.options.application,
-        roomLens = {
-            render: function(container, view, model, itemId) {
-                var that = {},
-                el, el2,
-				thingsInEnvExpr = model.prepare(["!environment.id"]),
-				notesForObjectExpr = model.prepare(["!object.id"]),
-                room = model.getItem(model.getItem('player').environment[0]);
-
-				/* thingsInEnvExpr is a prepared expression that will find all of the things in the game database
-				 * that share the same environment as the provided object id - in this case, it will be the id
-				 * of the room that the player is in
-				 */
-				var doRender = function() {
-					var things = { "Word": [], "Object": [] },
-					thingIds = thingsInEnvExpr.evaluate([room.id[0]]),
-					roomDesc = "";
-					
-					//console.log(thingIds);
-					roomDesc = room.description[0];
-                    
-	                // look for items with the same environment -- append them to $(container)
-					$.each(thingIds, function(idx, thing) {
-						var item = model.getItem(thing);
-						if(item.type !== undefined) {
-							things[item.type[0]] = things[item.type[0]] || [];
-							things[item.type[0]].push(item);
-						}
-					});
-					
-					/* available items have a type of 'Object' */
-					if (things.Object.length > 0) {
-					   // el = $('<ul class="objects"></ul>');
-					    $.each(things.Object,
-					    function(idx, object) {
-					        var notes = [ ],
-							note_idx = 0;
-
-							// we want to find the first note associated with this object
-							// the 'value' property of the item indexes the notes
-							if(object.value !== undefined) {
-								note_idx = object.value[0];
-							}
-							
-							notes = model.getItems(notesForObjectExpr.evaluate([object.id[0]]));
-
-							if(notes.length < note_idx) {
-								note_idx = 0;
-							}
-							if(notes.length === 0) {
-								roomDesc += " You see a " + object.name[0].toLowerCase + ". ";
-							}
-							else {
-								if(notes[note_idx].content[0]) {
-									roomDesc += " " + notes[note_idx].content[0] + " ";
-								}
-							}
-					    });
-					}
-					
-					el = $('<p class="desc">' + roomDesc + '</p>');
-					
-					/* available actions have a type of 'Word' */
-					if(things.Word.length > 0) {
-						things.WordHash = { };
-						things.WordList = [ ];
-						$.each(things.Word, function(idx, word) {
-							if(things.WordHash[word.word[0]] === undefined) {
-								things.WordHash[word.word[0]] = [];
-								things.WordList.push(word.word[0]);
-							}
-							things.WordHash[word.word[0]].push(word);
-						});
-						$.each(["N", "E", "S", "W", "U", "D"], function(idx, w) {
-							var words = things.WordHash[w],
-							cmdEl = $(".compass > ." + w.toLowerCase());
-							if(words === undefined) {
-								cmdEl.addClass("unavailable");
-							}
-							else {
-								cmdEl.removeClass("unavailable");
-							}
-						});
-						
-						if(things.WordHash.FORCE !== undefined && things.WordHash.FORCE.length > 0) {
-							// we force the player to do these
-							el = $("<p class='info'>" + roomDesc + "</p>");
-							setTimeout(function() {
-								model.updateItems([{
-									id: "player",
-									environment: things.WordHash.FORCE[0].destination
-								}]);
-							}, 0); // as soon as this current run is over
-						}
-					}
-					
-                    $(container).append(el);
-
-					$(container).parent().animate({
-						scrollTop: $(el).offset().top - $(container).parent().offset().top + $(container).parent().scrollTop()
-					});
-				};
-				
-				/*
-				 * an update just updates the room if the player's environment is different than the
-				 * previously rendered room
-				 */
-                that.update = function(item) {
-					if(room.id[0] !== item.environment[0]) {
-						room = model.getItem(item.environment[0]);
-						doRender();
-					}
-				};
-				
-				that.reRender = function() {
-					doRender();
-				};
-
-				doRender();
-				
-                return that;
-            }
-        };
-
-        that.startDisplayUpdate = function() {};
-        that.finishDisplayUpdate = function() {};
-
-        that.getLens = function(item) {
-            if (item.type[0] === "Player") {
-                return roomLens;
-            }
-        };
-
-        return that;
-    }
 
 	/*
 	 * This is the main application configuration, providing information about the game database, the
@@ -206,9 +17,11 @@
     MITHGrid.Application.Adventure = function(container, options) {
 		// the initApp call sets up the basic data sources, views, and presentations we want to use
         var that = MITHGrid.Application.initApp("MITHGrid.Application.Adventure", container, {
+			// the game has a single core database of objects, rooms, and actions (words) within a room
             dataSources: [{
                 label: 'adventure',
 				// let the database know what kinds of items we expect to have
+				// commands are kept separate since the data source doesn't handle function references yet
 				types: [{
 					label: "Player"
 				}, {
@@ -220,7 +33,7 @@
 				}, {
 					label: "Note"
 				}],
-				// let the database know that the 'environment' property points to other items
+				// let the database know that the 'environment' and 'object' properties point to other items
 				properties: [{
 					label: "environment",
 					valueType: "Item"
@@ -229,9 +42,24 @@
 					valueType: "Item"
 				}]
             }],
+			/*
+			 * we have a number of data views that let us see when particular items in the database have changed
+			 */
             dataViews: [{
+				/*
+				 * this data view lists the items that are part of the player's inventory
+				 */
                 label: 'inventory',
                 dataSource: 'adventure',
+				/*
+				 * the collection property is used to provide a constant filter for this data view
+				 * data views don't yet let you specify a simple expression or object type, so this
+				 * is the workaround.
+				 *
+				 * Once we have configurable filtering, the following will replace the collection declaration:
+				 *     filter: ".environment = 'player'",
+				 *     type: "Object"
+				 */
                 collection: function(model, id) {
 	
 					// only allow items that have the 'player' as their environment
@@ -248,6 +76,15 @@
                 },
             },
             {
+				/*
+				 * this data view is the player, so we can watch this model for events such as
+				 * a player moving from one room to another room.
+				 *
+				 * Once we have filtering, we can replace the collection property with the following:
+				 *     type: "Player"
+				 *
+				 * There's only one object of type "Player"
+				 */
                 label: 'player',
                 dataSource: 'adventure',
                 collection: function(model, id) {
@@ -266,20 +103,38 @@
 			 * This is the DOM content we want within our configured container, but we need to wait
 			 * until the DOM is ready before we try to add this
 			 */
-            viewSetup: "<div class='room'><div class='description'></div><div class='objects'></div></div>" +
-            "<div class='directions'></div>" +
-            "<div class='inventory-holder'><h2>Inventory</h2><ul class='inventory'></ul></div>"+
-			"<div class='compass'><span class='n'>N</span><span class='e'>E</span><span class='w'>W</span>" +
-			"<span class='s'>S</span><span class='u'>U</span><span class='d'>D</span></div>" +
-			"<div class='cli'><input class='cli-input' type='text' name='command'></input></div>",
+            viewSetup: 
+				"<div class='room'>" +
+					"<div class='description'></div>" +
+					"<div class='objects'></div>" +
+				"</div>" +
+            	"<div class='inventory-holder'>" +
+					"<h2>Inventory</h2>" +
+					"<ul class='inventory'></ul>" +
+				"</div>" +
+				"<div class='compass'>" +
+					"<span class='n'>N</span>" +
+					"<span class='e'>E</span>" +
+					"<span class='w'>W</span>" +
+					"<span class='s'>S</span>" +
+					"<span class='u'>U</span>" +
+					"<span class='d'>D</span>" +
+				"</div>" +
+				"<div class='cli'>" +
+					"<input class='cli-input' type='text' name='command'></input>" +
+				"</div>",
 			/*
-			 * here, we tie the presentation definitions from above to the DOM elements that will house the presentation
+			 * here, we tie the presentation definitions from presentations.js to the DOM elements that will house
+			 * the presentation 
 			 * we also point the presentation at the appropriate filtered data view
+			 * the label is used to refer to the presentation later if we need to:
+			 *   that.presentation[label]
 			 */
             presentations: [{
                 type: MITHGrid.Presentation.TextList,
                 container: "#" + $(container).attr('id') + " > .inventory-holder > .inventory",
-                dataView: 'inventory'
+                dataView: 'inventory',
+				label: "inventory"
             },
             {
                 type: MITHGrid.Presentation.RoomDescription,
@@ -288,20 +143,30 @@
 				label: "room"
             }]
         }),
-        selector = {},
-        words = {},
-		commands = {},
-		lastCmd = "",
-        ids = {
+        selector = {},  // holds DOM selectors for various parts of the game display
+		commands = {},  // maps the command to the appropriate function
+		lastCmd = "",   // holds the name of the last command for creating aliases
+        ids = {			// holds the last assigned id number for words and notes
             inst: 0,
             note: 0
         },
-        lastLoc = "",
-        lastInst = {},
-        lastObj = {},
-		newLoc = "",
-		thingsInEnvExpr = {},
-        // location creation functions
+        lastLoc = "",	// the id of the last Room created
+        lastInst = {},	// the object representing the last Word created
+        lastObj = {},	// the object representing the last Object created
+		thingsInEnvExpr = {},  // will be the prepared expression to list things in an environment
+        /*
+		 * makeLoc: location (room label)
+		 *			long description
+		 *			short description
+		 *			optional flags (array if more than one; flags are strings)
+		 *				lighted: room is lit and does not require lamp
+		 *				liquid:  room has liquid (water by default)
+		 *				oil:     room has oil as its liquid
+		 *				snake hint: provide a hint about the snake
+		 *				twist hint: provide a hint about the twisty maze
+		 *
+		 * makeLoc creates a room in the database
+		 */
         makeLoc = function(location, longDesc, shortDesc, flags) {
             var room = {
                 id: 'room:' + location,
@@ -315,12 +180,27 @@
             lastLoc = room.id;
 			that.dataSource.adventure.loadItems([room]);
         },
-		remarkStr = "",
+		remarkStr = "", // temporary holder
+		/*
+		 * remark: str
+		 *
+		 * remark sets the string that will be shown for Words that have the destination of "sayit"
+		 */
 		remark = function(str) {
 			remarkStr = str;
 		},
-		conditions = [],
-		// creates an action word for the most recent location created
+		conditions = [], // holds functions for conditions since the database can't handle functions yet
+		/*
+		 * makeInst: word
+		 *			 condition
+		 *				0: always available/happens
+		 *				1-99: will fail with the indicated probability
+		 *				100: dwarves will not go this direction
+		 *				function: works if function returns true
+		 *			 destination
+		 *
+		 * makeInst creates an action word for the most recent location created
+		 */
         makeInst = function(word, condition, destination) {
             var inst = {
                 id: 'inst:' + ids.inst,
@@ -355,16 +235,37 @@
             lastInst.word = word;
 			that.dataSource.adventure.loadItems([lastInst]);
         },
-        // item creation functions
-        newObj = function(label, name, base, location) {
+		/*
+		 * force: destination
+		 *		  condition
+		 *
+		 * force creates a conditional motion that always executes as soon as the player enters the location
+		 * this is shorthand for: makeInst("FORCE", condition, destination)
+		 */
+		force = function(dest, c) {
+			if(c === undefined) { c = 0; }
+			makeInst("FORCE", c, dest);
+		},
+        /*
+		 * newObj:  label (used in some other functions to refer to this object)
+		 *			name (used in the inventory listing)
+		 *			base (not used yet, but may be the same as the label)
+		 *			location (id of the initial room in which this object appears, without the "room:" prefix)
+		 *
+		 * newObj creates a new object.  If location is an array, then it appears in multiple locations
+		 */
+        newObj = function(labels, name, base, location) {
             var obj = {
-                id: "obj:" + label,
-                label: label,
-                //name: name,
-                //environment: "room:" + location,
+                label: labels,
 				value: 0,
                 type: 'Object'
             }
+			if($.isArray(labels)) {
+				obj.id = "obj:" + labels[0];
+			}
+			else {
+				obj.id = "obj:" + labels;
+			}
 			if(name !== 0) {
 				obj.name = name;
 			}
@@ -379,7 +280,14 @@
             lastObj = obj;
 			that.dataSource.adventure.loadItems([obj]);
         },
-		// attaches a note to the last item created
+		/*
+		 * newNote: note
+		 *
+		 * newNote attaches a note to the most recently created item
+		 * notes are used in building the room description.  multiple notes can be used to describe the
+		 * state of an object.  The getGameProp(label) function is used as an index into the list of notes
+		 * for the object with the given label.
+		 */
         newNote = function(note) {
             var n = {
                 id: "note:" + ids.note,
@@ -390,17 +298,26 @@
             ids.note += 1;
 			that.dataSource.adventure.loadItems([n]);
         },
+		/*
+		 * player() always returns the database info for the player
+		 */
         player = function() {
             return that.dataSource.adventure.getItem('player');
         },
-        getInstInfo = function(word) {
-            return that.dataSource.actions.getItems();
-
-        }
+		/* 
+		 * returns true if the treasure is at the given location 
+		 */
         isAtLocation = function(treasure, location) {
-            var t = that.dataSource.adventure.getItem(treasure);
+            var t;
+			if(treasure.substr(0,4) !== "obj:") {
+				treasure = "obj:" + treasure;
+			}
+ 			t = that.dataSource.adventure.getItem(treasure);
             return $.inArray("room:" + location, t.environment);
         },
+		/*
+		 * returns true if the treasure is in the player's inventory
+		 */
         toting = function(treasure) {
             // is the player carrying this treasure?
 			if(treasure.substr(0,4) !== "obj:") {
@@ -409,54 +326,98 @@
             var t = that.dataSource.adventure.getItem(treasure);
             return t.environment[0] === "player";
         },
+		/*
+		 * moves the treasure to the designated location
+		 */
         move = function(treasure, location) {
-			if(treasure.substring(0,4) !== "obj:") {
+			if(treasure.substr(0,4) !== "obj:") {
 				treasure = "obj:" + treasure;
+			}
+			if(location !== "player" && location.substr(0, 5) !== "room:") {
+				location = "room:" + location;
 			}
             that.dataSource.adventure.updateItems([{
                 id: treasure,
                 environment: location
             }]);
         },
+		/*
+		 * moves the treasure to the room the player is in
+		 */
         drop = function(treasure) {
             if (toting(treasure)) {
                 move(treasure, player().environment[0]);
             }
         },
+		/*
+		 * returns the number of items the player is carrying
+		 */
         holding = function() {
-            // returns how many items the player is carrying
             return that.dataView.inventory.items().length;
         },
+		/*
+		 * moves the given item to the player's inventory if it is in the player's room
+		 */
         carry = function(treasure) {
-            if (isAtLocation(treasure, player().environment[0]) && holding() < 7) {
+            if (isAtLocation(treasure, player().environment[0])) {
                 move(treasure, "player");
             }
         },
+		/*
+		 * 'destroy's an object by moving it to limbo.  Player's can't get to limbo
+		 */
         destroy = function(treasure) {
             move(treasure, "room:limbo");
         },
+		/*
+		 * returns true if the treasure is in the player's inventory or in the same room as the player
+		 */
 		here = function(treasure) {
 			var t = that.dataSource.adventure.getItem("obj:" + treasure);
 			return t.environment[0] === "player" || t.environment[0] == player().environment[0];
 		},
+		/*
+		 * returns true if there is oil in the room (liquid + oil flags)
+		 */
 		oilHere = function() {
 			var here = that.dataSource.adventure.getItem(player().environment[0]);
 			return $.inArray("liquid", here.flags) >= 0 && $.inArray("oil", here.flags) >= 0;
 		},
+		/*
+		 * returns true if there is neither oil nor water here
+		 */
 		noLiquidHere = function() {
 			var here = that.dataSource.adventure.getItem(player().environment[0]);
 			return $.inArray("liquid", here.flags) === -1;
 		},
+		/*
+		 * returns true if there is water in the room (liquid flag, but no oil flag)
+		 */
 		waterHere = function() {
 			var here = that.dataSource.adventure.getItem(player().environment[0]);
 			return $.inArray("liquid", here.flags) >= 0 && $.inArray("oil", here.flags) === -1;
 		},
+		/*
+		 * when constructing room exits, it's useful to have helper functions to create the
+		 * condition functions...
+		 */
+		
+		/*
+		 * returns a function that tests if the player has a treasure in their inventory
+		 */
 		holds = function(treasure) {
 			return function() { return toting(treasure); }
 		},
+		/*
+		 * returns a function that tests if the player can see the object in their environment
+		 */
 		sees = function(treasure) {
 			return function() { return isAtLocation(treasure, player().environment[0]); }
 		},
+		/*
+		 * returns the value property of the object -- this is used to track the state of an object
+		 * this value also affects which note is shown in a room description
+		 */
 		getGameProp = function(key) {
 			var item = that.dataSource.adventure.getItem("obj:" + key);
 			if(item === undefined || item.value === undefined) {
@@ -466,12 +427,18 @@
 				return item.value[0];
 			}
 		},
+		/*
+		 * returns a function that tests the value property of an object
+		 */
 		notValue = function(obj, value) {
 			return function() { 
 				var sv = getGameProp(obj);
 				return sv !== value;
 			};
 		},
+		/*
+		 * set the value of an object - this hides how we're tracking the status of objects
+		 */
 		setGameProp = function(key, value) {
 			var item = that.dataSource.adventure.getItem("obj:" + key);
 			if(item === undefined || item.id === undefined) {
@@ -490,16 +457,27 @@
 				}]);
 			}
 		},
-		number_commands = 0,
+		number_commands = 0, // used to cache the number of commands in the game
+		/*
+		 * makeCommand: cmd (the command used by the player)
+		 *				fn (the function that implements the command)
+		 */
 		makeCommand = function(cmd, fn) {
 			commands[cmd] = fn;
 			lastCmd = cmd;
 			number_commands += 1;
 		},
+		/*
+		 * makes an alias for the previously defined command
+		 */
 		alias = function(cmd) {
 			commands[cmd] = commands[lastCmd];
 			number_commands += 1;
 		},
+		/*
+		 * thingsInEnvironment: env (the location we're looking in)
+		 *						bits (array of words that make up the name of the item we're looking for)
+		 */
 		thingsInEnvironment = function(env, bits) {
 			var things;
 			if(thingsInEnvExpr.evaluate === undefined) {
@@ -523,9 +501,16 @@
 				})
 			}
 		},
+		/*
+		 * returns the list of things matching the name in the player's inventory
+		 */
 		inventory = function(bits) {
 			return thingsInEnvironment("player", bits);
 		},
+		/*
+		 * adds an informative message to the DOM element holding the room descriptions -- effectively adds the info
+		 * to the running game narrative
+		 */
 		print = function(stuff) {
 			var el,
 			container = $(selector.description);
@@ -536,6 +521,9 @@
 				scrollTop: $(el).offset().top - $(container).parent().offset().top + $(container).parent().scrollTop()
 			});
 		},
+		/*
+		 * adds an error message to the game narrative
+		 */
 		error = function(stuff) {
 			var el,
 			container = $(selector.description);
@@ -546,19 +534,68 @@
 				scrollTop: $(el).offset().top - $(container).parent().offset().top + $(container).parent().scrollTop()
 			});
 		},
+		/*
+		 * adds a command that simply prints out the message
+		 */
 		messWord = function(word, msg) {
 			makeCommand(word, function(bits) { print(msg); });
+		},
+		/*
+		 * the following are common aliases for movement commands
+		 */
+		commandAliases = {
+			north: "N",
+			south: "S",
+			east: "E",
+			west: "W",
+			upwards: "U",
+			up: "U",
+			above: "U",
+			ascend: "U",
+			downward: "D",
+			down: "D",
+			descend: "D",
+			left: "L",
+			right: "R",
+			inward: "IN",
+			inside: "IN",
+			outside: "OUT",
+			exit: "OUT",
+			leave: "OUT",
+			"continue": "FORWARD",
+			onward: "FORWARD",
+			"return": "BACK",
+			retreat: "BACK",
+			forest: "WOODS",
+			building: "HOUSE",
+			slabrock: "SLAB",
+			tunnel: "PASSAGE",
+			main: "OFFICE",
+			"null": "NOWHERE",
+			walk: "GO",
+			run: "GO",
+			travel: "GO",
+			proceed: "GO",
+			explore: "GO",
+			"goto": "GO",
+			follow: "GO",
+			turn: "GO"
 		}
 		;
 		
-		// our parsing here is going to be a bit different than in the literate programming example
+		/*
+		 * our parsing here is going to be a bit different than in the literate programming example
+		 *
+		 * we make this a method on the game object so that the presentations can access the parser
+		 * we force the player to execute the 'FORCE' command after moving to a room - this executes
+		 * the various automatic events upon entry
+		 */
 		that.parseCommand = function(cmd) {
 			var bits = [ ],
 			things = [ ],
+			newLoc = "",
 			dest = { };
-			
-			newLoc = "";
-			
+						
 			cmd = $.trim(cmd.toLowerCase());
 			if(cmd === "") {
 				return;
@@ -569,6 +606,10 @@
 				return;
 			}
 			
+			if(commandAliases[bits[0]] !== undefined) {
+				bits[0] = commandAliases[bits[0]].toLowerCase();
+			}
+			
 			if(thingsInEnvExpr.evaluate === undefined) {
 				thingsInEnvExpr = that.dataSource.adventure.prepare(["!environment.id"]);
 			}
@@ -577,20 +618,19 @@
 				bits = [ bits[1] ];
 			}
 			
+			/*
+			 * if we only have a single word in the command, we look for actions attached to the room
+			 *
+			 * we allow the various cardinal directions to map to their abbreviations; we don't do this
+			 * for southwest, etc., which are used as (sw, ...) in the mazes
+			 */
 			if(bits.length == 1) {
-				// likely a word in the environment
-				if(bits[0] == "east") { bits[0] = "e"; }
-				if(bits[0] == "west") { bits[0] = "w"; }
-				if(bits[0] == "north") { bits[0] = "n"; }
-				if(bits[0] == "south") { bits[0] = "s"; }
-				if(bits[0] == "up") { bits[0] = "u"; }
-				if(bits[0] == "down") { bits[0] = "d"; }
-				
 				bits[0] = bits[0].toUpperCase();
 				things = $.grep(thingsInEnvironment(),
 				function(word, idx) {
 					return word.type[0] === "Word" && word.word[0] === bits[0];
 				});
+
 				if(things !== undefined && things.length > 0) {
 					$.each(things, function(idx, word) {
 						var condSatisfied = false;
@@ -613,10 +653,21 @@
 							}
 						}
 					});
+					/*
+					 * if we found at least one action in the environment, then either we move to a different
+					 * location, or we stay put
+					 * either way, we're done executing the command at this point.
+					 */
+					if(newLoc === "") {
+						newLoc = player().environment[0];
+						print("You can't go that way!");
+						return;
+					}
 				}
 			}
 			
 			bits[0] = bits[0].toLowerCase();
+			
 			if(newLoc === "") { // no movement, so we still haven't done anything
 				if(commands[bits[0]] !== undefined) {
 					commands[bits[0]](bits);
@@ -629,9 +680,18 @@
 			if(newLoc !== "") {
 				dest = that.dataSource.adventure.getItem(newLoc);
 				if(dest === undefined || dest.type === undefined || dest.type[0] !== "Room") {
+					/*
+					 * once the game is complete, this should never happen
+					 * we get here if we try to go to a location that hasn't been defined yet
+					 */
 					print("You can't go that way! (" + newLoc + ")");
 				}
 				else {
+					/*
+					 * we move the player to the new location
+					 * this will cascade to the room description presentation, which will in turn execute the
+					 * 'FORCE' command on the player, so we may end up back here again
+					 */
 					that.dataSource.adventure.updateItems([{
 						id: "player",
 						environment: newLoc
@@ -639,6 +699,61 @@
 				}
 			}
 		};
+		
+		that.ready(function() {
+	        selector.description = "#" + $(container).attr('id') + " > .room > .description";
+            selector.objects = "#" + $(container).attr('id') + " > .room > .objects";
+            selector.inventory = "#" + $(container).attr('id') + " > .inventory";
+			selector.cli = "#" + $(container).attr('id') + " > .cli > .cli-input";
+			selector.compass = "#" + $(container).attr('id') + " > .compass";
+        });
+
+        that.ready(function() {
+			that.dataSource.adventure.loadItems([{
+	            id: "player",
+	            label: "You, the Player",
+	            environment: "room:road",
+	            type: 'Player'
+	        }]);
+			
+			$('#number-rooms').text($.grep(that.dataSource.adventure.items(), function(id, idx) {
+				return that.dataSource.adventure.getItem(id).type[0] === "Room"
+			}).length);
+			$('#number-objects').text($.grep(that.dataSource.adventure.items(), function(id, idx) {
+				return that.dataSource.adventure.getItem(id).type[0] === "Object"
+			}).length);
+			$('#number-verbs').text(number_commands + 1); // +1 for "go"
+			
+			$(selector.cli).keypress(function(event) {
+				var cmd;
+				if( event.which === 13 ) { // "enter" will parse command
+					event.preventDefault();
+					cmd = $(selector.cli).val();
+					$(selector.cli).val('');
+					that.parseCommand(cmd);
+				}
+				else if( event.which === 21) { // ctrl+U will erase line
+					$(selector.cli).val('');
+				}
+			});
+			
+			// make compass active
+			$.each(['n', 's', 'e', 'w', 'u', 'd'], function(idx, dir) {
+				$(selector.compass + " ." + dir).click(function() {
+					if($(selector.compass + " ." + dir).hasClass("unavailable")) {
+						return;
+					}
+					that.parseCommand(dir);	
+				});
+			})
+			$(selector.cli).focus();
+        });
+
+		////
+		// The rest of this is the game data
+		////
+		
+		// we begin with non-motion commands
 		
 		messWord("abra", "Good try, but that is an old worn-out magic word.");
 		alias("abracadabra"); alias("opensesame"); alias("sesame");
@@ -676,6 +791,8 @@
 		    "anywhere but is frequently a sign of a deep pit leading down to water."
 		);
 		
+		messWord("quit", "You can quit at any time by browsing to another page.");
+		
 		makeCommand("commands", function(bits) {
 			var cmds = [ ], c;
 			
@@ -689,33 +806,81 @@
 		
 		makeCommand("take", function(bits) {
 			// is there something in the player's environment that is named by bits[1]?
-			var things = thingsInEnvironment(undefined, bits.slice(1));
+			var things = thingsInEnvironment(undefined, bits.slice(1)), obj;
 			if( things.length === 0 ) {
 				things = inventory(bits.slice(1));
-				if( things.length === 0) {
+				if( things.length === 0 && $.inArray(bits[1], ["water", "oil"]) == -1) {
 					error("I don't see anything like that here.");
+					return;
 				}
-				else {
-					print("You already have that.");
-				}
+				print("You already have that.");
+				return;
 			}
-			else if(things.length === 1) {
-				if(things[0].name === undefined) {
-					print("You can't take that!");
-				}
-				else {
-					carry(things[0].id[0]);
-					if(toting(things[0].id[0])) {
-						print("You " + bits[0] + " the "+ things[0].label[0] + ".");
-					}
-					else {
-						print("You try to " + bits[0] + " the " + things[0].label[0] + ", but it slips through your fingers.");
-					}
-				}
+			if(things.length === 1) {
+				obj = things[0];
 			}
-			else {
+			else if(things.length > 1) {
 				print("I'm not sure which of these you're talking about: " + 
 				      $.map(things, function(thing) { return thing.label[0]; }).join(", ") + ".");
+				return;
+			}
+			if(bits[1] === "water") {
+				return;
+			}
+			if(bits[1] === "oil") {
+				return;
+			}
+			if(obj.name === undefined) {
+				// immovable
+				if(obj.id[0] === "obj:chain" && getGameProp("bear") > 0) {
+					print("The chain is still locked.");
+					return;
+				}
+				if(obj.id[0] === "obj:bear" && getGameProp("bear") == 1) {
+					print("The bear is still chained to the wall.");
+					return;
+				}
+				if(obj.id[0] === "obj:plant" && getGameProp("plant") <= 0) {
+					print("The plant has exceptionally deep roots and cannot be pulled free.");
+					return;
+				}
+				print("You can't be serious!");
+				return;
+			}
+			if(holding() >= 7) {
+				print("You can't carry anything more.  You'll have to drop something first.");
+				return;
+			}
+			if(obj.id[0] === "obj:bird" && getGameProp("bird") == 0) {
+				if(toting("rod")) {
+					print("The bird was unafraid when you entered, but as you approach it becomes\n" +
+					"disturbed and you cannot catch it.");
+					return;
+				}
+				if(toting("cage")) {
+					setGameProp("bird", 1);
+				}
+				else {
+					print("You can catch the bird, but you cannot carry it.");
+					return;
+				}
+			}
+			if(obj.id[0] === "obj:bird" || (obj.id[0] === "obj:cage" && getGameProp("bird") > 0)) {
+				if(obj.id[0] === "obj:bird") {
+					carry("obj:cage");
+				}
+				else {
+					carry("obj:bird");
+				}
+			}
+
+			carry(things[0].id[0]);
+			
+			if(toting(things[0].id[0])) {
+				print("You " + bits[0] + " the "+ things[0].label[0] + ".");
+			}
+			else {
+				print("You try to " + bits[0] + " the " + things[0].label[0] + ", but it slips through your fingers.");
 			}
 		});
 		alias("carry"); alias("keep"); alias("catch");
@@ -908,13 +1073,119 @@
 		alias("placate"); alias("tame");
 		
 		makeCommand("look", function(bits) {
-			that.presentation.room.renderingFor("player").reRender();
+			if(bits.length === 1) {
+				that.presentation.room.renderingFor("player").reRender();
+			}
+			else {
+				// we want to look at the indicated item
+			}
+		});
+		alias("examine");
+		
+		makeCommand("relax", function(bits) {
+			
+		});
+		alias("nothing");
+		
+		makeCommand("pour", function(bits) {
+			
+		});
+		
+		makeCommand("eat", function(bits) {
+			
+		});
+		alias("devour");
+		
+		makeCommand("drink", function(bits) {
+			
 		});
 
+		makeCommand("rub", function(bits) {
+			
+		});
+
+		makeCommand("throw", function(bits) {
+			
+		});
+		alias("toss");
+		
+		makeCommand("wake", function(bits) {
+			
+		});
+		alias("disturb");
+		
+		makeCommand("feed", function(bits) {
+			
+		});
+		
+		makeCommand("fill", function(bits) {
+			
+		});
+		
+		makeCommand("break", function(bits) {
+			
+		});
+		alias("smash");
+		alias("shatter");
+		
+		makeCommand("blast", function(bits) {
+			
+		});
+		alias("detonate"); alias("ignite"); alias("blowup");
+		
+		makeCommand("attack", function(bits) {
+			
+		});
+		alias("kill"); alias("fight");
+		alias("hit"); alias("strike"); alias("slay");
+		
+		makeCommand("say", function(bits) {
+			
+		});
+		alias("chant"); alias("sing"); alias("utter");
+		alias("mumble");
+		
+		makeCommand("read", function(bits) {
+			
+		});
+		alias("peruse");
+		
+		makeCommand("fee", function(bits) {
+			
+		});
+		alias("fie"); alias("foe"); alias("foo"); alias("fum");
+		
+		makeCommand("brief", function(bits) {
+			
+		});
+		
+		makeCommand("find", function(bits) {
+			
+		});
+		alias("where");
+		
+		makeCommand("inventory", function(bits) {
+			
+		});
+		
+		makeCommand("score", function(bits) {
+			
+		});
+		
+		
 		////
 		// the following create the locations and movement between locations
+		// the commentary is taken from the literate programming pdf
 		////
 		
+		/*
+		 * The _road_ is where you start
+		 *
+		 * The instructions here say that if you want to go west, or up, or on the road, we take you to
+		 * _hill_; if you want to go east, or in, or to the house, or if you say 'enter', we take you to
+		 * _house_; etc.  Of course you won't know about all the motions available at this point until you
+		 * have played the game for awhile.
+		 */
         makeLoc("road",
         "You are standing at the end of a road before a small brick building.\n" +
         "Around you is a forest.  A small stream flows out of the building and\n" +
@@ -938,6 +1209,9 @@
         ditto("WOODS");
         makeInst("DEPRESSION", 0, "outside");
 
+		/*
+		 * There's nothing up the hill, but a good explorer has to try anyway.
+		 */
         makeLoc("hill",
         "You have walked up a hill, still in the forest.  The road slopes back\n" +
         "down the other side of the hill.  There is a building in the distance.",
@@ -953,6 +1227,13 @@
         ditto("N");
         ditto("S");
 
+		/*
+		 * The house initially contains several objects: keys, food, a bottle, and a lantern.
+		 * We'll put them in there later.
+		 *
+		 * Two magic words are understood in this house, for spelunkers who have been there
+		 * and done that.
+		 */
         makeLoc("house",
         "You are inside a building, a well house for a large spring.",
         "You're inside building.",
@@ -967,6 +1248,9 @@
         makeInst("DOWNSTREAM", 0, "sewer");
         ditto("STREAM");
 
+		/*
+		 * A foolish consistency is the hobgoblin of little minds. (Emerson)
+		 */
         makeLoc("valley",
         "You are in a valley in the forest beside a stream tumbling along a\n" +
         "rocky bed.",
@@ -985,6 +1269,11 @@
         ditto("D");
         makeInst("DEPRESSION", 0, "outside");
 
+		/*
+		 * The instructions here keep you in the _forest_ with probability 50%, otherwise they take you
+		 * to the _woods_.  This gives the illusion that we maintain more state information about you
+		 * than we really do.
+		 */
         makeLoc("forest",
         "You are in open forest, with a deep valley to one side.",
         "You're in forest.",
@@ -1014,6 +1303,10 @@
         makeInst("WOODS", 0, "forest");
         ditto("S");
 
+		/*
+		 * You're getting closer. (But the program has forgotten that DEPRESSION leads _outside_; it knew this
+		 * when you were at the _road_ or the _valley_.)
+		 */
 		makeLoc("slit",
 		"At your feet all the water of the stream splashes into a 2-inch slit\n" +
 		"in the rock.  Downstream the streambed is bare rock.",
@@ -1035,6 +1328,10 @@
 		ditto("STREAM");
 		ditto("D");
 		
+		/*
+		 * We'll see later that the GRATE will change from state 0 to state 1 if you unlock it.  So let's hope you
+		 * have the KEYS.
+		 */
 		makeLoc("outside",
 		"You are in a 20-foot depression floored with bare dirt.  Set into the\n" +
 		"dirt is a strong steel grate mounted in concrete.  A dry streambed\n" +
@@ -1057,6 +1354,9 @@
 		remark("You can't go through a locked steel grate!");
 		makeInst("ENTER", 0, "sayit");
 
+		/*
+		 * If you've come this far, you're probably hooked, although your adventure has barely begun.
+		 */
 		makeLoc("inside",
 		"You are in a small chamber beneath a 3x3 steel grate to the surface.\n" +
 		"A low crawl over cobbles leads inwards to the west.",
@@ -1075,6 +1375,9 @@
 		makeInst("PIT", 0, "spit");
 		makeInst("DEBRIS", 0, "debris");
 		
+		/*
+		 * Go West, young man. (IF you've got a lamp.)
+		 */
 		makeLoc("cobbles",
 		"You are crawling over cobbles in a low passage.  There is a dim light\n" +
 		"at the east end of the passage.",
@@ -1150,6 +1453,9 @@
 		makeInst("D", 0, "emist");
 		makeInst("CRACK", 0, "crack"); ditto("W");
 		
+		/*
+		 * Welcome to the main caverns and a deeper level of adventures.
+		 */
 		makeLoc("emist",
 		"You are at one end of a vast hall stretching forward out of sight to\n" +
 		"the west.  There are openings to either side.  Nearby, a wide stone\n" +
@@ -1165,12 +1471,19 @@
 		makeInst("U", 0, "spit");
 		makeInst("Y2", 0, "jumble");
 		
+		/*
+		 * To the left or south of the misty threshold, you might spot the first treasure.
+		 */
 		makeLoc("nugget",
 		"This is a low room with a crude note on the wall.  The note says,\n" +
 		"\"You won't get it up the steps.\".",
 		"You're in the nugget of gold room.");
 		makeInst("HALL", 0, "emist"); ditto("OUT"); ditto("N");
 		
+		/*
+		 * Unless you take a circuitous route to the other side of the Hall of Mists, via the Hall of the
+		 * Mountain King, you should make the CRYSTAL bridge appear (by getting it into state 1).
+		 */
 		makeLoc("efiss",
 		"You are on the east bank of a fissure slicing clear across the hall.\n" +
 		"The mist is quite thick here, and the fissure is too wide to jump.",
@@ -1194,6 +1507,9 @@
 		makeInst("N", 0, "thru");
 		makeInst("W", 0, "wmist");
 		
+		/* 
+		 * What you see here isn't exactly what you get; N takes you east and S sucks you in to an amazing maze.
+		 */
 		makeLoc("wmist",
 		"You are at the west end of the Hall of Mists.  A low wide crawl\n" +
 		"continues west and another goes north.  To the south is a little\n" +
@@ -1204,6 +1520,13 @@
 		makeInst("N", 0, "duck");
 		makeInst("W", 0, "elong"); ditto("CRAWL");
 		
+		/*
+		 * The twisty little passages of this maze are said to be all alike, but they respond differently to
+		 * different motions.  For example, you can go north, east, south, or west from _like1_, but you
+		 * can't go north from _like2_.  In that way you can psych out the whole maze of 14 similar locations.
+		 * (And eventually you will want to know every place where treasure might be hidden.)  The only exits
+		 * are to _wmist_ and _brink_.
+		 */
 		(function() {
 			var all_alike = "You are in a maze of twisty little passages, all alike.",
 			rm, dir,
@@ -1310,8 +1633,241 @@
 		makeInst("N", 0, "like12");
 		makeInst("E", 0, "like13");
 		
+		/*
+		 * Crawling west from _wmist_ instead of south, you encounter this.
+		 */
+		makeLoc("elong",
+		"You are at the east end of a very long hall apparently without side\n" +
+		"chambers.  To the east a low wide crawl slants up.  To the north a\n" +
+		"round two-foot hole slants down.",
+		"You're at east end of long hall.");
+		makeInst("E", 0, "wmist"); ditto("U"); ditto("CRAWL");
+		makeInst("W", 0, "wlong");
+		makeInst("N", 0, "cross"); ditto("D"); ditto("HOLE");
+		
+		makeLoc("wlong",
+		"You are at the west end of a very long featureless hall.  The hall\n" +
+		"joins up with a narrow north/south passage.",
+		"You're at west end of long hall.");
+		makeInst("E", 0, "elong");
+		makeInst("N", 0, "cross");
+		makeInst("S", 100, "diff0");
+		
+		/*
+		 * Recall that the '100' on the last instruction above means, "Dwarves not permitted."  It keeps them out
+		 * of the following maze, which is based on an 11 x 11 latin square. (Each of the eleven locations leads
+		 * to each of the others under the ten motions N, S, E, W, NE, SE, NW, SW, U, D -- except that _diff0_
+		 * goes down to the entrance location _wlong_ instead of to _diff10_, and _diff10_ goes south to the
+		 * dead-end location _pony_ instead of to _diff0_.  Furthermore, each location is accessible from all
+		 * ten possible directions.)
+		 *
+		 * Incidentally, if you ever get into a "little twisting maze of passages," you're really lost.
+		 */
+		(function() {
+			var links = {
+				diff0: {
+					long: "You are in a maze of twisty little passages, all different.",
+					exits: [ 
+						"diff6", "diff9", "diff3",
+					    "diff8",          "diff7",
+					    "diff2", "diff1", "diff4",
+					    	"diff5",   "wlong"
+					]
+				},
+				diff1: {
+					long: "You are in a maze of twisting little passages, all different.",
+					exits: [ 
+						"diff3", "diff8", "diff5",
+						"diff0",          "diff10",
+						"diff4", "diff9", "diff2",
+							"diff6",   "diff7"
+					]
+				},
+				diff2: {
+					long: "You are in a little maze of twisty passages, all different.",
+					exits: [
+						"diff0", "diff3", "diff7",
+						"diff5",          "diff8",
+						"diff6", "diff4", "diff10",
+							"diff1",   "diff9"
+					]
+				},
+				diff3: {
+					long: "You are in a twisting maze of little passages, all different.",
+					exits: [
+						"diff8", "diff7", "diff4",
+						"diff2",          "diff6",
+						"diff5", "diff10", "diff9",
+							"diff0",   "diff1"
+					]
+				},
+				diff4: {
+					long: "You are in a twisting little maze of passages, all different.",
+					exits: [
+						"diff2", "diff1", "diff0",
+						"diff9",          "diff5",
+						"diff10", "diff7", "diff3",
+							"diff8",   "diff6"
+					]
+				},
+				diff5: {
+					long: "You are in a twisty little maze of passages, all different.",
+					exits: [
+						"diff9", "diff0", "diff8",
+						"diff6",          "diff4",
+						"diff7", "diff3", "diff1",
+							"diff10",  "diff2"
+					]
+				},
+				diff6: {
+					long: "You are in a twisty maze of little passages, all different.",
+					exits: [
+						"diff7", "diff10", "diff9",
+						"diff1",          "diff9",
+						"diff8", "diff2", "diff0",
+							"diff4",   "diff3"
+					]
+				},
+				diff7: {
+					long: "You are in a little twisty maze of passages, all different.",
+					exits: [
+						"diff5", "diff6", "diff1",
+						"diff10",         "diff9",
+						"diff8", "diff2", "diff0",
+							"diff4",   "diff3"
+					]
+				},
+				diff8: {
+					long: "You are in a maze of little twisting passages, all different.",
+					exits: [
+						"diff10", "diff5", "diff2",
+						"diff4",          "diff1",
+						"diff9", "diff6", "diff7",
+							"diff3",   "diff0"
+					]
+				},
+				diff9: {
+					long: "You are in a maze of little twisty passages, all different.",
+					exits: [
+						"diff1", "diff4", "diff10",
+						"diff3",          "diff2",
+						"diff0", "diff8", "diff6",
+							"diff7",   "diff5"
+					]
+				},
+				diff10: {
+					long: "You are in a little maze of twisting passages, all different.",
+					exits: [
+						"diff4", "diff2", "diff6",
+						"diff7",          "diff3",
+						"diff1", "pony",  "diff5",
+							"diff9",   "diff8"
+					]
+				}
+			}, rm;
+			
+			for(rm in links) {
+				makeLoc(rm, links[rm].long);
+				makeInst("NW", 0, links[rm].exits[0]);
+				makeInst("N",  0, links[rm].exits[1]);
+				makeInst("NE", 0, links[rm].exits[2]);
+				makeInst("W",  0, links[rm].exits[3]);
+				makeInst("E",  0, links[rm].exits[4]);
+				makeInst("SW", 0, links[rm].exits[5]);
+				makeInst("S",  0, links[rm].exits[6]);
+				makeInst("SE", 0, links[rm].exits[7]);
+				makeInst("U",  0, links[rm].exits[8]);
+				makeInst("D",  0, links[rm].exits[9]);
+			}
+		}());
+		
+		/*
+		 * Going north of the long hall, we come to the vicinity of another large room, with royal treasures
+		 * nearby.  (You probably first reached this part of the cavern from the east, via the Hall of Mists.)
+		 * Unfortunately, a vicious snake is here too; the conditional instructions for getting past the snake
+		 * are worthy of study.
+		 */
+		makeLoc("cross",
+		"You are at a crossover of a high N/S passage and a low E/W one.");
+		makeInst("W", 0, "elong");
+		makeInst("N", 0, "dead0");
+		makeInst("E", 0, "west");
+		makeInst("S", 0, "wlong");
+		
+		makeLoc("hmk",
+		"You are in the Hall of the Mountain King, with passages off in all\n" +
+		"directions.",
+		"You're in Hall of Mt King.", 
+		"snake hint");
+		makeInst("STAIRS", 0, "emist"); ditto("U"); ditto("E");
+		makeInst("N", notValue("snake", 0), "ns"); ditto("L");
+		makeInst("S", notValue("snake", 0), "south"); ditto("R");
+		makeInst("W", notValue("snake", 0), "west"); ditto("FORWARD");
+		makeInst("N", 0, "snaked");
+		makeInst("SW", 35, "secret");
+		makeInst("SW", sees("snake"), "snaked");
+		makeInst("SECRET", 0, "secret");
+		
+		makeLoc("west",
+		"You are in the west side chamber of the Hall of the Mountain King.\n" +
+		"A passage containues west and up here.",
+		"You're in west side chamber.");
+		makeInst("HALL", 0, "hmk"); ditto("OUT"); ditto("E");
+		makeInst("W", 0, "cross"); ditto("U");
+		
+		makeLoc("south",
+		"You are in the south side chamber.");
+		makeInst("HALL", 0, "hmk"); ditto("OUT"); ditto("N");
+		
+		/*
+		 * North of the mountain king's domain is a curious shuttle station called Y2, with magic connections
+		 * to two other places.
+		 *
+		 * (Real-world cave maps often use the symbol Y to stand for an entrance, and Y2 for a secondary entrance.)
+		 */
+		
+		makeLoc("ns",
+		"You are in a low N/S passage at a hole in the floor.  The hole goes down to an E/W passage.",
+		"You're in N/S passage.");
+		makeInst("HALL", 0, "hmk"); ditto("OUT"); ditto("S");
+		makeInst("N", 0, "y2"); ditto("Y2");
+		makeInst("D", 0, "dirty"); ditto("HOLE");
+		
+		makeLoc("y2",
+		"You are in a large room, with a passage to the south, a passage to the west, and a wall of broken rock " +
+		"to the east.  There is a large \"Y2\" on a rock in the room's center.",
+		"You're at \"Y2\".");
+		makeInst("PLUGH", 0, "house");
+		makeInst("S", 0, "ns");
+		makeInst("E", 0, "jumble"); ditto("WALL"); ditto("BROKEN");
+		makeInst("W", 0, "windoe");
+		makeInst("PLOVER", holds("emerald"), "pdrop");
+		makeInst("PLOVER", 0, "proom");
+
+		makeLoc("jumble",
+		"You are in a jumble of rock, with cracks everywhere.");
+		makeInst("D", 0, "y2"); ditto("Y2");
+		makeInst("U", 0, "emist");
+		
+		makeLoc("windoe",
+		"You're at a low window overlooking a huge pit, which extends up out of sight.  A floor is indistinctly " +
+		"visible over 50 feet below.  Traces of white mist cover the floor of the pit, becoming thicker to the " +
+		"right.  Marks in the dust around the window would seem to indicate that someone has been here recently. " +
+		"Directly across the pit from you and 25 feet away there is a similar window looking into a lighted room. " +
+		"A shadowy figure can be seen there peering back at you.",
+		"You're at window on pit.");
+		makeInst("E", 0, "y2"); ditto("Y2");
+		makeInst("JUMP", 0, "neck");
+		
+		// next: sec. 42, pg. 27
+		
+		
 		(function() {
 			var dead_end = "Dead end.";
+			
+			makeLoc("pony", dead_end);
+			makeInst("N", 0, "diff10"); ditto("OUT");
+			
 			makeLoc("dead0", dead_end);
 			makeInst("S", 0, "cross"); ditto("OUT");
 		
@@ -1320,14 +1876,92 @@
 		
 			makeLoc("dead2", dead_end);
 			makeInst("SE", 0, "like13");
+			
+			makeLoc("dead3", dead_end, 0, "twist_hint");
+			makeInst("W", 0, "like4"); ditto("OUT");
+			
+			makeLoc("dead4", dead_end, 0, "twist_hint");
+			makeInst("E", 0, "like4"); ditto("OUT");
+			
+			makeLoc("dead5", dead_end, 0, "twist_hint");
+			makeInst("U", 0, "like3"); ditto("OUT");
+			
+			makeLoc("dead6", dead_end, 0, "twist_hint");
+			makeInst("W", 0, "like9"); ditto("OUT");
+			
+			makeLoc("dead7", dead_end, 0, "twist_hint");
+			makeInst("U", 0, "like10"); ditto("OUT");
+			
+			makeLoc("dead8", dead_end);
+			makeInst("E", 0, "brink"); ditto("OUT");
+			
+			makeLoc("dead9", dead_end, 0, "twist_hint");
+			makeInst("S", 0, "like3"); ditto("OUT");
+			
+			makeLoc("dead10", dead_end, 0, "twist_hint");
+			makeInst("E", 0, "like12"); ditto("OUT");
+			
+			makeLoc("dead11", dead_end, 0, "twist_hint");
+			makeInst("U", 0, "like8"); ditto("OUT");
 		}());
+		
+		
+		/*
+		 * The following locations are used to provide feedback when certain movement isn't possible
+		 */
+		makeLoc("crack",
+		"The crack is far too small for you to follow.");
+		force("spit");
+		
+		makeLoc("neck",
+		"You are at the bottom of the pit with a broken neck.");
+		force("limbo2");
+		
+		makeLoc("limbo2",
+		"Game over.  Reload the page to play again.");
+		
+		makeLoc("lose",
+		"You didn't make it.");
+		force("limbo2");
 		
 		makeLoc("cant",
 		"The dome is unclimbable.");
 		makeInst("FORCE", 0, "emist");
+		
+		makeLoc("climb",
+		"You clamber up the plant and scurry through the hole at the top");
+		force("narrow");
+		
+		makeLoc("check", "");
+		force("upnout", notValue("plant", 2));
+		force("didit");
+		
+		makeLoc("snaked",
+		"You can't get by the snake.");
+		force("hmk");
+		
+		makeLoc("thru",
+		"You have crawled through a very low wide passage parallel to and north of the Hall of Mists.");
+		force("wmist");
+		
+		makeLoc("duck",
+		"You have crawled through a very low wide passage parallel to and north of the Hall of Mists.");
+		force("wfiss");
+		
+		makeLoc("sewer",
+		"The stream flows out through a pair of 1-foot-diameter sewer pipes.\n" +
+		"It would be advisable to use the exit.");
+		force("house");
+		
+		makeLoc("upnout",
+		"There is nothing here to climb.  Use\"up\" or \"out\" to leave the pit.");
+		force("wpit");
+		
+		makeLoc("didit",
+		"You have climbed up the plant and out of the pit.");
+		force("w2pit");
 
-        // next location: section 32, page 20 ("emist")
-		newObj("rug", "Persian rug", "rug", ["scan1", "scan3"]);
+		newObj(["rug", "persian"], "Persian rug", "rug", ["scan1", "scan3"]);
 		newNote("There is a Persian rub spread out on the floor!");
 		newNote("The dragon is sprawled out on a Persian rug!!");
 		
@@ -1360,19 +1994,19 @@
         newNote("The bear is locked to the wall with a golden chain!");
         newNote("There is a golden chain locked to the wall!");
 
-		newObj("spices", "Rare spices", 0, "chamber");
+		newObj(["spices", "spice"], "Rare spices", 0, "chamber");
 		newNote("There are rare spices here!");
 
 		newObj("pearl", "Glistening perl", 0, "limbo");
 		newNote("Off to one side lies a glistening pearl!");
 
-		newObj("pyramid", "Platinum pyramid", 0, "droom");
+		newObj(["pyramid", "platinum"], "Platinum pyramid", 0, "droom");
 		newNote("There is a platinum pyramid here, 8 inches on a side!");
 
 		newObj("emerald", "Egg-sized emerald", 0, "proom");
 		newNote("There is an emerald here the size of a plover's egg!");
 
-		newObj("vase", "Ming vase", 0, "oriental");
+		newObj(["vase", "ming", "shard"], "Ming vase", 0, "oriental");
 		newNote("There is a delicate, precious, Ming vase here!");
 		newNote("The vase is now resting, delicately, on a velvet pillow.");
 		newNote("The floor is littered with worthless shards of pottery.");
@@ -1381,12 +2015,12 @@
 		newObj("trident", "Jeweled trident", 0, "falls");
 		newNote("There is a jewel-encrusted trident here!");
 		
-		newObj("eggs", "Golden eggs", 0, "giant");
+		newObj(["eggs", "egg", "nest"], "Golden eggs", 0, "giant");
 		newNote("There is a large nest here, fill of golden eggs!");
 		newNote("The nest of golden eggs has vanished!");
 		newNote("Done!");
 		
-		newObj("chest", "Treasure chest", 0, "limbo");
+		newObj(["chest", "box", "treasure", "treasurechest"], "Treasure chest", 0, "limbo");
 		newNote("The pirate's treasure chest is here!");
 		
 		newObj("coins", "Rare coins", 0, "west");
@@ -1395,27 +2029,27 @@
 		newObj("jewels", "Precious jewelry", 0, "south");
 		newNote("There is precious jewelry here!");
 		
-		newObj("silver", "Bars of silver", 0, "ns");
+		newObj(["silver", "bars"], "Bars of silver", 0, "ns");
 		newNote("There are bars of silver here!");
 		
 		newObj("diamonds", "Several diamonds", 0, "wfiss");
 		newNote("There are diamonds here!");
 		
-		newObj("gold", "Large gold nugget", 0, "nugget");
+		newObj(["gold", "nugget"], "Large gold nugget", 0, "nugget");
 		newNote("There is a large sparkling nugget of gold here!");
 		
-		newObj("moss", 0, "moss", "soft");
+		newObj(["moss", "carpet"], 0, "moss", "soft");
 		newNote("");
 		
 		newObj("batteries", "Batteries", 0, "limbo");
 		newNote("There are fresh batteries here.");
 		newNote("Some worn-out batteries have been discarded nearby.");
 		
-		newObj("pony", 0, "pony", "pony");
+		newObj(["pony", "vending", "machine" ], 0, "pony", "pony");
 		newNote("There is a massive vending machine here.  The instructions on it read: " +
 		"\"Drop coins here to receive fresh batteries.\"");
 
-		newObj("geyser", 0, "geyser", "view");
+		newObj(["geyser", "volcano"], 0, "geyser", "view");
 		newNote("");
 
 		newObj("message", 0, "message", "limbo");
@@ -1441,7 +2075,7 @@
 		newObj("stalactite", 0, "stalactite", "tite");
 		newNote("");
 		
-		newObj("plant", 0, "plant", "wpit");
+		newObj(["plant", "beans"], 0, "plant", "wpit");
 		newNote("There is a tiny little plant in the pit, murmuring \"Water, water, ...\"");
 		newNote("The plant spurts into furious growth for a few seconds.");
 		newNote("There is a 12-foot-tall beanstalk streatching up out of the pit, bellowing \"Water!!  Water!!\"");
@@ -1451,20 +2085,20 @@
 		newNote("");
 		
 		newObj("oil", "Oil in the bottle", 0, "limbo");
-		newObj("water", "Water in the bottle", 0, "limbo");
-		newObj("bottle", "Small bottle", 0, "house");
+		newObj(["water", "h2o"], "Water in the bottle", 0, "limbo");
+		newObj(["bottle", "jar"], "Small bottle", 0, "house");
 		newNote("There is a bottle of water here.");
 		newNote("There is an empty bottle here.");
 		newNote("There is a bottle of oil here.");
 		
-		newObj("food", "Tasty food", 0, "house");
+		newObj(["food", "ration"], "Tasty food", 0, "house");
 		newNote("There is food here.");
 		
-		newObj("knife", 0, 0, "limbo");
+		newObj(["knife", "knives"], 0, 0, "limbo");
 		
-		newObj("dwarf", 0, "dwarf", "limbo");
+		newObj(["dwarf", "dwarves"], 0, "dwarf", "limbo");
 		
-		newObj("mag", "\"Spelunker Today\"", 0, "ante");
+		newObj(["mag", "magazine", "issue", "spelunker"], "\"Spelunker Today\"", 0, "ante");
 		newNote("There are a few recent issues of \"Spelunker Today\" magazine here.");
 		
 		newObj("oyster", "Giant oyster. &gt;GROAN!&lt;", 0, "limbo");
@@ -1477,7 +2111,7 @@
 		newObj("tablet", 0, "tablet", "droom");
 		newNote("A massive stone tablet embedded in the wall reads: \"CONGRATULATIONS ON BRINGING LIGHT INTO THE DARK-ROOM!\"");
 		
-		newObj("snake", 0, "snake", "limbo");
+		newObj("snake", 0, "snake", "hmk");
 		newNote("A huge green fierce snake bars the way!");
 		newNote("");
 
@@ -1501,66 +2135,16 @@
 		newObj("cage", "Wicker cage", 0, "cobbles");
 		newNote("There is a small wicker cage discarded nearby.");
 
-		newObj("lamp", "Brass lantern", 0, "house");
+		newObj(["lamp", "lantern", "headlamp"], "Brass lantern", 0, "house");
 		newNote("There is a shiny brass lamp nearby.");
 		newNote("There is a lamp shining nearby.");
 
-        newObj("keys", "Set of keys", 0, "house");
+        newObj(["keys", "key"], "Set of keys", 0, "house");
         newNote("There are some keys on the ground here.");
 
 		////
 		// done with game data now
 		////
-		
-        that.ready(function() {
-	        selector.description = "#" + $(container).attr('id') + " > .room > .description";
-            selector.objects = "#" + $(container).attr('id') + " > .room > .objects";
-            selector.directions = "#" + $(container).attr('id') + " > .directions";
-            selector.inventory = "#" + $(container).attr('id') + " > .inventory";
-			selector.cli = "#" + $(container).attr('id') + " > .cli > .cli-input";
-			selector.compass = "#" + $(container).attr('id') + " > .compass";
-        });
-
-        that.ready(function() {
-			that.dataSource.adventure.loadItems([{
-	            id: "player",
-	            label: "You, the Player",
-	            environment: "room:road",
-	            type: 'Player'
-	        }]);
-			
-			$('#number-rooms').text($.grep(that.dataSource.adventure.items(), function(id, idx) {
-				return that.dataSource.adventure.getItem(id).type[0] === "Room"
-			}).length);
-			$('#number-objects').text($.grep(that.dataSource.adventure.items(), function(id, idx) {
-				return that.dataSource.adventure.getItem(id).type[0] === "Object"
-			}).length);
-			$('#number-verbs').text(number_commands + 1); // +1 for "go"
-			
-			$(selector.cli).keypress(function(event) {
-				var cmd;
-				if( event.which === 13 ) { // "enter" will parse command
-					event.preventDefault();
-					cmd = $(selector.cli).val();
-					$(selector.cli).val('');
-					that.parseCommand(cmd);
-				}
-				else if( event.which === 21) { // ctrl+U will erase line
-					$(selector.cli).val('');
-				}
-			});
-			
-			// make compass active
-			$.each(['n', 's', 'e', 'w', 'u', 'd'], function(idx, dir) {
-				$(selector.compass + " ." + dir).click(function() {
-					if($(selector.compass + " ." + dir).hasClass("unavailable")) {
-						return;
-					}
-					that.parseCommand(dir);	
-				});
-			})
-			$(selector.cli).focus();
-        });
 
         return that;
     };
