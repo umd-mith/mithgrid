@@ -84,7 +84,8 @@
                         container = container[0];
                     }
                     options.source = that.dataView[config.dataView];
-
+					options.application = that;
+					
                     presentation = config.type(container, options);
                     that.presentation[config.label] = presentation;
                     presentation.selfRender();
@@ -127,7 +128,7 @@
                             else if (pconfig.dataView !== undefined) {
                                 options.source = that.dataView[pconfig.dataView];
                             }
-
+							options.application = that;
                             presentation = config.type(container, options);
                             plugin.presentation[config.label] = presentation;
                             presentation.selfRender();

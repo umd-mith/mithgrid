@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Fri Jul 15 13:41:59 2011 -0400
+ * Date: Sat Jul 16 16:29:13 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -2032,7 +2032,8 @@ var jQuery = jQuery || {};
                         container = container[0];
                     }
                     options.source = that.dataView[config.dataView];
-
+					options.application = that;
+					
                     presentation = config.type(container, options);
                     that.presentation[config.label] = presentation;
                     presentation.selfRender();
@@ -2075,7 +2076,7 @@ var jQuery = jQuery || {};
                             else if (pconfig.dataView !== undefined) {
                                 options.source = that.dataView[pconfig.dataView];
                             }
-
+							options.application = that;
                             presentation = config.type(container, options);
                             plugin.presentation[config.label] = presentation;
                             presentation.selfRender();
