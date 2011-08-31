@@ -13,9 +13,6 @@
 MITHGrid.Presentation.TextList = function(container, options) {
     var that = MITHGrid.Presentation.initPresentation("TextList", container, options);
 
-    that.startDisplayUpdate = function() {};
-    that.finishDisplayUpdate = function() {};
-
     return that;
 };
 

@@ -77,19 +77,17 @@
         that.eventModelChange = that.renderItems;
 
         that.startDisplayUpdate = function() {
-            $(container).empty();
         };
 
         that.finishDisplayUpdate = function() {
-            $("<div class='clear'></div>").appendTo($(container));
         };
 
         that.selfRender = function() {
             /* do nothing -- needs to be implemented in subclass */
-            that.renderItems(that.options.store, that.options.store.items());
+            that.renderItems(that.dataView, that.dataView.items());
         };
 
-        that.dataView = that.options.store;
+        that.dataView = that.options.dataView;
         that.dataView.registerPresentation(that);
         return that;
     };

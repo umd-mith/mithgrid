@@ -729,7 +729,7 @@
 
         that.eventFilterChange = that.eventModelChange;
 
-        that.dataStore = options.store;
+        that.dataStore = options.dataStore;
 
 		// these mappings allow a data View to stand in for a data Store
         that.getItems = that.dataStore.getItems;

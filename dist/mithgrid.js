@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Wed Aug 31 11:30:06 2011 -0400
+ * Date: Wed Aug 31 15:41:31 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -801,7 +801,7 @@ var jQuery = jQuery || {};
 
         that.eventFilterChange = that.eventModelChange;
 
-        that.dataStore = options.store;
+        that.dataStore = options.dataStore;
 
 		// these mappings allow a data View to stand in for a data Store
         that.getItems = that.dataStore.getItems;
@@ -1942,19 +1942,17 @@ var jQuery = jQuery || {};
         that.eventModelChange = that.renderItems;
 
         that.startDisplayUpdate = function() {
-            $(container).empty();
         };
 
         that.finishDisplayUpdate = function() {
-            $("<div class='clear'></div>").appendTo($(container));
         };
 
         that.selfRender = function() {
             /* do nothing -- needs to be implemented in subclass */
-            that.renderItems(that.options.store, that.options.store.items());
+            that.renderItems(that.dataView, that.dataView.items());
         };
 
-        that.dataView = that.options.store;
+        that.dataView = that.options.dataView;
         that.dataView.registerPresentation(that);
         return that;
     };
@@ -2014,7 +2012,7 @@ var jQuery = jQuery || {};
             function(idx, config) {
 				var view = {},
 				viewOptions = {
-					store: that.dataStore[config.dataStore],
+					dataStore: that.dataStore[config.dataStore],
 					label: config.label
 				};
 				
@@ -2056,7 +2054,7 @@ var jQuery = jQuery || {};
                     if ($.isArray(container)) {
                         pcontainer = pcontainer[0];
                     }
-                    poptions.store = that.dataView[config.dataView];
+                    poptions.dataView = that.dataView[config.dataView];
 					poptions.application = that;
 					
                     presentation = config.type(pcontainer, poptions);

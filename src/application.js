@@ -54,7 +54,7 @@
             function(idx, config) {
 				var view = {},
 				viewOptions = {
-					store: that.dataStore[config.dataStore],
+					dataStore: that.dataStore[config.dataStore],
 					label: config.label
 				};
 				
@@ -96,7 +96,7 @@
                     if ($.isArray(container)) {
                         pcontainer = pcontainer[0];
                     }
-                    poptions.store = that.dataView[config.dataView];
+                    poptions.dataView = that.dataView[config.dataView];
 					poptions.application = that;
 					
                     presentation = config.type(pcontainer, poptions);
