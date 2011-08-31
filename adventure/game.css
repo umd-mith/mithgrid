@@ -28,7 +28,7 @@ html, body {
 	padding-right: 3px;
 	background-color: #ffffff;
 	float: left;
-	height: 400px;
+	height: 460px;
 	overflow-y: scroll;
 }
 
@@ -78,6 +78,24 @@ html, body {
 }
  .room > .objects {
 	
+}
+
+.score-holder {
+	width: 200px;
+	height: 60px;
+	float: left;
+	margin-left: 20px;
+	background-color: #ffffff;
+	text-align: center;
+}
+
+.score-holder > h2 {
+	text-align: center;
+	margin: 0px;
+	padding: 1px;
+	margin-bottom: 3px;
+	background-color: #eeeeee;
+	border-bottom: 1px solid #cccccc;
 }
 
 .compass {

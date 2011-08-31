@@ -108,6 +108,10 @@
 					"<div class='description'></div>" +
 					"<div class='objects'></div>" +
 				"</div>" +
+				"<div class='score-holder'>" +
+				  "<h2>Score</h2>" +
+				  "<div class='score'></div>" +
+				"</div>" +
             	"<div class='inventory-holder'>" +
 					"<h2>Inventory</h2>" +
 					"<ul class='inventory'></ul>" +
@@ -132,13 +136,19 @@
 			 */
             presentations: [{
                 type: MITHGrid.Presentation.TextList,
-                container: "#" + $(container).attr('id') + " > .inventory-holder > .inventory",
+                container: ".inventory-holder > .inventory",
                 dataView: 'inventory',
 				label: "inventory"
             },
+			{
+				type: MITHGrid.Presentation.Score,
+				container: ".score-holder > .score",
+				dataView: 'player',
+				label: 'score'
+			},
             {
                 type: MITHGrid.Presentation.RoomDescription,
-                container: "#" + $(container).attr('id') + " > .room > .description",
+                container: ".room > .description",
                 dataView: 'player',
 				label: "room"
             }]
@@ -148,7 +158,8 @@
 		lastCmd = "",   // holds the name of the last command for creating aliases
         ids = {			// holds the last assigned id number for words and notes
             inst: 0,
-            note: 0
+            note: 0,
+			location: 0,
         },
         lastLoc = "",	// the id of the last Room created
         lastInst = {},	// the object representing the last Word created
@@ -174,12 +185,16 @@
                 description: longDesc,
                 brief: shortDesc,
                 flags: flags,
+				locationCount: ids.location,
+				timesHere: 0,
                 type: 'Room'
             };
             // travels: each entry has 'command', 'condition', 'destination'
+			ids.location += 1;
             lastLoc = room.id;
 			that.dataSource.adventure.loadItems([room]);
         },
+		lastOutsideRoom = 0,
 		remarkStr = "", // temporary holder
 		/*
 		 * remark: str
@@ -262,10 +277,17 @@
             }
 			if($.isArray(labels)) {
 				obj.id = "obj:" + labels[0];
+				if(base === undefined || base === 0) {
+					base = labels[0];
+				}
 			}
 			else {
 				obj.id = "obj:" + labels;
+				if(base === undefined || base === 0) {
+					base = labels;
+				}
 			}
+			obj.base = base;
 			if(name !== 0) {
 				obj.name = name;
 			}
@@ -424,7 +446,12 @@
 				return 0;
 			}
 			else {
-				return item.value[0];
+				if(item.base === undefined || item.base[0] === item.label[0]) {
+					return item.value[0];
+				}
+				else {
+					return getGameProp(item.base[0]);
+				}
 			}
 		},
 		/*
@@ -446,6 +473,7 @@
 					id: "obj:" + key,
 					label: key,
 					value: value,
+					base: key,
 					type: "Object",
 					environment: "room:limbo"
 				}]);
@@ -580,8 +608,14 @@
 			"goto": "GO",
 			follow: "GO",
 			turn: "GO"
-		}
+		},
+		west_count = 0 // how many times we have parsed the word 'west'
+		was_dark = false,
+		dark = false
 		;
+		
+		that.isDark = function() { return dark; };
+		that.wasDark = function() { return was_dark; };
 		
 		/*
 		 * our parsing here is going to be a bit different than in the literate programming example
@@ -590,15 +624,23 @@
 		 * we force the player to execute the 'FORCE' command after moving to a room - this executes
 		 * the various automatic events upon entry
 		 */
-		that.parseCommand = function(cmd) {
+		that.parseCommand = function(cmd, fail_if_unknown) {
 			var bits = [ ],
 			things = [ ],
 			newLoc = "",
+			value = 0,
 			dest = { };
-						
+
 			cmd = $.trim(cmd.toLowerCase());
 			if(cmd === "") {
 				return;
+			}
+
+			if(cmd === "force") {
+				that.wasForced = function() { return true; }
+			}
+			else {
+				that.wasForced = function() { return false; }
 			}
 			
 			bits = cmd.split(" ");
@@ -626,6 +668,12 @@
 			 */
 			if(bits.length == 1) {
 				bits[0] = bits[0].toUpperCase();
+				if(bits[0] === "WEST") {
+					west_count += 1;
+					if(west_count === 10) {
+						print("If you prefer, simply type W rather than WEST.");
+					}
+				}
 				things = $.grep(thingsInEnvironment(),
 				function(word, idx) {
 					return word.type[0] === "Word" && word.word[0] === bits[0];
@@ -636,8 +684,14 @@
 						var condSatisfied = false;
 						if(newLoc !== "") { return; }
 						if(word.condition !== undefined) {
-							if(word.condition[0] === 0) {
-								condSatisfied = true;
+							if($.type(word.condition[0]) === "number") {
+								value = parseInt(word.condition[0]);
+								if(value === 0) {
+									condSatisfied = true;
+								}
+								else if(value > 0 && value < 100) {
+									condSatisfied = Math.foor(Math.random()*100) >= value;
+								}
 							}
 						}
 						else if(word.functionCondition !== undefined) {
@@ -673,11 +727,15 @@
 					commands[bits[0]](bits);
 				}
 				else {
-					error("I don't understand what you mean.");
+					if(fail_if_unknown === true) {
+						error("I don't understand what you mean.");
+					}
+					else {
+						that.parseCommand(bits[1] + " " + bits[0], true);
+					}
 				}
 			}
-
-			if(newLoc !== "") {
+			else {
 				dest = that.dataSource.adventure.getItem(newLoc);
 				if(dest === undefined || dest.type === undefined || dest.type[0] !== "Room") {
 					/*
@@ -692,6 +750,7 @@
 					 * this will cascade to the room description presentation, which will in turn execute the
 					 * 'FORCE' command on the player, so we may end up back here again
 					 */
+					was_dark = dark;
 					that.dataSource.adventure.updateItems([{
 						id: "player",
 						environment: newLoc
@@ -713,6 +772,8 @@
 	            id: "player",
 	            label: "You, the Player",
 	            environment: "room:road",
+				score: 0,
+				brief: false,
 	            type: 'Player'
 	        }]);
 			
@@ -763,7 +824,7 @@
 			"to move you there.  To move, try words like forest, building, downstream, enter, east, west, north, " +
 			"south, up, or down.  I know about a few special objects, like a black rod hidden in the cave.  These " +
 			"objects can be manipulated using some of the action words that I know.  Usually you will need to " + 
-			"give both the object and action words (with the action word first), but sometimes I can infer the object from " +
+			"give both the object and action words (in either order), but sometimes I can infer the object from " +
 			"the verb alone.  The objects have side effects; for " +
 			"instance, the rod scares the bird.  Usually people having trouble moving just need to try a few more " +
 			"words.  Usually people trying unsuccessfully to manipulate an object are attempting something beyond " +
@@ -791,7 +852,25 @@
 		    "anywhere but is frequently a sign of a deep pit leading down to water."
 		);
 		
+		messWord("stop", "I don't know the word \"stop\".  Use \"quit\" if you want to give up.");
+		
 		messWord("quit", "You can quit at any time by browsing to another page.");
+		
+		messWord("info", "If you want to end your adventure early, say \"quit\".  To get full credit for a treasure, " +
+		"you must have left it safely in the building, though you get partial credit just for locating it.  You lose " +
+		"points for getting killed, or for quitting, though the former costs you more.  There are also points based " +
+		"on how much (if any) of the cave you've managed to explore; in particular, there is a large bonus just for " +
+		"getting in (to distinguish the beginners from the rest of the pack), and there are other ways to determine " +
+		"whether you've been through some of the more harrowing sections.  If you think you've found all the treasures, " +
+		"just keep exploring for a while.  If nothing interesting happens, you haven't found them all yet.  If something " +
+		"interesting DOES happen, it means you're getting a bonus and have an opportunity to garner many more points in " +
+		"the master's section.<br /><br />I may occasionally offer hints if you seem to be having trouble.  If I do, " +
+		"I'll warn you in advance how much it will affect your score to accept the hints.  Finally, to save paper, " +
+		"you may specify \"brief\", which tells me never to repeat the full description of a place unless you explicitely " +
+		"aske me to.");
+		alias("information");
+		
+		messWord("swim", "I don't know how.");
 		
 		makeCommand("commands", function(bits) {
 			var cmds = [ ], c;
@@ -1074,7 +1153,7 @@
 		
 		makeCommand("look", function(bits) {
 			if(bits.length === 1) {
-				that.presentation.room.renderingFor("player").reRender();
+				that.presentation.room.renderingFor("player").reRender(true);
 			}
 			else {
 				// we want to look at the indicated item
@@ -1156,7 +1235,10 @@
 		alias("fie"); alias("foe"); alias("foo"); alias("fum");
 		
 		makeCommand("brief", function(bits) {
-			
+			that.dataSource.adventure.updateItems([{
+				id: "player",
+				brief: !(player().brief[0])
+			}]);
 		});
 		
 		makeCommand("find", function(bits) {
@@ -1170,6 +1252,17 @@
 		
 		makeCommand("score", function(bits) {
 			
+		});
+		
+		makeCommand("enter", function(bits) {
+			if(bits[1] === "water" || bits[1] === "stream") {
+				if(waterHere()) {
+					print("Your feet are now wet.");
+				}
+			}
+			else {
+				that.parseCommand("go " + bits[1]);
+			}
 		});
 		
 		
@@ -1354,6 +1447,8 @@
 		remark("You can't go through a locked steel grate!");
 		makeInst("ENTER", 0, "sayit");
 
+		lastOutsideRoom = ids.location;
+		
 		/*
 		 * If you've come this far, you're probably hooked, although your adventure has barely begun.
 		 */

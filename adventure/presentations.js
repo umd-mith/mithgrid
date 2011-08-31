@@ -43,6 +43,40 @@ MITHGrid.Presentation.TextList = function(container, options) {
     return that;
 };
 
+MITHGrid.Presentation.Score = function(container, options) {
+	var that = MITHGrid.Presentation.initView("Score", container, options),
+	scoreLens = {
+		render: function(container, view, model, itemId) {
+			var that = { },
+			el,
+			doRender = function() {
+				var player = model.getItem(itemId);
+				el = $("<span>0</span>");
+				$(el).appendTo(container);
+				el.text(player.score[0]);
+			};
+			
+			that.update = function(item) {
+				el.text(item.score[0]);
+			};
+			
+			doRender();
+			return that;
+		}
+	};
+	
+	that.startDisplayUpdate = function() {};
+    that.finishDisplayUpdate = function() {};
+
+    that.getLens = function(item) {
+        if (item.type[0] === "Player") {
+            return scoreLens;
+        }
+    };
+
+    return that;
+}
+
 /*
  * The room description presentation pulls together a description of the room, the allowed actions in
  * the room, and a list of objects present in the room.
@@ -68,52 +102,65 @@ MITHGrid.Presentation.RoomDescription = function(container, options) {
 			 * that share the same environment as the provided object id - in this case, it will be the id
 			 * of the room that the player is in
 			 */
-			var doRender = function() {
+			var doRender = function(override_brief) {
 				var things = { "Word": [], "Object": [] },
 				thingIds = thingsInEnvExpr.evaluate([room.id[0]]),
+				player = model.getItem('player'),
 				roomDesc = "", hasForce = false, bear;
 				
 				//console.log(thingIds);
-				roomDesc = room.description[0];
-                
-                // look for items with the same environment -- append them to $(container)
-				$.each(thingIds, function(idx, thing) {
-					var item = model.getItem(thing);
-					if(item.type !== undefined) {
-						things[item.type[0]] = things[item.type[0]] || [];
-						things[item.type[0]].push(item);
-					}
-				});
-				
-				/* available items have a type of 'Object' */
-				if (things.Object.length > 0) {
-				    $.each(things.Object,
-				    function(idx, object) {
-				        var notes = [ ],
-						note_idx = 0;
-
-						// we want to find the first note associated with this object
-						// the 'value' property of the item indexes the notes
-						if(object.value !== undefined) {
-							note_idx = object.value[0];
-						}
-						
-						notes = model.getItems(notesForObjectExpr.evaluate([object.id[0]]));
-
-						if(notes.length < note_idx) {
-							note_idx = 0;
-						}
-						if(notes.length === 0) {
-							roomDesc += " You see a " + object.name[0].toLowerCase + ". ";
-						}
-						else {
-							if(notes[note_idx].content[0]) {
-								roomDesc += " " + notes[note_idx].content[0] + " ";
-							}
-						}
-				    });
+				if(game.isDark() && !game.wasForced()) {
+					roomDesc = ""
 				}
-								
+				else {
+					if(player.brief[0] || (room.timesHere[0] % 5 !== 0)) {
+						roomDesc = room.brief[0];
+					}
+					if(roomDesc === "" || roomDesc === undefined || override_brief === true) {
+						roomDesc = room.description[0];
+	                }
+				}
+				
+				if(!game.isDark()) {
+	                // look for items with the same environment -- append them to $(container)
+					$.each(thingIds, function(idx, thing) {
+						var item = model.getItem(thing);
+						if(item.type !== undefined) {
+							things[item.type[0]] = things[item.type[0]] || [];
+							things[item.type[0]].push(item);
+						}
+					});
+				
+					/* available items have a type of 'Object' */
+					if (things.Object.length > 0) {
+					    $.each(things.Object,
+					    function(idx, object) {
+					        var notes = [ ],
+							note_idx = 0;
+
+							// we want to find the first note associated with this object
+							// the 'value' property of the item indexes the notes
+							if(object.value !== undefined) {
+								note_idx = object.value[0];
+							}
+						
+							notes = model.getItems(notesForObjectExpr.evaluate([object.id[0]]));
+
+							if(notes.length < note_idx) {
+								note_idx = 0;
+							}
+							if(notes.length === 0) {
+								roomDesc += " You see a " + object.name[0].toLowerCase + ". ";
+							}
+							else {
+								if(notes[note_idx].content[0]) {
+									roomDesc += " " + notes[note_idx].content[0] + " ";
+								}
+							}
+					    });
+					}
+				}
+				
 				/* available actions have a type of 'Word' */
 				if(things.Word.length > 0) {
 					things.WordHash = { };
@@ -128,7 +175,7 @@ MITHGrid.Presentation.RoomDescription = function(container, options) {
 					$.each(["N", "E", "S", "W", "U", "D"], function(idx, w) {
 						var words = things.WordHash[w],
 						cmdEl = $(".compass > ." + w.toLowerCase());
-						if(words === undefined) {
+						if(words === undefined || game.isDark()) {
 							cmdEl.addClass("unavailable");
 						}
 						else {
@@ -148,7 +195,7 @@ MITHGrid.Presentation.RoomDescription = function(container, options) {
 				if(hasForce) {
 					el = $("<p class='info'>" + roomDesc + "</p>");
 				}
-				else {
+				else if(!game.isDark()){
 					bear = model.getItem("obj:bear");
 					if(bear.environment[0] === "player") {
 						roomDesc += " You are being followed by a very large, tame bear.";
@@ -171,14 +218,22 @@ MITHGrid.Presentation.RoomDescription = function(container, options) {
 				if(room.id[0] !== item.environment[0]) {
 					room = model.getItem(item.environment[0]);
 					doRender();
+					model.updateItems([{
+						id: room.id,
+						timesHere: room.timesHere[0] + 1
+					}]);
 				}
 			};
 			
-			that.reRender = function() {
-				doRender();
+			that.reRender = function(override_brief) {
+				doRender(override_brief);
 			};
 
 			doRender();
+			model.updateItems([{
+				id: room.id,
+				timesHere: room.timesHere[0] + 1
+			}]);
 			
             return that;
         }
