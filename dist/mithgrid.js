@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Wed Aug 31 08:59:58 2011 -0400
+ * Date: Wed Aug 31 09:09:13 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -1852,7 +1852,7 @@ var jQuery = jQuery || {};
 
     MITHGrid.Presentation.initView = function(type, container, options) {
         var that = fluid.initView("MITHGrid.Presentation." + type, container, options),
-        renderings = {};
+        renderings = {}, lenses = that.options.lenses;
         options = that.options;
 
         $(container).empty();
@@ -1860,6 +1860,11 @@ var jQuery = jQuery || {};
         //		$("<div id='" + my_id + "-body'></div>").appendTo($(container));
         //		that.body_container = $('#' + my_id + '-body');
 
+	    that.getLens = function(item) {
+			if(lenses[item.type[0]] !== undefined) {
+				return { render: lenses[item.type[0]] };
+			}
+	    };
 
         that.renderingFor = function(id) {
             return renderings[id];
@@ -2014,18 +2019,16 @@ var jQuery = jQuery || {};
             that.ready(function() {
                 $.each(options.presentations,
                 function(idx, config) {
-                    var options = $.extend(true, {},
-                    config.options),
+                    var poptions = $.extend(true, {}, config),
                     pcontainer = $('#' + $(container).attr('id') + ' > ' + config.container),
                     presentation;
-
                     if ($.isArray(container)) {
                         pcontainer = pcontainer[0];
                     }
-                    options.source = that.dataView[config.dataView];
-					options.application = that;
+                    poptions.source = that.dataView[config.dataView];
+					poptions.application = that;
 					
-                    presentation = config.type(pcontainer, options);
+                    presentation = config.type(pcontainer, poptions);
                     that.presentation[config.label] = presentation;
                     presentation.selfRender();
                 });

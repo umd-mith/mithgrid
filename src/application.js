@@ -75,18 +75,16 @@
             that.ready(function() {
                 $.each(options.presentations,
                 function(idx, config) {
-                    var options = $.extend(true, {},
-                    config.options),
+                    var poptions = $.extend(true, {}, config),
                     pcontainer = $('#' + $(container).attr('id') + ' > ' + config.container),
                     presentation;
-
                     if ($.isArray(container)) {
                         pcontainer = pcontainer[0];
                     }
-                    options.source = that.dataView[config.dataView];
-					options.application = that;
+                    poptions.source = that.dataView[config.dataView];
+					poptions.application = that;
 					
-                    presentation = config.type(pcontainer, options);
+                    presentation = config.type(pcontainer, poptions);
                     that.presentation[config.label] = presentation;
                     presentation.selfRender();
                 });

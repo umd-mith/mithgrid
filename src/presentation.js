@@ -3,7 +3,7 @@
 
     MITHGrid.Presentation.initView = function(type, container, options) {
         var that = fluid.initView("MITHGrid.Presentation." + type, container, options),
-        renderings = {};
+        renderings = {}, lenses = that.options.lenses;
         options = that.options;
 
         $(container).empty();
@@ -11,6 +11,11 @@
         //		$("<div id='" + my_id + "-body'></div>").appendTo($(container));
         //		that.body_container = $('#' + my_id + '-body');
 
+	    that.getLens = function(item) {
+			if(lenses[item.type[0]] !== undefined) {
+				return { render: lenses[item.type[0]] };
+			}
+	    };
 
         that.renderingFor = function(id) {
             return renderings[id];

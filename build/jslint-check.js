@@ -11,7 +11,8 @@ JSLINT(src, {
 	sloppy: true, 
 	browser: true, 
 	plusplus: false,
-	"continue": true
+	"continue": true,
+	confusion: true
 });
 
 // All of the following are known issues that we think are 'ok'
