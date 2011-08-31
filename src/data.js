@@ -563,7 +563,7 @@
 		that.prepare = function(expressions) {
 		    var parsed = $.map(expressions,
 		    function(ex) {
-		        return MITHGrid.Expression.Parser().parse(ex);
+		        return MITHGrid.Expression.initParser().parse(ex);
 		    });
 
 			return {

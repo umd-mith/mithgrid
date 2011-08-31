@@ -8,15 +8,15 @@ $(document).ready(function() {
 		ok( $.isFunction(MITHGrid.Expression.debug), "MITHGrid.Expression.debug is a function" );
 	});
 	
-	module("Expression.Collection");
+	module("Expression.initCollection");
 	
 	
 	test("Check collection constructor", function() {
 		var col, list;
 		
 		expect(2);
-		ok( MITHGrid.Expression.Collection !== undefined, "Collection exists" );
-		ok( $.isFunction(MITHGrid.Expression.Collection), "Collection is a function" );
+		ok( MITHGrid.Expression.initCollection !== undefined, "Collection exists" );
+		ok( $.isFunction(MITHGrid.Expression.initCollection), "Collection is a function" );
 	});
 	
 	// make sure we run the same tests for each style of collection construction
@@ -36,7 +36,7 @@ $(document).ready(function() {
 		var col, list = [];
 
 		expect(3);
-		col = MITHGrid.Expression.Collection(['a', 'bc', 'def', 4]);
+		col = MITHGrid.Expression.initCollection(['a', 'bc', 'def', 4]);
 		checkCollection(col);
 	});
 	
@@ -46,7 +46,7 @@ $(document).ready(function() {
 		set = MITHGrid.Data.initSet([ 'a', 'bc', 'def', 4 ]);
 		
 		expect(3);
-		col = MITHGrid.Expression.Collection(set);
+		col = MITHGrid.Expression.initCollection(set);
 		checkCollection(col);
 	});
 });

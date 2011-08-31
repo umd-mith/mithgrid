@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Wed Aug 31 08:56:54 2011 -0400
+ * Date: Wed Aug 31 08:59:58 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -635,7 +635,7 @@ var jQuery = jQuery || {};
 		that.prepare = function(expressions) {
 		    var parsed = $.map(expressions,
 		    function(ex) {
-		        return MITHGrid.Expression.Parser().parse(ex);
+		        return MITHGrid.Expression.initParser().parse(ex);
 		    });
 
 			return {
@@ -881,7 +881,7 @@ var jQuery = jQuery || {};
         }
     };
 
-    Expression.Controls = {
+    Expression.controls = {
         "if": {
             f: function(args, roots, rootValueTypes, defaultRootName, database) {
                 var conditionCollection = args[0].evaluate(roots, rootValueTypes, defaultRootName, database),
@@ -925,7 +925,7 @@ var jQuery = jQuery || {};
                 roots.value = oldValue;
                 rootValueTypes.value = oldValueType;
 
-                return Expression.Collection(results, valueType);
+                return Expression.initCollection(results, valueType);
             }
         },
         "default": {
@@ -939,12 +939,12 @@ var jQuery = jQuery || {};
                         return collection;
                     }
                 }
-                return Expression.Collection([], "text");
+                return Expression.initCollection([], "text");
             }
         }
     };
 
-    Expression.Expression = function(rootNode) {
+    Expression.initExpression = function(rootNode) {
         var that = {};
 
         that.evaluate = function(roots, rootValueTypes, defaultRootName, database) {
@@ -1019,7 +1019,7 @@ var jQuery = jQuery || {};
         return that;
     };
 
-    Expression.Collection = function(values, valueType) {
+    Expression.initCollection = function(values, valueType) {
         var that = {
             valueType: valueType
         };
@@ -1083,11 +1083,11 @@ var jQuery = jQuery || {};
         return that;
     };
 
-    Expression.Constant = function(value, valueType) {
+    Expression.initConstant = function(value, valueType) {
         var that = {};
 
         that.evaluate = function(roots, rootValueTypes, defaultRootName, database) {
-            return Expression.Collection([value], valueType);
+            return Expression.initCollection([value], valueType);
         };
 
         that.isPath = false;
@@ -1095,7 +1095,7 @@ var jQuery = jQuery || {};
         return that;
     };
 
-    Expression.Operator = function(operator, args) {
+    Expression.initOperator = function(operator, args) {
         var that = {},
         _operator = operator,
         _args = args;
@@ -1137,7 +1137,7 @@ var jQuery = jQuery || {};
                 });
             }
 
-            return Expression.Collection(values, operator.valueType);
+            return Expression.initCollection(values, operator.valueType);
         };
 
         that.isPath = false;
@@ -1145,7 +1145,7 @@ var jQuery = jQuery || {};
         return that;
     };
 
-    Expression.FunctionCall = function(name, args) {
+    Expression.initFunctionCall = function(name, args) {
         var that = {},
         _name = name,
         _args = args;
@@ -1159,8 +1159,8 @@ var jQuery = jQuery || {};
                 args.push(_args[i].evaluate(roots, rootValueTypes, defaultRootName, database));
             }
 
-            if (Expression.Functions[_name] !== undefined) {
-                return Expression.Functions[_name].f(args);
+            if (Expression.functions[_name] !== undefined) {
+                return Expression.functions[_name].f(args);
             }
             else {
                 throw new Error("No such function named " + _name);
@@ -1172,13 +1172,13 @@ var jQuery = jQuery || {};
         return that;
     };
 
-    Expression.ControlCall = function(name, args) {
+    Expression.initControlCall = function(name, args) {
         var that = {},
         _name = name,
         _args = args;
 
         that.evaluate = function(roots, rootValueTypes, defaultRootName, database) {
-            return Expression.Controls[_name].f(_args, roots, rootValueTypes, defaultRootName, database);
+            return Expression.controls[_name].f(_args, roots, rootValueTypes, defaultRootName, database);
         };
 
         that.isPath = false;
@@ -1186,7 +1186,7 @@ var jQuery = jQuery || {};
         return that;
     };
 
-    Expression.Path = function(property, forward) {
+    Expression.initPath = function(property, forward) {
         var that = {},
         _rootName = null,
         _segments = [],
@@ -1230,18 +1230,18 @@ var jQuery = jQuery || {};
                         a = backwardArraySegmentFn(segment);
                         valueType = "item";
                     }
-                    collection = Expression.Collection(a, valueType);
+                    collection = Expression.initCollection(a, valueType);
                 }
                 else {
                     if (segment.forward) {
                         values = database.getObjectsUnion(collection.getSet(), segment.property);
                         property = database.getProperty(segment.property);
                         valueType = property !== null ? property.getValueType() : "text";
-                        collection = Expression.Collection(values, valueType);
+                        collection = Expression.initCollection(values, valueType);
                     }
                     else {
                         values = database.getSubjectsUnion(collection.getSet(), segment.property);
-                        collection = Expression.Collection(values, "item");
+                        collection = Expression.initCollection(values, "item");
                     }
                 }
             }
@@ -1294,18 +1294,18 @@ var jQuery = jQuery || {};
                         a = backwardArraySegmentFn(segment);
                         valueType = "item";
                     }
-                    collection = Expression.Collection(a, valueType);
+                    collection = Expression.initCollection(a, valueType);
                 }
                 else {
                     if (segment.forward) {
                         values = database.getSubjectsUnion(collection.getSet(), segment.property, null, i === 0 ? filter: null);
-                        collection = Expression.Collection(values, "item");
+                        collection = Expression.initCollection(values, "item");
                     }
                     else {
                         values = database.getObjectsUnion(collection.getSet(), segment.property, null, i === 0 ? filter: null);
                         property = database.getProperty(segment.property);
                         valueType = property !== null ? property.getValueType() : "text";
-                        collection = Expression.Collection(values, valueType);
+                        collection = Expression.initCollection(values, valueType);
                     }
                 }
             }
@@ -1405,10 +1405,10 @@ var jQuery = jQuery || {};
                 root = roots[rootName];
 
                 if (root.isSet || root instanceof Array) {
-                    collection = Expression.Collection(root, valueType);
+                    collection = Expression.initCollection(root, valueType);
                 }
                 else {
-                    collection = Expression.Collection([root], valueType);
+                    collection = Expression.initCollection([root], valueType);
                 }
 
                 return walkForward(collection, database);
@@ -1423,22 +1423,22 @@ var jQuery = jQuery || {};
         };
 
         that.evaluateBackward = function(value, valueType, filter, database) {
-            var collection = Expression.Collection([value], valueType);
+            var collection = Expression.initCollection([value], valueType);
             return walkBackward(collection, filter, database);
         };
 
         that.walkForward = function(values, valueType, database) {
-            return walkForward(Expression.Collection(values, valueType), database);
+            return walkForward(Expression.initCollection(values, valueType), database);
         };
 
         that.walkBackward = function(values, valueType, filter, database) {
-            return walkBackward(Expression.Collection(values, valueType), filter, database);
+            return walkBackward(Expression.initCollection(values, valueType), filter, database);
         };
 
         return that;
     };
 
-    Expression.Parser = function() {
+    Expression.initParser = function() {
         var that = {},
         internalParse = function(scanner, several) {
             var token = scanner.token(),
@@ -1446,7 +1446,7 @@ var jQuery = jQuery || {};
             expressions,
             r,
             n,
-            Scanner = Expression.Scanner,
+            Scanner = Expression.initScanner,
             next = function() {
                 scanner.next();
                 token = scanner.token();
@@ -1461,7 +1461,7 @@ var jQuery = jQuery || {};
                     operator = token.value;
                     next();
 
-                    term = Expression.Operator(operator, [term, parseFactor()]);
+                    term = Expression.initOperator(operator, [term, parseFactor()]);
                 }
                 return term;
             },
@@ -1474,7 +1474,7 @@ var jQuery = jQuery || {};
                     operator = token.value;
                     next();
 
-                    subExpression = Expression.Operator(operator, [subExpression, parseTerm()]);
+                    subExpression = Expression.initOperator(operator, [subExpression, parseTerm()]);
                 }
                 return subExpression;
             },
@@ -1490,7 +1490,7 @@ var jQuery = jQuery || {};
                     operator = token.value;
                     next();
 
-                    expression = Expression.Operator(operator, [expression, parseSubExpression]);
+                    expression = Expression.initOperator(operator, [expression, parseSubExpression]);
                 }
                 return expression;
             },
@@ -1506,7 +1506,7 @@ var jQuery = jQuery || {};
                 return token !== null ? token.start: scanner.index();
             },
             parsePath = function() {
-                var path = Expression.Path(),
+                var path = Expression.initPath(),
                 hopOperator;
                 while (token !== null && token.type === Scanner.PATH_OPERATOR) {
                     hopOperator = token.value;
@@ -1534,11 +1534,11 @@ var jQuery = jQuery || {};
 
                 switch (token.type) {
                 case Scanner.NUMBER:
-                    result = Expression.Constant(token.value, "number");
+                    result = Expression.initConstant(token.value, "number");
                     next();
                     break;
                 case Scanner.STRING:
-                    result = Expression.Constant(token.value, "text");
+                    result = Expression.initConstant(token.value, "text");
                     next();
                     break;
                 case Scanner.PATH_OPERATOR:
@@ -1548,13 +1548,13 @@ var jQuery = jQuery || {};
                     identifier = token.value;
                     next();
 
-                    if (Expression.Controls[identifier] !== undefined) {
+                    if (Expression.controls[identifier] !== undefined) {
                         if (token !== null && token.type === Scanner.DELIMITER && token.value === "(") {
                             next();
 
                             args = (token !== null && token.type === Scanner.DELIMITER && token.value === ")") ?
                             [] : parseExpressionList();
-                            result = Expression.ControlCall(identifier, args);
+                            result = Expression.initControlCall(identifier, args);
 
                             if (token !== null && token.type === Scanner.DELIMITER && token.value === ")") {
                                 next();
@@ -1573,7 +1573,7 @@ var jQuery = jQuery || {};
 
                             args = (token !== null && token.type === Scanner.DELIMITER && token.value === ")") ?
                             [] : parseExpressionList();
-                            result = Expression.FunctionCall(identifier, args);
+                            result = Expression.initFunctionCall(identifier, args);
 
                             if (token !== null && token.type === Scanner.DELIMITER && token.value === ")") {
                                 next();
@@ -1615,12 +1615,12 @@ var jQuery = jQuery || {};
                 roots = parseExpressionList();
                 expressions = [];
                 for (r = 0, n = roots.length; r < n; r += 1) {
-                    expressions.push(Expression.Expression(roots[r]));
+                    expressions.push(Expression.initExpression(roots[r]));
                 }
                 return expressions;
             }
             else {
-                return [Expression.Expression(parseExpression())];
+                return [Expression.initExpression(parseExpression())];
             }
         };
 
@@ -1630,7 +1630,7 @@ var jQuery = jQuery || {};
             startIndex = startIndex || 0;
             results = results || {};
 
-            scanner = Expression.Scanner(s, startIndex);
+            scanner = Expression.initScanner(s, startIndex);
             try {
                 return internalParse(scanner, false)[0];
             }
@@ -1642,7 +1642,7 @@ var jQuery = jQuery || {};
         return that;
     };
 
-    Expression.Scanner = function(text, startIndex) {
+    Expression.initScanner = function(text, startIndex) {
         var that = {},
         _text = text + " ",
         _maxIndex = text.length,
@@ -1680,7 +1680,7 @@ var jQuery = jQuery || {};
                 if (".!".indexOf(c1) >= 0) {
                     if (c2 === "@") {
                         _token = {
-                            type: Expression.Scanner.PATH_OPERATOR,
+                            type: Expression.initScanner.PATH_OPERATOR,
                             value: c1 + c2,
                             start: _index,
                             end: _index + 2
@@ -1689,7 +1689,7 @@ var jQuery = jQuery || {};
                     }
                     else {
                         _token = {
-                            type: Expression.Scanner.PATH_OPERATOR,
+                            type: Expression.initScanner.PATH_OPERATOR,
                             value: c1,
                             start: _index,
                             end: _index + 1
@@ -1700,7 +1700,7 @@ var jQuery = jQuery || {};
                 else if ("<>".indexOf(c1) >= 0) {
                     if ((c2 === "=") || ("<>".indexOf(c2) >= 0 && c1 !== c2)) {
                         _token = {
-                            type: Expression.Scanner.OPERATOR,
+                            type: Expression.initScanner.OPERATOR,
                             value: c1 + c2,
                             start: _index,
                             end: _index + 2
@@ -1709,7 +1709,7 @@ var jQuery = jQuery || {};
                     }
                     else {
                         _token = {
-                            type: Expression.Scanner.OPERATOR,
+                            type: Expression.initScanner.OPERATOR,
                             value: c1,
                             start: _index,
                             end: _index + 1
@@ -1719,7 +1719,7 @@ var jQuery = jQuery || {};
                 }
                 else if ("+-*/=".indexOf(c1) >= 0) {
                     _token = {
-                        type: Expression.Scanner.OPERATOR,
+                        type: Expression.initScanner.OPERATOR,
                         value: c1,
                         start: _index,
                         end: _index + 1
@@ -1728,7 +1728,7 @@ var jQuery = jQuery || {};
                 }
                 else if ("()".indexOf(c1) >= 0) {
                     _token = {
-                        type: Expression.Scanner.DELIMITER,
+                        type: Expression.initScanner.DELIMITER,
                         value: c1,
                         start: _index,
                         end: _index + 1
@@ -1747,7 +1747,7 @@ var jQuery = jQuery || {};
 
                     if (i < _maxIndex) {
                         _token = {
-                            type: Expression.Scanner.STRING,
+                            type: Expression.initScanner.STRING,
                             value: _text.substring(_index + 1, i).replace(/\\'/g, "'").replace(/\\"/g, '"'),
                             start: _index,
                             end: i + 1
@@ -1773,7 +1773,7 @@ var jQuery = jQuery || {};
                     }
 
                     _token = {
-                        type: Expression.Scanner.NUMBER,
+                        type: Expression.initScanner.NUMBER,
                         value: parseFloat(_text.substring(_index, i)),
                         start: _index,
                         end: i
@@ -1796,7 +1796,7 @@ var jQuery = jQuery || {};
                     }
 
                     _token = {
-                        type: Expression.Scanner.IDENTIFIER,
+                        type: Expression.initScanner.IDENTIFIER,
                         value: _text.substring(_index, i),
                         start: _index,
                         end: i
@@ -1811,18 +1811,18 @@ var jQuery = jQuery || {};
         return that;
     };
 
-    Expression.Scanner.DELIMITER = 0;
-    Expression.Scanner.NUMBER = 1;
-    Expression.Scanner.STRING = 2;
-    Expression.Scanner.IDENTIFIER = 3;
-    Expression.Scanner.OPERATOR = 4;
-    Expression.Scanner.PATH_OPERATOR = 5;
+    Expression.initScanner.DELIMITER = 0;
+    Expression.initScanner.NUMBER = 1;
+    Expression.initScanner.STRING = 2;
+    Expression.initScanner.IDENTIFIER = 3;
+    Expression.initScanner.OPERATOR = 4;
+    Expression.initScanner.PATH_OPERATOR = 5;
 
-	Expression.Functions = { };
+	Expression.functions = { };
 	Expression.FunctionUtilities = { };
 	
 	Expression.FunctionUtilities.registerSimpleMappingFunction = function(name, f, valueType) {
-		Expression.Functions[name] = {
+		Expression.functions[name] = {
 			f: function(args) {
 				var set = MITHGrid.Data.initSet(),
 				evalArg = function(arg) {
@@ -1838,7 +1838,7 @@ var jQuery = jQuery || {};
 				for(i = 0; i < args.length; i += 1) {
 					evalArg(args[i]);
 				}
-				return Expression.Collection(set, valueType);
+				return Expression.initCollection(set, valueType);
 			}
 		};
 	};
