@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Wed Aug 31 08:42:44 2011 -0400
+ * Date: Wed Aug 31 08:51:55 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -153,7 +153,7 @@ var jQuery = jQuery || {};
         return that;
     };
 
-    Data.Property = function(p) {
+    Data.initProperty = function(p) {
         var that = {};
 
         that.name = p;
@@ -258,7 +258,7 @@ var jQuery = jQuery || {};
 		that.contains = set.contains;
 
         that.addProperty = function(nom, options) {
-            var prop = Data.Property(nom);
+            var prop = Data.initProperty(nom);
 			if( options !== undefined && options.valueType !== undefined ) {
 				prop.valueType = options.valueType;
 			}
@@ -267,7 +267,7 @@ var jQuery = jQuery || {};
 
 		that.getProperty = function(nom) {
 			if(properties[nom] === undefined) {
-				return Data.Property(nom);
+				return Data.initProperty(nom);
 			}
 			else {
 				return properties[nom];

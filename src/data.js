@@ -81,7 +81,7 @@
         return that;
     };
 
-    Data.Property = function(p) {
+    Data.initProperty = function(p) {
         var that = {};
 
         that.name = p;
@@ -186,7 +186,7 @@
 		that.contains = set.contains;
 
         that.addProperty = function(nom, options) {
-            var prop = Data.Property(nom);
+            var prop = Data.initProperty(nom);
 			if( options !== undefined && options.valueType !== undefined ) {
 				prop.valueType = options.valueType;
 			}
@@ -195,7 +195,7 @@
 
 		that.getProperty = function(nom) {
 			if(properties[nom] === undefined) {
-				return Data.Property(nom);
+				return Data.initProperty(nom);
 			}
 			else {
 				return properties[nom];

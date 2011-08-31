@@ -72,17 +72,17 @@ $(document).ready(function() {
         equals(type.name, "Foo", "Type .name returns correct name");
     });
 
-    module("Data.Property");
+    module("Data.initProperty");
 
     test("Check property construction",
     function() {
         var prop;
 
         expect(6);
-        ok(MITHGrid.Data.Property !== undefined, "Property exists");
-        ok($.isFunction(MITHGrid.Data.Property), "Property is a function");
+        ok(MITHGrid.Data.initProperty !== undefined, "Property exists");
+        ok($.isFunction(MITHGrid.Data.initProperty), "Property is a function");
 
-        prop = MITHGrid.Data.Property('foo');
+        prop = MITHGrid.Data.initProperty('foo');
         equals(typeof prop, "object", "Property constructor returns an object");
         equals(prop.name, "foo", "Property .name returns correct name");
         equals(prop.getValueType(), "text", "Property .getValueType returns correct default type");
