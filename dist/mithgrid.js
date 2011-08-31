@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Wed Aug 31 08:53:19 2011 -0400
+ * Date: Wed Aug 31 08:56:54 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -662,7 +662,7 @@ var jQuery = jQuery || {};
         return that;
     };
 
-    Data.View = function(options) {
+    Data.initView = function(options) {
         var that,
         set = Data.initSet(),
 		filterItems = function(endFn) {
@@ -726,7 +726,7 @@ var jQuery = jQuery || {};
             return views[options.label];
         }
 
-        that = fluid.initView("MITHGrid.Data.View", $(window), options);
+        that = fluid.initView("MITHGrid.Data.initView", $(window), options);
 
         that.registerFilter = function(ob) {
             that.events.onFilterItem.addListener(function(x, y) {
@@ -1996,7 +1996,7 @@ var jQuery = jQuery || {};
 				if(config.collection !== undefined) {
 					viewOptions.collection = config.collection;
 				}
-                view = MITHGrid.Data.View(viewOptions);
+                view = MITHGrid.Data.initView(viewOptions);
                 that.dataView[config.label] = view;
             });
         }
@@ -2164,7 +2164,7 @@ var jQuery = jQuery || {};
     }
 });
 
-fluid.defaults("MITHGrid.Data.View", {
+fluid.defaults("MITHGrid.Data.initView", {
     events: {
         onModelChange: null,
         onFilterItem: "preventable"

@@ -330,7 +330,7 @@ $(document).ready(function() {
         equals(ids[0], "item-2", "It's the correct item");
     });
 
-    module("Data.View");
+    module("Data.initView");
 
 	test("Check interface",
 	function() {
@@ -339,7 +339,7 @@ $(document).ready(function() {
 		          "fetchData", "updateItems", "loadItems", "prepare", "getObjectsUnion", "getSubjectsUnion" ];
 		
 		expect(props.length);
-		dv = MITHGrid.Data.View({
+		dv = MITHGrid.Data.initView({
 			source: "Data.initStore.interface_test"
 		});
 		$.each(props, function(idx, prop) {
@@ -352,7 +352,7 @@ $(document).ready(function() {
         var dv;
 
         expect(2);
-        ok(MITHGrid.Data.View !== undefined, "Data.View exists");
-        ok($.isFunction(MITHGrid.Data.View), "Data.View is a function");
+        ok(MITHGrid.Data.initView !== undefined, "Data.initView exists");
+        ok($.isFunction(MITHGrid.Data.initView), "Data.initView is a function");
     });
 });

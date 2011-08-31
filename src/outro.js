@@ -8,7 +8,7 @@ fluid.defaults("MITHGrid.Data.initStore", {
     }
 });
 
-fluid.defaults("MITHGrid.Data.View", {
+fluid.defaults("MITHGrid.Data.initView", {
     events: {
         onModelChange: null,
         onFilterItem: "preventable"

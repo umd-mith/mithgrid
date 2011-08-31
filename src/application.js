@@ -57,7 +57,7 @@
 				if(config.collection !== undefined) {
 					viewOptions.collection = config.collection;
 				}
-                view = MITHGrid.Data.View(viewOptions);
+                view = MITHGrid.Data.initView(viewOptions);
                 that.dataView[config.label] = view;
             });
         }

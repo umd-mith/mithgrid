@@ -590,7 +590,7 @@
         return that;
     };
 
-    Data.View = function(options) {
+    Data.initView = function(options) {
         var that,
         set = Data.initSet(),
 		filterItems = function(endFn) {
@@ -654,7 +654,7 @@
             return views[options.label];
         }
 
-        that = fluid.initView("MITHGrid.Data.View", $(window), options);
+        that = fluid.initView("MITHGrid.Data.initView", $(window), options);
 
         that.registerFilter = function(ob) {
             that.events.onFilterItem.addListener(function(x, y) {
