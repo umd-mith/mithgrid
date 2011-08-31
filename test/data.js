@@ -9,14 +9,14 @@ $(document).ready(function() {
         ok($.isFunction(MITHGrid.Data.debug), "MITHGrid.Data.debug is a function");
     });
 
-    module("Data.Set");
+    module("Data.initSet");
 
 	test("Check interface",
 	function() {
 		var set;
 		
 		expect(6);
-		set = MITHGrid.Data.Set([]);
+		set = MITHGrid.Data.initSet([]);
 		$.each(["items", "add", "remove", "visit", "contains", "size"], function(idx, prop) {
 			ok($.isFunction(set[prop]), "."+prop+" is a function");
 		});
@@ -28,10 +28,10 @@ $(document).ready(function() {
         list;
 
         expect(13);
-        ok(MITHGrid.Data.Set !== undefined, "Set exists");
-        ok($.isFunction(MITHGrid.Data.Set), "Set is a function");
+        ok(MITHGrid.Data.initSet !== undefined, "Set exists");
+        ok($.isFunction(MITHGrid.Data.initSet), "Set is a function");
 
-        set = MITHGrid.Data.Set(['a', 'bc', 'def', 4]);
+        set = MITHGrid.Data.initSet(['a', 'bc', 'def', 4]);
         ok(set !== undefined, "set object is not undefined");
         ok(set.isSet, "set object has .isSet as true");
 

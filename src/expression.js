@@ -232,7 +232,7 @@
             };
 
             that.getSet = function() {
-                return MITHGrid.Data.Set(values);
+                return MITHGrid.Data.initSet(values);
             };
 
             that.contains = function(v) {
@@ -472,7 +472,7 @@
             };
 
             if (filter instanceof Array) {
-                filter = MITHGrid.Data.Set(filter);
+                filter = MITHGrid.Data.initSet(filter);
             }
             for (i = _segments.length - 1; i >= 0; i -= 1) {
                 segment = _segments[i];
@@ -553,7 +553,7 @@
         };
 
         that.rangeBackward = function(from, to, filter, database) {
-            var set = MITHGrid.Data.Set(),
+            var set = MITHGrid.Data.initSet(),
             valueType = "item",
             segment,
             i;
@@ -1017,7 +1017,7 @@
 	Expression.FunctionUtilities.registerSimpleMappingFunction = function(name, f, valueType) {
 		Expression.Functions[name] = {
 			f: function(args) {
-				var set = MITHGrid.Data.Set(),
+				var set = MITHGrid.Data.initSet(),
 				evalArg = function(arg) {
 					arg.forEachValue(function(v) {
 						var v2 = f(v);

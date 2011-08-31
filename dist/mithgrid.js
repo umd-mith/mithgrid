@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Sat Jul 16 16:29:13 2011 -0400
+ * Date: Mon Jul 18 12:44:37 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -75,7 +75,7 @@ var jQuery = jQuery || {};
 	sources = { },
 	views = { };
 	
-    Data.Set = function(values) {
+    Data.initSet = function(values) {
         var that = {},
         items = {},
         count = 0,
@@ -169,7 +169,7 @@ var jQuery = jQuery || {};
         var that,
         prop,
         quiesc_events = false,
-        set = Data.Set(),
+        set = Data.initSet(),
         types = {},
         properties = {},
         spo = {},
@@ -236,7 +236,7 @@ var jQuery = jQuery || {};
         },
 		getUnion = function(index, xSet, y, set, filter) {
             if (!set) {
-                set = Data.Set();
+                set = Data.initSet();
             }
 
             xSet.visit(function(x) {
@@ -664,50 +664,8 @@ var jQuery = jQuery || {};
 
     Data.View = function(options) {
         var that,
-        set = Data.Set();
-
-        if(views[options.label] !== undefined) {
-            return views[options.label];
-        }
-
-        that = fluid.initView("MITHGrid.Data.View", $(window), options);
-
-        that.registerFilter = function(ob) {
-            that.events.onFilterItem.addListener(function(x, y) {
-                return ob.eventFilterItem(x, y);
-            });
-            that.events.onModelChange.addListener(function(m, i) {
-                ob.eventModelChange(m, i);
-            });
-            ob.events.onFilterChange.addListener(that.eventFilterChange);
-        };
-
-        that.registerView = function(ob) {
-            that.events.onModelChange.addListener(function(m, i) {
-                ob.eventModelChange(m, i);
-            });
-            that.filterItems(function() {
-                ob.eventModelChange(that, that.items());
-            });
-        };
-
-        that.items = set.items;
-        that.size = set.size;
-		that.contains = set.contains;
-
-		if(options.collection !== undefined) {
-			that.registerFilter({
-				eventFilterItem: options.collection,
-				eventModelChange: function(x, y) { },
-				events: {
-					onFilterChange: {
-						addListener: function(x) { }
-					}
-				}
-			});
-		}
-
-        that.filterItems = function(endFn) {
+        set = Data.initSet(),
+		filterItems = function(endFn) {
             var id,
             fres,
             ids,
@@ -715,7 +673,7 @@ var jQuery = jQuery || {};
             chunk_size,
             f;
 
-            set = Data.Set();
+            set = Data.initSet();
 
             that.items = set.items;
             that.size = set.size;
@@ -764,10 +722,51 @@ var jQuery = jQuery || {};
             f(0);
         };
 
+        if(views[options.label] !== undefined) {
+            return views[options.label];
+        }
+
+        that = fluid.initView("MITHGrid.Data.View", $(window), options);
+
+        that.registerFilter = function(ob) {
+            that.events.onFilterItem.addListener(function(x, y) {
+                return ob.eventFilterItem(x, y);
+            });
+            that.events.onModelChange.addListener(function(m, i) {
+                ob.eventModelChange(m, i);
+            });
+            ob.events.onFilterChange.addListener(that.eventFilterChange);
+        };
+
+        that.registerView = function(ob) {
+            that.events.onModelChange.addListener(function(m, i) {
+                ob.eventModelChange(m, i);
+            });
+            filterItems(function() {
+                ob.eventModelChange(that, that.items());
+            });
+        };
+
+        that.items = set.items;
+        that.size = set.size;
+		that.contains = set.contains;
+
+		if(options.collection !== undefined) {
+			that.registerFilter({
+				eventFilterItem: options.collection,
+				eventModelChange: function(x, y) { },
+				events: {
+					onFilterChange: {
+						addListener: function(x) { }
+					}
+				}
+			});
+		}
+
         that.eventModelChange = function(model, items) {
-			var allowed_set = Data.Set(that.items());
-            that.filterItems(function() {
-				var changed_set = Data.Set(),
+			var allowed_set = Data.initSet(that.items());
+            filterItems(function() {
+				var changed_set = Data.initSet(),
 				i, n;
 				$.each(that.items(), function(idx, id) { allowed_set.add(id); });
 				n = items.length;
@@ -1040,7 +1039,7 @@ var jQuery = jQuery || {};
             };
 
             that.getSet = function() {
-                return MITHGrid.Data.Set(values);
+                return MITHGrid.Data.initSet(values);
             };
 
             that.contains = function(v) {
@@ -1280,7 +1279,7 @@ var jQuery = jQuery || {};
             };
 
             if (filter instanceof Array) {
-                filter = MITHGrid.Data.Set(filter);
+                filter = MITHGrid.Data.initSet(filter);
             }
             for (i = _segments.length - 1; i >= 0; i -= 1) {
                 segment = _segments[i];
@@ -1361,7 +1360,7 @@ var jQuery = jQuery || {};
         };
 
         that.rangeBackward = function(from, to, filter, database) {
-            var set = MITHGrid.Data.Set(),
+            var set = MITHGrid.Data.initSet(),
             valueType = "item",
             segment,
             i;
@@ -1825,7 +1824,7 @@ var jQuery = jQuery || {};
 	Expression.FunctionUtilities.registerSimpleMappingFunction = function(name, f, valueType) {
 		Expression.Functions[name] = {
 			f: function(args) {
-				var set = MITHGrid.Data.Set(),
+				var set = MITHGrid.Data.initSet(),
 				evalArg = function(arg) {
 					arg.forEachValue(function(v) {
 						var v2 = f(v);
@@ -1860,15 +1859,7 @@ var jQuery = jQuery || {};
 
         //		$("<div id='" + my_id + "-body'></div>").appendTo($(container));
         //		that.body_container = $('#' + my_id + '-body');
-        that.eventModelChange = function(model, items) {
-            var n;
-            //$(container).empty();
-            // we need to know if items are gone or added or changed
-            // if the item id is no longer in the model, then it was removed
-            // if the item is in the model but not in the renderings object, then it was added
-            // otherwise, it was changed
-            that.renderItems(model, items);
-        };
+
 
         that.renderingFor = function(id) {
             return renderings[id];
@@ -1927,6 +1918,8 @@ var jQuery = jQuery || {};
             f(0);
         };
 
+        that.eventModelChange = that.renderItems;
+
         that.startDisplayUpdate = function() {
             $(container).empty();
         };
@@ -1937,9 +1930,7 @@ var jQuery = jQuery || {};
 
         that.selfRender = function() {
             /* do nothing -- needs to be implemented in subclass */
-            that.startDisplayUpdate();
             that.renderItems(that.options.source, that.options.source.items());
-            that.finishDisplayUpdate();
         };
 
         that.dataView = that.options.source;
@@ -2025,16 +2016,16 @@ var jQuery = jQuery || {};
                 function(idx, config) {
                     var options = $.extend(true, {},
                     config.options),
-                    container = $(config.container),
+                    pcontainer = $('#' + $(container).attr('id') + ' > ' + config.container),
                     presentation;
 
                     if ($.isArray(container)) {
-                        container = container[0];
+                        pcontainer = pcontainer[0];
                     }
                     options.source = that.dataView[config.dataView];
 					options.application = that;
 					
-                    presentation = config.type(container, options);
+                    presentation = config.type(pcontainer, options);
                     that.presentation[config.label] = presentation;
                     presentation.selfRender();
                 });
@@ -2064,11 +2055,11 @@ var jQuery = jQuery || {};
                         function(idx, config) {
                             var options = $.extend(true, {},
                             config.options),
-                            container = $(config.container),
+                            pcontainer = $("#" + $(container).attr('id') + ' > ' + config.container),
                             presentation;
 
                             if ($.isArray(container)) {
-                                container = container[0];
+                                pcontainer = pcontainer[0];
                             }
                             if (config.dataView !== undefined) {
                                 options.source = that.dataView[config.dataView];
@@ -2077,7 +2068,7 @@ var jQuery = jQuery || {};
                                 options.source = that.dataView[pconfig.dataView];
                             }
 							options.application = that;
-                            presentation = config.type(container, options);
+                            presentation = config.type(pcontainer, options);
                             plugin.presentation[config.label] = presentation;
                             presentation.selfRender();
                         });

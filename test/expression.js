@@ -43,7 +43,7 @@ $(document).ready(function() {
 	test("Check collection construction (set)", function() {
 		var col, set, list = [];
 		
-		set = MITHGrid.Data.Set([ 'a', 'bc', 'def', 4 ]);
+		set = MITHGrid.Data.initSet([ 'a', 'bc', 'def', 4 ]);
 		
 		expect(3);
 		col = MITHGrid.Expression.Collection(set);

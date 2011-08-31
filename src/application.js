@@ -77,16 +77,16 @@
                 function(idx, config) {
                     var options = $.extend(true, {},
                     config.options),
-                    container = $(config.container),
+                    pcontainer = $('#' + $(container).attr('id') + ' > ' + config.container),
                     presentation;
 
                     if ($.isArray(container)) {
-                        container = container[0];
+                        pcontainer = pcontainer[0];
                     }
                     options.source = that.dataView[config.dataView];
 					options.application = that;
 					
-                    presentation = config.type(container, options);
+                    presentation = config.type(pcontainer, options);
                     that.presentation[config.label] = presentation;
                     presentation.selfRender();
                 });
@@ -116,11 +116,11 @@
                         function(idx, config) {
                             var options = $.extend(true, {},
                             config.options),
-                            container = $(config.container),
+                            pcontainer = $("#" + $(container).attr('id') + ' > ' + config.container),
                             presentation;
 
                             if ($.isArray(container)) {
-                                container = container[0];
+                                pcontainer = pcontainer[0];
                             }
                             if (config.dataView !== undefined) {
                                 options.source = that.dataView[config.dataView];
@@ -129,7 +129,7 @@
                                 options.source = that.dataView[pconfig.dataView];
                             }
 							options.application = that;
-                            presentation = config.type(container, options);
+                            presentation = config.type(pcontainer, options);
                             plugin.presentation[config.label] = presentation;
                             presentation.selfRender();
                         });

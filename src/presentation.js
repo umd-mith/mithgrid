@@ -10,15 +10,7 @@
 
         //		$("<div id='" + my_id + "-body'></div>").appendTo($(container));
         //		that.body_container = $('#' + my_id + '-body');
-        that.eventModelChange = function(model, items) {
-            var n;
-            //$(container).empty();
-            // we need to know if items are gone or added or changed
-            // if the item id is no longer in the model, then it was removed
-            // if the item is in the model but not in the renderings object, then it was added
-            // otherwise, it was changed
-            that.renderItems(model, items);
-        };
+
 
         that.renderingFor = function(id) {
             return renderings[id];
@@ -77,6 +69,8 @@
             f(0);
         };
 
+        that.eventModelChange = that.renderItems;
+
         that.startDisplayUpdate = function() {
             $(container).empty();
         };
@@ -87,9 +81,7 @@
 
         that.selfRender = function() {
             /* do nothing -- needs to be implemented in subclass */
-            that.startDisplayUpdate();
             that.renderItems(that.options.source, that.options.source.items());
-            that.finishDisplayUpdate();
         };
 
         that.dataView = that.options.source;

@@ -3,7 +3,7 @@
 	sources = { },
 	views = { };
 	
-    Data.Set = function(values) {
+    Data.initSet = function(values) {
         var that = {},
         items = {},
         count = 0,
@@ -97,7 +97,7 @@
         var that,
         prop,
         quiesc_events = false,
-        set = Data.Set(),
+        set = Data.initSet(),
         types = {},
         properties = {},
         spo = {},
@@ -164,7 +164,7 @@
         },
 		getUnion = function(index, xSet, y, set, filter) {
             if (!set) {
-                set = Data.Set();
+                set = Data.initSet();
             }
 
             xSet.visit(function(x) {
@@ -592,50 +592,8 @@
 
     Data.View = function(options) {
         var that,
-        set = Data.Set();
-
-        if(views[options.label] !== undefined) {
-            return views[options.label];
-        }
-
-        that = fluid.initView("MITHGrid.Data.View", $(window), options);
-
-        that.registerFilter = function(ob) {
-            that.events.onFilterItem.addListener(function(x, y) {
-                return ob.eventFilterItem(x, y);
-            });
-            that.events.onModelChange.addListener(function(m, i) {
-                ob.eventModelChange(m, i);
-            });
-            ob.events.onFilterChange.addListener(that.eventFilterChange);
-        };
-
-        that.registerView = function(ob) {
-            that.events.onModelChange.addListener(function(m, i) {
-                ob.eventModelChange(m, i);
-            });
-            that.filterItems(function() {
-                ob.eventModelChange(that, that.items());
-            });
-        };
-
-        that.items = set.items;
-        that.size = set.size;
-		that.contains = set.contains;
-
-		if(options.collection !== undefined) {
-			that.registerFilter({
-				eventFilterItem: options.collection,
-				eventModelChange: function(x, y) { },
-				events: {
-					onFilterChange: {
-						addListener: function(x) { }
-					}
-				}
-			});
-		}
-
-        that.filterItems = function(endFn) {
+        set = Data.initSet(),
+		filterItems = function(endFn) {
             var id,
             fres,
             ids,
@@ -643,7 +601,7 @@
             chunk_size,
             f;
 
-            set = Data.Set();
+            set = Data.initSet();
 
             that.items = set.items;
             that.size = set.size;
@@ -692,10 +650,51 @@
             f(0);
         };
 
+        if(views[options.label] !== undefined) {
+            return views[options.label];
+        }
+
+        that = fluid.initView("MITHGrid.Data.View", $(window), options);
+
+        that.registerFilter = function(ob) {
+            that.events.onFilterItem.addListener(function(x, y) {
+                return ob.eventFilterItem(x, y);
+            });
+            that.events.onModelChange.addListener(function(m, i) {
+                ob.eventModelChange(m, i);
+            });
+            ob.events.onFilterChange.addListener(that.eventFilterChange);
+        };
+
+        that.registerView = function(ob) {
+            that.events.onModelChange.addListener(function(m, i) {
+                ob.eventModelChange(m, i);
+            });
+            filterItems(function() {
+                ob.eventModelChange(that, that.items());
+            });
+        };
+
+        that.items = set.items;
+        that.size = set.size;
+		that.contains = set.contains;
+
+		if(options.collection !== undefined) {
+			that.registerFilter({
+				eventFilterItem: options.collection,
+				eventModelChange: function(x, y) { },
+				events: {
+					onFilterChange: {
+						addListener: function(x) { }
+					}
+				}
+			});
+		}
+
         that.eventModelChange = function(model, items) {
-			var allowed_set = Data.Set(that.items());
-            that.filterItems(function() {
-				var changed_set = Data.Set(),
+			var allowed_set = Data.initSet(that.items());
+            filterItems(function() {
+				var changed_set = Data.initSet(),
 				i, n;
 				$.each(that.items(), function(idx, id) { allowed_set.add(id); });
 				n = items.length;
