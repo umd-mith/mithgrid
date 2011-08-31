@@ -1,8 +1,6 @@
 (function($, MITHGrid) {
-	var Data = MITHGrid.namespace('Data'),
-	sources = { },
-	views = { };
-	
+	var Data = MITHGrid.namespace('Data');
+
     Data.initSet = function(values) {
         var that = {},
         items = {},
@@ -173,13 +171,9 @@
             return set;
         };
 
-        if (sources[options.source] !== undefined) {
-            return sources[options.source];
-        }
-        that = fluid.initView("MITHGrid.Data.initStore", $(window), options);
-        sources[options.source] = that;
+		options = options || {};
 
-        that.source = options.source;
+        that = fluid.initView("MITHGrid.Data.initStore", $(window), options);
 
         that.items = set.items;
 
@@ -215,40 +209,6 @@
 				return types[nom];
 			}
 		};
-
-        /* In MITHGrid, the app and plugins would populate the types and properties based on what they need */
-        /* For us, we have:
-		 * View
-		 * Transition
-		 * TansitionCondition (params, param, ...)
-		 * GeneralAction
-		 * GeneralStructural
-		 */
-
-        /*
-		*** Application
-		* id:
-		* view: list of item ids pointing to View items
-		* initialization-action: list of item ids pointing to GeneralAction items
-		*
-		*** View type has the following properties
-		* id: unique id in the system
-		* transition: list of item ids
-		* label: (unique name for the application)
-		* initialization-action: list of item ids pointing to GeneralAction items
-		* position-x:, position-y: - points on drawing board
-		*
-		*** Transition type
-		* id
-		* transitions-to: item id pointing to target view
-		* condition: list of parameters expected
-		* action: list of item ids pointing to GeneralAction items
-		* path: info on path between views
-		*
-		***
-		*/
-
-
 
         that.getItem = function(id) {
             if (spo[id] !== undefined) { //id in that.spo) {
@@ -606,7 +566,7 @@
             that.items = set.items;
             that.size = set.size;
 			that.contains = set.contains;
-            ids = that.dataSource.items();
+            ids = that.dataStore.items();
             n = ids.length;
             if (n === 0) {
                 endFn();
@@ -630,7 +590,7 @@
                 }
                 for (i = start; i < end; i += 1) {
                     id = ids[i];
-                    free = that.events.onFilterItem.fire(that.dataSource, id);
+                    free = that.events.onFilterItem.fire(that.dataStore, id);
                     if (free !== false) {
                         set.add(id);
                     }
@@ -649,10 +609,6 @@
             };
             f(0);
         };
-
-        if(views[options.label] !== undefined) {
-            return views[options.label];
-        }
 
         that = fluid.initView("MITHGrid.Data.initView", $(window), options);
 
@@ -711,25 +667,23 @@
 
         that.eventFilterChange = that.eventModelChange;
 
-        that.dataSource = Data.initStore({
-            source: options.source
-        });
+        that.dataStore = options.store;
 
-		// these mappings allow a data View to stand in for a data Source
-        that.getItems = that.dataSource.getItems;
-        that.getItem = that.dataSource.getItem;
-		that.fetchData = that.dataSource.fetchData;
-        that.updateItems = that.dataSource.updateItems;
-		that.loadItems = that.dataSource.loadItems;
-        that.prepare = that.dataSource.prepare;
-		that.addType = that.dataSource.addType;
-		that.getType = that.dataSource.getType;
-		that.addProperty = that.dataSource.addProperty;
-		that.getProperty = that.dataSource.getProperty;
-		that.getObjectsUnion = that.dataSource.getObjectsUnion;
-		that.getSubjectsUnion = that.dataSource.getSubjectsUnion;
+		// these mappings allow a data View to stand in for a data Store
+        that.getItems = that.dataStore.getItems;
+        that.getItem = that.dataStore.getItem;
+		that.fetchData = that.dataStore.fetchData;
+        that.updateItems = that.dataStore.updateItems;
+		that.loadItems = that.dataStore.loadItems;
+        that.prepare = that.dataStore.prepare;
+		that.addType = that.dataStore.addType;
+		that.getType = that.dataStore.getType;
+		that.addProperty = that.dataStore.addProperty;
+		that.getProperty = that.dataStore.getProperty;
+		that.getObjectsUnion = that.dataStore.getObjectsUnion;
+		that.getSubjectsUnion = that.dataStore.getSubjectsUnion;
 		
-        that.dataSource.events.onModelChange.addListener(that.eventModelChange);
+        that.dataStore.events.onModelChange.addListener(that.eventModelChange);
 
         return that;
     };

@@ -86,11 +86,11 @@
 
         that.selfRender = function() {
             /* do nothing -- needs to be implemented in subclass */
-            that.renderItems(that.options.source, that.options.source.items());
+            that.renderItems(that.options.store, that.options.store.items());
         };
 
-        that.dataView = that.options.source;
-        that.options.source.registerView(that);
+        that.dataView = that.options.store;
+        that.options.store.registerView(that);
         return that;
     };
 } (jQuery, MITHGrid));

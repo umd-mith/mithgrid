@@ -3,7 +3,7 @@
     Application.initApp = function(klass, container, options) {
         var that = {
             presentation: {},
-            dataSource: {},
+            dataStore: {},
             dataView: {}
         },
         onReady = [];
@@ -13,14 +13,18 @@
         };
 
 
-        if (options.dataSources !== undefined) {
-            $.each(options.dataSources,
+        if (options.dataStores !== undefined) {
+            $.each(options.dataStores,
             function(idx, config) {
-                var store = MITHGrid.Data.initStore({
-                    source: config.label
-                });
-                that.dataSource[config.label] = store;
-                store.addType('Item');
+                var store;
+				if(that.dataStore[config.label] === undefined) {
+					store = MITHGrid.Data.initStore();
+	                that.dataStore[config.label] = store;
+	                store.addType('Item');
+				}
+				else {
+					store = that.dataStore[config.label];
+				}
                 store.addProperty('label', {
                     valueType: 'text'
                 });
@@ -50,15 +54,20 @@
             function(idx, config) {
 				var view = {},
 				viewOptions = {
-					source: config.dataSource,
+					store: that.dataStore[config.dataStore],
 					label: config.label
 				};
 				
-				if(config.collection !== undefined) {
-					viewOptions.collection = config.collection;
+				if(that.dataView[config.label] === undefined) {				
+					if(config.collection !== undefined) {
+						viewOptions.collection = config.collection;
+					}
+	                view = MITHGrid.Data.initView(viewOptions);
+	                that.dataView[config.label] = view;
 				}
-                view = MITHGrid.Data.initView(viewOptions);
-                that.dataView[config.label] = view;
+				else {
+					view = that.dataView[config.label];
+				}
             });
         }
 
@@ -81,7 +90,7 @@
                     if ($.isArray(container)) {
                         pcontainer = pcontainer[0];
                     }
-                    poptions.source = that.dataView[config.dataView];
+                    poptions.store = that.dataView[config.dataView];
 					poptions.application = that;
 					
                     presentation = config.type(pcontainer, poptions);
@@ -121,10 +130,10 @@
                                 pcontainer = pcontainer[0];
                             }
                             if (config.dataView !== undefined) {
-                                options.source = that.dataView[config.dataView];
+                                options.store = that.dataView[config.dataView];
                             }
                             else if (pconfig.dataView !== undefined) {
-                                options.source = that.dataView[pconfig.dataView];
+                                options.store = that.dataView[pconfig.dataView];
                             }
 							options.application = that;
                             presentation = config.type(pcontainer, options);

@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Wed Aug 31 09:09:13 2011 -0400
+ * Date: Wed Aug 31 09:43:43 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -71,10 +71,8 @@ var jQuery = jQuery || {};
         return genericNamespacer(MITHGrid, nom);
     };
 }(jQuery, MITHGrid));(function($, MITHGrid) {
-	var Data = MITHGrid.namespace('Data'),
-	sources = { },
-	views = { };
-	
+	var Data = MITHGrid.namespace('Data');
+
     Data.initSet = function(values) {
         var that = {},
         items = {},
@@ -245,13 +243,9 @@ var jQuery = jQuery || {};
             return set;
         };
 
-        if (sources[options.source] !== undefined) {
-            return sources[options.source];
-        }
-        that = fluid.initView("MITHGrid.Data.initStore", $(window), options);
-        sources[options.source] = that;
+		options = options || {};
 
-        that.source = options.source;
+        that = fluid.initView("MITHGrid.Data.initStore", $(window), options);
 
         that.items = set.items;
 
@@ -287,40 +281,6 @@ var jQuery = jQuery || {};
 				return types[nom];
 			}
 		};
-
-        /* In MITHGrid, the app and plugins would populate the types and properties based on what they need */
-        /* For us, we have:
-		 * View
-		 * Transition
-		 * TansitionCondition (params, param, ...)
-		 * GeneralAction
-		 * GeneralStructural
-		 */
-
-        /*
-		*** Application
-		* id:
-		* view: list of item ids pointing to View items
-		* initialization-action: list of item ids pointing to GeneralAction items
-		*
-		*** View type has the following properties
-		* id: unique id in the system
-		* transition: list of item ids
-		* label: (unique name for the application)
-		* initialization-action: list of item ids pointing to GeneralAction items
-		* position-x:, position-y: - points on drawing board
-		*
-		*** Transition type
-		* id
-		* transitions-to: item id pointing to target view
-		* condition: list of parameters expected
-		* action: list of item ids pointing to GeneralAction items
-		* path: info on path between views
-		*
-		***
-		*/
-
-
 
         that.getItem = function(id) {
             if (spo[id] !== undefined) { //id in that.spo) {
@@ -678,7 +638,7 @@ var jQuery = jQuery || {};
             that.items = set.items;
             that.size = set.size;
 			that.contains = set.contains;
-            ids = that.dataSource.items();
+            ids = that.dataStore.items();
             n = ids.length;
             if (n === 0) {
                 endFn();
@@ -702,7 +662,7 @@ var jQuery = jQuery || {};
                 }
                 for (i = start; i < end; i += 1) {
                     id = ids[i];
-                    free = that.events.onFilterItem.fire(that.dataSource, id);
+                    free = that.events.onFilterItem.fire(that.dataStore, id);
                     if (free !== false) {
                         set.add(id);
                     }
@@ -721,10 +681,6 @@ var jQuery = jQuery || {};
             };
             f(0);
         };
-
-        if(views[options.label] !== undefined) {
-            return views[options.label];
-        }
 
         that = fluid.initView("MITHGrid.Data.initView", $(window), options);
 
@@ -783,25 +739,23 @@ var jQuery = jQuery || {};
 
         that.eventFilterChange = that.eventModelChange;
 
-        that.dataSource = Data.initStore({
-            source: options.source
-        });
+        that.dataStore = options.store;
 
-		// these mappings allow a data View to stand in for a data Source
-        that.getItems = that.dataSource.getItems;
-        that.getItem = that.dataSource.getItem;
-		that.fetchData = that.dataSource.fetchData;
-        that.updateItems = that.dataSource.updateItems;
-		that.loadItems = that.dataSource.loadItems;
-        that.prepare = that.dataSource.prepare;
-		that.addType = that.dataSource.addType;
-		that.getType = that.dataSource.getType;
-		that.addProperty = that.dataSource.addProperty;
-		that.getProperty = that.dataSource.getProperty;
-		that.getObjectsUnion = that.dataSource.getObjectsUnion;
-		that.getSubjectsUnion = that.dataSource.getSubjectsUnion;
+		// these mappings allow a data View to stand in for a data Store
+        that.getItems = that.dataStore.getItems;
+        that.getItem = that.dataStore.getItem;
+		that.fetchData = that.dataStore.fetchData;
+        that.updateItems = that.dataStore.updateItems;
+		that.loadItems = that.dataStore.loadItems;
+        that.prepare = that.dataStore.prepare;
+		that.addType = that.dataStore.addType;
+		that.getType = that.dataStore.getType;
+		that.addProperty = that.dataStore.addProperty;
+		that.getProperty = that.dataStore.getProperty;
+		that.getObjectsUnion = that.dataStore.getObjectsUnion;
+		that.getSubjectsUnion = that.dataStore.getSubjectsUnion;
 		
-        that.dataSource.events.onModelChange.addListener(that.eventModelChange);
+        that.dataStore.events.onModelChange.addListener(that.eventModelChange);
 
         return that;
     };
@@ -1935,11 +1889,11 @@ var jQuery = jQuery || {};
 
         that.selfRender = function() {
             /* do nothing -- needs to be implemented in subclass */
-            that.renderItems(that.options.source, that.options.source.items());
+            that.renderItems(that.options.store, that.options.store.items());
         };
 
-        that.dataView = that.options.source;
-        that.options.source.registerView(that);
+        that.dataView = that.options.store;
+        that.options.store.registerView(that);
         return that;
     };
 } (jQuery, MITHGrid));(function($, MITHGrid) {
@@ -1947,7 +1901,7 @@ var jQuery = jQuery || {};
     Application.initApp = function(klass, container, options) {
         var that = {
             presentation: {},
-            dataSource: {},
+            dataStore: {},
             dataView: {}
         },
         onReady = [];
@@ -1957,14 +1911,18 @@ var jQuery = jQuery || {};
         };
 
 
-        if (options.dataSources !== undefined) {
-            $.each(options.dataSources,
+        if (options.dataStores !== undefined) {
+            $.each(options.dataStores,
             function(idx, config) {
-                var store = MITHGrid.Data.initStore({
-                    source: config.label
-                });
-                that.dataSource[config.label] = store;
-                store.addType('Item');
+                var store;
+				if(that.dataStore[config.label] === undefined) {
+					store = MITHGrid.Data.initStore();
+	                that.dataStore[config.label] = store;
+	                store.addType('Item');
+				}
+				else {
+					store = that.dataStore[config.label];
+				}
                 store.addProperty('label', {
                     valueType: 'text'
                 });
@@ -1994,15 +1952,20 @@ var jQuery = jQuery || {};
             function(idx, config) {
 				var view = {},
 				viewOptions = {
-					source: config.dataSource,
+					store: that.dataStore[config.dataStore],
 					label: config.label
 				};
 				
-				if(config.collection !== undefined) {
-					viewOptions.collection = config.collection;
+				if(that.dataView[config.label] === undefined) {				
+					if(config.collection !== undefined) {
+						viewOptions.collection = config.collection;
+					}
+	                view = MITHGrid.Data.initView(viewOptions);
+	                that.dataView[config.label] = view;
 				}
-                view = MITHGrid.Data.initView(viewOptions);
-                that.dataView[config.label] = view;
+				else {
+					view = that.dataView[config.label];
+				}
             });
         }
 
@@ -2025,7 +1988,7 @@ var jQuery = jQuery || {};
                     if ($.isArray(container)) {
                         pcontainer = pcontainer[0];
                     }
-                    poptions.source = that.dataView[config.dataView];
+                    poptions.store = that.dataView[config.dataView];
 					poptions.application = that;
 					
                     presentation = config.type(pcontainer, poptions);
@@ -2065,10 +2028,10 @@ var jQuery = jQuery || {};
                                 pcontainer = pcontainer[0];
                             }
                             if (config.dataView !== undefined) {
-                                options.source = that.dataView[config.dataView];
+                                options.store = that.dataView[config.dataView];
                             }
                             else if (pconfig.dataView !== undefined) {
-                                options.source = that.dataView[pconfig.dataView];
+                                options.store = that.dataView[pconfig.dataView];
                             }
 							options.application = that;
                             presentation = config.type(pcontainer, options);

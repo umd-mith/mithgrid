@@ -125,7 +125,7 @@ $(document).ready(function() {
         ds2 = MITHGrid.Data.initStore({
             source: "Data.initStore.test"
         });
-        equals(ds.id, ds2.id, "Source constructor returns the same object for the same source name");
+        notEqual(ds.id, ds2.id, "Source constructor returns a different object for the same source name");
 
         ds2 = MITHGrid.Data.initStore({
             source: "Data.initStore.test2"
@@ -340,7 +340,7 @@ $(document).ready(function() {
 		
 		expect(props.length);
 		dv = MITHGrid.Data.initView({
-			source: "Data.initStore.interface_test"
+			store: MITHGrid.Data.initStore()
 		});
 		$.each(props, function(idx, prop) {
 			ok($.isFunction(dv[prop]), "."+prop+" is a function");

@@ -14,11 +14,11 @@
 	 * This is the main application configuration, providing information about the game database, the
 	 * various filtered data views, and the DOM content inside the container.
 	 */
-    MITHGrid.Application.Adventure = function(container, options) {
+    MITHGrid.Application.initAdventure = function(container, options) {
         // the initApp call sets up the basic data sources, views, and presentations we want to use
         var that = MITHGrid.Application.initApp("MITHGrid.Application.Adventure", container, {
             // the game has a single core database of objects, rooms, and actions (words) within a room
-            dataSources: [{
+            dataStores: [{
                 label: 'adventure',
                 // let the database know what kinds of items we expect to have
                 // commands are kept separate since the data source doesn't handle function references yet
@@ -55,7 +55,7 @@
 				 * this data view lists the items that are part of the player's inventory
 				 */
                 label: 'inventory',
-                dataSource: 'adventure',
+                dataStore: 'adventure',
                 /*
 				 * the collection property is used to provide a constant filter for this data view
 				 * data views don't yet let you specify a simple expression or object type, so this
@@ -91,7 +91,7 @@
 				 * There's only one object of type "Player"
 				 */
                 label: 'player',
-                dataSource: 'adventure',
+                dataStore: 'adventure',
                 collection: function(model, id) {
 
                     // only allow the 'player' object in this -- useful for listening for changes to
@@ -587,7 +587,7 @@
             // travels: each entry has 'command', 'condition', 'destination'
             ids.location += 1;
             lastLoc = room.id;
-            that.dataSource.adventure.loadItems([room]);
+            that.dataStore.adventure.loadItems([room]);
         },
         lastOutsideRoom = 0,
         remarkStr = "",
@@ -637,7 +637,7 @@
             }
             lastInst = inst;
             ids.inst += 1;
-            that.dataSource.adventure.loadItems([inst]);
+            that.dataStore.adventure.loadItems([inst]);
         },
         // creates an action synonym for the most recently created action word
         ditto = function(word) {
@@ -646,7 +646,7 @@
             lastInst.id = "inst:" + ids.inst;
             ids.inst += 1;
             lastInst.word = word;
-            that.dataSource.adventure.loadItems([lastInst]);
+            that.dataStore.adventure.loadItems([lastInst]);
         },
         /*
 		 * force: destination
@@ -701,7 +701,7 @@
                 obj.environment = "room:" + location;
             }
             lastObj = obj;
-            that.dataSource.adventure.loadItems([obj]);
+            that.dataStore.adventure.loadItems([obj]);
         },
         /*
 		 * newNote: note
@@ -719,13 +719,13 @@
                 type: 'Note'
             };
             ids.note += 1;
-            that.dataSource.adventure.loadItems([n]);
+            that.dataStore.adventure.loadItems([n]);
         },
         /*
 		 * player() always returns the database info for the player
 		 */
         player = function() {
-            return that.dataSource.adventure.getItem('player');
+            return that.dataStore.adventure.getItem('player');
         },
         /* 
 		 * returns true if the treasure is at the given location 
@@ -735,7 +735,7 @@
             if (treasure.substr(0, 4) !== "obj:") {
                 treasure = "obj:" + treasure;
             }
-            t = that.dataSource.adventure.getItem(treasure);
+            t = that.dataStore.adventure.getItem(treasure);
             return $.inArray("room:" + location, t.environment);
         },
         /*
@@ -746,7 +746,7 @@
             if (treasure.substr(0, 4) !== "obj:") {
                 treasure = "obj:" + treasure;
             }
-            var t = that.dataSource.adventure.getItem(treasure);
+            var t = that.dataStore.adventure.getItem(treasure);
             return t.environment[0] === "player";
         },
         /*
@@ -759,7 +759,7 @@
             if (location !== "player" && location.substr(0, 5) !== "room:") {
                 location = "room:" + location;
             }
-            that.dataSource.adventure.updateItems([{
+            that.dataStore.adventure.updateItems([{
                 id: treasure,
                 environment: location
             }]);
@@ -796,28 +796,28 @@
 		 * returns true if the treasure is in the player's inventory or in the same room as the player
 		 */
         here = function(treasure) {
-            var t = that.dataSource.adventure.getItem("obj:" + treasure);
+            var t = that.dataStore.adventure.getItem("obj:" + treasure);
             return t.environment[0] === "player" || t.environment[0] == player().environment[0];
         },
         /*
 		 * returns true if there is oil in the room (liquid + oil flags)
 		 */
         oilHere = function() {
-            var here = that.dataSource.adventure.getItem(player().environment[0]);
+            var here = that.dataStore.adventure.getItem(player().environment[0]);
             return $.inArray("liquid", here.flags) >= 0 && $.inArray("oil", here.flags) >= 0;
         },
         /*
 		 * returns true if there is neither oil nor water here
 		 */
         noLiquidHere = function() {
-            var here = that.dataSource.adventure.getItem(player().environment[0]);
+            var here = that.dataStore.adventure.getItem(player().environment[0]);
             return $.inArray("liquid", here.flags) === -1;
         },
         /*
 		 * returns true if there is water in the room (liquid flag, but no oil flag)
 		 */
         waterHere = function() {
-            var here = that.dataSource.adventure.getItem(player().environment[0]);
+            var here = that.dataStore.adventure.getItem(player().environment[0]);
             return $.inArray("liquid", here.flags) >= 0 && $.inArray("oil", here.flags) === -1;
         },
         /*
@@ -846,7 +846,7 @@
 		 * this value also affects which note is shown in a room description
 		 */
         getGameProp = function(key) {
-            var item = that.dataSource.adventure.getItem("obj:" + key);
+            var item = that.dataStore.adventure.getItem("obj:" + key);
             if (item === undefined || item.value === undefined) {
                 return 0;
             }
@@ -872,9 +872,9 @@
 		 * set the value of an object - this hides how we're tracking the status of objects
 		 */
         setGameProp = function(key, value) {
-            var item = that.dataSource.adventure.getItem("obj:" + key);
+            var item = that.dataStore.adventure.getItem("obj:" + key);
             if (item === undefined || item.id === undefined) {
-                that.dataSource.adventure.loadItems([{
+                that.dataStore.adventure.loadItems([{
                     id: "obj:" + key,
                     label: key,
                     value: value,
@@ -884,7 +884,7 @@
                 }]);
             }
             else {
-                that.dataSource.adventure.updateItems([{
+                that.dataStore.adventure.updateItems([{
                     id: "obj:" + key,
                     value: value
                 }]);
@@ -915,12 +915,12 @@
         thingsInEnvironment = function(env, bits) {
             var things;
             if (thingsInEnvExpr.evaluate === undefined) {
-                thingsInEnvExpr = that.dataSource.adventure.prepare(["!environment.id"]);
+                thingsInEnvExpr = that.dataStore.adventure.prepare(["!environment.id"]);
             }
             if (env === undefined || env === 0) {
                 env = player().environment[0];
             }
-            things = that.dataSource.adventure.getItems(thingsInEnvExpr.evaluate([env]));
+            things = that.dataStore.adventure.getItems(thingsInEnvExpr.evaluate([env]));
             if (bits === undefined) {
                 return things;
             }
@@ -1072,7 +1072,7 @@
             }
 
             if (thingsInEnvExpr.evaluate === undefined) {
-                thingsInEnvExpr = that.dataSource.adventure.prepare(["!environment.id"]);
+                thingsInEnvExpr = that.dataStore.adventure.prepare(["!environment.id"]);
             }
 
             if (bits.length == 2 && bits[0] === "go") {
@@ -1160,7 +1160,7 @@
                 }
             }
             else {
-                dest = that.dataSource.adventure.getItem(newLoc);
+                dest = that.dataStore.adventure.getItem(newLoc);
                 if (dest === undefined || dest.type === undefined || dest.type[0] !== "Room") {
                     /*
 					 * once the game is complete, this should never happen
@@ -1175,7 +1175,7 @@
 					 * 'FORCE' command on the player, so we may end up back here again
 					 */
                     was_dark = dark;
-                    that.dataSource.adventure.updateItems([{
+                    that.dataStore.adventure.updateItems([{
                         id: "player",
                         environment: newLoc
                     }]);
@@ -1192,7 +1192,7 @@
         });
 
         that.ready(function() {
-            that.dataSource.adventure.loadItems([{
+            that.dataStore.adventure.loadItems([{
                 id: "player",
                 label: "You, the Player",
                 environment: "room:road",
@@ -1201,13 +1201,13 @@
                 type: 'Player'
             }]);
 
-            $('#number-rooms').text($.grep(that.dataSource.adventure.items(),
+            $('#number-rooms').text($.grep(that.dataStore.adventure.items(),
             function(id, idx) {
-                return that.dataSource.adventure.getItem(id).type[0] === "Room"
+                return that.dataStore.adventure.getItem(id).type[0] === "Room"
             }).length);
-            $('#number-objects').text($.grep(that.dataSource.adventure.items(),
+            $('#number-objects').text($.grep(that.dataStore.adventure.items(),
             function(id, idx) {
-                return that.dataSource.adventure.getItem(id).type[0] === "Object"
+                return that.dataStore.adventure.getItem(id).type[0] === "Object"
             }).length);
             $('#number-verbs').text(number_commands + 1);
             // +1 for "go"
@@ -1487,7 +1487,7 @@
                         return;
                     }
 
-                    item = that.dataSource.adventure.getItem("obj:" + nom);
+                    item = that.dataStore.adventure.getItem("obj:" + nom);
                     if (item !== undefined && item.environment !== undefined) {
                         if ($.inArray(playerEnv, item.environment) > -1) {
                             obj = item;
@@ -1578,7 +1578,7 @@
                         return;
                     }
 
-                    item = that.dataSource.adventure.getItem("obj:" + nom);
+                    item = that.dataStore.adventure.getItem("obj:" + nom);
                     if (item !== undefined && item.environment !== undefined) {
                         if ($.inArray(playerEnv, item.environment) > -1) {
                             obj = item;
@@ -1732,7 +1732,7 @@
 
         makeCommand("brief",
         function(bits) {
-            that.dataSource.adventure.updateItems([{
+            that.dataStore.adventure.updateItems([{
                 id: "player",
                 brief: !(player().brief[0])
             }]);
