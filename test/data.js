@@ -57,17 +57,17 @@ $(document).ready(function() {
         ok(set.contains('4'), "confirm '4' is in set");
     });
 
-    module("Data.Type");
+    module("Data.initType");
 
     test("Check type construction",
     function() {
         var type;
 
         expect(4);
-        ok(MITHGrid.Data.Type !== undefined, "Type exists");
-        ok($.isFunction(MITHGrid.Data.Type), "Type is a function");
+        ok(MITHGrid.Data.initType !== undefined, "Type exists");
+        ok($.isFunction(MITHGrid.Data.initType), "Type is a function");
 
-        type = MITHGrid.Data.Type('Foo');
+        type = MITHGrid.Data.initType('Foo');
         equals(typeof type, "object", "Type constructor returns an object");
         equals(type.name, "Foo", "Type .name returns correct name");
     });

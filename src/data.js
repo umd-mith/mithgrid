@@ -72,7 +72,7 @@
         return that;
     };
 
-    Data.Type = function(t) {
+    Data.initType = function(t) {
         var that = {};
 
         that.name = t;
@@ -203,13 +203,13 @@
 		};
 
         that.addType = function(nom, options) {
-            var type = Data.Type(nom);
+            var type = Data.initType(nom);
             types[nom] = type;
         };
 
 		that.getType = function(nom) {
 			if(types[nom] === undefined) {
-				return Data.Type(nom);
+				return Data.initType(nom);
 			}
 			else {
 				return types[nom];

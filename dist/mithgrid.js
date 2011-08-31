@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Mon Jul 18 12:44:37 2011 -0400
+ * Date: Wed Aug 31 08:42:44 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -144,7 +144,7 @@ var jQuery = jQuery || {};
         return that;
     };
 
-    Data.Type = function(t) {
+    Data.initType = function(t) {
         var that = {};
 
         that.name = t;
@@ -275,13 +275,13 @@ var jQuery = jQuery || {};
 		};
 
         that.addType = function(nom, options) {
-            var type = Data.Type(nom);
+            var type = Data.initType(nom);
             types[nom] = type;
         };
 
 		that.getType = function(nom) {
 			if(types[nom] === undefined) {
-				return Data.Type(nom);
+				return Data.initType(nom);
 			}
 			else {
 				return types[nom];
