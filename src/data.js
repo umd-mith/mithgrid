@@ -93,7 +93,7 @@
         return that;
     };
 
-    Data.Source = function(options) {
+    Data.initStore = function(options) {
         var that,
         prop,
         quiesc_events = false,
@@ -176,7 +176,7 @@
         if (sources[options.source] !== undefined) {
             return sources[options.source];
         }
-        that = fluid.initView("MITHGrid.Data.Source", $(window), options);
+        that = fluid.initView("MITHGrid.Data.initStore", $(window), options);
         sources[options.source] = that;
 
         that.source = options.source;
@@ -711,7 +711,7 @@
 
         that.eventFilterChange = that.eventModelChange;
 
-        that.dataSource = Data.Source({
+        that.dataSource = Data.initStore({
             source: options.source
         });
 

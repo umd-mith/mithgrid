@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Wed Aug 31 08:51:55 2011 -0400
+ * Date: Wed Aug 31 08:53:19 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -165,7 +165,7 @@ var jQuery = jQuery || {};
         return that;
     };
 
-    Data.Source = function(options) {
+    Data.initStore = function(options) {
         var that,
         prop,
         quiesc_events = false,
@@ -248,7 +248,7 @@ var jQuery = jQuery || {};
         if (sources[options.source] !== undefined) {
             return sources[options.source];
         }
-        that = fluid.initView("MITHGrid.Data.Source", $(window), options);
+        that = fluid.initView("MITHGrid.Data.initStore", $(window), options);
         sources[options.source] = that;
 
         that.source = options.source;
@@ -783,7 +783,7 @@ var jQuery = jQuery || {};
 
         that.eventFilterChange = that.eventModelChange;
 
-        that.dataSource = Data.Source({
+        that.dataSource = Data.initStore({
             source: options.source
         });
 
@@ -1955,7 +1955,7 @@ var jQuery = jQuery || {};
         if (options.dataSources !== undefined) {
             $.each(options.dataSources,
             function(idx, config) {
-                var store = MITHGrid.Data.Source({
+                var store = MITHGrid.Data.initStore({
                     source: config.label
                 });
                 that.dataSource[config.label] = store;
@@ -2154,7 +2154,7 @@ var jQuery = jQuery || {};
 		return that;
 	};
 	
-}(jQuery, MITHGrid));fluid.defaults("MITHGrid.Data.Source", {
+}(jQuery, MITHGrid));fluid.defaults("MITHGrid.Data.initStore", {
     events: {
         onModelChange: null,
         onBeforeLoading: null,

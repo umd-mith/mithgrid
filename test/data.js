@@ -91,7 +91,7 @@ $(document).ready(function() {
         equals("item", prop.getValueType(), "Property .getValueType returns correct type");
     });
 
-    module("Data.Source");
+    module("Data.initStore");
 
 	test("Check interface",
 	function() {
@@ -100,8 +100,8 @@ $(document).ready(function() {
 		          "fetchData", "updateItems", "loadItems", "prepare", "getObjectsUnion", "getSubjectsUnion" ];
 		
 		expect(props.length);
-		ds = MITHGrid.Data.Source({
-			source: "Data.Source.interface_test"
+		ds = MITHGrid.Data.initStore({
+			source: "Data.initStore.interface_test"
 		});
 		$.each(props, function(idx, prop) {
 			ok($.isFunction(ds[prop]), "."+prop+" is a function");
@@ -114,21 +114,21 @@ $(document).ready(function() {
         ds2;
 
         expect(5);
-        ok(MITHGrid.Data.Source !== undefined, "Data.Source exists");
-        ok($.isFunction(MITHGrid.Data.Source), "Data.Source is a function");
+        ok(MITHGrid.Data.initStore !== undefined, "Data.initStore exists");
+        ok($.isFunction(MITHGrid.Data.initStore), "Data.initStore is a function");
 
-        ds = MITHGrid.Data.Source({
-            source: "Data.Source.test"
+        ds = MITHGrid.Data.initStore({
+            source: "Data.initStore.test"
         });
         equals(typeof ds, "object", "Source constructor returns an object");
 
-        ds2 = MITHGrid.Data.Source({
-            source: "Data.Source.test"
+        ds2 = MITHGrid.Data.initStore({
+            source: "Data.initStore.test"
         });
         equals(ds.id, ds2.id, "Source constructor returns the same object for the same source name");
 
-        ds2 = MITHGrid.Data.Source({
-            source: "Data.Source.test2"
+        ds2 = MITHGrid.Data.initStore({
+            source: "Data.initStore.test2"
         });
         notEqual(ds2.id, ds.id, "Source constructor returns different objects for different source names");
     });
@@ -138,8 +138,8 @@ $(document).ready(function() {
         var ds, t;
 
         expect(9);
-        ds = MITHGrid.Data.Source({
-            source: "Data.Source.test3"
+        ds = MITHGrid.Data.initStore({
+            source: "Data.initStore.test3"
         });
         equals("object", typeof ds, "Source constructed");
 
@@ -174,8 +174,8 @@ $(document).ready(function() {
         item;
 
         expect(20);
-        ds = MITHGrid.Data.Source({
-            source: "Data.Source.test4"
+        ds = MITHGrid.Data.initStore({
+            source: "Data.initStore.test4"
         });
         equals(ds.items().length, 0, "Data source begins empty");
 
@@ -277,8 +277,8 @@ $(document).ready(function() {
         ids;
 
         expect(14);
-        ds = MITHGrid.Data.Source({
-            source: "Data.Source.test5"
+        ds = MITHGrid.Data.initStore({
+            source: "Data.initStore.test5"
         });
         equals(ds.items().length, 0, "Data source begins empty");
 
@@ -340,7 +340,7 @@ $(document).ready(function() {
 		
 		expect(props.length);
 		dv = MITHGrid.Data.View({
-			source: "Data.Source.interface_test"
+			source: "Data.initStore.interface_test"
 		});
 		$.each(props, function(idx, prop) {
 			ok($.isFunction(dv[prop]), "."+prop+" is a function");

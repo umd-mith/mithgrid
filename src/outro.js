@@ -1,4 +1,4 @@
-fluid.defaults("MITHGrid.Data.Source", {
+fluid.defaults("MITHGrid.Data.initStore", {
     events: {
         onModelChange: null,
         onBeforeLoading: null,

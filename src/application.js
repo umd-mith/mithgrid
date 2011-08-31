@@ -16,7 +16,7 @@
         if (options.dataSources !== undefined) {
             $.each(options.dataSources,
             function(idx, config) {
-                var store = MITHGrid.Data.Source({
+                var store = MITHGrid.Data.initStore({
                     source: config.label
                 });
                 that.dataSource[config.label] = store;
