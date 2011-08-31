@@ -90,7 +90,7 @@
         };
 
         that.dataView = that.options.store;
-        that.options.store.registerView(that);
+        that.dataView.registerPresentation(that);
         return that;
     };
 } (jQuery, MITHGrid));

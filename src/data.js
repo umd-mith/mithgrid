@@ -622,7 +622,7 @@
             ob.events.onFilterChange.addListener(that.eventFilterChange);
         };
 
-        that.registerView = function(ob) {
+        that.registerPresentation = function(ob) {
             that.events.onModelChange.addListener(function(m, i) {
                 ob.eventModelChange(m, i);
             });
