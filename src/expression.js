@@ -683,7 +683,7 @@
                     operator = token.value;
                     next();
 
-                    expression = Expression.initOperator(operator, [expression, parseSubExpression]);
+                    expression = Expression.initOperator(operator, [expression, parseSubExpression()]);
                 }
                 return expression;
             },

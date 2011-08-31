@@ -1,12 +1,13 @@
 (function($, MITHGrid) {
 	MITHGrid.Application.Example = function(container, options) {
 		var that = MITHGrid.Application.initApp("MITHGrid.Application.Example", container, {
-	        dataSources: [{
+	        dataStores: [{
 	            label: 'internal'
 			}],
 			dataViews: [{
 	            label: 'internal',
-	            dataSource: 'internal'
+	            dataStore: 'internal',
+				types: ["View", "Transition"]
 	        }],
 			plugins: [{
 				type: MITHGrid.Plugin.StateMachineEditor,
@@ -36,7 +37,7 @@
 	        var create_view = function(label, x, y) {
 	            var id = 'view-' + views_counter;
 	            views_counter += 1;
-	            that.dataSource.internal.loadItems([{
+	            that.dataStore.internal.loadItems([{
 	                label: label,
 	                id: id,
 	                "position-x": x,
@@ -48,7 +49,7 @@
 	        var create_transition = function(from, to) {
 	            var id = 'transition-' + views_counter;
 	            views_counter += 1;
-	            that.dataSource.internal.loadItems([{
+	            that.dataStore.internal.loadItems([{
 	                label: 'transition from ' + from + ' to ' + to,
 	                id: id,
 	                "transition-from": from,
@@ -70,5 +71,5 @@
 		return that;
 	};
 	
-	MITHGrid.Application.Example().run();
+//	MITHGrid.Application.Example().run();
 })(jQuery, MITHGrid);

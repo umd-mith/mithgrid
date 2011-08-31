@@ -1,6 +1,6 @@
 (function($, MITHGrid) {
     MITHGrid.Presentation.Flow = function(container, options) {
-        var that = MITHGrid.Presentation.initView("Flow", container, options),
+        var that = MITHGrid.Presentation.initPresentation("Flow", container, options),
         _floor_0 = function(x) {
             return (x < 0 ? 0: x);
         },
@@ -41,21 +41,21 @@
             that.startDisplayUpdate();
             var views = [],
             transitions = [];
-            $.each(that.options.source.items(),
+            $.each(that.dataView.items(),
             function(idx, id) {
-                var t = that.options.source.getItem(id);
-                if (t) {
+                var t = that.dataView.getItem(id);
+                if (t && t.type !== undefined) {
                     t = t.type[0];
-                    if (t == 'View') {
+                    if (t === 'View') {
                         views.push(id);
                     }
-                    else if (t == 'Transition') {
+                    else if (t === 'Transition') {
                         transitions.push(id);
                     }
                 }
             });
-            that.renderItems(that.options.source, views);
-            that.renderItems(that.options.source, transitions);
+            that.renderItems(that.dataView, views);
+            that.renderItems(that.dataView, transitions);
             that.finishDisplayUpdate();
         };
         that.startDisplayUpdate = function() {};
@@ -110,7 +110,6 @@
                     // Get all transitions pointing to this View
                     // if rendered, call their update function
                     var transition_ids = $.unique(transition_id_exprs.evaluate(itemId));
-
                     $.each(transition_ids,
                     function(idx, id) {
                         var r = view.renderingFor(id);
@@ -118,7 +117,7 @@
                             r.update(model.getItem(id));
                         }
                         else {
-                            that.renderItems([id]);
+                            that.renderItems(model, [id]);
                         }
                     });
                 }
@@ -135,6 +134,13 @@
                 that.height = function() {
                     return height;
                 };
+
+				that.remove = function() { 
+					if(that.shape !== undefined) {
+						that.shape.remove();
+					}
+				};
+				
                 c.drag(move, start, up);
                 that.shape = c;
                 return that;
@@ -257,9 +263,17 @@
                 };
 
                 that.update = function(item) {
-                    that.shape.remove();
+					if(that.shape !== undefined) {
+                    	that.shape.remove();
+					}
                     draw_path();
                 };
+
+				that.remove = function() {
+					if(that.shape !== undefined) {
+						that.shape.remove();
+					}
+				};
 
                 draw_path();
                 return that;
@@ -272,7 +286,7 @@
         };
 
         that.getLens = function(item) {
-            if (item.type[0] in lenses) {
+            if (item.type !== undefined && lenses[item.type[0]] !== undefined) {
                 return lenses[item.type[0]];
             }
             return false;

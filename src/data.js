@@ -349,14 +349,15 @@
                         items = [items];
                     }
                     s = items.length;
-                    if (old_item[p] !== undefined) {
-						if(itemListIdentical(items, old_item[p])) {
-							continue;
-						}
+                    if (old_item[p] === undefined) {
+						putValues(id, p, items);
+						changed = true;
+					}
+					else if(!itemListIdentical(items, old_item[p])) {
 						changed = true;
 						removeValues(id, p, old_item[p]);
+						putValues(id, p, items);
                     }
-					putValues(id, p, items);
                 }
                 return changed;
             };
@@ -397,14 +398,14 @@
 			        0);
 			    }
 			    else {
-			        setTimeout(function() {
+			       // setTimeout(function() {
 			            that.events.onAfterUpdating.fire(that);
-			            setTimeout(function() {
+			   //         setTimeout(function() {
 			                that.events.onModelChange.fire(that, id_list);
-			            },
-			            0);
-			        },
-			        0);
+			 //           },
+			 //           0);
+		//	        },
+		//	        0);
 			    }
 			};
 			f(0);
@@ -562,10 +563,7 @@
             f;
 
             set = Data.initSet();
-
-            that.items = set.items;
-            that.size = set.size;
-			that.contains = set.contains;
+           
             ids = that.dataStore.items();
             n = ids.length;
             if (n === 0) {
@@ -602,6 +600,9 @@
                     0);
                 }
                 else {
+					that.items = set.items;
+			        that.size = set.size;
+					that.contains = set.contains;
                     if (endFn) {
                         setTimeout(endFn, 0);
                     }
@@ -635,6 +636,67 @@
         that.size = set.size;
 		that.contains = set.contains;
 
+		if(options.types !== undefined && options.types.length > 0) {
+			(function(types) {
+				var n = types.length;
+				that.registerFilter({
+					eventFilterItem: function(model, id) {
+						var item = model.getItem(id), i;
+
+						if(item.type === undefined) {
+							return false;
+						}
+						for(i = 0; i < n; i += 1) {
+							if($.inArray(types[i], item.type) !== -1) {
+								return;
+							}
+						}
+						return false;
+					},
+					eventModelChange: function(x,y){},
+					events: {
+						onFilterChange: {
+							addListener: function(x) {}
+						}
+					}
+				});
+			}(options.types));
+		}
+		
+		if(options.filters !== undefined && options.filters.length > 0) {
+			(function(filters) {
+				var parser = MITHGrid.Expression.initParser(), 
+					n = filters.length,
+					parsedFilters = $.map(filters, function(ex) {
+							return parser.parse(ex);
+						}
+					);
+										
+				that.registerFilter({
+					eventFilterItem: function(model, id) {
+						var values = [], i, m;
+						for(i = 0; i < n; i += 1) {
+							values = parsedFilters[i].evaluateOnItem(id, model);
+							values = values.values.items();
+							m = values.length;
+							for(i = 0; i < m; i += 1) {
+								if(values[i] !== "false") {
+									return;
+								}
+							}
+						}
+						return false;
+					},
+					eventModelChange: function(x, y) {},
+					events: {
+						onFilterChange: {
+							addListener: function(x) {}
+						}
+					}
+				});
+			}(options.filters));
+		}
+		
 		if(options.collection !== undefined) {
 			that.registerFilter({
 				eventFilterItem: options.collection,

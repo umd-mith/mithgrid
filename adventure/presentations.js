@@ -11,7 +11,7 @@
  * of objects in the Adventure game.
  */
 MITHGrid.Presentation.TextList = function(container, options) {
-    var that = MITHGrid.Presentation.initView("TextList", container, options);
+    var that = MITHGrid.Presentation.initPresentation("TextList", container, options);
 
     that.startDisplayUpdate = function() {};
     that.finishDisplayUpdate = function() {};
@@ -19,44 +19,4 @@ MITHGrid.Presentation.TextList = function(container, options) {
     return that;
 };
 
-/*
- * The room description presentation pulls together a description of the room, the allowed actions in
- * the room, and a list of objects present in the room.
- *
- * This information is appended to the container instead of replacing the previous results.
- *
- * The 'render' function in the roomLens is called when the game starts.  After that, the
- * update function on the object that render() returns is called when the player's object is updated.
- *
- */
-MITHGrid.Presentation.RoomDescription = function(container, options) {
-    var that = MITHGrid.Presentation.initView("RoomDescription", container, options),
-	game = that.options.application;
-
-	that.getLens = function(item) {
-		// we get light or dark lenses based on the state of the game
-		var lensBase = {};
-		
-		if(game.isDark()) {	
-		 	if(!game.wasForced()) {
-				lensBase = that.options.lenses.isDark.wasNotForced;
-			}
-			else {
-				lensBase = that.options.lenses.isDark.wasForced;
-			}
-		}
-		else {
-			lensBase = that.options.lenses.isLight;
-		}
-		
-		if(lensBase[item.type[0]] !== undefined) {
-			return { render: lensBase[item.type[0]] };
-		}
-	};
-	
-    that.startDisplayUpdate = function() {};
-    that.finishDisplayUpdate = function() {};
-
-    return that;
-}
 } (jQuery, MITHGrid));

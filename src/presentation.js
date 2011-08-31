@@ -1,7 +1,7 @@
 (function($, MITHGrid) {
     MITHGrid.namespace('Presentation');
 
-    MITHGrid.Presentation.initView = function(type, container, options) {
+    MITHGrid.Presentation.initPresentation = function(type, container, options) {
         var that = fluid.initView("MITHGrid.Presentation." + type, container, options),
         renderings = {}, lenses = that.options.lenses;
         options = that.options;

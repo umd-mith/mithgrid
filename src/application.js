@@ -62,6 +62,12 @@
 					if(config.collection !== undefined) {
 						viewOptions.collection = config.collection;
 					}
+					if(config.types !== undefined) {
+						viewOptions.types = config.types;
+					}
+					if(config.filters !== undefined) {
+						viewOptions.filters = config.filters;
+					}
 	                view = MITHGrid.Data.initView(viewOptions);
 	                that.dataView[config.label] = view;
 				}
