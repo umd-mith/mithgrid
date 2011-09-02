@@ -15,15 +15,15 @@
 
         if (options.dataStores !== undefined) {
             $.each(options.dataStores,
-            function(idx, config) {
+            function(storeName, config) {
                 var store;
-				if(that.dataStore[config.label] === undefined) {
+				if(that.dataStore[storeName] === undefined) {
 					store = MITHGrid.Data.initStore();
-	                that.dataStore[config.label] = store;
+	                that.dataStore[storeName] = store;
 	                store.addType('Item');
 				}
 				else {
-					store = that.dataStore[config.label];
+					store = that.dataStore[storeName];
 				}
                 store.addProperty('label', {
                     valueType: 'text'
@@ -36,14 +36,14 @@
                 });
                 if (config.types !== undefined) {
                     $.each(config.types,
-                    function(idx, type) {
-                        store.addType(type.label);
+                    function(type, typeInfo) {
+                        store.addType(type);
                     });
                 }
                 if (config.properties !== undefined) {
                     $.each(config.properties,
-                    function(idx, property) {
-                        store.addProperty(property.label, property);
+                    function(prop, propOptions) {
+                        store.addProperty(prop, propOptions);
                     });
                 }
             });
@@ -51,14 +51,14 @@
 
         if (options.dataViews !== undefined) {
             $.each(options.dataViews,
-            function(idx, config) {
+            function(viewName, config) {
 				var view = {},
 				viewOptions = {
 					dataStore: that.dataStore[config.dataStore],
-					label: config.label
+					label: viewName
 				};
 				
-				if(that.dataView[config.label] === undefined) {				
+				if(that.dataView[viewName] === undefined) {				
 					if(config.collection !== undefined) {
 						viewOptions.collection = config.collection;
 					}
@@ -69,10 +69,10 @@
 						viewOptions.filters = config.filters;
 					}
 	                view = MITHGrid.Data.initView(viewOptions);
-	                that.dataView[config.label] = view;
+	                that.dataView[viewName] = view;
 				}
 				else {
-					view = that.dataView[config.label];
+					view = that.dataView[viewName];
 				}
             });
         }
@@ -89,7 +89,7 @@
         if (options.presentations !== undefined) {
             that.ready(function() {
                 $.each(options.presentations,
-                function(idx, config) {
+                function(pName, config) {
                     var poptions = $.extend(true, {}, config),
                     pcontainer = $('#' + $(container).attr('id') + ' > ' + config.container),
                     presentation;
@@ -100,7 +100,7 @@
 					poptions.application = that;
 					
                     presentation = config.type(pcontainer, poptions);
-                    that.presentation[config.label] = presentation;
+                    that.presentation[pName] = presentation;
                     presentation.selfRender();
                 });
             });

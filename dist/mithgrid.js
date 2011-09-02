@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Wed Aug 31 15:41:31 2011 -0400
+ * Date: Wed Aug 31 16:03:32 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -1973,15 +1973,15 @@ var jQuery = jQuery || {};
 
         if (options.dataStores !== undefined) {
             $.each(options.dataStores,
-            function(idx, config) {
+            function(storeName, config) {
                 var store;
-				if(that.dataStore[config.label] === undefined) {
+				if(that.dataStore[storeName] === undefined) {
 					store = MITHGrid.Data.initStore();
-	                that.dataStore[config.label] = store;
+	                that.dataStore[storeName] = store;
 	                store.addType('Item');
 				}
 				else {
-					store = that.dataStore[config.label];
+					store = that.dataStore[storeName];
 				}
                 store.addProperty('label', {
                     valueType: 'text'
@@ -1994,14 +1994,14 @@ var jQuery = jQuery || {};
                 });
                 if (config.types !== undefined) {
                     $.each(config.types,
-                    function(idx, type) {
-                        store.addType(type.label);
+                    function(type, typeInfo) {
+                        store.addType(type);
                     });
                 }
                 if (config.properties !== undefined) {
                     $.each(config.properties,
-                    function(idx, property) {
-                        store.addProperty(property.label, property);
+                    function(prop, propOptions) {
+                        store.addProperty(prop, propOptions);
                     });
                 }
             });
@@ -2009,14 +2009,14 @@ var jQuery = jQuery || {};
 
         if (options.dataViews !== undefined) {
             $.each(options.dataViews,
-            function(idx, config) {
+            function(viewName, config) {
 				var view = {},
 				viewOptions = {
 					dataStore: that.dataStore[config.dataStore],
-					label: config.label
+					label: viewName
 				};
 				
-				if(that.dataView[config.label] === undefined) {				
+				if(that.dataView[viewName] === undefined) {				
 					if(config.collection !== undefined) {
 						viewOptions.collection = config.collection;
 					}
@@ -2027,10 +2027,10 @@ var jQuery = jQuery || {};
 						viewOptions.filters = config.filters;
 					}
 	                view = MITHGrid.Data.initView(viewOptions);
-	                that.dataView[config.label] = view;
+	                that.dataView[viewName] = view;
 				}
 				else {
-					view = that.dataView[config.label];
+					view = that.dataView[viewName];
 				}
             });
         }
@@ -2047,7 +2047,7 @@ var jQuery = jQuery || {};
         if (options.presentations !== undefined) {
             that.ready(function() {
                 $.each(options.presentations,
-                function(idx, config) {
+                function(pName, config) {
                     var poptions = $.extend(true, {}, config),
                     pcontainer = $('#' + $(container).attr('id') + ' > ' + config.container),
                     presentation;
@@ -2058,7 +2058,7 @@ var jQuery = jQuery || {};
 					poptions.application = that;
 					
                     presentation = config.type(pcontainer, poptions);
-                    that.presentation[config.label] = presentation;
+                    that.presentation[pName] = presentation;
                     presentation.selfRender();
                 });
             });
