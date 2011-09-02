@@ -17,7 +17,7 @@
 	MITHGrid.Application.namespace("Adventure");
     MITHGrid.Application.Adventure.initApp = function(container, options) {
         // the initApp call sets up the basic data sources, views, and presentations we want to use
-        var that = MITHGrid.Application.initApp("MITHGrid.Application.Adventure", container, options, {
+        var that = MITHGrid.Application.initApp("MITHGrid.Application.Adventure", container, $.extend(true, {}, options, {
 		    /*
 			 * here, we tie the presentation definitions from presentations.js to the DOM elements that will house
 			 * the presentation 
@@ -227,7 +227,7 @@
 			            }
 			        }
 				}
-			}),
+			})),
         selector = {},
         // holds DOM selectors for various parts of the game display
         commands = {},
