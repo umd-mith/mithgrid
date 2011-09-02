@@ -14,293 +14,220 @@
 	 * This is the main application configuration, providing information about the game database, the
 	 * various filtered data views, and the DOM content inside the container.
 	 */
-    MITHGrid.Application.initAdventure = function(container, options) {
+	MITHGrid.Application.namespace("Adventure");
+    MITHGrid.Application.Adventure.initApp = function(container, options) {
         // the initApp call sets up the basic data sources, views, and presentations we want to use
-        var that = MITHGrid.Application.initApp("MITHGrid.Application.Adventure", container, {
-            // the game has a single core database of objects, rooms, and actions (words) within a room
-            dataStores: {
-				adventure: {
-	                // let the database know what kinds of items we expect to have
-	                // commands are kept separate since the data source doesn't handle function references yet
-	                types: {
-						Player: {},
-						Room: {},
-						"Object": {},
-						Word: {},
-						Note: {}
-	                },
-	                // let the database know that the 'environment' and 'object' properties point to other items
-	                properties: {
-						environment: {
-	                    	valueType: "Item"
-	                	},
-	                	object: {
-	                    	valueType: "Item"
-	                	}
-					}
-				}
-            },
-            /*
-			 * we have a number of data views that let us see when particular items in the database have changed
-			 */
-            dataViews: {
-				inventory: {
- 	               /*
-					 * this data view lists the items that are part of the player's inventory
-					 */
-	                dataStore: 'adventure',
-					types: ["Object"],
-					filters: [".environment = 'player'"],
-	            },
-				player: {
-	                /*
-					 * this data view is the player, so we can watch this model for events such as
-					 * a player moving from one room to another room.
-					 *
-					 * There's only one object of type "Player"
-					 */
-	                dataStore: 'adventure',
-					types: ["Player"],
-            	}
-			},
-            /*
-			 * This is the DOM content we want within our configured container, but we need to wait
-			 * until the DOM is ready before we try to add this
-			 */
-            viewSetup:
-            "<div class='room'>" +
-            "<div class='description'></div>" +
-            "<div class='objects'></div>" +
-            "</div>" +
-            "<div class='score-holder'>" +
-            "<h2>Score</h2>" +
-            "<div class='score'></div>" +
-            "</div>" +
-            "<div class='inventory-holder'>" +
-            "<h2>Inventory</h2>" +
-            "<ul class='inventory'></ul>" +
-            "</div>" +
-            "<div class='compass'>" +
-            "<span class='n'>N</span>" +
-            "<span class='e'>E</span>" +
-            "<span class='w'>W</span>" +
-            "<span class='s'>S</span>" +
-            "<span class='u'>U</span>" +
-            "<span class='d'>D</span>" +
-            "</div>" +
-            "<div class='cli'>" +
-            "<input class='cli-input' type='text' name='command'></input>" +
-            "</div>",
-            /*
+        var that = MITHGrid.Application.initApp("MITHGrid.Application.Adventure", container, options, {
+		    /*
 			 * here, we tie the presentation definitions from presentations.js to the DOM elements that will house
 			 * the presentation 
 			 * we also point the presentation at the appropriate filtered data view
 			 * the label is used to refer to the presentation later if we need to:
 			 *   that.presentation[label]
 			 */
-            presentations: {
-				inventory: {
-	                type: MITHGrid.Presentation.TextList,
-	                container: ".inventory-holder > .inventory",
-	                dataView: 'inventory',
-	                lenses: {
-	                    "Object": function(container, view, model, itemId) {
-	                        var that = {},
-	                        el,
-	                        item = model.getItem(itemId);
+			    presentations: {
+					inventory: {
+			            type: MITHGrid.Presentation.TextList,
+			            container: ".inventory-holder > .inventory",
+			            dataView: 'inventory',
+			            lenses: {
+			                "Object": function(container, view, model, itemId) {
+			                    var that = {},
+			                    el,
+			                    item = model.getItem(itemId);
 
-	                        el = $('<li>' + item.name[0] + '</li>');
-	                        $(container).append(el);
+			                    el = $('<li>' + item.name[0] + '</li>');
+			                    $(container).append(el);
 
-	                        that.update = function(item) {};
+			                    that.update = function(item) {};
 
-	                        that.remove = function() {
-	                            $(el).remove();
-	                        };
+			                    that.remove = function() {
+			                        $(el).remove();
+			                    };
 
-	                        return that;
-	                    }
-	                }
-	            },
-            	score: {
-	                type: MITHGrid.Presentation.TextList,
-	                container: ".score-holder > .score",
-	                dataView: 'player',
-					lenses: {
-						Player: function(container, view, model, itemId) {
-							var that = { },
-							el,
-							doRender = function() {
-								var player = model.getItem(itemId);
-								el = $("<span>0</span>");
-								$(el).appendTo(container);
-								el.text(player.score[0]);
-							};
+			                    return that;
+			                }
+			            }
+			        },
+			    	score: {
+			            type: MITHGrid.Presentation.TextList,
+			            container: ".score-holder > .score",
+			            dataView: 'player',
+						lenses: {
+							Player: function(container, view, model, itemId) {
+								var that = { },
+								el,
+								doRender = function() {
+									var player = model.getItem(itemId);
+									el = $("<span>0</span>");
+									$(el).appendTo(container);
+									el.text(player.score[0]);
+								};
 
-							that.update = function(item) {
-								el.text(item.score[0]);
-							};
+								that.update = function(item) {
+									el.text(item.score[0]);
+								};
 
-							doRender();
-							return that;
+								doRender();
+								return that;
+							}
 						}
-					}
-	            },
-            	room: {
-	                type: MITHGrid.Presentation.TextList,
-	                container: ".room > .description",
-	                dataView: 'player',
-	                lenses: {
-						Player: function(container, view, model, itemId) {
-				            var rendering = {}, // here, "that" refers to the game application
-				            el, el2,
-							thingsInEnvExpr = model.prepare(["!environment.id"]),
-							notesForObjectExpr = model.prepare(["!object.id"]),
-				            room = model.getItem(model.getItem('player').environment[0]);
+			        },
+			    	room: {
+			            type: MITHGrid.Presentation.TextList,
+			            container: ".room > .description",
+			            dataView: 'player',
+			            lenses: {
+							Player: function(container, view, model, itemId) {
+					            var rendering = {}, // here, "that" refers to the game application
+					            el, el2,
+								thingsInEnvExpr = model.prepare(["!environment.id"]),
+								notesForObjectExpr = model.prepare(["!object.id"]),
+					            room = model.getItem(model.getItem('player').environment[0]);
 
-							/* thingsInEnvExpr is a prepared expression that will find all of the things in the game database
-							 * that share the same environment as the provided object id - in this case, it will be the id
-							 * of the room that the player is in
-							 */
-							var doRender = function(override_brief) {
-								var things = { "Word": [], "Object": [] },
-								thingIds = thingsInEnvExpr.evaluate([room.id[0]]),
-								player = model.getItem('player'),
-								roomDesc = "", hasForce = false, bear;
+								/* thingsInEnvExpr is a prepared expression that will find all of the things in the game database
+								 * that share the same environment as the provided object id - in this case, it will be the id
+								 * of the room that the player is in
+								 */
+								var doRender = function(override_brief) {
+									var things = { "Word": [], "Object": [] },
+									thingIds = thingsInEnvExpr.evaluate([room.id[0]]),
+									player = model.getItem('player'),
+									roomDesc = "", hasForce = false, bear;
 
-								//console.log(thingIds);
-								if(that.isDark() && !that.wasForced()) {
-									roomDesc = ""
-								}
-								else {
-									if(player.brief[0] || (room.timesHere[0] % 5 !== 0)) {
-										roomDesc = room.brief[0];
+									//console.log(thingIds);
+									if(that.isDark() && !that.wasForced()) {
+										roomDesc = ""
 									}
-									if(roomDesc === "" || roomDesc === undefined || override_brief === true) {
-										roomDesc = room.description[0];
-					                }
-								}
-
-								if(!that.isDark()) {
-					                // look for items with the same environment -- append them to $(container)
-									$.each(thingIds, function(idx, thing) {
-										var item = model.getItem(thing);
-										if(item.type !== undefined) {
-											things[item.type[0]] = things[item.type[0]] || [];
-											things[item.type[0]].push(item);
+									else {
+										if(player.brief[0] || (room.timesHere[0] % 5 !== 0)) {
+											roomDesc = room.brief[0];
 										}
-									});
+										if(roomDesc === "" || roomDesc === undefined || override_brief === true) {
+											roomDesc = room.description[0];
+						                }
+									}
 
-									/* available items have a type of 'Object' */
-									if (things.Object.length > 0) {
-									    $.each(things.Object,
-									    function(idx, object) {
-									        var notes = [ ],
-											note_idx = 0;
-
-											// we want to find the first note associated with this object
-											// the 'value' property of the item indexes the notes
-											if(object.value !== undefined) {
-												note_idx = object.value[0];
+									if(!that.isDark()) {
+						                // look for items with the same environment -- append them to $(container)
+										$.each(thingIds, function(idx, thing) {
+											var item = model.getItem(thing);
+											if(item.type !== undefined) {
+												things[item.type[0]] = things[item.type[0]] || [];
+												things[item.type[0]].push(item);
 											}
+										});
 
-											notes = model.getItems(notesForObjectExpr.evaluate([object.id[0]]));
-
-											if(notes.length < note_idx) {
+										/* available items have a type of 'Object' */
+										if (things.Object.length > 0) {
+										    $.each(things.Object,
+										    function(idx, object) {
+										        var notes = [ ],
 												note_idx = 0;
+
+												// we want to find the first note associated with this object
+												// the 'value' property of the item indexes the notes
+												if(object.value !== undefined) {
+													note_idx = object.value[0];
+												}
+
+												notes = model.getItems(notesForObjectExpr.evaluate([object.id[0]]));
+
+												if(notes.length < note_idx) {
+													note_idx = 0;
+												}
+												if(notes.length === 0) {
+													roomDesc += " You see a " + object.name[0].toLowerCase + ". ";
+												}
+												else {
+													if(notes[note_idx].content[0]) {
+														roomDesc += " " + notes[note_idx].content[0] + " ";
+													}
+												}
+										    });
+										}
+									}
+
+									/* available actions have a type of 'Word' */
+									if(things.Word.length > 0) {
+										things.WordHash = { };
+										things.WordList = [ ];
+										$.each(things.Word, function(idx, word) {
+											if(things.WordHash[word.word[0]] === undefined) {
+												things.WordHash[word.word[0]] = [];
+												things.WordList.push(word.word[0]);
 											}
-											if(notes.length === 0) {
-												roomDesc += " You see a " + object.name[0].toLowerCase + ". ";
+											things.WordHash[word.word[0]].push(word);
+										});
+										$.each(["N", "E", "S", "W", "U", "D"], function(idx, w) {
+											var words = things.WordHash[w],
+											cmdEl = $(".compass > ." + w.toLowerCase());
+											if(words === undefined || that.isDark()) {
+												cmdEl.addClass("unavailable");
 											}
 											else {
-												if(notes[note_idx].content[0]) {
-													roomDesc += " " + notes[note_idx].content[0] + " ";
-												}
+												cmdEl.removeClass("unavailable");
 											}
-									    });
-									}
-								}
+										});
 
-								/* available actions have a type of 'Word' */
-								if(things.Word.length > 0) {
-									things.WordHash = { };
-									things.WordList = [ ];
-									$.each(things.Word, function(idx, word) {
-										if(things.WordHash[word.word[0]] === undefined) {
-											things.WordHash[word.word[0]] = [];
-											things.WordList.push(word.word[0]);
+										if(things.WordHash.FORCE !== undefined && things.WordHash.FORCE.length > 0) {
+											// we force the player to do these
+											hasForce = true;
+											setTimeout(function() {
+												game.parseCommand("force");
+											}, 0);
 										}
-										things.WordHash[word.word[0]].push(word);
+									}
+
+									if(hasForce) {
+										el = $("<p class='info'>" + roomDesc + "</p>");
+									}
+									else if(!that.isDark()){
+										bear = model.getItem("obj:bear");
+										if(bear.environment[0] === "player") {
+											roomDesc += " You are being followed by a very large, tame bear.";
+										}
+										el = $('<p class="desc">' + roomDesc + '</p>');
+									}
+
+					                $(container).append(el);
+
+									$(container).parent().animate({
+										scrollTop: $(el).offset().top - $(container).parent().offset().top + $(container).parent().scrollTop()
 									});
-									$.each(["N", "E", "S", "W", "U", "D"], function(idx, w) {
-										var words = things.WordHash[w],
-										cmdEl = $(".compass > ." + w.toLowerCase());
-										if(words === undefined || that.isDark()) {
-											cmdEl.addClass("unavailable");
-										}
-										else {
-											cmdEl.removeClass("unavailable");
-										}
-									});
+								};
 
-									if(things.WordHash.FORCE !== undefined && things.WordHash.FORCE.length > 0) {
-										// we force the player to do these
-										hasForce = true;
-										setTimeout(function() {
-											game.parseCommand("force");
-										}, 0);
+								/*
+								 * an update just updates the room if the player's environment is different than the
+								 * previously rendered room
+								 */
+					            rendering.update = function(item) {
+									if(room.id[0] !== item.environment[0]) {
+										room = model.getItem(item.environment[0]);
+										doRender();
+										model.updateItems([{
+											id: room.id,
+											timesHere: room.timesHere[0] + 1
+										}]);
 									}
-								}
+								};
 
-								if(hasForce) {
-									el = $("<p class='info'>" + roomDesc + "</p>");
-								}
-								else if(!that.isDark()){
-									bear = model.getItem("obj:bear");
-									if(bear.environment[0] === "player") {
-										roomDesc += " You are being followed by a very large, tame bear.";
-									}
-									el = $('<p class="desc">' + roomDesc + '</p>');
-								}
+								rendering.reRender = function(override_brief) {
+									doRender(override_brief);
+								};
 
-				                $(container).append(el);
+								doRender();
+								model.updateItems([{
+									id: room.id,
+									timesHere: room.timesHere[0] + 1
+								}]);
 
-								$(container).parent().animate({
-									scrollTop: $(el).offset().top - $(container).parent().offset().top + $(container).parent().scrollTop()
-								});
-							};
-
-							/*
-							 * an update just updates the room if the player's environment is different than the
-							 * previously rendered room
-							 */
-				            rendering.update = function(item) {
-								if(room.id[0] !== item.environment[0]) {
-									room = model.getItem(item.environment[0]);
-									doRender();
-									model.updateItems([{
-										id: room.id,
-										timesHere: room.timesHere[0] + 1
-									}]);
-								}
-							};
-
-							rendering.reRender = function(override_brief) {
-								doRender(override_brief);
-							};
-
-							doRender();
-							model.updateItems([{
-								id: room.id,
-								timesHere: room.timesHere[0] + 1
-							}]);
-
-				            return rendering;
-				        }
-	                }
-	            }
-			}
-        }),
+					            return rendering;
+					        }
+			            }
+			        }
+				}
+			}),
         selector = {},
         // holds DOM selectors for various parts of the game display
         commands = {},
@@ -786,6 +713,7 @@
         dark = false
         ;
 
+		console.log(that);
         that.isDark = function() {
             return dark;
         };
@@ -2567,3 +2495,80 @@
         return that;
     };
 } (jQuery, MITHGrid));
+
+fluid.defaults("MITHGrid.Application.Adventure", {
+    // the game has a single core database of objects, rooms, and actions (words) within a room
+    dataStores: {
+		adventure: {
+            // let the database know what kinds of items we expect to have
+            // commands are kept separate since the data source doesn't handle function references yet
+            types: {
+				Player: {},
+				Room: {},
+				"Object": {},
+				Word: {},
+				Note: {}
+            },
+            // let the database know that the 'environment' and 'object' properties point to other items
+            properties: {
+				environment: {
+                	valueType: "Item"
+            	},
+            	object: {
+                	valueType: "Item"
+            	}
+			}
+		}
+    },
+    /*
+	 * we have a number of data views that let us see when particular items in the database have changed
+	 */
+    dataViews: {
+		inventory: {
+           /*
+			 * this data view lists the items that are part of the player's inventory
+			 */
+            dataStore: 'adventure',
+			types: ["Object"],
+			filters: [".environment = 'player'"],
+        },
+		player: {
+            /*
+			 * this data view is the player, so we can watch this model for events such as
+			 * a player moving from one room to another room.
+			 *
+			 * There's only one object of type "Player"
+			 */
+            dataStore: 'adventure',
+			types: ["Player"],
+    	}
+	},
+    /*
+	 * This is the DOM content we want within our configured container, but we need to wait
+	 * until the DOM is ready before we try to add this
+	 */
+    viewSetup:
+    "<div class='room'>" +
+    "<div class='description'></div>" +
+    "<div class='objects'></div>" +
+    "</div>" +
+    "<div class='score-holder'>" +
+    "<h2>Score</h2>" +
+    "<div class='score'></div>" +
+    "</div>" +
+    "<div class='inventory-holder'>" +
+    "<h2>Inventory</h2>" +
+    "<ul class='inventory'></ul>" +
+    "</div>" +
+    "<div class='compass'>" +
+    "<span class='n'>N</span>" +
+    "<span class='e'>E</span>" +
+    "<span class='w'>W</span>" +
+    "<span class='s'>S</span>" +
+    "<span class='u'>U</span>" +
+    "<span class='d'>D</span>" +
+    "</div>" +
+    "<div class='cli'>" +
+    "<input class='cli-input' type='text' name='command'></input>" +
+    "</div>"
+});

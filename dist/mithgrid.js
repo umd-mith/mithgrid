@@ -1,7 +1,7 @@
 /*
  * mithgrid JavaScript Library v0.0.1
  *
- * Date: Wed Aug 31 16:03:32 2011 -0400
+ * Date: Fri Sep 2 08:32:29 2011 -0400
  *
  * (c) Copyright University of Maryland 2011.  All rights reserved.
  *
@@ -1958,14 +1958,16 @@ var jQuery = jQuery || {};
     };
 } (jQuery, MITHGrid));(function($, MITHGrid) {
     var Application = MITHGrid.namespace('Application');
-    Application.initApp = function(klass, container, options) {
-        var that = {
-            presentation: {},
-            dataStore: {},
-            dataView: {}
-        },
+    Application.initApp = function(klass, container, options, options2) {
+        var that = fluid.initView(klass, container, $.extend(true, {}, options, options2)),
         onReady = [];
 
+		that.presentation = {};
+		that.dataStore = {};
+		that.dataView = {};
+		
+		options = that.options;
+		
         that.ready = function(fn) {
             onReady.push(fn);
         };

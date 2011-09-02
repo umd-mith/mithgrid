@@ -1,13 +1,15 @@
 (function($, MITHGrid) {
     var Application = MITHGrid.namespace('Application');
-    Application.initApp = function(klass, container, options) {
-        var that = {
-            presentation: {},
-            dataStore: {},
-            dataView: {}
-        },
+    Application.initApp = function(klass, container, options, options2) {
+        var that = fluid.initView(klass, container, $.extend(true, {}, options, options2)),
         onReady = [];
 
+		that.presentation = {};
+		that.dataStore = {};
+		that.dataView = {};
+		
+		options = that.options;
+		
         that.ready = function(fn) {
             onReady.push(fn);
         };
