@@ -5,6 +5,7 @@
 		onReady = []
 		
 		that.presentation = {}
+		that.facet = {}
 		that.dataStore = {}
 		that.dataView = {}
 		
@@ -54,13 +55,28 @@
 				that.ready () -> options.viewSetup $(container)
 			else
 				that.ready () -> $(container).append options.viewSetup
-				
+		
+		if options?.facets?
+			that.ready () ->
+				for fName, fconfig of options.facets
+					foptions = $.extend(true, {}, fconfig)
+					fcontainer = $(container).find(fconfig.container)
+					fcontainer = fcontainer[0] if $.isArray(fcontainer)
+					
+					foptions.dataView = that.dataView[fconfig.dataView]
+					foptions.application = that
+					
+					facet = fconfig.type.initFacet fcontainer, foptions
+					that.facet[fName] = facet
+					facet.selfRender()
+					
 		if options?.presentations?
 			that.ready () ->
 				for pName, pconfig of options.presentations
 					poptions = $.extend(true, {}, pconfig)
-					pcontainer = $('#' + $(container).attr('id') + ' > ' + pconfig.container)
-					pcontainer = pcontainer[0] if $.isArray(container)
+					pcontainer = $(container).find(poptions.container)
+					#pcontainer = $('#' + $(container).attr('id') + ' > ' + poptions.container)
+					pcontainer = pcontainer[0] if $.isArray(pcontainer)
 					poptions.dataView = that.dataView[pconfig.dataView]
 					poptions.application = that
 					
@@ -83,10 +99,11 @@
 
 						for pname, prconfig of plugin.getPresentations()
 							proptions = $.extend(true, {}, prconfig.options)
-							pcontainer = $("#" + $(container).attr('id') + ' > ' + prconfig.container)
+							pcontainer = $(container).find(proptions.container)
+							#pcontainer = $("#" + $(container).attr('id') + ' > ' + prconfig.container)
+							pcontainer = pcontainer[0] if $.isArray(pcontainer)
 
 							proptions.lenses = prconfig.lenses if prconfig?.lenses?
-							pcontainer = pcontainer[0] if $.isArray(pcontainer)
 							if prconfig.dataView?
 								proptions.dataView = that.dataView[prconfig.dataView] 
 							else if pconfig.dataView?

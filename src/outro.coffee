@@ -13,3 +13,9 @@ fluid.defaults "MITHGrid.Data.initView",
     events:
         onModelChange: null
         onFilterItem: "preventable"
+
+fluid.defaults "MITHGrid.Facet", {}
+
+fluid.defaults "MITHGrid.Facet.TextSearch",
+	facetLabel: "Search"
+	expressions: [ ".label" ]
