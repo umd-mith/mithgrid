@@ -71,8 +71,11 @@ min: mithgrid ${MG_MIN}
 ${MG_MIN}: ${MG}
 		@@if test ! -z ${JS_ENGINE}; then \
 				echo "Minifying mithgrid" ${MG_MIN}; \
+				echo "/*" > ${MG_MIN}; \
+				cat ${MG_C} | awk '/###/ { i = i + 1; l = 0 }; l = l + 1 { }; (i ~ 1 && l !~ 1) { print  }' >> ${MG_MIN}; \
+				echo " */" >> ${MG_MIN}; \
 				${COMPILER} ${MG} > ${MG_MIN}.tmp; \
-				${POST_COMPILER} ${MG_MIN}.tmp > ${MG_MIN}; \
+				${POST_COMPILER} ${MG_MIN}.tmp >> ${MG_MIN}; \
 				rm -f ${MG_MIN}.tmp; \
 		else \
 				echo "You must have NodeJS installed in order to minify mithgrid."; \
