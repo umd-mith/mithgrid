@@ -11,19 +11,20 @@ JS_ENGINE ?= `which node nodejs`
 COMPILER = ${JS_ENGINE} ${BUILD_DIR}/uglify.js --unsafe
 POST_COMPILER = ${JS_ENGINE} ${BUILD_DIR}/post-compile.js
 
-BASE_FILES = ${SRC_DIR}/core.js \
-			${SRC_DIR}/data.js \
-			${SRC_DIR}/expression.js \
-			${SRC_DIR}/presentation.js \
-			${SRC_DIR}/application.js \
-			${SRC_DIR}/plugin.js
+BASE_FILES = ${SRC_DIR}/core.coffee \
+			${SRC_DIR}/data.coffee \
+			${SRC_DIR}/expression.coffee \
+			${SRC_DIR}/presentation.coffee \
+			${SRC_DIR}/application.coffee \
+			${SRC_DIR}/plugin.coffee
 
-MODULES = ${SRC_DIR}/intro.js \
+MODULES = ${SRC_DIR}/intro.coffee \
 		${BASE_FILES} \
-		${SRC_DIR}/outro.js
+		${SRC_DIR}/outro.coffee
 
 MG = ${DIST_DIR}/mithgrid.js
 MG_MIN = ${DIST_DIR}/mithgrid.min.js
+MG_C = ${DIST_DIR}/mithgrid.coffee
 
 MG_VER = $(shell cat version.txt)
 VER = sed "s/@VERSION/${MG_VER}/"
@@ -44,15 +45,18 @@ mithgrid: ${MG}
 #sed 's/.function....MITHGrid..{//' | \
 #sed 's/}..jQuery..MITHGrid.;//' > ${MG}.tmp;
 
-${MG}: ${MODULES} | ${DIST_DIR}
-		@@echo "Building" ${MG}
+${MG_C}: ${MODULES} | ${DIST_DIR}
+		@@echo "Building" ${MG_C}
 		
-		@@cat ${BASE_FILES} > ${MG}.tmp;
+		@@cat ${BASE_FILES} > ${MG_C}.tmp;
 		
-		@@cat ${SRC_DIR}/intro.js ${MG}.tmp ${SRC_DIR}/outro.js | \
+		@@cat ${SRC_DIR}/intro.coffee ${MG_C}.tmp ${SRC_DIR}/outro.coffee | \
 			sed 's/@DATE/'"${DATE}"'/' | \
-			${VER} > ${MG};
-		@@rm -f ${MG}.tmp;
+			${VER} > ${MG_C};
+		@@rm -f ${MG_C}.tmp;
+
+${MG}: ${MG_C}
+		@@coffee -c ${MG_C};
 
 lint: mithgrid
 		@@if test ! -z ${JS_ENGINE}; then \
