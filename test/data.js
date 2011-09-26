@@ -236,7 +236,6 @@ $(document).ready(function() {
         //			valueType: 'item'
         //		});
         item = ds.getItem('item-0');
-
         notEqual(item.id, undefined, "ID is defined");
         notEqual(item.foo, undefined, "foo is defined");
         notEqual(item.bar, undefined, "bar is defined");
@@ -340,7 +339,7 @@ $(document).ready(function() {
 		
 		expect(props.length);
 		dv = MITHGrid.Data.initView({
-			store: MITHGrid.Data.initStore()
+			dataStore: MITHGrid.Data.initStore()
 		});
 		$.each(props, function(idx, prop) {
 			ok($.isFunction(dv[prop]), "."+prop+" is a function");

@@ -1,31 +1,20 @@
-(function($, MITHGrid) {
-	if (window.console !== undefined && window.console.log !== undefined) {
-        MITHGrid.debug = window.console.log;
-    }
-    else {
-        MITHGrid.debug = function() {};
-    }
 
-	MITHGrid.error = function() {
-		MITHGrid.debug.call({}, arguments);
-		return { 'arguments': arguments };
-	};
+	if window?.console?.log?
+		MITHGrid.debug = window.console.log
+	else 
+		MITHGrid.debug = () ->
 
-    var genericNamespacer;
+	MITHGrid.error = () ->
+		MITHGrid.debug.call {}, arguments
+		{ 'arguments': arguments }
 
-	genericNamespacer = function(base, nom) {
-        if (base[nom] === undefined) {
-            base[nom] = {
-				namespace: function(nom2) {
-					return genericNamespacer(base[nom], nom2);
-				},
+	genericNamespacer = (base, nom) ->
+		if !base[nom]?
+			newbase =
+				namespace: (nom2) ->
+					genericNamespacer newbase, nom2
 				debug: MITHGrid.debug
-			};
-        }
-        return base[nom];
-    };
+		base[nom] = newbase
 
-    MITHGrid.namespace = function(nom) {
-        return genericNamespacer(MITHGrid, nom);
-    };
-}(jQuery, MITHGrid));
+	MITHGrid.namespace = (nom) ->
+		genericNamespacer MITHGrid, nom

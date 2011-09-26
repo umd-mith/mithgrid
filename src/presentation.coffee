@@ -1,69 +1,63 @@
-(function() {
-  MITHGrid.namespace('Presentation');
-  MITHGrid.Presentation.initPresentation = function(type, container, options) {
-    var lenses, renderings, that;
-    that = fluid.initView("MITHGrid.Presentation." + type, container, options);
-    renderings = {};
-    lenses = that.options.lenses;
-    options = that.options;
-    $(container).empty();
-    that.getLens = function(item) {
-      if ((item.type != null) && (item.type[0] != null) && (lenses[item.type[0]] != null)) {
-        return {
-          render: lenses[item.type[0]]
-        };
-      }
-    };
-    that.renderingFor = function(id) {
-      return renderings[id];
-    };
-    that.renderItems = function(model, items) {
-      var f, n;
-      n = items.length;
-      f = function(start) {
-        var end, hasItem, i, id, lens;
-        if (start < n) {
-          end = n;
-          if (n > 200) {
-            end = start + parseInt(Math.sqrt(n), 10) + 1;
-            if (end > n) {
-              end = n;
-            }
-          }
-          for (i = start; start <= end ? i < end : i > end; start <= end ? i++ : i--) {
-            id = items[i];
-            hasItem = model.contains(id);
-            if (!hasItem) {
-              if (renderings[id] != null) {
-                renderings[id].remove();
-                delete renderings[id];
-              }
-            } else if (renderings[id] != null) {
-              renderings[id].update(model.getItem(id));
-            } else {
-              lens = that.getLens(model.getItem(id));
-              if (lens != null) {
-                renderings[id] = lens.render(container, that, model, items[i]);
-              }
-            }
-          }
-          return setTimeout(function() {
-            return f(end);
-          }, 0);
-        } else {
-          return that.finishDisplayUpdate();
-        }
-      };
-      that.startDisplayUpdate();
-      return f(0);
-    };
-    that.eventModelChange = that.renderItems;
-    that.startDisplayUpdate = function() {};
-    that.finishDisplayUpdate = function() {};
-    that.selfRender = function() {};
-    that.renderItems(that.dataView, that.dataView.items());
-    that.dataView = that.options.dataView;
-    that.dataView.registerPresentation(that);
-    return that;
-  };
-}).call(this);
+
+	MITHGrid.namespace 'Presentation'
+
+	MITHGrid.Presentation.initPresentation = (type, container, options) ->
+		that = fluid.initView "MITHGrid.Presentation.#{type}", container, options
+		renderings = {}
+		lenses = that.options.lenses
+		options = that.options
+		
+		$(container).empty()
+
+		that.getLens = (item) ->
+			if item.type? and item.type[0]? and lenses[item.type[0]]?
+				return { render: lenses[item.type[0]] }
+
+		that.renderingFor = (id) -> renderings[id]
+
+		that.renderItems = (model, items) ->
+			n = items.length
+			f = (start) ->
+				if start < n
+					end = n
+					if n > 200
+						end = start + parseInt(Math.sqrt(n), 10) + 1
+						end = n if end > n
+
+					for i in [start ... end] #i = start; i < end; i += 1)
+						id = items[i]
+						hasItem = model.contains(id)
+						if !hasItem
+							# item was removed
+							if renderings[id]?
+							# we need to remove it from the display
+							# .remove() should not make changes in the model
+								renderings[id].remove()
+								delete renderings[id]
+						else if renderings[id]?
+							renderings[id].update model.getItem(id)
+						else
+							lens = that.getLens model.getItem(id)
+							if lens?
+								renderings[id] = lens.render container, that, model, id
+
+					setTimeout () -> 
+						f(end)
+					, 0
+				else
+					that.finishDisplayUpdate()
+				
+			that.startDisplayUpdate()
+			f 0
+
+		that.eventModelChange = that.renderItems
+
+		that.startDisplayUpdate = () ->
+		that.finishDisplayUpdate = () ->
+
+		that.selfRender = () -> 
+			that.renderItems that.dataView, that.dataView.items()
+		
+		that.dataView = that.options.dataView
+		that.dataView.registerPresentation(that)
+		that

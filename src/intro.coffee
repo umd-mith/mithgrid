@@ -1,4 +1,4 @@
-/*
+###
  * mithgrid JavaScript Library v@VERSION
  *
  * Date: @DATE
@@ -35,8 +35,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */
+###
 
-var MITHGrid = MITHGrid || {};
-var fluid = fluid || {};
-var jQuery = jQuery || {};
+MITHGrid = this.MITHGrid ?= {}
+fluid = this.fluid ?= {}
+jQuery = this.jQuery ?= {}
+
+(($, MITHGrid) ->
