@@ -1,5 +1,6 @@
 (function($, MITHGrid) {
-    MITHGrid.Plugin.StateMachineEditor = function(options) {
+	MITHGrid.Plugin.namespace("StateMachineEditor");
+    MITHGrid.Plugin.StateMachineEditor.initPlugin = function(options) {
         var types = $.extend({
             StateMachine: "StateMachine",
             State: "State",

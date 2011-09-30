@@ -1,14 +1,15 @@
 (function($, MITHGrid) {
 	MITHGrid.Application.Example = function(container, options) {
 		var that = MITHGrid.Application.initApp("MITHGrid.Application.Example", container, {
-	        dataStores: [{
-	            label: 'internal'
-			}],
-			dataViews: [{
-	            label: 'internal',
-	            dataStore: 'internal',
-				types: ["View", "Transition"]
-	        }],
+	        dataStores: {
+				internal: {}
+			},
+			dataViews: {
+				internal: {
+		            dataStore: 'internal',
+					types: ["View", "Transition"]
+	        	}
+			},
 			plugins: [{
 				type: MITHGrid.Plugin.StateMachineEditor,
 				dataView: 'internal',
