@@ -1,5 +1,6 @@
 (function($, MITHGrid) {
-    MITHGrid.Presentation.Flow = function(container, options) {
+	MITHGrid.Presentation.namespace("Flow");
+    MITHGrid.Presentation.Flow.initPresentation = function(container, options) {
         var that = MITHGrid.Presentation.initPresentation("Flow", container, options),
         _floor_0 = function(x) {
             return (x < 0 ? 0: x);
