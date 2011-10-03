@@ -111,7 +111,7 @@
 
 		options ?= {}
 
-		that = fluid.initView "MITHGrid.Data.initStore", $(window), options
+		that = MITHGrid.initView "MITHGrid.Data.initStore", options
 
 		that.items = set.items
 		that.contains = set.contains
@@ -144,6 +144,65 @@
 				url: uri
 				dataType: "json"
 				success: (data, textStatus) -> that.loadData data
+		
+		that.removeItems = (ids) ->
+			id_list = []
+			
+			indexRemove = (index, x, y, z) ->
+				hash = index[x]
+				return if !hash?
+
+				array = hash.values[y];
+				counts = hash.counts[y];
+
+				return if !array? or !counts?
+				# we need to remove the old z values
+				counts[z] -= 1
+				if counts[z] < 1
+					i = $.inArray z, array
+					if i == 0
+						array = array[1...array.length]
+					else if i == array.length - 1
+						array = array[0 ... i]
+					else if i > 0
+						array = array[0 ... i].concat array[i + 1 ... array.length]
+					if array.length > 0
+						hash.values[y] = array
+					else
+						delete hash.values[y]
+					delete counts[z]
+					# TODO: if counts empty, then we need to bubble up the deletion
+					sum = 0
+					for k, v of counts
+						sum += v
+					if sum == 0
+						# we have nothing here
+						delete index[x]
+
+			indexRemoveFn = (s, p, o) ->
+				indexRemove spo, s, p, o
+				indexRemove ops, o, p, s
+			
+			removeValues = (id, p, list) -> indexRemoveFn(id, p, o) for o in list
+			
+			removeItem = (id, indexRemoveFn) ->
+				entry = that.getItem id
+				type = entry.type
+				type = type[0] if $.isArray(type)
+				
+				for p, items of entry
+					continue if typeof(p) != "string" or p in ["id", "type"]
+					removeValues id, p, items
+				
+				removeValues id, 'type', [ type ]
+				
+			
+			for id in ids
+				removeItem id, indexRemoveFn
+				id_list.push id
+				set.remove id
+				
+			that.events.onModelChange.fire that, id_list
 
 		that.updateItems = (items) ->
 			id_list = []
@@ -166,8 +225,12 @@
 						array = array[0 ... i]
 					else if i > 0
 						array = array[0 ... i].concat array[i + 1 ... array.length]
-					hash.values[y] = array
-
+					if array.length > 0
+						hash.values[y] = array
+					else
+						delete hash.values[y]
+					delete counts[z]
+						
 			indexPutFn = (s, p, o) ->
 				indexPut spo, s, p, o
 				indexPut ops, o, p, s
@@ -327,7 +390,7 @@
 		that
 
 	Data.initView = (options) ->
-		that = fluid.initView "MITHGrid.Data.initView", $(window), options
+		that = MITHGrid.initView "MITHGrid.Data.initView", options
 		
 		set = Data.initSet()
 
@@ -439,6 +502,7 @@
 		# these mappings allow a data View to stand in for a data Store
 		that.getItems = that.dataStore.getItems
 		that.getItem = that.dataStore.getItem
+		that.removeItems = that.dataStore.removeItems
 		that.fetchData = that.dataStore.fetchData
 		that.updateItems = that.dataStore.updateItems
 		that.loadItems = that.dataStore.loadItems

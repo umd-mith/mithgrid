@@ -2,7 +2,10 @@
 	MITHGrid.namespace 'Presentation'
 
 	MITHGrid.Presentation.initPresentation = (type, container, options) ->
-		that = fluid.initView "MITHGrid.Presentation.#{type}", container, options
+		that = {}
+		that = MITHGrid.initView "MITHGrid.Presentation.#{type}", container, options
+
+			
 		renderings = {}
 		lenses = that.options.lenses
 		options = that.options
@@ -32,7 +35,7 @@
 							if renderings[id]?
 							# we need to remove it from the display
 							# .remove() should not make changes in the model
-								renderings[id].remove()
+								renderings[id].remove?()
 								delete renderings[id]
 						else if renderings[id]?
 							renderings[id].update model.getItem(id)

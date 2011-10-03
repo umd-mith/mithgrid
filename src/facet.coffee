@@ -1,7 +1,7 @@
 
 	Facet = MITHGrid.namespace 'Facet'
 	Facet.initFacet = (klass, container, options) ->
-		that = fluid.initView(klass, container, options)
+		that = MITHGrid.initView(klass, container, options)
 		
 		options = that.options
 		
@@ -77,12 +77,41 @@
 		that.eventModelChange = (dataView, itemList) ->
 		
 		that.selfRender = () ->
-			dom = that.constructFacetFrame(container, null, { facetLabel: options.facetLabel })
+			dom = that.constructFacetFrame container, null,
+				facetLabel: options.facetLabel
 			$(container).addClass "mithgrid-facet-textsearch"
 			inputElement = $("<input type='text'>")
 			dom.body.append(inputElement)
 			inputElement.keyup () ->
 				that.text = $.trim(inputElement.val().toLowerCase())
 				that.events.onFilterChange.fire()
+		
+		that
+	
+	Facet.namespace 'List'
+	Facet.List.initFacet = (container, options) ->
+		that = Facet.initFacet("MITHGrid.Facet.List", container, options)
+		
+		options = that.options
+		
+		that.selections = []
+		
+		if options.expressions?
+			if !$.isArray(options.expressions)
+				options.expressions = [ options.expressions ]
+				parsed = (MITHGrid.Expression.initParser().parse(ex) for ex in options.expressions)
+		
+		that.eventFilterItem = (dataSource, id) ->
+			if that.text? and options.expressions?
+				for ex in parsed
+					items = ex.evaluateOnItem id, dataSource
+					for v in items.values.items()
+						if v in that.selections
+							return
+							
+		that.selfRender = () ->
+			dom = that.constructFacetFrame container, null,
+				facetLabel: options.facetLabel
+				resizable: true
 		
 		that
