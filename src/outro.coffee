@@ -1,7 +1,7 @@
 
 )(jQuery, MITHGrid)
 
-fluid.defaults "MITHGrid.Data.initStore",
+MITHGrid.defaults "MITHGrid.Data.initStore",
     events:
         onModelChange: null
         onBeforeLoading: null
@@ -9,13 +9,13 @@ fluid.defaults "MITHGrid.Data.initStore",
         onBeforeUpdating: null
         onAfterUpdating: null
 
-fluid.defaults "MITHGrid.Data.initView",
+MITHGrid.defaults "MITHGrid.Data.initView",
     events:
         onModelChange: null
         onFilterItem: "preventable"
 
-fluid.defaults "MITHGrid.Facet", {}
+MITHGrid.defaults "MITHGrid.Facet", {}
 
-fluid.defaults "MITHGrid.Facet.TextSearch",
+MITHGrid.defaults "MITHGrid.Facet.TextSearch",
 	facetLabel: "Search"
 	expressions: [ ".label" ]

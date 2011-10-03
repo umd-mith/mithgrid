@@ -173,7 +173,7 @@ $(document).ready(function() {
         var ds,
         item;
 
-        expect(20);
+        expect(22);
         ds = MITHGrid.Data.initStore({
             source: "Data.initStore.test4"
         });
@@ -264,6 +264,12 @@ $(document).ready(function() {
         }]);
 
         equals(ds.items().length, 4, "Data source has two items now");
+
+		ds.removeItems(["item-3"]);
+
+		equals(ds.items().length, 3, "One less item now");
+		item = ds.getItem('item-3');
+		deepEqual(item, {}, "Nothing in the deleted item");
     });
 
     // we aren't doing extensive tests of expressions until later

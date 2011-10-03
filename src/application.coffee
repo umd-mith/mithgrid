@@ -1,7 +1,7 @@
 
 	Application = MITHGrid.namespace 'Application'
 	Application.initApp = (klass, container, options) ->
-		that = fluid.initView(klass, container, options)
+		that = MITHGrid.initView(klass, container, options)
 		onReady = []
 		
 		that.presentation = {}
@@ -99,7 +99,7 @@
 
 						for pname, prconfig of plugin.getPresentations()
 							proptions = $.extend(true, {}, prconfig.options)
-							pcontainer = $(container).find(proptions.container)
+							pcontainer = $(container).find(prconfig.container)
 							#pcontainer = $("#" + $(container).attr('id') + ' > ' + prconfig.container)
 							pcontainer = pcontainer[0] if $.isArray(pcontainer)
 
