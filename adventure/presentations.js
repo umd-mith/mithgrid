@@ -10,7 +10,8 @@
  * The lens for the text list renders the item name as a list element.  The item name is a property
  * of objects in the Adventure game.
  */
-MITHGrid.Presentation.TextList = function(container, options) {
+MITHGrid.Presentation.namespace("TextList");
+MITHGrid.Presentation.TextList.initPresentation = function(container, options) {
     var that = MITHGrid.Presentation.initPresentation("TextList", container, options);
 
     return that;

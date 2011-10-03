@@ -801,7 +801,7 @@
                                     condSatisfied = true;
                                 }
                                 else if (value > 0 && value < 100) {
-                                    condSatisfied = Math.foor(Math.random() * 100) >= value;
+                                    condSatisfied = Math.floor(Math.random() * 100) >= value;
                                 }
                             }
                         }
@@ -2496,7 +2496,7 @@
     };
 } (jQuery, MITHGrid));
 
-fluid.defaults("MITHGrid.Application.Adventure", {
+MITHGrid.defaults("MITHGrid.Application.Adventure", {
     // the game has a single core database of objects, rooms, and actions (words) within a room
     dataStores: {
 		adventure: {

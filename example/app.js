@@ -10,6 +10,7 @@
 					types: ["View", "Transition"]
 	        	}
 			},
+			container: "#everything",
 			plugins: [{
 				type: MITHGrid.Plugin.StateMachineEditor,
 				dataView: 'internal',
