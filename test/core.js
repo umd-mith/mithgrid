@@ -1,9 +1,8 @@
 $(document).ready(function() {
 	test("Check requirements", function() {
-		expect(3);
+		expect(2);
 		ok( jQuery, "jQuery" );
 		ok( $, "$" );
-		ok( fluid, "fluid" );
 	});
 	
 	test("Check core MITHGrid object", function() {
