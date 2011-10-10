@@ -38,7 +38,6 @@
 							# item was removed
 							# we need to remove it from the display
 							# .remove() should not make changes in the model
-								console.log "removing #{id}"
 								renderings[id].remove() if renderings[id].remove?
 								delete renderings[id]
 							else

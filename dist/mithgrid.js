@@ -2,7 +2,7 @@
   /*
    * mithgrid JavaScript Library v0.0.1
    *
-   * Date: Tue Oct 4 08:01:58 2011 -0400
+   * Date: Mon Oct 10 15:13:06 2011 -0400
    *
    * (c) Copyright University of Maryland 2011.  All rights reserved.
    *
@@ -1861,7 +1861,6 @@
               hasItem = model.contains(id);
               if (renderings[id] != null) {
                 if (!hasItem) {
-                  console.log("removing " + id);
                   if (renderings[id].remove != null) {
                     renderings[id].remove();
                   }
