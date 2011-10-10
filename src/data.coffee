@@ -393,10 +393,11 @@
 		that = MITHGrid.initView "MITHGrid.Data.initView", options
 		
 		set = Data.initSet()
+		
+		filterItem = (id) ->
+			false != that.events.onFilterItem.fire that.dataStore, id
 
 		filterItems = (endFn) ->
-			set = Data.initSet()
-
 			ids = that.dataStore.items()
 			n = ids.length
 			if n == 0
@@ -416,8 +417,10 @@
 
 				for i in [ start ... end ]
 					id = ids[i]
-					free = that.events.onFilterItem.fire that.dataStore, id
-					set.add id if free != false
+					if filterItem id
+						set.add id
+					else
+						set.remove id
 				if end < n
 					setTimeout () ->
 						f end
@@ -443,6 +446,38 @@
 		that.items = set.items
 		that.size = set.size
 		that.contains = set.contains
+		
+		that.eventFilterChange = () ->
+			current_set = Data.initSet that.items()
+			filterItems () ->
+				changed_set = Data.initSet()
+				for i in current_set.items()
+					if !that.contains i
+						changed_set.add i
+				for i in that.items()
+					if !current_set.contains i
+						changed_set.add i
+				if changed_set.size() > 0
+					that.events.onModelChange.fire that, changed_set.items()
+		
+		
+		that.eventModelChange = (model, items) ->
+			changed_set = Data.initSet()
+			for id in items
+				if model.contains id
+					if filterItem id
+						set.add id
+						changed_set.add id
+					else
+						if set.contains id
+							changed_set.add id
+							set.remove id
+				else
+					changed_set.add id
+					set.remove id
+
+			if changed_set.size() > 0
+				that.events.onModelChange.fire that, changed_set.items()
 
 		if options?.types?.length > 0
 			((types) ->
@@ -484,18 +519,6 @@
 				events:
 					onFilterChange:
 						addListener: (x) ->
-
-		that.eventModelChange = (model, items) ->
-			allowed_set = Data.initSet that.items()
-			filterItems () ->
-				changed_set = Data.initSet()
-				allowed_set.add id for id in that.items()
-				for id in items
-					changed_set.add id if allowed_set.contains id
-				if changed_set.size() > 0
-					that.events.onModelChange.fire that, changed_set.items()
-
-		that.eventFilterChange = that.eventModelChange
 
 		that.dataStore = options.dataStore
 

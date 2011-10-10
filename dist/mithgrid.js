@@ -2,7 +2,7 @@
   /*
    * mithgrid JavaScript Library v0.0.1
    *
-   * Date: Mon Oct 3 09:48:39 2011 -0700
+   * Date: Tue Oct 4 08:01:58 2011 -0400
    *
    * (c) Copyright University of Maryland 2011.  All rights reserved.
    *
@@ -157,7 +157,7 @@
             try {
               listener[0].apply(listener, args);
             } catch (e) {
-              console.log(e);
+              console.log(listener[0], args, e);
             }
           }
           return true;
@@ -745,12 +745,14 @@
       return that;
     };
     Data.initView = function(options) {
-      var filterItems, set, that, _ref4, _ref5;
+      var filterItem, filterItems, set, that, _ref4, _ref5;
       that = MITHGrid.initView("MITHGrid.Data.initView", options);
       set = Data.initSet();
+      filterItem = function(id) {
+        return false !== that.events.onFilterItem.fire(that.dataStore, id);
+      };
       filterItems = function(endFn) {
         var chunk_size, f, ids, n;
-        set = Data.initSet();
         ids = that.dataStore.items();
         n = ids.length;
         if (n === 0) {
@@ -769,16 +771,17 @@
           chunk_size = 1;
         }
         f = function(start) {
-          var end, free, i, id;
+          var end, i, id;
           end = start + chunk_size;
           if (end > n) {
             end = n;
           }
           for (i = start; start <= end ? i < end : i > end; start <= end ? i++ : i--) {
             id = ids[i];
-            free = that.events.onFilterItem.fire(that.dataStore, id);
-            if (free !== false) {
+            if (filterItem(id)) {
               set.add(id);
+            } else {
+              set.remove(id);
             }
           }
           if (end < n) {
@@ -816,6 +819,55 @@
       that.items = set.items;
       that.size = set.size;
       that.contains = set.contains;
+      that.eventFilterChange = function() {
+        var current_set;
+        current_set = Data.initSet(that.items());
+        return filterItems(function() {
+          var changed_set, i, _i, _j, _len, _len2, _ref4, _ref5;
+          changed_set = Data.initSet();
+          _ref4 = current_set.items();
+          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+            i = _ref4[_i];
+            if (!that.contains(i)) {
+              changed_set.add(i);
+            }
+          }
+          _ref5 = that.items();
+          for (_j = 0, _len2 = _ref5.length; _j < _len2; _j++) {
+            i = _ref5[_j];
+            if (!current_set.contains(i)) {
+              changed_set.add(i);
+            }
+          }
+          if (changed_set.size() > 0) {
+            return that.events.onModelChange.fire(that, changed_set.items());
+          }
+        });
+      };
+      that.eventModelChange = function(model, items) {
+        var changed_set, id, _i, _len;
+        changed_set = Data.initSet();
+        for (_i = 0, _len = items.length; _i < _len; _i++) {
+          id = items[_i];
+          if (model.contains(id)) {
+            if (filterItem(id)) {
+              set.add(id);
+              changed_set.add(id);
+            } else {
+              if (set.contains(id)) {
+                changed_set.add(id);
+                set.remove(id);
+              }
+            }
+          } else {
+            changed_set.add(id);
+            set.remove(id);
+          }
+        }
+        if (changed_set.size() > 0) {
+          return that.events.onModelChange.fire(that, changed_set.items());
+        }
+      };
       if ((options != null ? (_ref4 = options.types) != null ? _ref4.length : void 0 : void 0) > 0) {
         (function(types) {
           return that.registerFilter({
@@ -891,29 +943,6 @@
           }
         });
       }
-      that.eventModelChange = function(model, items) {
-        var allowed_set;
-        allowed_set = Data.initSet(that.items());
-        return filterItems(function() {
-          var changed_set, id, _i, _j, _len, _len2, _ref6;
-          changed_set = Data.initSet();
-          _ref6 = that.items();
-          for (_i = 0, _len = _ref6.length; _i < _len; _i++) {
-            id = _ref6[_i];
-            allowed_set.add(id);
-          }
-          for (_j = 0, _len2 = items.length; _j < _len2; _j++) {
-            id = items[_j];
-            if (allowed_set.contains(id)) {
-              changed_set.add(id);
-            }
-          }
-          if (changed_set.size() > 0) {
-            return that.events.onModelChange.fire(that, changed_set.items());
-          }
-        });
-      };
-      that.eventFilterChange = that.eventModelChange;
       that.dataStore = options.dataStore;
       that.getItems = that.dataStore.getItems;
       that.getItem = that.dataStore.getItem;
@@ -1811,31 +1840,36 @@
         return renderings[id];
       };
       that.renderItems = function(model, items) {
-        var f, n;
+        var f, n, step;
         n = items.length;
+        step = n;
+        if (step > 200) {
+          step = parseInt(Math.sqrt(step), 10) + 1;
+        }
+        if (step < 1) {
+          step = 1;
+        }
         f = function(start) {
-          var end, hasItem, i, id, lens, _base;
+          var end, hasItem, i, id, lens;
           if (start < n) {
-            end = n;
-            if (n > 200) {
-              end = start + parseInt(Math.sqrt(n), 10) + 1;
-              if (end > n) {
-                end = n;
-              }
+            end = start + step;
+            if (end > n) {
+              end = n;
             }
             for (i = start; start <= end ? i < end : i > end; start <= end ? i++ : i--) {
               id = items[i];
               hasItem = model.contains(id);
-              if (!hasItem) {
-                if (renderings[id] != null) {
-                  if (typeof (_base = renderings[id]).remove === "function") {
-                    _base.remove();
+              if (renderings[id] != null) {
+                if (!hasItem) {
+                  console.log("removing " + id);
+                  if (renderings[id].remove != null) {
+                    renderings[id].remove();
                   }
                   delete renderings[id];
+                } else {
+                  renderings[id].update(model.getItem(id));
                 }
-              } else if (renderings[id] != null) {
-                renderings[id].update(model.getItem(id));
-              } else {
+              } else if (hasItem) {
                 lens = that.getLens(model.getItem(id));
                 if (lens != null) {
                   renderings[id] = lens.render(container, that, model, id);
