@@ -1,5 +1,6 @@
 (function($, MITHGrid) {
-	MITHGrid.Application.Example = function(container, options) {
+	MITHGrid.Application.namespace("Example");
+	MITHGrid.Application.Example.initApp = function(container, options) {
 		var that = MITHGrid.Application.initApp("MITHGrid.Application.Example", container, {
 	        dataStores: {
 				internal: {}

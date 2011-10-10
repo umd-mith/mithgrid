@@ -69,7 +69,7 @@
 					try
 						listener[0](args...)
 					catch e
-						console.log e
+						console.log listener[0], args, e
 				true
 		that
 		

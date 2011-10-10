@@ -38,7 +38,6 @@
 ###
 
 MITHGrid = this.MITHGrid ?= {}
-fluid = this.fluid ?= {}
 jQuery = this.jQuery ?= {}
 
 (($, MITHGrid) ->
