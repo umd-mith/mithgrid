@@ -145,7 +145,7 @@
 				dataType: "json"
 				success: (data, textStatus) -> that.loadData data
 		
-		that.removeItems = (ids) ->
+		that.removeItems = (ids, fn) ->
 			id_list = []
 			
 			indexRemove = (index, x, y, z) ->
@@ -203,8 +203,10 @@
 				set.remove id
 				
 			that.events.onModelChange.fire that, id_list
+			if fn?
+				fn()
 
-		that.updateItems = (items) ->
+		that.updateItems = (items, fn) ->
 			id_list = []
 
 			indexRemove = (index, x, y, z) ->
@@ -305,6 +307,8 @@
 				else
 					that.events.onAfterUpdating.fire that
 					that.events.onModelChange.fire that, id_list
+					if fn?
+						fn()
 			f 0
 
 		that.loadItems = (items, endFn) ->
