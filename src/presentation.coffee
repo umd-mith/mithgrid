@@ -67,3 +67,9 @@
 		that.dataView = that.options.dataView
 		that.dataView.registerPresentation(that)
 		that
+
+	MITHGrid.Presentation.namespace "SimpleText"
+	MITHGrid.Presentation.SimpleText.initPresentation = (container, options) ->
+		that = MITHGrid.Presentation.initPresentation "SimpleText", container, options
+
+		that

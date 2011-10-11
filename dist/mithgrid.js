@@ -2,7 +2,7 @@
   /*
    * mithgrid JavaScript Library v0.0.1
    *
-   * Date: Mon Oct 10 15:13:06 2011 -0400
+   * Date: Tue Oct 11 11:21:39 2011 -0700
    *
    * (c) Copyright University of Maryland 2011.  All rights reserved.
    *
@@ -1893,6 +1893,12 @@
       };
       that.dataView = that.options.dataView;
       that.dataView.registerPresentation(that);
+      return that;
+    };
+    MITHGrid.Presentation.namespace("SimpleText");
+    MITHGrid.Presentation.SimpleText.initPresentation = function(container, options) {
+      var that;
+      that = MITHGrid.Presentation.initPresentation("SimpleText", container, options);
       return that;
     };
     Facet = MITHGrid.namespace('Facet');

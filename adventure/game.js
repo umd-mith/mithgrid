@@ -27,7 +27,7 @@
 			 */
 			    presentations: {
 					inventory: {
-			            type: MITHGrid.Presentation.TextList,
+			            type: MITHGrid.Presentation.SimpleText,
 			            container: ".inventory-holder > .inventory",
 			            dataView: 'inventory',
 			            lenses: {
@@ -50,7 +50,7 @@
 			            }
 			        },
 			    	score: {
-			            type: MITHGrid.Presentation.TextList,
+			            type: MITHGrid.Presentation.SimpleText,
 			            container: ".score-holder > .score",
 			            dataView: 'player',
 						lenses: {
@@ -74,7 +74,7 @@
 						}
 			        },
 			    	room: {
-			            type: MITHGrid.Presentation.TextList,
+			            type: MITHGrid.Presentation.SimpleText,
 			            container: ".room > .description",
 			            dataView: 'player',
 			            lenses: {
