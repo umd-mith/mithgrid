@@ -20,7 +20,7 @@ The following libraries and versions are included in the lib/ directory.  These 
 What you need to build your own MITHGrid
 ----------------------------------------
 
-In order to build MITHGrid, you need to have GNU make 3.81 or later, Node.js 0.5 or later, and git 1.7 or later.  Earlier versions might work, but they have not been tested.
+In order to build MITHGrid, you need to have GNU make 3.81 or later, CoffeeScript version 1.1.1 or later, Node.js 0.5 or later, and git 1.7 or later.  Earlier versions might work, but they have not been tested.
 
 Mac OS users should install Xcode, either from the Mac OS install DVD or from the Apple Mac OS App Store.  Node.js can be installed by one of the UNIX package managers available for the Mac OS.
 
