@@ -2,7 +2,7 @@
   /*
    * mithgrid JavaScript Library v0.0.1
    *
-   * Date: Mon Oct 10 15:13:06 2011 -0400
+   * Date: Tue Oct 11 14:28:17 2011 -0400
    *
    * (c) Copyright University of Maryland 2011.  All rights reserved.
    *
@@ -402,7 +402,7 @@
           }
         });
       };
-      that.removeItems = function(ids) {
+      that.removeItems = function(ids, fn) {
         var id, id_list, indexRemove, indexRemoveFn, removeItem, removeValues, _i, _len;
         id_list = [];
         indexRemove = function(index, x, y, z) {
@@ -477,9 +477,12 @@
           id_list.push(id);
           set.remove(id);
         }
-        return that.events.onModelChange.fire(that, id_list);
+        that.events.onModelChange.fire(that, id_list);
+        if (fn != null) {
+          return fn();
+        }
       };
-      that.updateItems = function(items) {
+      that.updateItems = function(items, fn) {
         var chunk_size, f, id_list, indexPutFn, indexRemove, indexRemoveFn, n, updateItem;
         id_list = [];
         indexRemove = function(index, x, y, z) {
@@ -609,7 +612,10 @@
             }, 0);
           } else {
             that.events.onAfterUpdating.fire(that);
-            return that.events.onModelChange.fire(that, id_list);
+            that.events.onModelChange.fire(that, id_list);
+            if (fn != null) {
+              return fn();
+            }
           }
         };
         return f(0);
@@ -1893,6 +1899,12 @@
       };
       that.dataView = that.options.dataView;
       that.dataView.registerPresentation(that);
+      return that;
+    };
+    MITHGrid.Presentation.namespace("SimpleText");
+    MITHGrid.Presentation.SimpleText.initPresentation = function(container, options) {
+      var that;
+      that = MITHGrid.Presentation.initPresentation("SimpleText", container, options);
       return that;
     };
     Facet = MITHGrid.namespace('Facet');
