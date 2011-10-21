@@ -1,4 +1,39 @@
 (function($, MITHGrid) {
+	MITHGrid.Controller.namespace("State");
+	MITHGrid.Controller.namespace("Transition");
+	
+	MITHGrid.Controller.State.initController = function(options) {
+		var that = MITHGrid.Controller.initRaphaelController("MITHGrid.Controller.State", options),
+		options = that.options;
+		
+		that.createBindings = function(binding, model, itemId) {
+			var ox, oy;
+			var svgEl = binding.locate('raphael');
+			svgEl.drag(
+			function(dx, dy) {
+				model.updateItems([{
+					id: itemId,
+					'position-x': ox + dx,
+					'position-y': oy + dy
+				}]);
+			},
+			function() {
+				ox = svgEl.attr("x");
+				oy = svgEl.attr("y");
+				svgEl.attr({
+					opacity: 1
+				});
+			},
+			function() {
+				svgEl.attr({
+					opacity: 0.75
+				});
+			});
+		};
+		
+		return that;
+	};
+	
 	MITHGrid.Presentation.namespace("Flow");
     MITHGrid.Presentation.Flow.initPresentation = function(container, options) {
         var that = MITHGrid.Presentation.initPresentation("Flow", container, options),
@@ -62,43 +97,27 @@
         that.startDisplayUpdate = function() {};
         that.finishDisplayUpdate = function() {};
 
+		var viewController = MITHGrid.Controller.State.initController({});
+
         var viewLens = {
             render: function(container, view, model, itemId) {
                 var that = {},
                 ox,
-                oy;
+                oy,
                 item = model.getItem(itemId);
                 var x = item['position-x'][0],
                 y = item['position-y'][0],
                 width = 100,
                 height = 40;
-                var c = paper.rect(x, y, width, height, 10);
+				var c = paper.rect(x, y, width, height, 10);
+				
+				viewController.bind(c, model, itemId);
+				
                 c.attr({
                     fill: "#888888",
-                    opacity: 0.75
+                    opacity: 0.75,
+					itemId: itemId
                 });
-                var ox,
-                oy;
-                var start = function() {
-                    ox = c.attr("x");
-                    oy = c.attr("y");
-                    c.attr({
-                        opacity: 1
-                    });
-                },
-                move = function(dx, dy) {
-                    var targets = {};
-                    model.updateItems([{
-                        id: itemId,
-                        'position-x': ox + dx,
-                        'position-y': oy + dy
-                    }])
-                },
-                up = function() {
-                    c.attr({
-                        opacity: 0.75
-                    });
-                };
 
                 var transition_id_exprs = model.prepare(['!transition-to', '!transition-from']);
 
@@ -142,8 +161,10 @@
 					}
 				};
 				
-                c.drag(move, start, up);
+              //  viewController.addBindings(c, itemId, ['drag']);
+
                 that.shape = c;
+
                 return that;
             }
         };
