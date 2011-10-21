@@ -1,12 +1,11 @@
 (function($, MITHGrid) {
 	MITHGrid.Controller.namespace("State");
-	MITHGrid.Controller.namespace("Transition");
 	
 	MITHGrid.Controller.State.initController = function(options) {
 		var that = MITHGrid.Controller.initRaphaelController("MITHGrid.Controller.State", options),
 		options = that.options;
 		
-		that.createBindings = function(binding, model, itemId) {
+		that.applyBindings = function(binding, model, itemId) {
 			var ox, oy;
 			var svgEl = binding.locate('raphael');
 			svgEl.drag(

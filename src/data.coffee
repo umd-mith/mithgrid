@@ -28,6 +28,13 @@
 				delete items[item]
 				recalc_items = true
 				count -= 1
+				
+		that.empty = () ->
+			items = {}
+			count = 0
+			recalc_items = false
+			items_list = []
+			undefined
 
 		that.visit = (fn) ->
 			for o of items
@@ -379,14 +386,17 @@
 
 		that.prepare = (expressions) ->
 			parsed = (MITHGrid.Expression.initParser().parse(ex) for ex in expressions)
-
+			valueType = undefined
 			evaluate: (id) ->
 				values = []
+				valueType = undefined
 				for ex in parsed
 					do (ex) ->
 						items = ex.evaluateOnItem id, that
+						valueType or= items.valueType
 						values = values.concat items.values.items()
 				values
+			valueType: () -> valueType
 
 		that.getObjectsUnion = (subjects, p, set, filter) -> getUnion spo, subjects, p, set, filter
 		that.getSubjectsUnion = (objects, p, set, filter) -> getUnion ops, objects,	 p, set, filter
@@ -463,10 +473,10 @@
 						changed_set.add i
 				if changed_set.size() > 0
 					that.events.onModelChange.fire that, changed_set.items()
-		
-		
+				
 		that.eventModelChange = (model, items) ->
 			changed_set = Data.initSet()
+				
 			for id in items
 				if model.contains id
 					if filterItem id
@@ -524,6 +534,70 @@
 					onFilterChange:
 						addListener: (x) ->
 
+		if options?.expressions?
+			# we want a way to make our set of items depend on running expressions on the items
+			# passed to us from the parent dataView/dataStore
+			# it needs to be quick, similar to the current propagation of changes
+			# N.B.: these are not event-based expressions
+			# the expressions must result in itemIds that are contained in the parent dataStore
+			expressions = options.dataStore.prepare(options.expressions)
+			prevEventModelChange = that.eventModelChange
+			intermediateDataStore = MITHGrid.Data.initStore({})
+			subjectSet = MITHGrid.Data.initSet()
+			that.eventModelChange = (model, items) ->
+				itemList = []
+				removedItems = []
+				intermediateSet = MITHGrid.Data.initSet()
+				intermediateSet = intermediateDataStore.getObjectsUnion subjectSet, "mapsTo", intermediateSet
+				for id in items
+					if intermediateSet.contains(id)
+						itemList.push id
+						if !model.contains(id)
+							# we need to find everything that maps to id
+							idSet = MITHGrid.Data.initSet()
+							intermediateDataStore.getSubjectsUnion MITHGrid.Data.initSet([id]), "mapsTo", idSet
+							idSet.visit (x) ->
+								item = intermediateDataStore.getItem x
+								mapsTo = item.mapsTo
+								if mapsTo?
+									i = mapsTo.indexOf(id)
+									if i == 0
+										mapsTo = mapsTo[1 ... mapsTo.length]
+									else if i == mapsTo.length-1
+										mapsTo = mapsTo[0 ... mapsTo.length-1]
+									else if i > -1
+										mapsTo = mapsTo[0 ... i].concat mapsTo[i+1 ... mapsTo.length]
+									intermediateDataStore.updateItems [
+										id: x
+										mapsTo: mapsTo
+									]			
+					else if model.contains(id)
+						itemSet = MITHGrid.Data.initSet()
+						for v in expressions.evaluate([id])
+							itemSet.add(v)
+						if intermediateDataStore.contains(id)
+							intermediateDataStore.updateItems [
+								id: id
+								mapsTo: itemSet.items()
+							]
+						else
+							intermediateDataStore.loadItems [
+								id: id
+								mapsTo: itemSet.items()
+							]
+					else
+						# push onto itemList the items mapped to by this id
+						itemList = itemList.concat(intermediateDataStore.getItem(id).mapsTo)
+						removedItems.push id
+
+				if removedItems.length > 0
+					intermediateDataStore.removeItems(removedItems)
+
+				intermediateSet = MITHGrid.Data.initSet()
+				intermediateDataStore.getObjectsUnion subjectSet, "mapsTo", intermediateSet
+				itemList = (item for item in itemList when item in items)
+				prevEventModelChange intermediateSet, itemList
+
 		that.dataStore = options.dataStore
 
 		# these mappings allow a data View to stand in for a data Store
@@ -540,6 +614,149 @@
 		that.getProperty = that.dataStore.getProperty
 		that.getObjectsUnion = that.dataStore.getObjectsUnion
 		that.getSubjectsUnion = that.dataStore.getSubjectsUnion
+		
+		that.dataStore.events.onModelChange.addListener that.eventModelChange
+
+		that
+		
+	Data.initPager = (options) ->
+		that = MITHGrid.initView "MITHGrid.Data.initPager", options
+		options = that.options
+
+		itemList = []
+		itemListStart = -1
+		itemListStop = -1
+		leftKey = undefined
+		rightKey = undefined
+		
+		# returns the first index that has a key greater than or equal to the given key
+		findLeftPoint = (key) ->
+			left = 0
+			right = itemList.length - 1
+			while left < right
+				mid = ~~((left + right) / 2)
+				if itemList[mid][0] < key
+					left = mid + 1
+				else
+					right = mid - 1
+			left
+			
+		# returns the last index that has a key less than or equal to the given key
+		findRightPoint = (key) ->
+			left = 0
+			right = itemList.length - 1
+			while left < right
+				mid = ~~((left + right) / 2)
+				if itemList[mid][0] <= key
+					left = mid + 1
+				else
+					right = mid - 1
+			right
+			
+		findItemPosition = (itemId) ->
+			for i in [0 ... itemList.length]
+				return i if itemList[i][1] == itemId
+			return -1
+			
+
+		set = Data.initSet()
+		
+		that.items = set.items
+		that.size = set.size
+		that.contains = set.contains
+		
+		that.dataStore = options.dataStore
+		# these mappings allow a data pager to stand in for a data Store
+		that.getItems = that.dataStore.getItems
+		that.getItem = that.dataStore.getItem
+		that.removeItems = that.dataStore.removeItems
+		that.fetchData = that.dataStore.fetchData
+		that.updateItems = that.dataStore.updateItems
+		that.loadItems = that.dataStore.loadItems
+		that.prepare = that.dataStore.prepare
+		that.addType = that.dataStore.addType
+		that.getType = that.dataStore.getType
+		that.addProperty = that.dataStore.addProperty
+		that.getProperty = that.dataStore.getProperty
+		that.getObjectsUnion = that.dataStore.getObjectsUnion
+		that.getSubjectsUnion = that.dataStore.getSubjectsUnion
+		
+		expressions = that.prepare(options.expressions)
+			
+		that.eventModelChange = (model, items) ->
+			# we're modifying the items we're tracking, possibly expanding or decreasing the set
+			changedItems = [] # to propogate on to the next level
+			for itemId in items
+				if model.contains(itemId)
+					keys = expressions.evaluate(itemId)
+					if keys.length > 0
+						if expressions.valueType() == "numeric"
+							key = parseFloat(keys[0])
+						else
+							key = keys[0]
+						if set.contains(itemId)
+							i = findItemPosition itemId
+							if i == -1
+								itemList.push [ key, itemId ]
+							else
+								itemList[i][0] = key
+							changedItems.push itemId
+							if key < leftKey or key > rightKey
+								set.remove(itemId)
+						else
+							itemList.push [ key, itemId ]
+							if key >= leftKey and key <= rightKey
+								set.add(itemId)
+								changedItems.push itemId							
+					else
+						if set.contains(itemId)
+							i = findItemPosition itemId
+							if i == 0
+								itemList = itemList[1...itemList.length]
+							else if i == itemList.length-1
+								itemList = itemList[0...itemList.length-1]
+							else if i != -1
+								itemList = itemList[0...i].concat itemList[i+1...itemList.length]
+							set.remove(itemId)
+							changedItems.push itemId
+			# now sort itemList
+			# and redo left and right positions
+			# and double check set and changedItems list?
+			itemList.sort (a,b) ->
+				return -1 if a[0] < b[0]
+				return  1 if a[0] > b[0]
+				return  0
+			itemListStart = findLeftPoint leftKey
+			itemListStop  = 1 + findRightPoint rightKey
+			if changedItems.length > 0
+				that.events.onModelChange.fire that, changedItems
+
+		that.setKeyRange = (l, r) ->
+			leftKey = l
+			rightKey = r
+			
+			itemListStart = findLeftPoint leftKey
+			itemListStop  = 1 + findRightPoint rightKey
+			
+			changedItems = Data.initSet()
+			oldSet = set
+			
+			set = Data.initSet()
+			that.items = set.items
+			that.size = set.size
+			that.contains = set.contains
+			
+			for i in [itemListStart...itemListStop]
+				itemId = itemList[i][1]
+				if !oldSet.contains(itemId)
+					changedItems.add itemId
+				set.add(itemId)
+			oldSet.visit (x) ->
+				if !set.contains(x)
+					changedItems.add x
+			if changedItems.size() > 0
+				that.events.onModelChange.fire that, changedItems.items()
+
 		
 		that.dataStore.events.onModelChange.addListener that.eventModelChange
 

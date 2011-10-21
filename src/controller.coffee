@@ -12,7 +12,7 @@
 		###
 		
 		that.initBind = (element, args...) ->
-			binding = {}
+			binding = MITHGrid.initView options.bind
 			bindingsCache = { '': $(element) }
 			
 			binding.locate = (internalSelector) ->
@@ -52,9 +52,11 @@
 		that.bind = (element, args...) ->
 			binding = that.initBind element, args...
 			
-			that.createBindings binding, args...
+			that.applyBindings binding, args...
+			
+			binding
 		
-		that.createBindings = (binding, args...) ->
+		that.applyBindings = (binding, args...) ->
 			
 		that
 		
