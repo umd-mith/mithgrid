@@ -44,9 +44,9 @@ The C<bind> option holds the configuration used to create the binding objects fo
 
 The C<events> option is used to configure the events for a particular element binding.
 
-=back 4
+=back
 
-=back 4
+=back
 
 =head2 Controller Methods
 
@@ -66,7 +66,7 @@ or other options if the controller provides them.
 
 This will create the binding object managing configurable access to parts of the rendered DOM.
 
-=back 4
+=back
 
 =head2 Binding Methods
 
@@ -98,7 +98,7 @@ This will refresh the cache for the list of selectors. Nothing will be returned.
 
 This will clear the selector cache.
 
-=back 4
+=back
 
 =head1 EXAMPLE
 
