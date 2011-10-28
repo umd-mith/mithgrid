@@ -358,10 +358,10 @@
 			if endFn?
 				chunk_size = parseInt(n / 100, 10)
 				chunk_size = 200 if chunk_size > 200
-				chunk_size = 1 if chunk_size < 1
 			else
 				chunk_size = n
-				
+			chunk_size = 1 if chunk_size < 1
+			
 			f = (start) ->
 				end = start + chunk_size
 				end = n if end > n
@@ -375,13 +375,9 @@
 						f(end)
 					, 0
 				else
-					setTimeout () ->
-						that.events.onAfterLoading.fire that
-						setTimeout () ->
-							that.events.onModelChange.fire that, id_list
-							setTimeout endFn, 0 if endFn?
-						, 0
-					, 0
+					that.events.onAfterLoading.fire that
+					that.events.onModelChange.fire that, id_list
+					setTimeout endFn, 0 if endFn?
 			f 0
 
 		that.prepare = (expressions) ->
@@ -635,8 +631,11 @@
 			right = itemList.length - 1
 			while left < right
 				mid = ~~((left + right) / 2)
+				
 				if itemList[mid][0] < key
 					left = mid + 1
+				else if itemList[mid][0] == key
+					right = mid
 				else
 					right = mid - 1
 			left
@@ -727,17 +726,21 @@
 				return  1 if a[0] > b[0]
 				return  0
 			itemListStart = findLeftPoint leftKey
-			itemListStop  = 1 + findRightPoint rightKey
+			itemListStop  = findRightPoint rightKey
+
 			if changedItems.length > 0
 				that.events.onModelChange.fire that, changedItems
 
 		that.setKeyRange = (l, r) ->
-			leftKey = l
-			rightKey = r
-			
+			if l < r
+				leftKey = l
+				rightKey = r
+			else
+				leftKey = r
+				rightKey = l
+				
 			itemListStart = findLeftPoint leftKey
-			itemListStop  = 1 + findRightPoint rightKey
-			
+			itemListStop  = findRightPoint rightKey
 			changedItems = Data.initSet()
 			oldSet = set
 			
@@ -746,11 +749,12 @@
 			that.size = set.size
 			that.contains = set.contains
 			
-			for i in [itemListStart...itemListStop]
-				itemId = itemList[i][1]
-				if !oldSet.contains(itemId)
-					changedItems.add itemId
-				set.add(itemId)
+			if itemListStart < itemListStop
+				for i in [itemListStart..itemListStop]
+					itemId = itemList[i][1]
+					if !oldSet.contains(itemId)
+						changedItems.add itemId
+					set.add(itemId)
 			oldSet.visit (x) ->
 				if !set.contains(x)
 					changedItems.add x

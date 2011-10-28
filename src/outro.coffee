@@ -14,6 +14,10 @@ MITHGrid.defaults "MITHGrid.Data.initView",
         onModelChange: null
         onFilterItem: "preventable"
 
+MITHGrid.defaults "MITHGrid.Data.initPager",
+    events:
+        onModelChange: null
+
 MITHGrid.defaults "MITHGrid.Facet", {}
 
 MITHGrid.defaults "MITHGrid.Facet.TextSearch",
