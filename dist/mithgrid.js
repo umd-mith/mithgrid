@@ -2,7 +2,7 @@
   /*
    * mithgrid JavaScript Library v0.0.1
    *
-   * Date: Wed Oct 19 09:18:36 2011 -0400
+   * Date: Mon Oct 24 15:54:02 2011 -0400
    *
    * (c) Copyright University of Maryland 2011.  All rights reserved.
    *
@@ -701,11 +701,11 @@
           if (chunk_size > 200) {
             chunk_size = 200;
           }
-          if (chunk_size < 1) {
-            chunk_size = 1;
-          }
         } else {
           chunk_size = n;
+        }
+        if (chunk_size < 1) {
+          chunk_size = 1;
         }
         f = function(start) {
           var end, entry, i;
@@ -724,15 +724,11 @@
               return f(end);
             }, 0);
           } else {
-            return setTimeout(function() {
-              that.events.onAfterLoading.fire(that);
-              return setTimeout(function() {
-                that.events.onModelChange.fire(that, id_list);
-                if (endFn != null) {
-                  return setTimeout(endFn, 0);
-                }
-              }, 0);
-            }, 0);
+            that.events.onAfterLoading.fire(that);
+            that.events.onModelChange.fire(that, id_list);
+            if (endFn != null) {
+              return setTimeout(endFn, 0);
+            }
           }
         };
         return f(0);
@@ -1098,6 +1094,8 @@
           mid = ~~((left + right) / 2);
           if (itemList[mid][0] < key) {
             left = mid + 1;
+          } else if (itemList[mid][0] === key) {
+            right = mid;
           } else {
             right = mid - 1;
           }
@@ -1203,29 +1201,36 @@
           return 0;
         });
         itemListStart = findLeftPoint(leftKey);
-        itemListStop = 1 + findRightPoint(rightKey);
+        itemListStop = findRightPoint(rightKey);
         if (changedItems.length > 0) {
           return that.events.onModelChange.fire(that, changedItems);
         }
       };
       that.setKeyRange = function(l, r) {
         var changedItems, i, itemId, oldSet;
-        leftKey = l;
-        rightKey = r;
+        if (l < r) {
+          leftKey = l;
+          rightKey = r;
+        } else {
+          leftKey = r;
+          rightKey = l;
+        }
         itemListStart = findLeftPoint(leftKey);
-        itemListStop = 1 + findRightPoint(rightKey);
+        itemListStop = findRightPoint(rightKey);
         changedItems = Data.initSet();
         oldSet = set;
         set = Data.initSet();
         that.items = set.items;
         that.size = set.size;
         that.contains = set.contains;
-        for (i = itemListStart; itemListStart <= itemListStop ? i < itemListStop : i > itemListStop; itemListStart <= itemListStop ? i++ : i--) {
-          itemId = itemList[i][1];
-          if (!oldSet.contains(itemId)) {
-            changedItems.add(itemId);
+        if (itemListStart < itemListStop) {
+          for (i = itemListStart; itemListStart <= itemListStop ? i <= itemListStop : i >= itemListStop; itemListStart <= itemListStop ? i++ : i--) {
+            itemId = itemList[i][1];
+            if (!oldSet.contains(itemId)) {
+              changedItems.add(itemId);
+            }
+            set.add(itemId);
           }
-          set.add(itemId);
         }
         oldSet.visit(function(x) {
           if (!set.contains(x)) {
@@ -2366,9 +2371,8 @@
       		# this isn't that object, but can produce that object, so this is a kind of controller factory
       		# that can be used by lenses
       		*/
-      that.initBind = function() {
-        var args, binding, bindingsCache, element;
-        element = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      that.initBind = function(element) {
+        var binding, bindingsCache;
         binding = MITHGrid.initView(options.bind);
         bindingsCache = {
           '': $(element)
@@ -2420,7 +2424,7 @@
       that.bind = function() {
         var args, binding, element;
         element = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-        binding = that.initBind.apply(that, [element].concat(__slice.call(args)));
+        binding = that.initBind(element);
         that.applyBindings.apply(that, [binding].concat(__slice.call(args)));
         return binding;
       };
@@ -2434,10 +2438,9 @@
       var superInitBind, that;
       that = MITHGrid.Controller.initController(klass, options);
       superInitBind = that.initBind;
-      that.initBind = function() {
-        var args, binding, raphaelDrawing, superFastLocate, superLocate, superRefresh;
-        raphaelDrawing = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-        binding = superInitBind.apply(null, [raphaelDrawing.node].concat(__slice.call(args)));
+      that.initBind = function(raphaelDrawing) {
+        var binding, superFastLocate, superLocate, superRefresh;
+        binding = superInitBind(raphaelDrawing.node);
         superLocate = binding.locate;
         superFastLocate = binding.fastLocate;
         superRefresh = binding.refresh;
@@ -2737,6 +2740,11 @@
     events: {
       onModelChange: null,
       onFilterItem: "preventable"
+    }
+  });
+  MITHGrid.defaults("MITHGrid.Data.initPager", {
+    events: {
+      onModelChange: null
     }
   });
   MITHGrid.defaults("MITHGrid.Facet", {});
