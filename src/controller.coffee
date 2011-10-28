@@ -11,7 +11,7 @@
 		# that can be used by lenses
 		###
 		
-		that.initBind = (element, args...) ->
+		that.initBind = (element) ->
 			binding = MITHGrid.initView options.bind
 			bindingsCache = { '': $(element) }
 			
@@ -50,7 +50,7 @@
 			binding
 			
 		that.bind = (element, args...) ->
-			binding = that.initBind element, args...
+			binding = that.initBind element
 			
 			that.applyBindings binding, args...
 			
@@ -65,8 +65,8 @@
 		
 		superInitBind = that.initBind
 		
-		that.initBind = (raphaelDrawing, args...) ->
-			binding = superInitBind raphaelDrawing.node, args...
+		that.initBind = (raphaelDrawing) ->
+			binding = superInitBind raphaelDrawing.node
 			
 			superLocate = binding.locate
 			superFastLocate = binding.fastLocate
