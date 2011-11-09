@@ -28,6 +28,36 @@
 			genericNamespacer globals[nom], n
 		globals[nom]
 		
+	MITHGrid.normalizeArgs = (type, types, container, options) ->
+		if !options? && $.isPlainObject(container)
+			options = container
+			container = undefined
+		if !container?
+			if typeof types != "string"
+				if !$.isArray(types)
+					container = types
+					types = []
+
+		if !options?
+			if typeof types == "string"
+				types = [ types, type ]
+				options = {}
+			else if $.isArray types
+				types.push type
+				options = {}
+			else
+				options = types
+				types = type
+		else
+			if typeof types == "string"
+				types = [ types, type ]
+			else if $.isArray types
+				types.push type
+			else
+				types = type
+				
+		[ types, container, options ]
+		
 	
 	MITHGridDefaults = {}
 	
@@ -90,18 +120,22 @@
 		if !config?
 			config = container
 			container = undefined
-		if !config? and typeof namespace != "string"
+		if !config? and !(typeof namespace == "string" || $.isArray(namespace))
 			config = namespace
-			namespace = ''
+			namespace = null
 		that = {}
 		options = {}
-		if namespace? and namespace != ''
-			bits = namespace.split('.')
-			ns = bits.shift()
-			options = $.extend(true, {}, MITHGridDefaults[ns]||{})
-			while bits.length > 0
-				ns = ns + "." + bits.shift()
-				options = $.extend(true, options, MITHGridDefaults[ns]||{})
+		if namespace? 
+			if typeof namespace == "string"
+				namespace = [ namespace ]
+			namespace.reverse()
+			for ns in namespace
+				bits = ns.split('.')
+				ns = bits.shift()
+				options = $.extend(true, {}, MITHGridDefaults[ns]||{})
+				while bits.length > 0
+					ns = ns + "." + bits.shift()
+					options = $.extend(true, options, MITHGridDefaults[ns]||{})
 		options = $.extend(true, options, config||{})
 
 		initViewCounter += 1

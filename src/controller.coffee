@@ -1,6 +1,7 @@
 
 	Controller = MITHGrid.namespace 'Controller'
 	Controller.initController = (klass, options) ->
+		[ klass, options ] = MITHGrid.normalizeArgs "MITHGrid.Controller", klass, options
 		that = MITHGrid.initView klass, options
 		options = that.options
 		options.selectors or= {}

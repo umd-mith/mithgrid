@@ -1,6 +1,7 @@
 
 	Application = MITHGrid.namespace 'Application'
-	Application.initApp = (klass, container, options) ->
+	Application.initApp = (klass, container, options) ->		
+		[ klass, container, options ] = MITHGrid.normalizeArgs "MITHGrid.Application", klass, container, options
 		that = MITHGrid.initView(klass, container, options)
 		onReady = []
 		
@@ -8,6 +9,7 @@
 		that.facet = {}
 		that.dataStore = {}
 		that.dataView = {}
+		that.controller = {}
 		
 		options = that.options
 		
@@ -36,6 +38,7 @@
 
 		if options?.dataViews?
 			for viewName, viewConfig of options.dataViews
+				initFn = viewConfig.init || MITHGrid.Data.initView
 				viewOptions =
 					dataStore: that.dataStore[viewConfig.dataStore]
 					label: viewName
@@ -44,11 +47,20 @@
 					viewOptions.collection = viewConfig.collection if viewConfig.collection?
 					viewOptions.types = viewConfig.types if viewConfig.types?
 					viewOptions.filters = viewConfig.filters if viewConfig.filters?
+					viewOptions.expressions = viewConfig.expressions if viewConfig.expressions?
 					
-					view = MITHGrid.Data.initView viewOptions
+					view = initFn viewOptions
 					that.dataView[viewName] = view
 #				else
 #					view = that.dataView[viewName]
+
+		if options?.controllers?
+			that.ready () ->
+				for cName, cconfig of options.controllers
+					coptions = $.extend(true, {}, cconfig)
+					coptions.application = that
+					controller = cconfig.type.initController coptions
+					that.controller[cName] = controller
 
 		if options?.viewSetup?
 			if $.isFunction(options.viewSetup)
