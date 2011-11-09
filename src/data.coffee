@@ -122,6 +122,7 @@
 
 		that.items = set.items
 		that.contains = set.contains
+		that.visit = set.visit
 
 		that.addProperty = (nom, options) ->
 			prop = Data.initProperty nom
@@ -439,6 +440,7 @@
 					that.items = set.items
 					that.size = set.size
 					that.contains = set.contains
+					that.visit = set.visit
 					if endFn?
 						setTimeout endFn, 0
 			f 0
@@ -456,6 +458,7 @@
 		that.items = set.items
 		that.size = set.size
 		that.contains = set.contains
+		that.visit = set.visit
 		
 		that.eventFilterChange = () ->
 			current_set = Data.initSet that.items()
@@ -663,6 +666,7 @@
 		that.items = set.items
 		that.size = set.size
 		that.contains = set.contains
+		that.visit = set.visit
 		
 		that.dataStore = options.dataStore
 		# these mappings allow a data pager to stand in for a data Store
@@ -748,6 +752,7 @@
 			that.items = set.items
 			that.size = set.size
 			that.contains = set.contains
+			that.visit = set.visit
 			
 			if itemListStart < itemListStop
 				for i in [itemListStart..itemListStop]

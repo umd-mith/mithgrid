@@ -32,63 +32,51 @@ configuration option.
 controller = MITHGrid.Controller.initController(type, { options list... });
 --------------------------------------------------------------------------------------------
 
-* selectors
-
-The +selectors+ option maps the handles used when setting up the element bindings to the actual CSS selectors used to find the
+selectors::
+  The +selectors+ option maps the handles used when setting up the element bindings to the actual CSS selectors used to find the
 particular DOM elements that are children of the element being bound.
 
-* bind
-
-The +bind+ option holds the configuration used to create the binding objects for particular elements.
-
-** events
-
-The +events+ option is used to configure the events for a particular element binding.
+bind::
+  The +bind+ option holds the configuration used to create the binding objects for particular elements.
+  events;;
+    The +events+ option is used to configure the events for a particular element binding.
 
 === Controller Methods ===
 
-* applyBindings(binding, args...)
-
-This is an abstract method that must be defined in the controller. The arguments given to the +bind+ function are passed
+applyBindings(binding, args...)::
+  This is an abstract method that must be defined in the controller. The arguments given to the +bind+ function are passed
 in as-is. The +binding+ object provides access to the DOM in a configurable manner.
 
-* bind(el, args...)
-
-This will apply bindings to the given element, returning the binding object. The binding object may have events
+bind(el, args...)::
+  This will apply bindings to the given element, returning the binding object. The binding object may have events
 or other options if the controller provides them.
 
-* initBind(el)
-
-This will create the binding object managing configurable access to parts of the rendered DOM.
+initBind(el)::
+  This will create the binding object managing configurable access to parts of the rendered DOM.
 
 === Binding Methods ===
 
 The following methods are defined for the binding object passed into +applyBindings+ and returned by +bind+.
 
-* locate(selector)
-
-This returns the DOM element indicated by the given selector. The +selector+ is the key into the +selectors+
+locate(selector)::
+  This returns the DOM element indicated by the given selector. The +selector+ is the key into the +selectors+
 object passed into the controller constructor or indicated by the global defaults for the controller. This method
 is key to allowing a controller to work with different DOM structures.
-
++
 The special blank selector (+''+) returns the top-level DOM element passed into the +bind+ method.
-
++
 If called on a Raphaël controller, the special selector, +raphael+, will return the top-level Raphaël shape object
 similar to how the empty string (+''+) returns the top-level DOM element.
 
-* fastLocate(selector)
-
-Returns the cached DOM element if the selector has already been used. Otherwise, it falls back to the +locate+ method.
+fastLocate(selector)::
+  Returns the cached DOM element if the selector has already been used. Otherwise, it falls back to the +locate+ method.
 Since walking the DOM can be slow, this allows you to use the cached element if the selector was already looked up elsewhere.
 
-* refresh([ list of selectors ])
+refresh([ list of selectors ])::
+  This will refresh the cache for the list of selectors. Nothing will be returned.
 
-This will refresh the cache for the list of selectors. Nothing will be returned.
-
-* clear()
-
-This will clear the selector cache.
-
+clear()::
+  This will clear the selector cache.
 
 == EXAMPLE ==
 
@@ -124,7 +112,7 @@ my.controller = function(options) {
 --------------------------------------------------------------------------------------------
 
 The first thing we do is create our base controller using the Raphaël controller since we're going to be binding to
-a Raphaël object. This adds the special +'raphael'+ selector that returns the Raphaël shape object instead of the DOM node.
+a Raphaël object. This adds the special +`raphael'+ selector that returns the Raphaël shape object instead of the DOM node.
 
 We then define the +applyBindings+ function that will add the drag bindings to the Raphaël object. Any information we need
 in order to operate with the particular SVG shape needs to be passed in to the +bind+ function call. 
