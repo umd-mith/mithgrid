@@ -34,8 +34,12 @@
 	};
 	
 	MITHGrid.Presentation.namespace("Flow");
-    MITHGrid.Presentation.Flow.initPresentation = function(container, options) {
-        var that = MITHGrid.Presentation.initPresentation("Flow", container, options),
+    MITHGrid.Presentation.Flow.initPresentation = function(klass, container, options) {
+		var that, _ref1, klass;
+		_ref1 = MITHGrid.normalizeArgs("MITHGrid.Presentation.Flow", klass, container, options);
+		klass = _ref1[0]; container = _ref1[1]; options = _ref1[2];
+	
+        var that = MITHGrid.Presentation.initPresentation(klass, container, options),
         _floor_0 = function(x) {
             return (x < 0 ? 0: x);
         },
