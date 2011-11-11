@@ -1,0 +1,56 @@
+== NAME ==
+
+MITHGrid.Data.initSet
+
+== SYNOPSIS ==
+
+--------------------------------------------------------------------------------------------
+set = MITHGrid.Data.initSet([ list of ids ]);
+--------------------------------------------------------------------------------------------
+
+== DESCRIPTION ==
+
+
+
+== EVENTS ==
+
+There are no events for sets.
+
+== METHODS ==
+
+=== Constructor ===
+
+--------------------------------------------------------------------------------------------
+set = MITHGrid.Data.initSet([ list of ids ]);
+--------------------------------------------------------------------------------------------
+
+The constructor initializes an empty set and adds the optional list of ids.
+
+== Properties ==
+
+isSet::
+  This property is set to true.
+
+=== Managing Items ===
+
+add(item)::
+  Adds the item to the set if it is not already a member.
+
+remove(item)::
+  Removes the item from the set if it is a member.
+
+
+=== Accessing Items ===
+
+items()::
+  Returns a list of all of the members of the set.
+
+visit( function(item) { ... } )::
+  Calls the function for each member in turn until all of the members have been visited or
+the function returns the +true+ value.
+
+contains(item)::
+  Returns +true+ if the item is a member of the set.
+
+size()::
+  Returns the number of items in the set.

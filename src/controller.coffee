@@ -1,6 +1,7 @@
 
 	Controller = MITHGrid.namespace 'Controller'
 	Controller.initController = (klass, options) ->
+		[ klass, options ] = MITHGrid.normalizeArgs "MITHGrid.Controller", klass, options
 		that = MITHGrid.initView klass, options
 		options = that.options
 		options.selectors or= {}
@@ -11,8 +12,8 @@
 		# that can be used by lenses
 		###
 		
-		that.initBind = (element, args...) ->
-			binding = {}
+		that.initBind = (element) ->
+			binding = MITHGrid.initView options.bind
 			bindingsCache = { '': $(element) }
 			
 			binding.locate = (internalSelector) ->
@@ -50,11 +51,13 @@
 			binding
 			
 		that.bind = (element, args...) ->
-			binding = that.initBind element, args...
+			binding = that.initBind element
 			
-			that.createBindings binding, args...
+			that.applyBindings binding, args...
+			
+			binding
 		
-		that.createBindings = (binding, args...) ->
+		that.applyBindings = (binding, args...) ->
 			
 		that
 		
@@ -63,8 +66,8 @@
 		
 		superInitBind = that.initBind
 		
-		that.initBind = (raphaelDrawing, args...) ->
-			binding = superInitBind raphaelDrawing.node, args...
+		that.initBind = (raphaelDrawing) ->
+			binding = superInitBind raphaelDrawing.node
 			
 			superLocate = binding.locate
 			superFastLocate = binding.fastLocate

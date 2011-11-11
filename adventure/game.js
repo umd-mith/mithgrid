@@ -39,10 +39,12 @@
 			                    el = $('<li>' + item.name[0] + '</li>');
 			                    $(container).append(el);
 
-			                    that.update = function(item) {};
+			                    that.update = function(item) {
+									el.text(item.name[0]);
+								};
 
 			                    that.remove = function() {
-			                        $(el).remove();
+			                        el.remove();
 			                    };
 
 			                    return that;
@@ -94,17 +96,26 @@
 									thingIds = thingsInEnvExpr.evaluate([room.id[0]]),
 									player = model.getItem('player'),
 									roomDesc = "", hasForce = false, bear;
-
 									//console.log(thingIds);
 									if(that.isDark() && !that.wasForced()) {
 										roomDesc = ""
 									}
 									else {
-										if(player.brief[0] || (room.timesHere[0] % 5 !== 0)) {
-											roomDesc = room.brief[0];
+										if(player.brief !== undefined && player.brief[0] || (room.timesHere !== undefined && room.timesHere[0] % 5 !== 0)) {
+											if(room.brief !== undefined) {
+												roomDesc = room.brief[0];
+											}
+											else {
+												roomDesc = undefined;
+											}
 										}
 										if(roomDesc === "" || roomDesc === undefined || override_brief === true) {
-											roomDesc = room.description[0];
+											if(room.description !== undefined) {
+												roomDesc = room.description[0];
+											}
+											else {
+												roomDesc = "";
+											}
 						                }
 									}
 
@@ -112,15 +123,14 @@
 						                // look for items with the same environment -- append them to $(container)
 										$.each(thingIds, function(idx, thing) {
 											var item = model.getItem(thing);
-											if(item.type !== undefined) {
-												things[item.type[0]] = things[item.type[0]] || [];
-												things[item.type[0]].push(item);
+											if(item["type"] !== undefined && item["type"].length > 0) {
+												things[item["type"]] = things[item["type"]] || [];
+												things[item["type"]].push(item);
 											}
 										});
-
 										/* available items have a type of 'Object' */
-										if (things.Object.length > 0) {
-										    $.each(things.Object,
+										if (things["Object"].length > 0) {
+										    $.each(things["Object"],
 										    function(idx, object) {
 										        var notes = [ ],
 												note_idx = 0;
@@ -131,7 +141,7 @@
 													note_idx = object.value[0];
 												}
 
-												notes = model.getItems(notesForObjectExpr.evaluate([object.id[0]]));
+												notes = model.getItems(notesForObjectExpr.evaluate(object.id));
 
 												if(notes.length < note_idx) {
 													note_idx = 0;
@@ -140,7 +150,7 @@
 													roomDesc += " You see a " + object.name[0].toLowerCase + ". ";
 												}
 												else {
-													if(notes[note_idx].content[0]) {
+													if(notes[note_idx].content !== undefined && notes[note_idx].content[0] !== undefined) {
 														roomDesc += " " + notes[note_idx].content[0] + " ";
 													}
 												}
@@ -169,7 +179,6 @@
 												cmdEl.removeClass("unavailable");
 											}
 										});
-
 										if(things.WordHash.FORCE !== undefined && things.WordHash.FORCE.length > 0) {
 											// we force the player to do these
 											hasForce = true;
@@ -202,7 +211,7 @@
 								 * previously rendered room
 								 */
 					            rendering.update = function(item) {
-									if(room.id[0] !== item.environment[0]) {
+									if(item.environment !== undefined && room.id[0] !== item.environment[0]) {
 										room = model.getItem(item.environment[0]);
 										doRender();
 										model.updateItems([{
@@ -713,7 +722,6 @@
         dark = false
         ;
 
-		console.log(that);
         that.isDark = function() {
             return dark;
         };
@@ -1066,6 +1074,10 @@
                 }
                 if (toting("cage")) {
                     setGameProp("bird", 1);
+					that.dataStore.adventure.updateItems([{
+						id: "obj:bird",
+						label: [].concat(obj.label || []).concat(["cage"])
+					}]);
                 }
                 else {
                     print("You can catch the bird, but you cannot carry it.");
@@ -1073,16 +1085,15 @@
                 }
             }
             if (obj.id[0] === "obj:bird" || (obj.id[0] === "obj:cage" && getGameProp("bird") > 0)) {
-                if (obj.id[0] === "obj:bird") {
-                    carry("obj:cage");
-                }
-                else {
-                    carry("obj:bird");
-                }
+				carry("obj:bird");
+				if(toting("bird") && toting("cage")) {
+					destroy("obj:cage");
+				}
             }
-
-            carry(things[0].id[0]);
-
+			else {
+            	carry(things[0].id[0]);
+			}
+			
             if (toting(things[0].id[0])) {
                 print("You " + bits[0] + " the " + things[0].label[0] + ".");
             }

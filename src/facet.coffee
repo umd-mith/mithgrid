@@ -115,3 +115,31 @@
 				resizable: true
 		
 		that
+		
+	Facet.namespace 'Range'
+	Facet.Range.initFacet = (container, options) ->
+		that = Facet.initFacet("MITHGrid.Facet.Range", container, options)
+		
+		options = that.options
+		options.min or= 0
+		options.max or= 100
+		options.step or= 1.0 / 30.0
+
+		that.selfRender = () ->
+			dom = that.constructFacetFrame container, null,
+				facetLabel: options.facetLabel
+				resizable: false
+				
+			# now add range input element
+			# <input type="range" min="0" max="length of video" step="0.033333333333" value="0" />
+			inputElement = $("<input type='range'>")
+			inputElement.attr
+				min: options.min
+				max: options.max
+				step: options.step
+			dom.body.append(inputElement)
+			inputElement.event () ->
+				that.value = inputElement.val()
+				that.events.onFilterChange.fire()
+
+		that

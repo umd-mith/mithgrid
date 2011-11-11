@@ -19,6 +19,46 @@
 	MITHGrid.namespace = (nom) ->
 		genericNamespacer MITHGrid, nom
 	
+	MITHGrid.globalNamespace = (nom) ->
+		globals = window
+		globals[nom] or= {}
+		
+		globals[nom]["debug"] or= MITHGrid.debug
+		globals[nom]["namespace"] or= (n) ->
+			genericNamespacer globals[nom], n
+		globals[nom]
+		
+	MITHGrid.normalizeArgs = (type, types, container, options) ->
+		if !options? && $.isPlainObject(container)
+			options = container
+			container = undefined
+		if !container?
+			if typeof types != "string"
+				if !$.isArray(types)
+					container = types
+					types = []
+
+		if !options?
+			if typeof types == "string"
+				types = [ types, type ]
+				options = {}
+			else if $.isArray types
+				types.push type
+				options = {}
+			else
+				options = types
+				types = type
+		else
+			if typeof types == "string"
+				types = [ types, type ]
+			else if $.isArray types
+				types.push type
+			else
+				types = type
+				
+		[ types, container, options ]
+		
+	
 	MITHGridDefaults = {}
 	
 	MITHGrid.defaults = (namespace, defaults) ->
@@ -38,9 +78,9 @@
 		that.removeListener = (listener) ->
 			if typeof listener == "string"
 				# remove namespace
-				listeners = (listener for listener in listeners when listener[1] != listener)
+				listeners = (l for l in listeners when l[1] != listener)
 			else
-				listeners = (listener for listener in listeners when listener[0] != listener)
+				listeners = (l for l in listeners when l[0] != listener)
 
 		if isUnicast
 			that.fire = (args...) ->
@@ -73,20 +113,29 @@
 				true
 		that
 		
+
 	initViewCounter = 0
+	
 	MITHGrid.initView = (namespace, container, config) ->
 		if !config?
 			config = container
 			container = undefined
-		
+		if !config? and !(typeof namespace == "string" || $.isArray(namespace))
+			config = namespace
+			namespace = null
 		that = {}
 		options = {}
-		bits = namespace.split('.')
-		ns = bits.shift()
-		options = $.extend(true, {}, MITHGridDefaults[ns]||{})
-		while bits.length > 0
-			ns = ns + "." + bits.shift()
-			options = $.extend(true, options, MITHGridDefaults[ns]||{})
+		if namespace? 
+			if typeof namespace == "string"
+				namespace = [ namespace ]
+			namespace.reverse()
+			for ns in namespace
+				bits = ns.split('.')
+				ns = bits.shift()
+				options = $.extend(true, {}, MITHGridDefaults[ns]||{})
+				while bits.length > 0
+					ns = ns + "." + bits.shift()
+					options = $.extend(true, options, MITHGridDefaults[ns]||{})
 		options = $.extend(true, options, config||{})
 
 		initViewCounter += 1

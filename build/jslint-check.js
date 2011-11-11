@@ -5,14 +5,15 @@ var JSLINT = require("./lib/jslint").check, //.JSLINT,
 JSLINT(src, { 
 	forin: true, 
 	maxerr: 100, 
-	vars: false,
+	vars: true,
 	maxlen: 130,
 	white: true, 
 	sloppy: true, 
 	browser: true, 
 	plusplus: false,
 	"continue": true,
-	confusion: true
+	confusion: true,
+	nomen: true
 });
 
 // All of the following are known issues that we think are 'ok'
