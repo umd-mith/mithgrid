@@ -1,18 +1,19 @@
 
 	Controller = MITHGrid.namespace 'Controller'
 	Controller.initController = (klass, options) ->
-		[ klass, options ] = MITHGrid.normalizeArgs "MITHGrid.Controller", klass, options
+		[ klass, c, options ] = MITHGrid.normalizeArgs "MITHGrid.Controller", klass, undefined, options
 		that = MITHGrid.initView klass, options
 		options = that.options
 		options.selectors or= {}
+		#console.log JSON.stringify options
 		
 		###
 		# We need something that can have functions bindable to an element
 		# this isn't that object, but can produce that object, so this is a kind of controller factory
 		# that can be used by lenses
 		###
-		
-		that.initBind = (element) ->
+				
+		initDOMBinding = (element) ->
 			binding = MITHGrid.initView options.bind
 			bindingsCache = { '': $(element) }
 			
@@ -49,6 +50,39 @@
 				bindingsCache = { '': $(element) }
 			
 			binding
+		
+		initRaphaelBinding = (raphaelDrawing) ->
+			binding = initDOMBinding raphaelDrawing.node
+
+			superLocate = binding.locate
+			superFastLocate = binding.fastLocate
+			superRefresh = binding.refresh
+
+			binding.locate = (internalSelector) ->
+				if internalSelector == 'raphael'
+					raphaelDrawing
+				else
+					superLocate internalSelector
+
+			binding.fastLocate = (internalSelector) ->
+				if internalSelector == 'raphael'
+					raphaelDrawing
+				else
+					superFastLocate internalSelector
+
+			binding.refresh = (listOfSelectors) ->
+				listOfSelectors = (s for s in listOfSelectors when s != 'raphael')
+				superRefresh listOfSelectors
+
+			binding
+			
+		that.initBind = (element) ->
+			if typeof element == "string"
+				initDOMBinding $(element)
+			else if element.node?
+				initRaphaelBinding element
+			else
+				initDOMBinding element
 			
 		that.bind = (element, args...) ->
 			binding = that.initBind element
@@ -61,34 +95,4 @@
 			
 		that
 		
-	Controller.initRaphaelController = (klass, options) ->
-		that = MITHGrid.Controller.initController klass, options
-		
-		superInitBind = that.initBind
-		
-		that.initBind = (raphaelDrawing) ->
-			binding = superInitBind raphaelDrawing.node
-			
-			superLocate = binding.locate
-			superFastLocate = binding.fastLocate
-			superRefresh = binding.refresh
-			
-			binding.locate = (internalSelector) ->
-				if internalSelector == 'raphael'
-					raphaelDrawing
-				else
-					superLocate internalSelector
-			
-			binding.fastLocate = (internalSelector) ->
-				if internalSelector == 'raphael'
-					raphaelDrawing
-				else
-					superFastLocate internalSelector
-					
-			binding.refresh = (listOfSelectors) ->
-				listOfSelectors = (s for s in listOfSelectors when s != 'raphael')
-				superRefresh listOfSelectors
-		
-			binding
-
-		that
+	Controller.initRaphaelController = Controller.initController

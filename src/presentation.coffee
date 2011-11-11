@@ -12,13 +12,22 @@
 		
 		$(container).empty()
 
-		that.getLens = (item) ->
-			if item.type? and item.type[0]? and lenses[item.type[0]]?
-				return { render: lenses[item.type[0]] }
+		lensKeyExpression = undefined
+		options.lensKey ||= [ '.type' ]
+
+		that.getLens = (id) ->
+			if lensKeyExpression?
+				keys = lensKeyExpression.evaluate [id]
+				key = keys[0]
+			if key? and lenses[key]?
+				return { render: lenses[key] }
 
 		that.renderingFor = (id) -> renderings[id]
 
 		that.renderItems = (model, items) ->
+			if !lensKeyExpression?
+				lensKeyExpression = model.prepare options.lensKey
+			
 			n = items.length
 			step = n
 			if step > 200
@@ -43,7 +52,7 @@
 							else
 								renderings[id].update model.getItem(id)
 						else if hasItem
-							lens = that.getLens model.getItem(id)
+							lens = that.getLens id
 							if lens?
 								renderings[id] = lens.render container, that, model, id
 

@@ -2,7 +2,7 @@
   /*
    * mithgrid JavaScript Library v0.0.1
    *
-   * Date: Wed Nov 9 14:27:42 2011 -0500
+   * Date: Fri Nov 11 06:05:45 2011 -0800
    *
    * (c) Copyright University of Maryland 2011.  All rights reserved.
    *
@@ -777,13 +777,14 @@
         return f(0);
       };
       that.prepare = function(expressions) {
-        var ex, parsed, valueType;
+        var ex, parsed, parser, valueType;
+        parser = MITHGrid.Expression.initParser();
         parsed = (function() {
           var _i, _len, _results;
           _results = [];
           for (_i = 0, _len = expressions.length; _i < _len; _i++) {
             ex = expressions[_i];
-            _results.push(MITHGrid.Expression.initParser().parse(ex));
+            _results.push(parser.parse(ex));
           }
           return _results;
         })();
@@ -2152,17 +2153,24 @@
     };
     MITHGrid.namespace('Presentation');
     MITHGrid.Presentation.initPresentation = function(type, container, options) {
-      var lenses, renderings, that, _ref4;
+      var lensKeyExpression, lenses, renderings, that, _ref4;
       _ref4 = MITHGrid.normalizeArgs("MITHGrid.Presentation", type, container, options), type = _ref4[0], container = _ref4[1], options = _ref4[2];
       that = MITHGrid.initView(type, container, options);
       renderings = {};
       lenses = that.options.lenses;
       options = that.options;
       $(container).empty();
-      that.getLens = function(item) {
-        if ((item.type != null) && (item.type[0] != null) && (lenses[item.type[0]] != null)) {
+      lensKeyExpression = void 0;
+      options.lensKey || (options.lensKey = ['.type']);
+      that.getLens = function(id) {
+        var key, keys;
+        if (lensKeyExpression != null) {
+          keys = lensKeyExpression.evaluate([id]);
+          key = keys[0];
+        }
+        if ((key != null) && (lenses[key] != null)) {
           return {
-            render: lenses[item.type[0]]
+            render: lenses[key]
           };
         }
       };
@@ -2171,6 +2179,9 @@
       };
       that.renderItems = function(model, items) {
         var f, n, step;
+        if (!(lensKeyExpression != null)) {
+          lensKeyExpression = model.prepare(options.lensKey);
+        }
         n = items.length;
         step = n;
         if (step > 200) {
@@ -2199,7 +2210,7 @@
                   renderings[id].update(model.getItem(id));
                 }
               } else if (hasItem) {
-                lens = that.getLens(model.getItem(id));
+                lens = that.getLens(id);
                 if (lens != null) {
                   renderings[id] = lens.render(container, that, model, id);
                 }
@@ -2410,8 +2421,8 @@
     };
     Controller = MITHGrid.namespace('Controller');
     Controller.initController = function(klass, options) {
-      var that, _ref4;
-      _ref4 = MITHGrid.normalizeArgs("MITHGrid.Controller", klass, options), klass = _ref4[0], options = _ref4[1];
+      var c, initDOMBinding, initRaphaelBinding, that, _ref4;
+      _ref4 = MITHGrid.normalizeArgs("MITHGrid.Controller", klass, void 0, options), klass = _ref4[0], c = _ref4[1], options = _ref4[2];
       that = MITHGrid.initView(klass, options);
       options = that.options;
       options.selectors || (options.selectors = {});
@@ -2420,7 +2431,7 @@
       		# this isn't that object, but can produce that object, so this is a kind of controller factory
       		# that can be used by lenses
       		*/
-      that.initBind = function(element) {
+      initDOMBinding = function(element) {
         var binding, bindingsCache;
         binding = MITHGrid.initView(options.bind);
         bindingsCache = {
@@ -2470,26 +2481,9 @@
         };
         return binding;
       };
-      that.bind = function() {
-        var args, binding, element;
-        element = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-        binding = that.initBind(element);
-        that.applyBindings.apply(that, [binding].concat(__slice.call(args)));
-        return binding;
-      };
-      that.applyBindings = function() {
-        var args, binding;
-        binding = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-      };
-      return that;
-    };
-    Controller.initRaphaelController = function(klass, options) {
-      var superInitBind, that;
-      that = MITHGrid.Controller.initController(klass, options);
-      superInitBind = that.initBind;
-      that.initBind = function(raphaelDrawing) {
+      initRaphaelBinding = function(raphaelDrawing) {
         var binding, superFastLocate, superLocate, superRefresh;
-        binding = superInitBind(raphaelDrawing.node);
+        binding = initDOMBinding(raphaelDrawing.node);
         superLocate = binding.locate;
         superFastLocate = binding.fastLocate;
         superRefresh = binding.refresh;
@@ -2524,8 +2518,29 @@
         };
         return binding;
       };
+      that.initBind = function(element) {
+        if (typeof element === "string") {
+          return initDOMBinding($(element));
+        } else if (element.node != null) {
+          return initRaphaelBinding(element);
+        } else {
+          return initDOMBinding(element);
+        }
+      };
+      that.bind = function() {
+        var args, binding, element;
+        element = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+        binding = that.initBind(element);
+        that.applyBindings.apply(that, [binding].concat(__slice.call(args)));
+        return binding;
+      };
+      that.applyBindings = function() {
+        var args, binding;
+        binding = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      };
       return that;
     };
+    Controller.initRaphaelController = Controller.initController;
     Application = MITHGrid.namespace('Application');
     Application.initApp = function(klass, container, options) {
       var config, initFn, onReady, prop, propOptions, store, storeName, that, type, typeInfo, varName, view, viewConfig, viewName, viewOptions, _fn, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
@@ -2952,7 +2967,36 @@
             return _results;
           }
         };
-        parser.finish = function() {};
+        parser.finish = function() {
+          var annotation, bodyItem, bodyText, createdAt, createdBy, items, mediaURL, svgBox, svgBoxItem, title;
+          items = [];
+          annotation = '';
+          mediaURL = '';
+          svgBox = '';
+          bodyText = '';
+          createdAt = '';
+          createdBy = '';
+          title = '';
+          svgBoxItem = that.SVGBoundingBoxToItem(svgBox);
+          svgBoxItem.id = annotation + '-svg-constraint';
+          bodyItem = {
+            id: annotation + '-body-text',
+            type: 'TextContent',
+            content: bodyText
+          };
+          items.push(svgBoxItem);
+          items.push(bodyItem);
+          items.push({
+            id: annotation,
+            mediaURL: mediaURL,
+            svgConstraint: svgBoxItem.id,
+            body: bodyItem.id,
+            createdAt: createdAt,
+            createdBy: createdBy,
+            title: title
+          });
+          return that.dataStore.loadItems(items);
+        };
         parser.start = function(type, data) {};
         parser.end = function(type, data, startRet) {};
         return parser;

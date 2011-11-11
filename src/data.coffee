@@ -382,7 +382,8 @@
 			f 0
 
 		that.prepare = (expressions) ->
-			parsed = (MITHGrid.Expression.initParser().parse(ex) for ex in expressions)
+			parser = MITHGrid.Expression.initParser()
+			parsed = (parser.parse(ex) for ex in expressions)
 			valueType = undefined
 			evaluate: (id) ->
 				values = []
