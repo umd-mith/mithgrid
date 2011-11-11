@@ -2,8 +2,8 @@
 	MITHGrid.namespace 'Presentation'
 
 	MITHGrid.Presentation.initPresentation = (type, container, options) ->
-		that = {}
-		that = MITHGrid.initView "MITHGrid.Presentation.#{type}", container, options
+		[ type, container, options ] = MITHGrid.normalizeArgs "MITHGrid.Presentation", type, container, options
+		that = MITHGrid.initView type, container, options
 
 			
 		renderings = {}
@@ -69,7 +69,8 @@
 		that
 
 	MITHGrid.Presentation.namespace "SimpleText"
-	MITHGrid.Presentation.SimpleText.initPresentation = (container, options) ->
-		that = MITHGrid.Presentation.initPresentation "SimpleText", container, options
+	MITHGrid.Presentation.SimpleText.initPresentation = (klass, container, options) ->
+		[ klass, container, options ] = MITHGrid.normalizeArgs "MITHGrid.Presentation.SimpleText", klass, container, options
+		that = MITHGrid.Presentation.initPresentation klass, container, options
 
 		that

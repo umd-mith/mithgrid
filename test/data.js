@@ -360,4 +360,109 @@ $(document).ready(function() {
         ok(MITHGrid.Data.initView !== undefined, "Data.initView exists");
         ok($.isFunction(MITHGrid.Data.initView), "Data.initView is a function");
     });
+
+	module("Data.initPager");
+	
+	test("Check data pager construction",
+	function() {
+		var dp;
+		
+		expect(2);
+		ok(MITHGrid.Data.initPager !== undefined, "Data.initPager exists");
+		ok($.isFunction(MITHGrid.Data.initPager), "Data.initPager is a function");
+	});
+	
+	test("Check data pager returns something",
+	function() {
+		var dp;
+		
+		expect(2);
+		try {
+			dp = MITHGrid.Data.initPager({
+				dataStore: MITHGrid.Data.initView({
+					dataStore: MITHGrid.Data.initStore({})
+				}),
+				expressions: [ '.position' ]
+			});
+			ok(true, "initPager called without throwing an error");
+		} catch(e) {
+			ok(false, "initPager called without throwing an error: " + e);
+		}
+		notEqual(dp, undefined, "initPager returns something that isn't undefined");
+		
+	});
+	test("Check data pager interface",
+	function() {
+		var dp,
+		props = [ "items", "addProperty", "getProperty", "addType", "getType", "getItem", "getItems",
+		          "fetchData", "updateItems", "loadItems", "prepare", "getObjectsUnion", "getSubjectsUnion",
+		 		  "eventModelChange", "setKeyRange" ];
+		expect(props.length);
+		dp = MITHGrid.Data.initPager({
+			dataStore: MITHGrid.Data.initStore(),
+			expressions: [ '.position' ]
+		});
+		$.each(props, function(idx, prop) {
+			ok($.isFunction(dp[prop]), "."+prop+" is a function");
+		});
+	});
+	
+	test("Check data pager loading and range function",
+	function() {
+		var dp, loadPair = function(a,b) {
+			dp.loadItems([{
+				id: a,
+				label: a,
+				position: b,
+				type: 'Text'
+			}]);
+		};
+		
+		expect(19);
+		dp = MITHGrid.Data.initPager({
+			dataStore: MITHGrid.Data.initView({
+				dataStore: MITHGrid.Data.initStore()
+			}),
+			expressions: [ '.position' ]
+		});
+		dp.addProperty("position", {
+			valueType: "numeric"
+		});
+		
+		dp.setKeyRange(0, 2);
+		loadPair('a', -10);
+		loadPair('e', 1);
+		loadPair('c', -1);
+		loadPair('d', 0);
+		loadPair('g', 3);
+		loadPair('b', -5);
+		loadPair('f', 2);
+		loadPair('h', 4);
+		loadPair('i', 5);
+		loadPair('j', 10);
+		
+		ok(!dp.contains('c'), "!contains <c,-1>");
+		ok(dp.contains('d'), "contains <d,0>");
+		ok(dp.contains('e'), "contains <e,1>");
+		ok(dp.contains('f'), "contains <f,2>");
+		ok(!dp.contains('g'), "!contains <g,3>");
+	
+		dp.setKeyRange(0,3);
+		ok(!dp.contains('c'), "!contains <c,-1>");
+		ok(dp.contains('d'), "contains <d,0>");
+		ok(dp.contains('e'), "contains <e,1>");
+		ok(dp.contains('f'), "contains <f,2>");
+		ok(dp.contains('g'), "contains <g,3>");
+		ok(!dp.contains('h'), "!contains <h,4>");
+		
+		dp.setKeyRange(-5,1);
+		ok(!dp.contains('a'), "!contains <a,-10>");
+		ok(dp.contains('b'), "contains <b,-5>");	
+		ok(dp.contains('c'), "contains <c,-1>");
+		ok(dp.contains('d'), "contains <d,0>");
+		ok(dp.contains('e'), "contains <e,1>");
+		ok(!dp.contains('f'), "contains <f,2>");
+		ok(!dp.contains('g'), "contains <g,3>");
+		ok(!dp.contains('h'), "!contains <h,4>");
+	});
 });

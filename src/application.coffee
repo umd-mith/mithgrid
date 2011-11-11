@@ -1,6 +1,7 @@
 
 	Application = MITHGrid.namespace 'Application'
-	Application.initApp = (klass, container, options) ->
+	Application.initApp = (klass, container, options) ->		
+		[ klass, container, options ] = MITHGrid.normalizeArgs "MITHGrid.Application", klass, container, options
 		that = MITHGrid.initView(klass, container, options)
 		onReady = []
 		
@@ -8,10 +9,51 @@
 		that.facet = {}
 		that.dataStore = {}
 		that.dataView = {}
+		that.controller = {}
 		
 		options = that.options
 		
 		that.ready = (fn) -> onReady.push fn
+		
+		if options?.variables?
+			for varName, config of options.variables
+				do (varName, config) ->
+					value = config.default
+					config.is or= 'rw'
+					if config.is in ['rw', 'w']
+						filter = config.filter
+						validate = config.validate
+						eventName = config.event || ('on' + varName + 'Change')
+						setName = config.setter || ('set' + varName)
+						that.events[eventName] = MITHGrid.initEventFirer()
+						if filter?
+							if validate?
+								that[setName] = (v) ->
+									v = validate filter v
+									if value != v
+										value = v
+										that.events[eventName].fire(value)
+							else
+								that[setName] = (v) ->
+									v = filter v
+									if value != v
+										value = v
+										that.events[eventName].fire(value)
+						else
+							if validate?
+								that[setName] = (v) ->
+									v = validate v
+									if value != v
+										value = v
+										that.events[eventName].fire(value)
+							else
+								that[setName] = (v) ->
+									if value != v
+										value = v
+										that.events[eventName].fire(value)
+					if config.is in ['r', 'rw']
+						getName = config.getter || ('get' + varName)
+						that[getName] = () -> value
 
 		if options?.dataStores?
 			for storeName, config of options.dataStores
@@ -36,6 +78,7 @@
 
 		if options?.dataViews?
 			for viewName, viewConfig of options.dataViews
+				initFn = viewConfig.init || MITHGrid.Data.initView
 				viewOptions =
 					dataStore: that.dataStore[viewConfig.dataStore]
 					label: viewName
@@ -44,11 +87,20 @@
 					viewOptions.collection = viewConfig.collection if viewConfig.collection?
 					viewOptions.types = viewConfig.types if viewConfig.types?
 					viewOptions.filters = viewConfig.filters if viewConfig.filters?
+					viewOptions.expressions = viewConfig.expressions if viewConfig.expressions?
 					
-					view = MITHGrid.Data.initView viewOptions
+					view = initFn viewOptions
 					that.dataView[viewName] = view
 #				else
 #					view = that.dataView[viewName]
+
+		if options?.controllers?
+			that.ready () ->
+				for cName, cconfig of options.controllers
+					coptions = $.extend(true, {}, cconfig)
+					coptions.application = that
+					controller = cconfig.type.initController coptions
+					that.controller[cName] = controller
 
 		if options?.viewSetup?
 			if $.isFunction(options.viewSetup)

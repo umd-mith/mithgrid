@@ -421,8 +421,6 @@
 				scanner.next()
 				token = scanner.token()
 
-			parseFactor = () ->
-
 			parseTerm = () ->
 				term = parseFactor()
 

@@ -16,8 +16,10 @@ BASE_FILES = ${SRC_DIR}/core.coffee \
 			${SRC_DIR}/expression.coffee \
 			${SRC_DIR}/presentation.coffee \
 			${SRC_DIR}/facet.coffee \
+			${SRC_DIR}/controller.coffee \
 			${SRC_DIR}/application.coffee \
-			${SRC_DIR}/plugin.coffee
+			${SRC_DIR}/plugin.coffee \
+			${SRC_DIR}/adaptor.coffee
 
 MODULES = ${SRC_DIR}/intro.coffee \
 		${BASE_FILES} \

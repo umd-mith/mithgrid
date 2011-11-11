@@ -1,0 +1,37 @@
+== NAME ==
+
+MITHGrid.Data.initView
+
+== SYNOPSIS ==
+
+--------------------------------------------------------------------------------------------
+view = MITHGrid.Data.initView({ options list... });
+
+view.loadItems([ list of objects... ]);
+
+item = view.getItem(itemId);
+
+view.updateItems([ list of objects... ]);
+
+view.removeItems([ list of object ids... ]);
+
+view.events.onModelChange.addListener(function() { ... });
+--------------------------------------------------------------------------------------------
+
+== DESCRIPTION ==
+
+Data views are filtered sets of items from a data store.
+
+== EVENTS ==
+
+== METHODS ==
+
+=== Constructor ===
+--------------------------------------------------------------------------------------------
+view = MITHGrid.Data.initView({ options list... });
+--------------------------------------------------------------------------------------------
+
+
+== SEE ALSO ==
+
+Data.Store
