@@ -97,7 +97,7 @@
 									player = model.getItem('player'),
 									roomDesc = "", hasForce = false, bear;
 									//console.log(thingIds);
-									if(that.isDark() && !that.wasForced()) {
+									if(that.getDark() && !that.wasForced()) {
 										roomDesc = ""
 									}
 									else {
@@ -119,7 +119,7 @@
 						                }
 									}
 
-									if(!that.isDark()) {
+									if(!that.getDark()) {
 						                // look for items with the same environment -- append them to $(container)
 										$.each(thingIds, function(idx, thing) {
 											var item = model.getItem(thing);
@@ -172,7 +172,7 @@
 										$.each(["N", "E", "S", "W", "U", "D"], function(idx, w) {
 											var words = things.WordHash[w],
 											cmdEl = $(".compass > ." + w.toLowerCase());
-											if(words === undefined || that.isDark()) {
+											if(words === undefined || that.getDark()) {
 												cmdEl.addClass("unavailable");
 											}
 											else {
@@ -191,7 +191,7 @@
 									if(hasForce) {
 										el = $("<p class='info'>" + roomDesc + "</p>");
 									}
-									else if(!that.isDark()){
+									else if(!that.getDark()){
 										bear = model.getItem("obj:bear");
 										if(bear.environment[0] === "player") {
 											roomDesc += " You are being followed by a very large, tame bear.";
@@ -718,16 +718,7 @@
         },
         west_count = 0
         // how many times we have parsed the word 'west'
-        was_dark = false,
-        dark = false
         ;
-
-        that.isDark = function() {
-            return dark;
-        };
-        that.wasDark = function() {
-            return was_dark;
-        };
 
         /*
 		 * our parsing here is going to be a bit different than in the literate programming example
@@ -871,7 +862,7 @@
 					 * this will cascade to the room description presentation, which will in turn execute the
 					 * 'FORCE' command on the player, so we may end up back here again
 					 */
-                    was_dark = dark;
+					that.setWasDark(that.getDark());
                     that.dataStore.adventure.updateItems([{
                         id: "player",
                         environment: newLoc
@@ -2508,6 +2499,16 @@
 } (jQuery, MITHGrid));
 
 MITHGrid.defaults("MITHGrid.Application.Adventure", {
+	variables: {
+		WasDark: {
+			default: false,
+			is: 'rw'
+		},
+        Dark: {
+			default: false,
+			is: 'rw'
+		}
+	},
     // the game has a single core database of objects, rooms, and actions (words) within a room
     dataStores: {
 		adventure: {
