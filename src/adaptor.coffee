@@ -89,8 +89,57 @@
 						rdfDatabank.add line
 				
 			parser.finish = () ->
+				items = []
 				# now we walk the databank looking for things we can use to create events that lead to
 				# info in the data store
+				#
+				# ?annotation a oac:annotation
+				# ?annotation oac:hasTarget ?target
+				# ?target a oac:ConstrainedTarget
+				# ?target oac:Constrains ?mediaURL
+				# ?target oac:ConstrainedBy ?svg
+				# ?svg a oac:SVGConstraint
+				# ?svg a cnt:ContentAsText
+				# ?svg cnt:chars ?svgBox
+				# ?svg cnt:characterEncoding "utf-8"
+				# ?annotation oac:hasBody ?body
+				# ?body a oac:Body
+				# ?body a cnt:ContentAsText
+				# ?body cnt:chars ?bodyText
+				# ?annotation dcterms:created ?createdAt
+				# ?annotation dcterms:creator ?createdBy
+				# ?annotation dc:title ?title
+				
+				annotation = ''
+				mediaURL = ''
+				svgBox = ''
+				bodyText = ''
+				createdAt = ''
+				createdBy = ''
+				title = ''
+				
+				svgBoxItem = that.SVGBoundingBoxToItem(svgBox)
+				svgBoxItem.id = annotation + '-svg-constraint'
+				
+				bodyItem =
+					id: annotation + '-body-text'
+					type: 'TextContent'
+					content: bodyText
+			
+				items.push svgBoxItem
+				items.push bodyItem
+				
+				items.push
+					id: annotation
+					mediaURL: mediaURL
+					svgConstraint: svgBoxItem.id
+					body: bodyItem.id
+					createdAt: createdAt
+					createdBy: createdBy
+					title: title
+				
+				that.dataStore.loadItems items
+					
 				
 			
 			parser.start = (type, data) ->
