@@ -14,6 +14,46 @@
 		options = that.options
 		
 		that.ready = (fn) -> onReady.push fn
+		
+		if options?.variables?
+			for varName, config of options.variables
+				do (varName, config) ->
+					value = config.default
+					config.is or= 'rw'
+					if config.is in ['rw', 'w']
+						filter = config.filter
+						validate = config.validate
+						eventName = config.event || ('on' + varName + 'Change')
+						setName = config.setter || ('set' + varName)
+						that.events[eventName] = MITHGrid.initEventFirer()
+						if filter?
+							if validate?
+								that[setName] = (v) ->
+									v = validate filter v
+									if value != v
+										value = v
+										that.events[eventName].fire(value)
+							else
+								that[setName] = (v) ->
+									v = filter v
+									if value != v
+										value = v
+										that.events[eventName].fire(value)
+						else
+							if validate?
+								that[setName] = (v) ->
+									v = validate v
+									if value != v
+										value = v
+										that.events[eventName].fire(value)
+							else
+								that[setName] = (v) ->
+									if value != v
+										value = v
+										that.events[eventName].fire(value)
+					if config.is in ['r', 'rw']
+						getName = config.getter || ('get' + varName)
+						that[getName] = () -> value
 
 		if options?.dataStores?
 			for storeName, config of options.dataStores
