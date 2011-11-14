@@ -7,9 +7,6 @@ MITHGrid.Controller
 --------------------------------------------------------------------------------------------
 controller = MITHGrid.Controller.initController(type, { options list... });
 binding = controller.bind(DOMelement);
-
-raphaelController = MITHGrid.Controller.initRaphaelController(type, { options list... });
-binding = raphaelController.bind(RaphaelSVGElement);
 --------------------------------------------------------------------------------------------
 
 == DESCRIPTION ==
@@ -84,7 +81,7 @@ In this example, we discuss a controller that provides drag capability for objec
 
 --------------------------------------------------------------------------------------------
 my.controller = function(options) {
-  var that = MITHGrid.Controller.initRaphaelController("my.controller", options),
+  var that = MITHGrid.Controller.initController("my.controller", options),
   options = that.options;
 
   that.applyBindings = function(binding, opts) {

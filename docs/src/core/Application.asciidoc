@@ -1,0 +1,111 @@
+== NAME ==
+
+MITHGrid.Application
+
+== SYNOPSIS ==
+
+--------------------------------------------------------------------------------------------
+app = MITHGrid.Application.initApp(type, container, { options list... });
+--------------------------------------------------------------------------------------------
+
+== DESCRIPTION ==
+
+The application object coordinates all of the various components that together create the application.
+
+== EVENTS ==
+
+No events are common across all applications. Events may be created by variables or other configuration options.
+
+== METHODS ==
+
+=== Constructor ===
+
+--------------------------------------------------------------------------------------------
+app = MITHGrid.Application.initApp(type, container, { options list... });
+--------------------------------------------------------------------------------------------
+
+The following options are available:
+
+controllers::
+
+dataStores::
+A list of data stores that are associated with the application. Each data store will be available as a property of the
++dataStore+ property of the application.
++
+Each data store has the following options.
+
+  types;;
+  This is an object whose properties are the names of item types in the data store. Item types do not have any
+associated metadata, so the corresponding value should be an empty object.
+  properties;;
+  This is an object whose properties are the names of item properties in the data store. Properties may have a
+configured +valueType+ which may be one of the following:
+
+[horizontal]
+item:::    Indicates that property values are the identifiers of other items in the data store.
+numeric::: Indicates that property values should be interpreted as numbers.
+text:::    Indicates that property values are simple strings. This is the default property value type.
+
+dataViews::
+A list of data views associated with the application. Each data view will be available as a property of the +dataView+
+property of the application.
++
+Each data view has the following options.
+
+  dataStore;;
+  The data store providing the information being filtered by the data view.
+  types;;
+  An array of item types which are allowed in the data view item set.
+  filters;;
+  An array of graph traversal expressions which must return a non-falsy value for any item allowed into the data view item set.
+
+facets::
+A list of facets to be configured as part of the application.
+
+plugins::
+
+presentations::
+A list of presentations to be configured as part of the application. Each presentation will be available as a property of
+the +presentation+ property of the application.
++
+Each presentation has the following options.
+
+dataView;;
+The name of the data view to be associated with this presentation. The data view object is passed in to the +initPresentation+
+function with the +dataView+ configuration option.
+type;;
+The namespace in which the +initPresentation+ function resides. This is not a string, but the JavaScript object that has the
++initPresentation+ property.
+
+variables::
+A list of variables attached to the application object. Getters, setters, and event handlers are automatically
+generated for each variable as appropriate. Variables are useful for coordinating application state when the
+data store might not be appropriate.
++
+Each variable has the following options.
+
+  is;;
+  Should be +rw+, +r+, or +w+. If +rw+ or +r+, then a getter will be defined for the variable. If +w+ or +rw+, then
+a setter and event handler will be defined for the variable.
+  getter;;
+  Names the getter for this variable. By default, the getter is +get+ concatenated with the name of the variable.
+For example, the getter for the variable +Foo+ is +getFoo+.
+  setter;;
+  Names the setter for this variable. By default, the setter is +set+ concatenated with the name of the variable.
+For example, the setter for the variable +Foo+ is +setFoo+.
+  event;;
+  Names the event handler for this variable. By default, the event handler is named by surrounding the variable name
+with +on+ and +Change+. For example, the default event handler for the +Foo+ variable is +onFooChange+. Event handlers are
+properties of the application's +events+ property.
+  default;;
+  Sets the default or initial value of the variable.
+
+viewSetup::
+
+=== Runtime ===
+
+app.run(function() {...})::
+This will delay execution of the function until the application is configured and ready. Delayed functions are executed in the
+order they are added by the call to +run()+. If the application is already configured and ready, the function will execute
+immediately.
+
