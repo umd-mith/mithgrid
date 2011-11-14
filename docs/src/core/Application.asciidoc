@@ -101,6 +101,7 @@ properties of the application's +events+ property.
   Sets the default or initial value of the variable.
 
 viewSetup::
+  A string that is inserted into the DOM as content in the container associated with the application.
 
 === Runtime ===
 
