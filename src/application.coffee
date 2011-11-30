@@ -131,6 +131,15 @@
 					pcontainer = pcontainer[0] if $.isArray(pcontainer)
 					poptions.dataView = that.dataView[pconfig.dataView]
 					poptions.application = that
+					if pconfig.controllers?
+						poptions.controllers = {}
+						for cName, cconfig of pconfig.controllers
+							if typeof cconfig == "string"
+								poptions.controllers[cName] = that.controller[cName]
+							else
+								coptions = $.extend(true, {}, cconfig)
+								coptions.application = that
+								poptions.controllers[cName] = cconfig.type.initController coptions
 					
 					presentation = pconfig.type.initPresentation pcontainer, poptions
 					that.presentation[pName] = presentation
