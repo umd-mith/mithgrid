@@ -5,7 +5,7 @@
 		[ type, container, options ] = MITHGrid.normalizeArgs "MITHGrid.Presentation", type, container, options
 		that = MITHGrid.initView type, container, options
 
-			
+		activeRenderingId = null	
 		renderings = {}
 		lenses = that.options.lenses
 		options = that.options
@@ -23,7 +23,7 @@
 				return { render: lenses[key] }
 
 		that.renderingFor = (id) -> renderings[id]
-
+		
 		that.renderItems = (model, items) ->
 			if !lensKeyExpression?
 				lensKeyExpression = model.prepare options.lensKey
@@ -47,14 +47,18 @@
 							# item was removed
 							# we need to remove it from the display
 							# .remove() should not make changes in the model
+								renderings[id].eventUnfocus() if activeRenderingId == id and renderings[id].eventUnfocus?
 								renderings[id].remove() if renderings[id].remove?
 								delete renderings[id]
 							else
 								renderings[id].update model.getItem(id)
 						else if hasItem
-							lens = that.getLens id
-							if lens?
-								renderings[id] = lens.render container, that, model, id
+							rendering = that.render container, model, id
+							#lens = that.getLens id
+							if rendering? #lens?
+								renderings[id] = rendering #lens.render container, that, model, id
+								if activeRenderingId == id and rendering.eventFocus?
+									rendering.eventFocus()
 
 					setTimeout () -> 
 						f(end)
@@ -65,6 +69,11 @@
 			that.startDisplayUpdate()
 			f 0
 
+		that.render = (c, m, i) ->
+			lens = that.getLens i
+			if lens?
+				lens.render c, that, m, i
+
 		that.eventModelChange = that.renderItems
 
 		that.startDisplayUpdate = () ->
@@ -72,7 +81,20 @@
 
 		that.selfRender = () -> 
 			that.renderItems that.dataView, that.dataView.items()
-		
+			
+		that.eventFocusChange = (id) ->
+			if activeRenderingId?
+				rendering = that.renderingFor activeRenderingId
+			if activeRenderingId != id
+				if rendering? and rendering.eventUnfocus?
+					rendering.eventUnfocus()
+				if id?
+					rendering = that.renderingFor id
+					if rendering? and rendering.eventFocus?
+						rendering.eventFocus()
+				activeRenderingId = id
+			activeRenderingId
+
 		that.dataView = that.options.dataView
 		that.dataView.registerPresentation(that)
 		that
