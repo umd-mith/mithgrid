@@ -404,6 +404,10 @@
 		that.getObjectsUnion = (subjects, p, set, filter) -> getUnion spo, subjects, p, set, filter
 		that.getSubjectsUnion = (objects, p, set, filter) -> getUnion ops, objects,	 p, set, filter
 
+		that.registerPresentation = (ob) ->
+			that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
+			ob.eventModelChange that, that.items()
+			
 		that
 
 	Data.namespace 'View'
