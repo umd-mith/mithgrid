@@ -78,21 +78,20 @@
 
 		if options?.dataViews?
 			for viewName, viewConfig of options.dataViews
-				initFn = viewConfig.init || MITHGrid.Data.initView
+				if viewConfig.type? and viewConfig.type.initInstance?
+					initFn = viewConfig.type.initInstance
+				else
+					initFn = MITHGrid.Data.View.initInstance
 				viewOptions =
-					dataStore: that.dataStore[viewConfig.dataStore]
-					label: viewName
+					dataStore: that.dataStore[viewConfig.dataStore] || that.dataView[viewConfig.dataStore]
 			
-				if !that.dataView[viewName]?				
-					viewOptions.collection = viewConfig.collection if viewConfig.collection?
-					viewOptions.types = viewConfig.types if viewConfig.types?
-					viewOptions.filters = viewConfig.filters if viewConfig.filters?
-					viewOptions.expressions = viewConfig.expressions if viewConfig.expressions?
+				if !that.dataView[viewName]?
+					for k,v of viewConfig
+						if k != "type" && !viewOptions[k]
+							viewOptions[k] = v
 					
 					view = initFn viewOptions
 					that.dataView[viewName] = view
-#				else
-#					view = that.dataView[viewName]
 
 		if options?.controllers?
 			that.ready () ->

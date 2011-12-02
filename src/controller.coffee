@@ -48,7 +48,7 @@
 			
 			binding.clearCache = () ->
 				bindingsCache = { '': $(element) }
-			
+
 			binding
 		
 		initRaphaelBinding = (raphaelDrawing) ->
@@ -57,6 +57,7 @@
 			superLocate = binding.locate
 			superFastLocate = binding.fastLocate
 			superRefresh = binding.refresh
+			superBind = binding.bind
 
 			binding.locate = (internalSelector) ->
 				if internalSelector == 'raphael'

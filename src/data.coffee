@@ -1,7 +1,8 @@
 
-	Data = MITHGrid.namespace('Data')
-
-	Data.initSet = (values) ->
+	Data = MITHGrid.namespace 'Data'
+	Data.namespace 'Set'
+	
+	Data.initSet = Data.Set.initInstance = (values) ->
 		that = {}
 		items = {}
 		count = 0
@@ -54,24 +55,35 @@
 
 		that
 
-	Data.initType = (t) ->
+	Data.namespace 'Type'
+	Data.initType = Data.Type.initInstance = (t) ->
 		that =
 			name: t
 			custom: {}
 
-	Data.initProperty = (p) ->
+	Data.namespace 'Property'
+	Data.initProperty = Data.Property.initInstance = (p) ->
 		that =
 			name: p
 			getValueType: () ->
 				that.valueType ? 'text'
 
-	Data.initStore = (options) ->
+	Data.namespace 'Store'
+	Data.initStore = Data.Store.initInstance = (options) ->
 		quiesc_events = false
 		set = Data.initSet()
 		types = {}
 		properties = {}
 		spo = {}
 		ops = {}
+		
+		options ?= {}
+
+		that = MITHGrid.initView "MITHGrid.Data.Store", options
+
+		that.items = set.items
+		that.contains = set.contains
+		that.visit = set.visit
 
 		indexPut = (index, x, y, z) ->
 			hash = index[x]
@@ -116,13 +128,6 @@
 			xSet.visit (x) -> indexFillSet index, x, y, set, filter
 			set
 
-		options ?= {}
-
-		that = MITHGrid.initView "MITHGrid.Data.initStore", options
-
-		that.items = set.items
-		that.contains = set.contains
-		that.visit = set.visit
 
 		that.addProperty = (nom, options) ->
 			prop = Data.initProperty nom
@@ -401,8 +406,9 @@
 
 		that
 
-	Data.initView = (options) ->
-		that = MITHGrid.initView "MITHGrid.Data.initView", options
+	Data.namespace 'View'
+	Data.initView = Data.View.initInstance = (options) ->
+		that = MITHGrid.initView "MITHGrid.Data.View", options
 		
 		set = Data.initSet()
 		
@@ -619,8 +625,9 @@
 
 		that
 		
-	Data.initPager = (options) ->
-		that = MITHGrid.initView "MITHGrid.Data.initPager", options
+	Data.namespace 'Pager'
+	Data.initPager = Data.Pager.initInstance = (options) ->
+		that = MITHGrid.initView "MITHGrid.Data.Pager", options
 		options = that.options
 
 		itemList = []
@@ -632,28 +639,30 @@
 		# returns the first index that has a key greater than or equal to the given key
 		findLeftPoint = (key) ->
 			left = 0
-			right = itemList.length - 1
-			while left < right
-				mid = ~~((left + right) / 2)
+			if key?
+				right = itemList.length - 1
+				while left < right
+					mid = ~~((left + right) / 2)
 				
-				if itemList[mid][0] < key
-					left = mid + 1
-				else if itemList[mid][0] == key
-					right = mid
-				else
-					right = mid - 1
+					if itemList[mid][0] < key
+						left = mid + 1
+					else if itemList[mid][0] == key
+						right = mid
+					else
+						right = mid - 1
 			left
 			
 		# returns the last index that has a key less than or equal to the given key
 		findRightPoint = (key) ->
 			left = 0
 			right = itemList.length - 1
-			while left < right
-				mid = ~~((left + right) / 2)
-				if itemList[mid][0] <= key
-					left = mid + 1
-				else
-					right = mid - 1
+			if key?
+				while left < right
+					mid = ~~((left + right) / 2)
+					if itemList[mid][0] <= key
+						left = mid + 1
+					else
+						right = mid - 1
 			right
 			
 		findItemPosition = (itemId) ->
@@ -705,11 +714,11 @@
 							else
 								itemList[i][0] = key
 							changedItems.push itemId
-							if key < leftKey or key > rightKey
+							if leftKey? and key < leftKey or rightKey? and key > rightKey
 								set.remove(itemId)
 						else
 							itemList.push [ key, itemId ]
-							if key >= leftKey and key <= rightKey
+							if (!leftKey? or key >= leftKey) and (!rightKey? or key <= rightKey)
 								set.add(itemId)
 								changedItems.push itemId							
 					else
@@ -723,6 +732,9 @@
 								itemList = itemList[0...i].concat itemList[i+1...itemList.length]
 							set.remove(itemId)
 							changedItems.push itemId
+				else
+					set.remove itemId
+					changedItems.push itemId
 			# now sort itemList
 			# and redo left and right positions
 			# and double check set and changedItems list?
@@ -768,6 +780,70 @@
 				that.events.onModelChange.fire that, changedItems.items()
 
 		
-		that.dataStore.events.onModelChange.addListener that.eventModelChange
+		that.dataStore.registerPresentation that
 
+		that.registerPresentation = (ob) ->
+			that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
+			ob.eventModelChange that, that.items()
+
+		that
+		
+	Data.namespace 'RangePager'
+	Data.initRangePager = Data.RangePager.initInstance = (options) ->
+		that = MITHGrid.initView "MITHGrid.Data.RangePager", options
+		options = that.options
+
+		leftPager = Data.Pager.initInstance
+			dataStore: options.dataStore
+			expressions: options.leftExpressions
+		rightPager = Data.Pager.initInstance
+			dataStore: options.dataStore
+			expressions: options.rightExpressions
+		
+		set = Data.initSet()
+		that.items = set.items
+		that.size = set.size
+		that.contains = set.contains
+		that.visit = set.visit
+		
+		that.dataStore = options.dataStore
+		# these mappings allow a data pager to stand in for a data Store
+		that.getItems = that.dataStore.getItems
+		that.getItem = that.dataStore.getItem
+		that.removeItems = that.dataStore.removeItems
+		that.fetchData = that.dataStore.fetchData
+		that.updateItems = that.dataStore.updateItems
+		that.loadItems = that.dataStore.loadItems
+		that.prepare = that.dataStore.prepare
+		that.addType = that.dataStore.addType
+		that.getType = that.dataStore.getType
+		that.addProperty = that.dataStore.addProperty
+		that.getProperty = that.dataStore.getProperty
+		that.getObjectsUnion = that.dataStore.getObjectsUnion
+		that.getSubjectsUnion = that.dataStore.getSubjectsUnion
+			
+		that.eventModelChange = (model, itemIds) ->
+			for id in itemIds
+				if leftPager.contains(id) and rightPager.contains(id)
+					set.add id
+				else
+					set.remove id
+			that.events.onModelChange.fire that, itemIds
+
+		that.setKeyRange = (l, r) ->
+			if l > r
+				[l, r] = [r, l]
+			
+			leftPager.setKeyRange  undefined, r
+			rightPager.setKeyRange l, undefined
+
+		that.setKeyRange undefined, undefined
+		
+		leftPager.registerPresentation that
+		rightPager.registerPresentation that
+		
+		that.registerPresentation = (ob) ->
+			that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
+			ob.eventModelChange that, that.items()
+				
 		that

@@ -7,7 +7,7 @@
 
 		activeRenderingId = null	
 		renderings = {}
-		lenses = that.options.lenses
+		lenses = that.options.lenses || {}
 		options = that.options
 		
 		$(container).empty()
@@ -21,6 +21,12 @@
 				key = keys[0]
 			if key? and lenses[key]?
 				return { render: lenses[key] }
+		
+		that.addLens = (key, lens) ->
+			lenses[key] = lens
+			
+		that.removeLens = (key) ->
+			delete lenses[key]
 
 		that.renderingFor = (id) -> renderings[id]
 		

@@ -1,7 +1,7 @@
 
 )(jQuery, MITHGrid)
 
-MITHGrid.defaults "MITHGrid.Data.initStore",
+MITHGrid.defaults "MITHGrid.Data.Store",
     events:
         onModelChange: null
         onBeforeLoading: null
@@ -9,12 +9,16 @@ MITHGrid.defaults "MITHGrid.Data.initStore",
         onBeforeUpdating: null
         onAfterUpdating: null
 
-MITHGrid.defaults "MITHGrid.Data.initView",
+MITHGrid.defaults "MITHGrid.Data.View",
     events:
         onModelChange: null
         onFilterItem: "preventable"
 
-MITHGrid.defaults "MITHGrid.Data.initPager",
+MITHGrid.defaults "MITHGrid.Data.Pager",
+    events:
+        onModelChange: null
+
+MITHGrid.defaults "MITHGrid.Data.RangePager",
     events:
         onModelChange: null
 

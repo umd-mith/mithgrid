@@ -174,9 +174,7 @@ $(document).ready(function() {
         item;
 
         expect(22);
-        ds = MITHGrid.Data.initStore({
-            source: "Data.initStore.test4"
-        });
+        ds = MITHGrid.Data.initStore({ });
         equals(ds.items().length, 0, "Data source begins empty");
 
         // items require an id and a type
