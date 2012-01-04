@@ -949,7 +949,7 @@
 			changedIds = []
 			for id in itemIds
 				if leftPager.contains(id) and rightPager.contains(id)
-					changedIds.push id unless set.contains id
+					changedIds.push id
 					set.add id
 				else
 					changedIds.push id if set.contains id
