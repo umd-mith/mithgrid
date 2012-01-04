@@ -2,7 +2,7 @@
   /*
    * mithgrid JavaScript Library v0.0.1
    *
-   * Date: Mon Nov 14 16:06:32 2011 -0500
+   * Date: Wed Jan 4 08:46:44 2012 -0500
    *
    * (c) Copyright University of Maryland 2011.  All rights reserved.
    *
@@ -46,7 +46,7 @@
   MITHGrid = (_ref = this.MITHGrid) != null ? _ref : this.MITHGrid = {};
   jQuery = (_ref2 = this.jQuery) != null ? _ref2 : this.jQuery = {};
   (function($, MITHGrid) {
-    var Adaptor, Application, Controller, Data, Expression, Facet, MITHGridDefaults, OAC, RDF, genericNamespacer, initViewCounter, _operators, _ref3;
+    var Application, Controller, Data, Expression, Facet, MITHGridDefaults, genericNamespacer, initViewCounter, _operators, _ref3;
     if ((typeof window !== "undefined" && window !== null ? (_ref3 = window.console) != null ? _ref3.log : void 0 : void 0) != null) {
       MITHGrid.debug = window.console.log;
     } else {
@@ -262,7 +262,8 @@
       return that;
     };
     Data = MITHGrid.namespace('Data');
-    Data.initSet = function(values) {
+    Data.namespace('Set');
+    Data.initSet = Data.Set.initInstance = function(values) {
       var count, i, items, items_list, recalc_items, that, _i, _len;
       that = {};
       items = {};
@@ -331,14 +332,16 @@
       }
       return that;
     };
-    Data.initType = function(t) {
+    Data.namespace('Type');
+    Data.initType = Data.Type.initInstance = function(t) {
       var that;
       return that = {
         name: t,
         custom: {}
       };
     };
-    Data.initProperty = function(p) {
+    Data.namespace('Property');
+    Data.initProperty = Data.Property.initInstance = function(p) {
       var that;
       return that = {
         name: p,
@@ -348,7 +351,8 @@
         }
       };
     };
-    Data.initStore = function(options) {
+    Data.namespace('Store');
+    Data.initStore = Data.Store.initInstance = function(options) {
       var getUnion, indexFillSet, indexPut, ops, properties, quiesc_events, set, spo, that, types;
       quiesc_events = false;
       set = Data.initSet();
@@ -356,6 +360,15 @@
       properties = {};
       spo = {};
       ops = {};
+            if (options != null) {
+        options;
+      } else {
+        options = {};
+      };
+      that = MITHGrid.initView("MITHGrid.Data.Store", options);
+      that.items = set.items;
+      that.contains = set.contains;
+      that.visit = set.visit;
       indexPut = function(index, x, y, z) {
         var array, counts, hash;
         hash = index[x];
@@ -415,15 +428,6 @@
         });
         return set;
       };
-            if (options != null) {
-        options;
-      } else {
-        options = {};
-      };
-      that = MITHGrid.initView("MITHGrid.Data.initStore", options);
-      that.items = set.items;
-      that.contains = set.contains;
-      that.visit = set.visit;
       that.addProperty = function(nom, options) {
         var prop;
         prop = Data.initProperty(nom);
@@ -817,11 +821,18 @@
       that.getSubjectsUnion = function(objects, p, set, filter) {
         return getUnion(ops, objects, p, set, filter);
       };
+      that.registerPresentation = function(ob) {
+        that.events.onModelChange.addListener(function(m, i) {
+          return ob.eventModelChange(m, i);
+        });
+        return ob.eventModelChange(that, that.items());
+      };
       return that;
     };
-    Data.initView = function(options) {
+    Data.namespace('View');
+    Data.initView = Data.View.initInstance = function(options) {
       var expressions, filterItem, filterItems, intermediateDataStore, prevEventModelChange, set, subjectSet, that, _ref4, _ref5;
-      that = MITHGrid.initView("MITHGrid.Data.initView", options);
+      that = MITHGrid.initView("MITHGrid.Data.View", options);
       set = Data.initSet();
       filterItem = function(id) {
         return false !== that.events.onFilterItem.fire(that.dataStore, id);
@@ -1123,9 +1134,138 @@
       that.dataStore.events.onModelChange.addListener(that.eventModelChange);
       return that;
     };
-    Data.initPager = function(options) {
+    Data.namespace('ListPager');
+    Data.ListPager.initInstance = function(options) {
+      var findItemPosition, itemList, itemListStart, itemListStop, leftKey, rightKey, set, that;
+      that = MITHGrid.initView("MITHGrid.Data.ListPager", options);
+      options = that.options;
+      itemList = [];
+      itemListStart = 0;
+      itemListStop = -1;
+      leftKey = void 0;
+      rightKey = void 0;
+      findItemPosition = function(itemId) {
+        return itemList.indexOf(itemId);
+      };
+      set = Data.initSet();
+      that.items = set.items;
+      that.size = set.size;
+      that.contains = set.contains;
+      that.visit = set.visit;
+      that.dataStore = options.dataStore;
+      that.getItems = that.dataStore.getItems;
+      that.getItem = that.dataStore.getItem;
+      that.removeItems = that.dataStore.removeItems;
+      that.fetchData = that.dataStore.fetchData;
+      that.updateItems = that.dataStore.updateItems;
+      that.loadItems = that.dataStore.loadItems;
+      that.prepare = that.dataStore.prepare;
+      that.addType = that.dataStore.addType;
+      that.getType = that.dataStore.getType;
+      that.addProperty = that.dataStore.addProperty;
+      that.getProperty = that.dataStore.getProperty;
+      that.getObjectsUnion = that.dataStore.getObjectsUnion;
+      that.getSubjectsUnion = that.dataStore.getSubjectsUnion;
+      that.setList = function(idList) {
+        var changedItems, id, _i, _j, _len, _len2, _ref4, _ref5;
+        itemList = idList;
+        changedItems = [];
+        for (_i = 0, _len = itemList.length; _i < _len; _i++) {
+          id = itemList[_i];
+          if (that.dataStore.contains(id) && !set.contains(id)) {
+            if ((itemListStart <= (_ref4 = itemList.offset(id)) && _ref4 < itemListStop)) {
+              changedItems.push(id);
+              set.add(id);
+            }
+          } else if (set.contains(id) && !that.dataStore.contains(id)) {
+            changedItems.push(id);
+            set.remove(id);
+          }
+        }
+        _ref5 = set.items();
+        for (_j = 0, _len2 = _ref5.length; _j < _len2; _j++) {
+          id = _ref5[_j];
+          if (!that.dataStore.contains(id)) {
+            changedItems.push(id);
+            set.remove(id);
+          }
+        }
+        if (changedItems.length > 0) {
+          return that.events.onModelChange.fire(that, changedItems);
+        }
+      };
+      that.eventModelChange = function(model, items) {
+        var changedItems, itemId, key, _i, _len;
+        changedItems = [];
+        for (_i = 0, _len = items.length; _i < _len; _i++) {
+          itemId = items[_i];
+          if (model.contains(itemId)) {
+            key = findItemPosition(itemId);
+            if (set.contains(itemId)) {
+              changedItems.push(itemId);
+              if (!((itemListStart <= key && key < itemListStop))) {
+                set.remove(itemId);
+              }
+            } else {
+              if ((itemListStart <= key && key < itemListStop)) {
+                set.add(itemId);
+                changedItems.push(itemId);
+              }
+            }
+          } else {
+            set.remove(itemId);
+            changedItems.push(itemId);
+          }
+        }
+        if (changedItems.length > 0) {
+          return that.events.onModelChange.fire(that, changedItems);
+        }
+      };
+      that.setKeyRange = function(l, r) {
+        var i, itemId;
+        if (l < r) {
+          itemListStart = l;
+          itemListStop = r;
+        } else {
+          itemListStart = r;
+          itemListStop = l;
+        }
+        set = Data.initSet();
+        that.items = set.items;
+        that.size = set.size;
+        that.contains = set.contains;
+        that.visit = set.visit;
+        if (itemListStart < itemListStop) {
+          for (i = itemListStart; itemListStart <= itemListStop ? i <= itemListStop : i >= itemListStop; itemListStart <= itemListStop ? i++ : i--) {
+            itemId = itemList[i];
+            if (!oldSet.contains(itemId)) {
+              changedItems.add(itemId);
+            }
+            set.add(itemId);
+          }
+        }
+        oldSet.visit(function(x) {
+          if (!set.contains(x)) {
+            return changedItems.add(x);
+          }
+        });
+        if (changedItems.size() > 0) {
+          return that.events.onModelChange.fire(that, changedItems.items());
+        }
+      };
+      that.dataStore.registerPresentation(that);
+      that.registerPresentation = function(ob) {
+        that.events.onModelChange.addListener(function(m, i) {
+          return ob.eventModelChange(m, i);
+        });
+        return ob.eventModelChange(that, that.items());
+      };
+      return that;
+    };
+    Data.namespace('Pager');
+    Data.initPager = Data.Pager.initInstance = function(options) {
       var expressions, findItemPosition, findLeftPoint, findRightPoint, itemList, itemListStart, itemListStop, leftKey, rightKey, set, that;
-      that = MITHGrid.initView("MITHGrid.Data.initPager", options);
+      that = MITHGrid.initView("MITHGrid.Data.Pager", options);
       options = that.options;
       itemList = [];
       itemListStart = -1;
@@ -1134,30 +1274,40 @@
       rightKey = void 0;
       findLeftPoint = function(key) {
         var left, mid, right;
+        if (!(key != null)) {
+          return 0;
+        }
         left = 0;
-        right = itemList.length - 1;
-        while (left < right) {
-          mid = ~~((left + right) / 2);
-          if (itemList[mid][0] < key) {
-            left = mid + 1;
-          } else if (itemList[mid][0] === key) {
-            right = mid;
-          } else {
-            right = mid - 1;
+        if (key != null) {
+          right = itemList.length - 1;
+          while (left < right) {
+            mid = ~~((left + right) / 2);
+            if (itemList[mid][0] < key) {
+              left = mid + 1;
+            } else if (itemList[mid][0] === key) {
+              right = mid;
+            } else {
+              right = mid - 1;
+            }
           }
         }
         return left;
       };
       findRightPoint = function(key) {
         var left, mid, right;
+        if (!(key != null)) {
+          return itemList.length - 1;
+        }
         left = 0;
         right = itemList.length - 1;
-        while (left < right) {
-          mid = ~~((left + right) / 2);
-          if (itemList[mid][0] <= key) {
-            left = mid + 1;
-          } else {
-            right = mid - 1;
+        if (key != null) {
+          while (left < right) {
+            mid = ~~((left + right) / 2);
+            if (itemList[mid][0] <= key) {
+              left = mid + 1;
+            } else {
+              right = mid - 1;
+            }
           }
         }
         return right;
@@ -1212,12 +1362,12 @@
                   itemList[i][0] = key;
                 }
                 changedItems.push(itemId);
-                if (key < leftKey || key > rightKey) {
+                if ((leftKey != null) && key < leftKey || (rightKey != null) && key > rightKey) {
                   set.remove(itemId);
                 }
               } else {
                 itemList.push([key, itemId]);
-                if (key >= leftKey && key <= rightKey) {
+                if ((!(leftKey != null) || key >= leftKey) && (!(rightKey != null) || key <= rightKey)) {
                   set.add(itemId);
                   changedItems.push(itemId);
                 }
@@ -1236,6 +1386,9 @@
                 changedItems.push(itemId);
               }
             }
+          } else {
+            set.remove(itemId);
+            changedItems.push(itemId);
           }
         }
         itemList.sort(function(a, b) {
@@ -1255,12 +1408,17 @@
       };
       that.setKeyRange = function(l, r) {
         var changedItems, i, itemId, oldSet;
-        if (l < r) {
+        if ((l != null) && (r != null)) {
+          if (l < r) {
+            leftKey = l;
+            rightKey = r;
+          } else {
+            leftKey = r;
+            rightKey = l;
+          }
+        } else {
           leftKey = l;
           rightKey = r;
-        } else {
-          leftKey = r;
-          rightKey = l;
         }
         itemListStart = findLeftPoint(leftKey);
         itemListStop = findRightPoint(rightKey);
@@ -1289,7 +1447,83 @@
           return that.events.onModelChange.fire(that, changedItems.items());
         }
       };
-      that.dataStore.events.onModelChange.addListener(that.eventModelChange);
+      that.dataStore.registerPresentation(that);
+      that.registerPresentation = function(ob) {
+        that.events.onModelChange.addListener(function(m, i) {
+          return ob.eventModelChange(m, i);
+        });
+        return ob.eventModelChange(that, that.items());
+      };
+      return that;
+    };
+    Data.namespace('RangePager');
+    Data.initRangePager = Data.RangePager.initInstance = function(options) {
+      var leftPager, rightPager, set, that;
+      that = MITHGrid.initView("MITHGrid.Data.RangePager", options);
+      options = that.options;
+      leftPager = Data.Pager.initInstance({
+        dataStore: options.dataStore,
+        expressions: options.leftExpressions
+      });
+      rightPager = Data.Pager.initInstance({
+        dataStore: options.dataStore,
+        expressions: options.rightExpressions
+      });
+      set = Data.initSet();
+      that.items = set.items;
+      that.size = set.size;
+      that.contains = set.contains;
+      that.visit = set.visit;
+      that.dataStore = options.dataStore;
+      that.getItems = that.dataStore.getItems;
+      that.getItem = that.dataStore.getItem;
+      that.removeItems = that.dataStore.removeItems;
+      that.fetchData = that.dataStore.fetchData;
+      that.updateItems = that.dataStore.updateItems;
+      that.loadItems = that.dataStore.loadItems;
+      that.prepare = that.dataStore.prepare;
+      that.addType = that.dataStore.addType;
+      that.getType = that.dataStore.getType;
+      that.addProperty = that.dataStore.addProperty;
+      that.getProperty = that.dataStore.getProperty;
+      that.getObjectsUnion = that.dataStore.getObjectsUnion;
+      that.getSubjectsUnion = that.dataStore.getSubjectsUnion;
+      that.eventModelChange = function(model, itemIds) {
+        var changedIds, id, _i, _len;
+        changedIds = [];
+        for (_i = 0, _len = itemIds.length; _i < _len; _i++) {
+          id = itemIds[_i];
+          if (leftPager.contains(id) && rightPager.contains(id)) {
+            changedIds.push(id);
+            set.add(id);
+          } else {
+            if (set.contains(id)) {
+              changedIds.push(id);
+            }
+            set.remove(id);
+          }
+        }
+        if (changedIds.length > 0) {
+          return that.events.onModelChange.fire(that, changedIds);
+        }
+      };
+      that.setKeyRange = function(l, r) {
+        var _ref4;
+        if (l > r) {
+          _ref4 = [r, l], l = _ref4[0], r = _ref4[1];
+        }
+        leftPager.setKeyRange(void 0, r);
+        return rightPager.setKeyRange(l, void 0);
+      };
+      that.setKeyRange(void 0, void 0);
+      leftPager.registerPresentation(that);
+      rightPager.registerPresentation(that);
+      that.registerPresentation = function(ob) {
+        that.events.onModelChange.addListener(function(m, i) {
+          return ob.eventModelChange(m, i);
+        });
+        return ob.eventModelChange(that, that.items());
+      };
       return that;
     };
     Expression = MITHGrid.namespace("Expression");
@@ -2158,7 +2392,7 @@
       that = MITHGrid.initView(type, container, options);
       activeRenderingId = null;
       renderings = {};
-      lenses = that.options.lenses;
+      lenses = that.options.lenses || {};
       options = that.options;
       $(container).empty();
       lensKeyExpression = void 0;
@@ -2174,6 +2408,12 @@
             render: lenses[key]
           };
         }
+      };
+      that.addLens = function(key, lens) {
+        return lenses[key] = lens;
+      };
+      that.removeLens = function(key) {
+        return delete lenses[key];
       };
       that.renderingFor = function(id) {
         return renderings[id];
@@ -2515,11 +2755,12 @@
         return binding;
       };
       initRaphaelBinding = function(raphaelDrawing) {
-        var binding, superFastLocate, superLocate, superRefresh;
+        var binding, superBind, superFastLocate, superLocate, superRefresh;
         binding = initDOMBinding(raphaelDrawing.node);
         superLocate = binding.locate;
         superFastLocate = binding.fastLocate;
         superRefresh = binding.refresh;
+        superBind = binding.bind;
         binding.locate = function(internalSelector) {
           if (internalSelector === 'raphael') {
             return raphaelDrawing;
@@ -2576,7 +2817,7 @@
     Controller.initRaphaelController = Controller.initController;
     Application = MITHGrid.namespace('Application');
     Application.initApp = function(klass, container, options) {
-      var config, initFn, onReady, prop, propOptions, store, storeName, that, type, typeInfo, varName, view, viewConfig, viewName, viewOptions, _fn, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+      var config, initFn, k, onReady, prop, propOptions, store, storeName, that, type, typeInfo, v, varName, view, viewConfig, viewName, viewOptions, _fn, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
       _ref4 = MITHGrid.normalizeArgs("MITHGrid.Application", klass, container, options), klass = _ref4[0], container = _ref4[1], options = _ref4[2];
       that = MITHGrid.initView(klass, container, options);
       onReady = [];
@@ -2690,23 +2931,20 @@
         _ref9 = options.dataViews;
         for (viewName in _ref9) {
           viewConfig = _ref9[viewName];
-          initFn = viewConfig.init || MITHGrid.Data.initView;
+          if ((viewConfig.type != null) && (viewConfig.type.initInstance != null)) {
+            initFn = viewConfig.type.initInstance;
+          } else {
+            initFn = MITHGrid.Data.View.initInstance;
+          }
           viewOptions = {
-            dataStore: that.dataStore[viewConfig.dataStore],
-            label: viewName
+            dataStore: that.dataStore[viewConfig.dataStore] || that.dataView[viewConfig.dataStore]
           };
           if (!(that.dataView[viewName] != null)) {
-            if (viewConfig.collection != null) {
-              viewOptions.collection = viewConfig.collection;
-            }
-            if (viewConfig.types != null) {
-              viewOptions.types = viewConfig.types;
-            }
-            if (viewConfig.filters != null) {
-              viewOptions.filters = viewConfig.filters;
-            }
-            if (viewConfig.expressions != null) {
-              viewOptions.expressions = viewConfig.expressions;
+            for (k in viewConfig) {
+              v = viewConfig[k];
+              if (k !== "type" && !viewOptions[k]) {
+                viewOptions[k] = v;
+              }
             }
             view = initFn(viewOptions);
             that.dataView[viewName] = view;
@@ -2877,7 +3115,7 @@
          *    plugins: [ { name: 'MyPlugin', ... } ]
          *  });
     	*/
-    MITHGrid.Plugin.initPlugin = function(klass, options) {
+    return MITHGrid.Plugin.initPlugin = function(klass, options) {
       var readyFns, that;
       that = {
         options: options,
@@ -2919,148 +3157,8 @@
       };
       return that;
     };
-    Adaptor = MITHGrid.namespace('Adaptor');
-    Adaptor.initAdaptor = function(type, options) {
-      var c, lenses, that, _ref4;
-      _ref4 = MITHGrid.normalizeArgs("MITHGrid.Adaptor", type, void 0, options), type = _ref4[0], c = _ref4[1], options = _ref4[2];
-      that = MITHGrid.initView(type, options);
-      options = that.options;
-      lenses = options.lenses;
-      that.dataStore = options.dataStore;
-      that["import"] = function(data) {
-        var parser;
-        parser = that.parser();
-        parser.push(data);
-        return parser.finish();
-      };
-      that["export"] = function() {
-        var ret;
-        ret = '';
-        that.dataStore.visit(function(id) {
-          var item;
-          item = that.dataStore.getItem(id);
-          return ret += that.render(item);
-        });
-        return ret;
-      };
-      that.parser = function() {
-        var parser, stack;
-        parser = {};
-        stack = [];
-        parser.push = function(data) {};
-        parser.finish = function() {};
-        parser.start = function(type, data) {};
-        parser.end = function(type, data, startRet) {};
-        parser.stack = function(n) {
-          if (n != null) {
-            if (n < stack.length) {
-              return stack[n];
-            } else {
-              return {};
-            }
-          } else {
-            return stack[stack.length - 1];
-          }
-        };
-        return parser;
-      };
-      that.render = function(item) {
-        var lens;
-        if (item.type != null) {
-          lens = lenses[item.type];
-          if (lens != null) {
-            return lens.render(that, item);
-          }
-        }
-      };
-      return that;
-    };
-    RDF = Adaptor.namespace('RDF');
-    RDF.initAdaptor = function(type, options) {
-      var c, superParser, that, _ref4;
-      _ref4 = MITHGrid.normalizeArgs("MITHGrid.Adaptor.RDF", type, void 0, options), type = _ref4[0], c = _ref4[1], options = _ref4[2];
-      that = Adaptor.initAdaptor(type, options);
-      options = that.options;
-      superParser = that.parser;
-      that.parser = function() {
-        var href, ns, parser, rdfDatabank, _ref5;
-        parser = superParser();
-        rdfDatabank = $.rdf.databank().base(options.base);
-        if (options.prefix != null) {
-          _ref5 = options.prefix;
-          for (ns in _ref5) {
-            href = _ref5[ns];
-            rdfDatabank.prefix(ns, href);
-          }
-        }
-        parser.base = function(b) {
-          rdfDatabank.base(b);
-          return parser;
-        };
-        parser.prefix = function(ns, href) {
-          rdfDatabank.prefix(ns, href);
-          return parser;
-        };
-        parser.push = function(data) {
-          var line, _i, _len, _results;
-          if (typeof data === "string") {
-            return rdfDatabank.load(data, {});
-          } else {
-            _results = [];
-            for (_i = 0, _len = data.length; _i < _len; _i++) {
-              line = data[_i];
-              _results.push(rdfDatabank.add(line));
-            }
-            return _results;
-          }
-        };
-        parser.finish = function() {
-          var annotation, bodyItem, bodyText, createdAt, createdBy, items, mediaURL, svgBox, svgBoxItem, title;
-          items = [];
-          annotation = '';
-          mediaURL = '';
-          svgBox = '';
-          bodyText = '';
-          createdAt = '';
-          createdBy = '';
-          title = '';
-          svgBoxItem = that.SVGBoundingBoxToItem(svgBox);
-          svgBoxItem.id = annotation + '-svg-constraint';
-          bodyItem = {
-            id: annotation + '-body-text',
-            type: 'TextContent',
-            content: bodyText
-          };
-          items.push(svgBoxItem);
-          items.push(bodyItem);
-          items.push({
-            id: annotation,
-            mediaURL: mediaURL,
-            svgConstraint: svgBoxItem.id,
-            body: bodyItem.id,
-            createdAt: createdAt,
-            createdBy: createdBy,
-            title: title
-          });
-          return that.dataStore.loadItems(items);
-        };
-        parser.start = function(type, data) {};
-        parser.end = function(type, data, startRet) {};
-        return parser;
-      };
-      return that;
-    };
-    OAC = RDF.namespace('OAC');
-    return OAC.initAdaptor = function(type, options) {
-      var c, that, _ref4;
-      _ref4 = MITHGrid.normalizeArgs("MITHGrid.Adaptor.RDF.OAC", type, void 0, options), type = _ref4[0], c = _ref4[1], options = _ref4[2];
-      that = Adaptor.initAdaptor(type, options);
-      options = that.options;
-      that.parser = function() {};
-      return that;
-    };
   })(jQuery, MITHGrid);
-  MITHGrid.defaults("MITHGrid.Data.initStore", {
+  MITHGrid.defaults("MITHGrid.Data.Store", {
     events: {
       onModelChange: null,
       onBeforeLoading: null,
@@ -3069,13 +3167,18 @@
       onAfterUpdating: null
     }
   });
-  MITHGrid.defaults("MITHGrid.Data.initView", {
+  MITHGrid.defaults("MITHGrid.Data.View", {
     events: {
       onModelChange: null,
       onFilterItem: "preventable"
     }
   });
-  MITHGrid.defaults("MITHGrid.Data.initPager", {
+  MITHGrid.defaults("MITHGrid.Data.Pager", {
+    events: {
+      onModelChange: null
+    }
+  });
+  MITHGrid.defaults("MITHGrid.Data.RangePager", {
     events: {
       onModelChange: null
     }
