@@ -463,4 +463,68 @@ $(document).ready(function() {
 		ok(!dp.contains('g'), "contains <g,3>");
 		ok(!dp.contains('h'), "!contains <h,4>");
 	});
+	
+	test("Check data range pager loading and range function",
+	function() {
+		var dp, loadPair = function(a,b) {
+			dp.loadItems([{
+				id: a,
+				label: a,
+				start: b,
+				end: b*b,
+				type: 'Text'
+			}]);
+		};
+		
+		expect(19);
+		dp = MITHGrid.Data.RangePager.initInstance({
+			dataStore: MITHGrid.Data.initView({
+				dataStore: MITHGrid.Data.initStore()
+			}),
+			leftExpressions: [ '.start' ],
+			rightExpressions: [ '.end' ]
+		});
+		dp.addProperty("start", {
+			valueType: "numeric"
+		});
+		dp.addProperty("end", {
+			valueType: "numeric"
+		});
+		
+		dp.setKeyRange(0, 2);
+		loadPair('a', -10); // -10 .. 100
+		loadPair('e', 1);  // 1 .. 1
+		loadPair('c', -1); // -1 .. 1
+		loadPair('d', 0);  // 0 .. 0
+		loadPair('g', 3);  // 3 .. 9
+		loadPair('b', -5); // -5 .. 25
+		loadPair('f', 2);  // 2 .. 4
+		loadPair('h', 4);  // 4 .. 16
+		loadPair('i', 5);  // 5 .. 25
+		loadPair('j', 10); // 10 .. 100
+
+		ok(dp.contains('c'), "contains <c,-1>");
+		ok(dp.contains('d'), "contains <d,0>");
+		ok(dp.contains('e'), "contains <e,1>");
+		ok(dp.contains('f'), "!contains <f,2>");
+		ok(!dp.contains('g'), "!contains <g,3>");
+	
+		dp.setKeyRange(0,3);
+		ok(dp.contains('c'), "!contains <c,-1>");
+		ok(dp.contains('d'), "contains <d,0>");
+		ok(dp.contains('e'), "contains <e,1>");
+		ok(dp.contains('f'), "contains <f,2>");
+		ok(dp.contains('g'), "contains <g,3>");
+		ok(!dp.contains('h'), "!contains <h,4>");
+		
+		dp.setKeyRange(-5,1);
+		ok(dp.contains('a'), "!contains <a,-10>");
+		ok(dp.contains('b'), "contains <b,-5>");	
+		ok(dp.contains('c'), "contains <c,-1>");
+		ok(dp.contains('d'), "contains <d,0>");
+		ok(dp.contains('e'), "contains <e,1>");
+		ok(!dp.contains('f'), "contains <f,2>");
+		ok(!dp.contains('g'), "contains <g,3>");
+		ok(!dp.contains('h'), "!contains <h,4>");
+	});
 });

@@ -629,6 +629,116 @@
 
 		that
 		
+	Data.namespace 'ListPager'
+	Data.ListPager.initInstance = (options) ->
+		that = MITHGrid.initView "MITHGrid.Data.ListPager", options
+		options = that.options
+
+		itemList = []
+		itemListStart = 0
+		itemListStop = -1
+		leftKey = undefined
+		rightKey = undefined
+			
+		findItemPosition = (itemId) -> itemList.indexOf itemId
+			
+		set = Data.initSet()
+
+		that.items = set.items
+		that.size = set.size
+		that.contains = set.contains
+		that.visit = set.visit
+
+		that.dataStore = options.dataStore
+		# these mappings allow a data pager to stand in for a data Store
+		that.getItems = that.dataStore.getItems
+		that.getItem = that.dataStore.getItem
+		that.removeItems = that.dataStore.removeItems
+		that.fetchData = that.dataStore.fetchData
+		that.updateItems = that.dataStore.updateItems
+		that.loadItems = that.dataStore.loadItems
+		that.prepare = that.dataStore.prepare
+		that.addType = that.dataStore.addType
+		that.getType = that.dataStore.getType
+		that.addProperty = that.dataStore.addProperty
+		that.getProperty = that.dataStore.getProperty
+		that.getObjectsUnion = that.dataStore.getObjectsUnion
+		that.getSubjectsUnion = that.dataStore.getSubjectsUnion
+		
+		that.setList = (idList) ->
+			itemList = idList
+			changedItems = []
+			for id in itemList
+				if that.dataStore.contains(id) and !set.contains(id)
+					if itemListStart <= itemList.offset(id) < itemListStop
+						changedItems.push id
+						set.add id
+				else if set.contains(id) and !that.dataStore.contains(id)
+					changedItems.push id
+					set.remove id
+			for id in set.items()
+				if !that.dataStore.contains id
+					changedItems.push id
+					set.remove id
+			if changedItems.length > 0
+				that.events.onModelChange.fire that, changedItems
+	
+		that.eventModelChange = (model, items) ->
+			# we're modifying the items we're tracking, possibly expanding or decreasing the set
+			changedItems = [] # to propogate on to the next level
+			for itemId in items
+				if model.contains(itemId)
+					key = findItemPosition itemId
+					if set.contains(itemId)
+						changedItems.push itemId
+						if !(itemListStart <= key < itemListStop)
+							set.remove itemId
+					else
+						if itemListStart <= key < itemListStop
+							set.add itemId
+							changedItems.push itemId
+				else
+					set.remove itemId
+					changedItems.push itemId
+
+			if changedItems.length > 0
+				that.events.onModelChange.fire that, changedItems
+
+		that.setKeyRange = (l, r) ->
+			if l < r
+				itemListStart = l
+				itemListStop = r
+			else
+				itemListStart = r
+				itemListStop = l
+			
+			set = Data.initSet()
+			that.items = set.items
+			that.size = set.size
+			that.contains = set.contains
+			that.visit = set.visit
+			
+			if itemListStart < itemListStop
+				for i in [itemListStart..itemListStop]
+					itemId = itemList[i]
+					if !oldSet.contains(itemId)
+						changedItems.add itemId
+					set.add(itemId)
+			oldSet.visit (x) ->
+				if !set.contains(x)
+					changedItems.add x
+			if changedItems.size() > 0
+				that.events.onModelChange.fire that, changedItems.items()
+
+		
+		that.dataStore.registerPresentation that
+
+		that.registerPresentation = (ob) ->
+			that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
+			ob.eventModelChange that, that.items()
+
+		that
+	
 	Data.namespace 'Pager'
 	Data.initPager = Data.Pager.initInstance = (options) ->
 		that = MITHGrid.initView "MITHGrid.Data.Pager", options
@@ -642,6 +752,8 @@
 		
 		# returns the first index that has a key greater than or equal to the given key
 		findLeftPoint = (key) ->
+			if !key?
+				return 0
 			left = 0
 			if key?
 				right = itemList.length - 1
@@ -658,6 +770,8 @@
 			
 		# returns the last index that has a key less than or equal to the given key
 		findRightPoint = (key) ->
+			if !key?
+				return itemList.length - 1
 			left = 0
 			right = itemList.length - 1
 			if key?
@@ -753,12 +867,16 @@
 				that.events.onModelChange.fire that, changedItems
 
 		that.setKeyRange = (l, r) ->
-			if l < r
+			if l? and r?
+				if l < r
+					leftKey = l
+					rightKey = r
+				else
+					leftKey = r
+					rightKey = l
+			else
 				leftKey = l
 				rightKey = r
-			else
-				leftKey = r
-				rightKey = l
 				
 			itemListStart = findLeftPoint leftKey
 			itemListStop  = findRightPoint rightKey
@@ -791,7 +909,8 @@
 			ob.eventModelChange that, that.items()
 
 		that
-		
+	
+
 	Data.namespace 'RangePager'
 	Data.initRangePager = Data.RangePager.initInstance = (options) ->
 		that = MITHGrid.initView "MITHGrid.Data.RangePager", options
@@ -827,12 +946,16 @@
 		that.getSubjectsUnion = that.dataStore.getSubjectsUnion
 			
 		that.eventModelChange = (model, itemIds) ->
+			changedIds = []
 			for id in itemIds
 				if leftPager.contains(id) and rightPager.contains(id)
+					changedIds.push id unless set.contains id
 					set.add id
 				else
+					changedIds.push id if set.contains id
 					set.remove id
-			that.events.onModelChange.fire that, itemIds
+			if changedIds.length > 0
+				that.events.onModelChange.fire that, changedIds 
 
 		that.setKeyRange = (l, r) ->
 			if l > r
