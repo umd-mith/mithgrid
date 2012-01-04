@@ -2,7 +2,7 @@
   /*
    * mithgrid JavaScript Library v0.0.1
    *
-   * Date: Fri Dec 2 15:55:55 2011 -0500
+   * Date: Wed Jan 4 08:46:44 2012 -0500
    *
    * (c) Copyright University of Maryland 2011.  All rights reserved.
    *
@@ -1494,9 +1494,7 @@
         for (_i = 0, _len = itemIds.length; _i < _len; _i++) {
           id = itemIds[_i];
           if (leftPager.contains(id) && rightPager.contains(id)) {
-            if (!set.contains(id)) {
-              changedIds.push(id);
-            }
+            changedIds.push(id);
             set.add(id);
           } else {
             if (set.contains(id)) {
