@@ -55,7 +55,7 @@
 				if condition
 					args[1].evaluate roots, rootValueTypes, defaultRootName, database
 				else
-					args[2].evaluate(roots, rootValueTypes, defaultRootName, database
+					args[2].evaluate roots, rootValueTypes, defaultRootName, database
 		"foreach":
 			f: (args, roots, rootValueTypes, defaultRootName, database) ->
 				collection = args[0].evaluate roots, rootValueTypes, defaultRootName, database
