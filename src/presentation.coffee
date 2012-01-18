@@ -27,6 +27,13 @@
 			
 		that.removeLens = (key) ->
 			delete lenses[key]
+		
+		that.hasLens = (key) -> lenses[key]?
+		
+		that.visitRenderings = (cb) ->
+			for id, r of renderings
+				if false == cb(id, r)
+					return
 
 		that.renderingFor = (id) -> renderings[id]
 		

@@ -2,7 +2,7 @@
   /*
    * mithgrid JavaScript Library v0.0.1
    *
-   * Date: Wed Jan 4 08:46:44 2012 -0500
+   * Date: Wed Jan 4 06:01:14 2012 -0800
    *
    * (c) Copyright University of Maryland 2011.  All rights reserved.
    *
@@ -122,6 +122,38 @@
     MITHGrid.defaults = function(namespace, defaults) {
       MITHGridDefaults[namespace] || (MITHGridDefaults[namespace] = {});
       return MITHGridDefaults[namespace] = $.extend(true, MITHGridDefaults[namespace], defaults);
+    };
+    MITHGrid.initSynchonizer = function(callbacks) {
+      var counter, done, fired, that;
+      that = {};
+      counter = 1;
+      done = false;
+      fired = false;
+      if (!(callbacks.done != null)) {
+        that.increment = function() {};
+        that.decrement = that.increment;
+        that.done = that.increment;
+        that.add = function(v) {};
+      } else {
+        that.increment = function() {
+          return counter += 1;
+        };
+        that.add = function(n) {
+          return counter += n;
+        };
+        that.decrement = function() {
+          counter -= 1;
+          if (counter <= 0 && done && !fired) {
+            setTimeout(callbacks.done, 0);
+            return fired = true;
+          }
+        };
+        that.done = function() {
+          done = true;
+          return that.decrement();
+        };
+      }
+      return that;
     };
     MITHGrid.initEventFirer = function(isPreventable, isUnicast) {
       var listeners, that;
@@ -369,6 +401,7 @@
       that.items = set.items;
       that.contains = set.contains;
       that.visit = set.visit;
+      that.size = set.size;
       indexPut = function(index, x, y, z) {
         var array, counts, hash;
         hash = index[x];
@@ -1132,6 +1165,73 @@
       that.getObjectsUnion = that.dataStore.getObjectsUnion;
       that.getSubjectsUnion = that.dataStore.getSubjectsUnion;
       that.dataStore.events.onModelChange.addListener(that.eventModelChange);
+      that.eventModelChange(that.dataStore, that.dataStore.items());
+      return that;
+    };
+    Data.namespace('SubSet');
+    Data.SubSet.initInstance = function(options) {
+      var expressions, key, set, that;
+      that = MITHGrid.initView("MITHGrid.Data.View", options);
+      options = that.options;
+      key = options.key;
+      set = Data.initSet();
+      that.items = set.items;
+      that.size = set.size;
+      that.contains = set.contains;
+      that.visit = set.visit;
+      that.setKey = function(k) {
+        key = k;
+        return that.eventModelChange(options.dataStore, options.dataStore.items());
+      };
+      expressions = options.dataStore.prepare(options.expressions);
+      that.eventModelChange = function(model, items) {
+        var changed, i, newItems, _i, _len;
+        if (key != null) {
+          newItems = Data.initSet(expressions.evaluate([key]));
+        } else {
+          newItems = Data.initSet();
+        }
+        changed = [];
+        for (_i = 0, _len = items.length; _i < _len; _i++) {
+          i = items[_i];
+          if (set.contains(i)) {
+            changed.push(i);
+            if (!newItems.contains(i)) {
+              set.remove(i);
+            }
+          } else if (newItems.contains(i)) {
+            set.add(i);
+            changed.push(i);
+          }
+        }
+        if (changed.length > 0) {
+          return that.events.onModelChange.fire(that, changed);
+        }
+      };
+      that.dataStore = options.dataStore;
+      that.getItems = that.dataStore.getItems;
+      that.getItem = that.dataStore.getItem;
+      that.removeItems = that.dataStore.removeItems;
+      that.fetchData = that.dataStore.fetchData;
+      that.updateItems = that.dataStore.updateItems;
+      that.loadItems = that.dataStore.loadItems;
+      that.prepare = that.dataStore.prepare;
+      that.addType = that.dataStore.addType;
+      that.getType = that.dataStore.getType;
+      that.addProperty = that.dataStore.addProperty;
+      that.getProperty = that.dataStore.getProperty;
+      that.getObjectsUnion = that.dataStore.getObjectsUnion;
+      that.getSubjectsUnion = that.dataStore.getSubjectsUnion;
+      that.dataStore.events.onModelChange.addListener(that.eventModelChange);
+      that.eventModelChange(that.dataStore, that.dataStore.items());
+      that.registerPresentation = function(ob) {
+        that.events.onModelChange.addListener(function(m, i) {
+          return ob.eventModelChange(m, i);
+        });
+        return setTimeout(function() {
+          return ob.eventModelChange(that, that.items());
+        }, 0);
+      };
       return that;
     };
     Data.namespace('ListPager');
@@ -1167,13 +1267,13 @@
       that.getObjectsUnion = that.dataStore.getObjectsUnion;
       that.getSubjectsUnion = that.dataStore.getSubjectsUnion;
       that.setList = function(idList) {
-        var changedItems, id, _i, _j, _len, _len2, _ref4, _ref5;
+        var changedItems, id, _i, _j, _len, _len2, _ref4, _ref5, _ref6;
         itemList = idList;
         changedItems = [];
         for (_i = 0, _len = itemList.length; _i < _len; _i++) {
           id = itemList[_i];
           if (that.dataStore.contains(id) && !set.contains(id)) {
-            if ((itemListStart <= (_ref4 = itemList.offset(id)) && _ref4 < itemListStop)) {
+            if ((itemListStart <= (_ref4 = itemList.indexOf(id)) && _ref4 < itemListStop)) {
               changedItems.push(id);
               set.add(id);
             }
@@ -1185,7 +1285,7 @@
         _ref5 = set.items();
         for (_j = 0, _len2 = _ref5.length; _j < _len2; _j++) {
           id = _ref5[_j];
-          if (!that.dataStore.contains(id)) {
+          if ((_ref6 = !id, __indexOf.call(itemList, _ref6) >= 0) || !that.dataStore.contains(id)) {
             changedItems.push(id);
             set.remove(id);
           }
@@ -1222,7 +1322,7 @@
         }
       };
       that.setKeyRange = function(l, r) {
-        var i, itemId;
+        var changedItems, i, itemId, oldSet;
         if (l < r) {
           itemListStart = l;
           itemListStop = r;
@@ -1230,6 +1330,8 @@
           itemListStart = r;
           itemListStop = l;
         }
+        oldSet = set;
+        changedItems = Data.initSet();
         set = Data.initSet();
         that.items = set.items;
         that.size = set.size;
@@ -2415,6 +2517,18 @@
       that.removeLens = function(key) {
         return delete lenses[key];
       };
+      that.hasLens = function(key) {
+        return lenses[key] != null;
+      };
+      that.visitRenderings = function(cb) {
+        var id, r;
+        for (id in renderings) {
+          r = renderings[id];
+          if (false === cb(id, r)) {
+            return;
+          }
+        }
+      };
       that.renderingFor = function(id) {
         return renderings[id];
       };
@@ -3173,12 +3287,22 @@
       onFilterItem: "preventable"
     }
   });
+  MITHGrid.defaults("MITHGrid.Data.SubSet", {
+    events: {
+      onModelChange: null
+    }
+  });
   MITHGrid.defaults("MITHGrid.Data.Pager", {
     events: {
       onModelChange: null
     }
   });
   MITHGrid.defaults("MITHGrid.Data.RangePager", {
+    events: {
+      onModelChange: null
+    }
+  });
+  MITHGrid.defaults("MITHGrid.Data.ListPager", {
     events: {
       onModelChange: null
     }

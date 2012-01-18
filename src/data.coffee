@@ -84,6 +84,7 @@
 		that.items = set.items
 		that.contains = set.contains
 		that.visit = set.visit
+		that.size = set.size
 
 		indexPut = (index, x, y, z) ->
 			hash = index[x]
@@ -627,6 +628,74 @@
 		
 		that.dataStore.events.onModelChange.addListener that.eventModelChange
 
+		that.eventModelChange that.dataStore, that.dataStore.items()
+
+		that
+		
+	Data.namespace 'SubSet'
+	Data.SubSet.initInstance = (options) ->
+		that = MITHGrid.initView "MITHGrid.Data.View", options
+		options = that.options
+		key = options.key
+		
+		set = Data.initSet()
+
+		that.items = set.items
+		that.size = set.size
+		that.contains = set.contains
+		that.visit = set.visit
+		
+		that.setKey = (k) ->
+			key = k
+			that.eventModelChange options.dataStore, options.dataStore.items()
+
+		expressions = options.dataStore.prepare(options.expressions)
+		that.eventModelChange = (model, items) ->
+			if key?
+				newItems = Data.initSet(expressions.evaluate([key]))
+			else
+				newItems = Data.initSet()
+				
+			changed = []
+			
+			for i in items
+				if set.contains i
+					changed.push i
+					if !newItems.contains i
+						set.remove i
+				else if newItems.contains i
+					set.add i
+					changed.push i
+			if changed.length > 0
+				that.events.onModelChange.fire that, changed
+					
+		that.dataStore = options.dataStore
+
+		# these mappings allow a data View to stand in for a data Store
+		that.getItems = that.dataStore.getItems
+		that.getItem = that.dataStore.getItem
+		that.removeItems = that.dataStore.removeItems
+		that.fetchData = that.dataStore.fetchData
+		that.updateItems = that.dataStore.updateItems
+		that.loadItems = that.dataStore.loadItems
+		that.prepare = that.dataStore.prepare
+		that.addType = that.dataStore.addType
+		that.getType = that.dataStore.getType
+		that.addProperty = that.dataStore.addProperty
+		that.getProperty = that.dataStore.getProperty
+		that.getObjectsUnion = that.dataStore.getObjectsUnion
+		that.getSubjectsUnion = that.dataStore.getSubjectsUnion
+		
+		that.dataStore.events.onModelChange.addListener that.eventModelChange
+
+		that.eventModelChange that.dataStore, that.dataStore.items()
+		
+		that.registerPresentation = (ob) ->
+			that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
+			setTimeout () -> 
+				ob.eventModelChange that, that.items()
+			, 0
+		
 		that
 		
 	Data.namespace 'ListPager'
@@ -670,14 +739,14 @@
 			changedItems = []
 			for id in itemList
 				if that.dataStore.contains(id) and !set.contains(id)
-					if itemListStart <= itemList.offset(id) < itemListStop
+					if itemListStart <= itemList.indexOf(id) < itemListStop
 						changedItems.push id
 						set.add id
 				else if set.contains(id) and !that.dataStore.contains(id)
 					changedItems.push id
 					set.remove id
 			for id in set.items()
-				if !that.dataStore.contains id
+				if !id in itemList or !that.dataStore.contains id
 					changedItems.push id
 					set.remove id
 			if changedItems.length > 0
@@ -712,6 +781,8 @@
 				itemListStart = r
 				itemListStop = l
 			
+			oldSet = set
+			changedItems = Data.initSet()
 			set = Data.initSet()
 			that.items = set.items
 			that.size = set.size
