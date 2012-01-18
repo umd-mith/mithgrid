@@ -65,7 +65,7 @@
 		MITHGridDefaults[namespace] or= {}
 		MITHGridDefaults[namespace] = $.extend(true, MITHGridDefaults[namespace], defaults)
 		
-	MITHGrid.initSynchonizer = (callbacks) ->
+	MITHGrid.initSynchronizer = (callbacks) ->
 		that = {}
 		counter = 1
 		done = false
