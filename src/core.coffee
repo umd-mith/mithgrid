@@ -65,6 +65,31 @@
 		MITHGridDefaults[namespace] or= {}
 		MITHGridDefaults[namespace] = $.extend(true, MITHGridDefaults[namespace], defaults)
 		
+	MITHGrid.initSynchonizer = (callbacks) ->
+		that = {}
+		counter = 1
+		done = false
+		fired = false
+		if !callbacks.done?
+			that.increment = () ->
+			that.decrement = that.increment
+			that.done = that.increment
+			that.add = (v) ->
+		else
+			that.increment = () -> counter += 1
+			that.add = (n) -> counter += n
+			that.decrement = () ->
+				counter -= 1
+				if counter <= 0 and done and !fired
+					setTimeout callbacks.done, 0
+					fired = true
+			that.done = () ->
+				done = true
+				that.decrement()
+
+		that
+        
+		
 	MITHGrid.initEventFirer = (isPreventable, isUnicast) ->
 		that = {}
 		that.isPreventable = isPreventable
