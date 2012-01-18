@@ -14,11 +14,19 @@ MITHGrid.defaults "MITHGrid.Data.View",
         onModelChange: null
         onFilterItem: "preventable"
 
+MITHGrid.defaults "MITHGrid.Data.SubSet",
+    events:
+        onModelChange: null
+
 MITHGrid.defaults "MITHGrid.Data.Pager",
     events:
         onModelChange: null
 
 MITHGrid.defaults "MITHGrid.Data.RangePager",
+    events:
+        onModelChange: null
+
+MITHGrid.defaults "MITHGrid.Data.ListPager",
     events:
         onModelChange: null
 
