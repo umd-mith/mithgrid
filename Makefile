@@ -10,6 +10,8 @@ DIST_DIR = ${PREFIX}/dist
 JS_ENGINE ?= `which node nodejs`
 COMPILER = ${JS_ENGINE} ${BUILD_DIR}/uglify.js --unsafe
 POST_COMPILER = ${JS_ENGINE} ${BUILD_DIR}/post-compile.js
+DOCCO ?= `which docco-husky`
+GRUNT ?= `which grunt`
 
 BASE_FILES = ${SRC_DIR}/core.coffee \
 			${SRC_DIR}/data.coffee \
@@ -19,7 +21,6 @@ BASE_FILES = ${SRC_DIR}/core.coffee \
 			${SRC_DIR}/controller.coffee \
 			${SRC_DIR}/application.coffee \
 			${SRC_DIR}/plugin.coffee
-#			${SRC_DIR}/adaptor.coffee
 
 MODULES = ${SRC_DIR}/intro.coffee \
 		${BASE_FILES} \
@@ -34,13 +35,25 @@ VER = sed "s/@VERSION/${MG_VER}/"
 
 DATE=$(shell git log --pretty=format:%ad | head -1)
 
-all: core
+all: core docs
 
-core: mithgrid min lint
+core: mithgrid min lint test
 		@@echo "mithgrid build complete"
 
 ${DIST_DIR}:
 		@@mkdir -p ${DIST_DIR}
+
+docs: ${MODULES}
+		@@${DOCCO} ${SRC_DIR}
+
+test: mithgrid
+		@@if test ! -z ${GRUNT}; then \
+			echo "Testing mithgrid"; \
+			${GRUNT} qunit; \
+		else \
+			echo "You must have grunt installed in order to test mithgrid."; \
+		fi
+
 
 mithgrid: ${MG}
 
@@ -51,7 +64,11 @@ mithgrid: ${MG}
 ${MG_C}: ${MODULES} | ${DIST_DIR}
 		@@echo "Building" ${MG_C}
 		
-		@@cat ${BASE_FILES} > ${MG_C}.tmp;
+		@@rm -f ${MG_C}.tmp
+		@@for i in ${BASE_FILES}; do \
+			cat $$i | sed 's/^/	/' >> ${MG_C}.tmp; \
+			echo >> ${MG_C}.tmp; \
+			done
 		
 		@@cat ${SRC_DIR}/intro.coffee ${MG_C}.tmp ${SRC_DIR}/outro.coffee | \
 			sed 's/@DATE/'"${DATE}"'/' | \
