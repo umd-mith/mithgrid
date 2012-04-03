@@ -1,6 +1,9 @@
-
-	# jslint nomen: true
-	Expression = MITHGrid.namespace("Expression")
+# # Expression Parser
+#
+# Everything here is private except for a few exported objects and functions.
+#
+MITHGrid.namespace "Expression", (exports) ->
+	Expression = {}
 	_operators =
 		"+":
 			argumentType: "number"
@@ -40,7 +43,24 @@
 			valueType: "boolean"
 			f: (a, b) -> a >= b
 
-	Expression.controls =
+	# ## MITHGrid.Expression.controls
+	#
+	# Control functions may be defined for use in expressions. See the existing control functions for examples of
+	# how to write them.
+	#
+	# All control functions take the following parameters:
+	#
+	# * args
+	# * roots
+	# * rootValueTypes
+	# * defaultRootName
+	# * database
+	#
+	# All control functions should return a collection of items (using MITHGrid.Expression.initCollection collections)
+	#
+	Expression.controls = exports.controls =
+		# ### if
+		#
 		"if":
 			f: (args, roots, rootValueTypes, defaultRootName, database) ->
 				conditionCollection = args[0].evaluate roots, rootValueTypes, defaultRootName, database
@@ -51,11 +71,11 @@
 						return true
 					else
 						return undefined
-
+			
 				if condition
 					args[1].evaluate roots, rootValueTypes, defaultRootName, database
 				else
-					args[2].evaluate(roots, rootValueTypes, defaultRootName, database
+					args[2].evaluate roots, rootValueTypes, defaultRootName, database
 		"foreach":
 			f: (args, roots, rootValueTypes, defaultRootName, database) ->
 				collection = args[0].evaluate roots, rootValueTypes, defaultRootName, database
@@ -96,7 +116,7 @@
 				valueType: collection.valueType
 				size: collection.size
 			}
-			
+		
 		that.evaluateOnItem = (itemID, database) ->
 			this.evaluate({
 				"value": itemID
@@ -129,7 +149,7 @@
 			that.getPath = () -> null
 			that.testExists = (roots, rootValueTypes, defaultRootName, database) ->
 				that.evaluate(roots, rootValueTypes, defaultRootName, database).values.size() > 0
-		
+	
 		that.evaluateBackward = (value, valueType, filter, database) ->
 			rootNode.walkBackward [value], valueType, filter, database
 
@@ -141,7 +161,7 @@
 
 		that
 
-	Expression.initCollection = (values, valueType) ->
+	Expression.initCollection = exports.initCollection = (values, valueType) ->
 		that =
 			valueType: valueType
 
@@ -241,7 +261,7 @@
 		that = {}
 		_rootName = null
 		_segments = []
-		
+	
 		walkForward = (collection, database) ->
 			forwardArraySegmentFn = (segment) ->
 				a = []
@@ -410,13 +430,13 @@
 
 		that
 
-	Expression.initParser = () ->
+	Expression.initParser = exports.initParser = () ->
 		that = {}
-		
+	
 		internalParse = (scanner, several) ->
 			token = scanner.token()
 			Scanner = Expression.initScanner
-			
+		
 			next = () ->
 				scanner.next()
 				token = scanner.token()
@@ -466,7 +486,7 @@
 				while token? and token.type == Scanner.PATH_OPERATOR
 					hopOperator = token.value
 					next()
-					
+				
 					if token? and token.type == Scanner.IDENTIFIER
 						path.appendSegment token.value, hopOperator
 						next()
@@ -512,7 +532,7 @@
 						else
 							if token? and token.type == Scanner.DELIMITER and token.value == "("
 								next()
-								
+							
 								if token? and token.type == Scanner.DELIMITER and token.value == ")"
 									args = []
 								else
@@ -687,8 +707,8 @@
 
 	Expression.functions = { }
 	Expression.FunctionUtilities = { }
-	
-	Expression.FunctionUtilities.registerSimpleMappingFunction = (name, f, valueType) ->
+
+	exports.registerSimpleMappingFunction = (name, f, valueType) ->
 		Expression.functions[name] =
 			f: (args) ->
 				set = MITHGrid.Data.initSet()

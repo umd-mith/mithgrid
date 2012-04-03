@@ -7,7 +7,7 @@ $(document).ready(function() {
 		ok( $.isFunction(MITHGrid.Expression.namespace), "MITHGrid.Expression.namespace is a function" );
 		ok( $.isFunction(MITHGrid.Expression.debug), "MITHGrid.Expression.debug is a function" );
 	});
-	
+
 	module("Expression.initCollection");
 	
 	

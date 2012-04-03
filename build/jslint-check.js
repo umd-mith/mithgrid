@@ -1,12 +1,12 @@
 var JSLINT = require("./lib/jslint").check, //.JSLINT,
-	print = require("sys").print,
+	print = require("util").print,
 	src = require("fs").readFileSync("dist/mithgrid.js", "utf8");
 
 JSLINT(src, { 
 	forin: true, 
 	maxerr: 100, 
 	vars: true,
-	maxlen: 130,
+	maxlen: 255,
 	white: true, 
 	sloppy: true, 
 	browser: true, 

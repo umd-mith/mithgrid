@@ -97,7 +97,7 @@ $(document).ready(function() {
 	function() {
 		var ds,
 		props = [ "items", "addProperty", "getProperty", "addType", "getType", "getItem", "getItems",
-		          "fetchData", "updateItems", "loadItems", "prepare", "getObjectsUnion", "getSubjectsUnion" ];
+		          "updateItems", "loadItems", "prepare", "getObjectsUnion", "getSubjectsUnion" ];
 		
 		expect(props.length);
 		ds = MITHGrid.Data.initStore({
@@ -339,7 +339,7 @@ $(document).ready(function() {
 	function() {
 		var dv,
 		props = [ "items", "addProperty", "getProperty", "addType", "getType", "getItem", "getItems",
-		          "fetchData", "updateItems", "loadItems", "prepare", "getObjectsUnion", "getSubjectsUnion" ];
+		          "updateItems", "loadItems", "prepare", "getObjectsUnion", "getSubjectsUnion" ];
 		
 		expect(props.length);
 		dv = MITHGrid.Data.initView({
@@ -359,15 +359,15 @@ $(document).ready(function() {
         ok($.isFunction(MITHGrid.Data.initView), "Data.initView is a function");
     });
 
-	module("Data.initPager");
+	module("Data.Pager");
 	
 	test("Check data pager construction",
 	function() {
 		var dp;
 		
 		expect(2);
-		ok(MITHGrid.Data.initPager !== undefined, "Data.initPager exists");
-		ok($.isFunction(MITHGrid.Data.initPager), "Data.initPager is a function");
+		ok(MITHGrid.Data.Pager.initInstance !== undefined, "Data.Pager.initInstance exists");
+		ok($.isFunction(MITHGrid.Data.Pager.initInstance), "Data.Pager.initInstance is a function");
 	});
 	
 	test("Check data pager returns something",
@@ -376,9 +376,9 @@ $(document).ready(function() {
 		
 		expect(2);
 		try {
-			dp = MITHGrid.Data.initPager({
-				dataStore: MITHGrid.Data.initView({
-					dataStore: MITHGrid.Data.initStore({})
+			dp = MITHGrid.Data.Pager.initInstance({
+				dataStore: MITHGrid.Data.View.initInstance({
+					dataStore: MITHGrid.Data.Store.initInstance({})
 				}),
 				expressions: [ '.position' ]
 			});
@@ -393,11 +393,11 @@ $(document).ready(function() {
 	function() {
 		var dp,
 		props = [ "items", "addProperty", "getProperty", "addType", "getType", "getItem", "getItems",
-		          "fetchData", "updateItems", "loadItems", "prepare", "getObjectsUnion", "getSubjectsUnion",
+		          "updateItems", "loadItems", "prepare", "getObjectsUnion", "getSubjectsUnion",
 		 		  "eventModelChange", "setKeyRange" ];
 		expect(props.length);
-		dp = MITHGrid.Data.initPager({
-			dataStore: MITHGrid.Data.initStore(),
+		dp = MITHGrid.Data.Pager.initInstance({
+			dataStore: MITHGrid.Data.Store.initInstance(),
 			expressions: [ '.position' ]
 		});
 		$.each(props, function(idx, prop) {
@@ -417,9 +417,9 @@ $(document).ready(function() {
 		};
 		
 		expect(19);
-		dp = MITHGrid.Data.initPager({
-			dataStore: MITHGrid.Data.initView({
-				dataStore: MITHGrid.Data.initStore()
+		dp = MITHGrid.Data.Pager.initInstance({
+			dataStore: MITHGrid.Data.View.initInstance({
+				dataStore: MITHGrid.Data.Store.initInstance()
 			}),
 			expressions: [ '.position' ]
 		});
