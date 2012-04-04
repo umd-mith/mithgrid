@@ -1,0 +1,1295 @@
+<!DOCTYPE html><html><head><title>data.coffee</title><meta http-equiv="Content-Type" content="text/html" charset="UTF-8"><link rel="stylesheet" media="all" href="../docco.css"></head><body><div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a><a href="../src/promise.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">promise.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>data.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><p>We place most of the data-centric pieces in the MITHGrid.Data namespace.</p>
+</td><td class="code"><div class="highlight"><pre><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Data&#39;</span><span class="p">,</span> <span class="nf">(Data) -&gt;</span>
+  <span class="nx">Data</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Set&#39;</span><span class="p">,</span> <span class="nf">(Set) -&gt;</span></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><h1>Data Sets</h1>
+
+<p>Sets track membership of string item IDs.
+Sets are basic objects that do not participate in the MITHGrid.initView scheme.</p>
+
+<h2>Set.initInstance</h2>
+
+<p>Initializes a set.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>values - optional array of values that are initial members of the set</li>
+</ul>
+
+<p>Returns:</p>
+
+<p>The set object.</p>
+</td><td class="code"><div class="highlight"><pre>    <span class="nv">Set.initInstance = </span><span class="nf">(values) -&gt;</span>
+      <span class="nv">that = </span><span class="p">{}</span>
+      <span class="nv">items = </span><span class="p">{}</span>
+      <span class="nv">count = </span><span class="mi">0</span>
+      <span class="nv">recalc_items = </span><span class="kc">true</span>
+      <span class="nv">items_list = </span><span class="p">[]</span>
+
+      <span class="nv">that.isSet = </span><span class="kc">true</span></pre></div></td></tr><tr id="section-3"><td class="docs"><div class="pilwrap"><a href="#section-3" class="pilcrow">&#182;</a></div><h3>#items</h3>
+
+<p>Returns a list of item IDs in the set.</p>
+
+<p>Parameters: None.</p>
+
+<p>Returns:</p>
+
+<p>An array of item IDs.</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.items = </span><span class="nf">() -&gt;</span>
+        <span class="k">if</span> <span class="nx">recalc_items</span>
+          <span class="nv">items_list = </span><span class="p">[]</span>
+          <span class="k">for</span> <span class="nx">i</span> <span class="k">of</span> <span class="nx">items</span>
+            <span class="nx">items_list</span><span class="p">.</span><span class="nx">push</span> <span class="nx">i</span> <span class="k">if</span> <span class="k">typeof</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;string&quot;</span> <span class="o">and</span> <span class="nx">items</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">==</span> <span class="kc">true</span>
+        <span class="nx">items_list</span></pre></div></td></tr><tr id="section-4"><td class="docs"><div class="pilwrap"><a href="#section-4" class="pilcrow">&#182;</a></div><h3>#add</h3>
+
+<p>Adds an item ID to the set.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>item - item ID to be added to the set</li>
+</ul>
+
+<p>Returns:</p>
+
+<p>Returns nothing.</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.add = </span><span class="nf">(item) -&gt;</span>
+        <span class="k">if</span> <span class="o">!</span><span class="nx">items</span><span class="p">[</span><span class="nx">item</span><span class="p">]</span><span class="o">?</span>
+          <span class="nx">items</span><span class="p">[</span><span class="nx">item</span><span class="p">]</span> <span class="o">=</span> <span class="kc">true</span>
+          <span class="nv">recalc_items = </span><span class="kc">true</span>
+          <span class="nx">count</span> <span class="o">+=</span> <span class="mi">1</span></pre></div></td></tr><tr id="section-5"><td class="docs"><div class="pilwrap"><a href="#section-5" class="pilcrow">&#182;</a></div><h3>#remove</h3>
+
+<p>Removes the item ID from the set.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>item - item ID to be removed from the set</li>
+</ul>
+
+<p>Returns:</p>
+
+<p>Returns nothing.</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.remove = </span><span class="nf">(item) -&gt;</span>
+        <span class="k">if</span> <span class="nx">items</span><span class="p">[</span><span class="nx">item</span><span class="p">]</span><span class="o">?</span>
+          <span class="k">delete</span> <span class="nx">items</span><span class="p">[</span><span class="nx">item</span><span class="p">]</span>
+          <span class="nv">recalc_items = </span><span class="kc">true</span>
+          <span class="nx">count</span> <span class="o">-=</span> <span class="mi">1</span>
+      </pre></div></td></tr><tr id="section-6"><td class="docs"><div class="pilwrap"><a href="#section-6" class="pilcrow">&#182;</a></div><h3>#empty</h3>
+
+<p>Removes all items from the set.</p>
+
+<p>Parameters: None.</p>
+
+<p>Returns:</p>
+
+<p>Returns nothing.</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.empty = </span><span class="nf">() -&gt;</span>
+        <span class="nv">items = </span><span class="p">{}</span>
+        <span class="nv">count = </span><span class="mi">0</span>
+        <span class="nv">recalc_items = </span><span class="kc">false</span>
+        <span class="nv">items_list = </span><span class="p">[]</span>
+        <span class="kc">undefined</span></pre></div></td></tr><tr id="section-7"><td class="docs"><div class="pilwrap"><a href="#section-7" class="pilcrow">&#182;</a></div><h3>#visit</h3>
+
+<p>Calls a function with each item ID in the set. This will terminate if the called function returns the
+"true" value.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>fn - function taking one argument (the item ID being visited)</li>
+</ul>
+
+<p>Returns:</p>
+
+<p>Returns nothing.</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.visit = </span><span class="nf">(fn) -&gt;</span>
+        <span class="k">for</span> <span class="nx">o</span> <span class="k">of</span> <span class="nx">items</span>
+          <span class="k">break</span> <span class="k">if</span> <span class="nx">fn</span><span class="p">(</span><span class="nx">o</span><span class="p">)</span> <span class="o">==</span> <span class="kc">true</span></pre></div></td></tr><tr id="section-8"><td class="docs"><div class="pilwrap"><a href="#section-8" class="pilcrow">&#182;</a></div><h3>#contains</h3>
+
+<p>Returns true if the item ID is in the set.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>o - item ID to be tested</li>
+</ul>
+
+<p>Returns:</p>
+
+<p>True or false depending on the presence of the item ID in the set.</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.contains = </span><span class="nf">(o) -&gt;</span>
+        <span class="nx">items</span><span class="p">[</span><span class="nx">o</span><span class="p">]</span><span class="o">?</span></pre></div></td></tr><tr id="section-9"><td class="docs"><div class="pilwrap"><a href="#section-9" class="pilcrow">&#182;</a></div><h3>#size</h3>
+
+<p>Returns the number of item IDs in the set.</p>
+
+<p>Parameters: None.</p>
+
+<p>Returns:</p>
+
+<p>The number of item IDs in the set.</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.size = </span><span class="nf">() -&gt;</span>
+        <span class="k">if</span> <span class="nx">recalc_items</span>
+          <span class="nx">that</span><span class="p">.</span><span class="nx">items</span><span class="p">().</span><span class="nx">length</span>
+        <span class="k">else</span>
+          <span class="nx">items_list</span><span class="p">.</span><span class="nx">length</span>
+
+      <span class="k">if</span> <span class="nx">values</span> <span class="k">instanceof</span> <span class="nb">Array</span>
+        <span class="nx">that</span><span class="p">.</span><span class="nx">add</span> <span class="nx">i</span> <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="nx">values</span>
+
+      <span class="nx">that</span>
+    
+
+  </pre></div></td></tr><tr id="section-10"><td class="docs"><div class="pilwrap"><a href="#section-10" class="pilcrow">&#182;</a></div><h1>Data Types</h1>
+
+<p>This object type is used to encapsulate information about item types. Used within data store objects and parsed
+expressions.</p>
+</td><td class="code"><div class="highlight"><pre>  <span class="nx">Data</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Type&#39;</span><span class="p">,</span> <span class="nf">(Type) -&gt;</span>
+    <span class="nv">Type.initInstance = </span><span class="nf">(t) -&gt;</span>
+      <span class="nv">that =</span>
+        <span class="nv">name: </span><span class="nx">t</span>
+        <span class="nv">custom: </span><span class="p">{}</span>
+  </pre></div></td></tr><tr id="section-11"><td class="docs"><div class="pilwrap"><a href="#section-11" class="pilcrow">&#182;</a></div><h1>Data Properties</h1>
+
+<p>This object type is used to encapsulate information about item properties. Used within data store objects and
+parsed expressions.</p>
+</td><td class="code"><div class="highlight"><pre>  <span class="nx">Data</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Property&#39;</span><span class="p">,</span> <span class="nf">(Property) -&gt;</span>
+    <span class="nv">Property.initInstance = </span><span class="nf">(p) -&gt;</span>
+      <span class="nv">that =</span>
+        <span class="nv">name: </span><span class="nx">p</span>
+        <span class="nv">getValueType: </span><span class="nf">() -&gt;</span>
+          <span class="nx">that</span><span class="p">.</span><span class="nx">valueType</span> <span class="o">?</span> <span class="s">&#39;text&#39;</span>
+  </pre></div></td></tr><tr id="section-12"><td class="docs"><div class="pilwrap"><a href="#section-12" class="pilcrow">&#182;</a></div><h1>Data Store</h1>
+
+<p>MITHGrid.Data.Store is a basic triple store that allows updating and deletion of triples.
+Data stores are usually used as sources for data views.</p>
+</td><td class="code"><div class="highlight"><pre>  <span class="nx">Data</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Store&#39;</span><span class="p">,</span> <span class="nf">(Store) -&gt;</span></pre></div></td></tr><tr id="section-13"><td class="docs"><div class="pilwrap"><a href="#section-13" class="pilcrow">&#182;</a></div><h2>Store.initInstance</h2>
+
+<p>Initializes a data store instance.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>options - object containing configuration options</li>
+</ul>
+
+<p>Returns:</p>
+
+<p>The configured data store instance.</p>
+</td><td class="code"><div class="highlight"><pre>    <span class="nv">Store.initInstance = </span><span class="nf">(options) -&gt;</span>
+      <span class="nv">quiesc_events = </span><span class="kc">false</span>
+      <span class="nv">set = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+      <span class="nv">types = </span><span class="p">{}</span>
+      <span class="nv">properties = </span><span class="p">{}</span>
+      <span class="nv">spo = </span><span class="p">{}</span>
+      <span class="nv">ops = </span><span class="p">{}</span>
+  
+      <span class="nx">options</span> <span class="o">?=</span> <span class="p">{}</span>
+
+      <span class="nv">that = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Data.Store&quot;</span><span class="p">,</span> <span class="nx">options</span></pre></div></td></tr><tr id="section-14"><td class="docs"><div class="pilwrap"><a href="#section-14" class="pilcrow">&#182;</a></div><h3>#items (see Set#items)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.items = </span><span class="nx">set</span><span class="p">.</span><span class="nx">items</span>
+      </pre></div></td></tr><tr id="section-15"><td class="docs"><div class="pilwrap"><a href="#section-15" class="pilcrow">&#182;</a></div><h3>#contains (see Set#contains)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.contains = </span><span class="nx">set</span><span class="p">.</span><span class="nx">contains</span>
+      </pre></div></td></tr><tr id="section-16"><td class="docs"><div class="pilwrap"><a href="#section-16" class="pilcrow">&#182;</a></div><h3>#visit (see Set#visit)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.visit = </span><span class="nx">set</span><span class="p">.</span><span class="nx">visit</span>
+      </pre></div></td></tr><tr id="section-17"><td class="docs"><div class="pilwrap"><a href="#section-17" class="pilcrow">&#182;</a></div><h3>#size (see Set#size)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.size = </span><span class="nx">set</span><span class="p">.</span><span class="nx">size</span></pre></div></td></tr><tr id="section-18"><td class="docs"><div class="pilwrap"><a href="#section-18" class="pilcrow">&#182;</a></div><h3>indexPut (private)</h3>
+
+<p>Puts a triple into an index. This manages reference counting.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>index - the index to which the triple is added</li>
+<li>x, y, z - the triple to insert into the index (s,p,o or o,p,s)</li>
+</ul>
+
+<p>Returns: Nothing.</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">indexPut = </span><span class="nf">(index, x, y, z) -&gt;</span>
+        <span class="nv">hash = </span><span class="nx">index</span><span class="p">[</span><span class="nx">x</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="o">!</span><span class="nx">hash</span><span class="o">?</span>
+          <span class="nv">hash =</span>
+            <span class="nv">values: </span><span class="p">{}</span>
+            <span class="nv">counts: </span><span class="p">{}</span>
+          <span class="nx">index</span><span class="p">[</span><span class="nx">x</span><span class="p">]</span> <span class="o">=</span> <span class="nx">hash</span>
+
+        <span class="nv">array = </span><span class="nx">hash</span><span class="p">.</span><span class="nx">values</span><span class="p">[</span><span class="nx">y</span><span class="p">]</span>
+        <span class="nv">counts = </span><span class="nx">hash</span><span class="p">.</span><span class="nx">counts</span><span class="p">[</span><span class="nx">y</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="o">!</span><span class="nx">array</span><span class="o">?</span>
+          <span class="nv">array = </span><span class="p">[]</span>
+          <span class="nx">hash</span><span class="p">.</span><span class="nx">values</span><span class="p">[</span><span class="nx">y</span><span class="p">]</span> <span class="o">=</span> <span class="nx">array</span>
+        <span class="k">if</span> <span class="o">!</span><span class="nx">counts</span><span class="o">?</span>
+          <span class="nv">counts = </span><span class="p">{}</span>
+          <span class="nx">hash</span><span class="p">.</span><span class="nx">counts</span><span class="p">[</span><span class="nx">y</span><span class="p">]</span> <span class="o">=</span> <span class="nx">counts</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="nx">z</span> <span class="k">in</span> <span class="nx">array</span>
+          <span class="nx">counts</span><span class="p">[</span><span class="nx">z</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+          <span class="k">return</span>
+        <span class="nx">array</span><span class="p">.</span><span class="nx">push</span> <span class="nx">z</span>
+        <span class="nx">counts</span><span class="p">[</span><span class="nx">z</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span></pre></div></td></tr><tr id="section-19"><td class="docs"><div class="pilwrap"><a href="#section-19" class="pilcrow">&#182;</a></div><h3>indexFillSet (private)</h3>
+
+<p>Parameters:</p>
+
+<ul>
+<li>index</li>
+<li>x, y</li>
+<li>set</li>
+<li>filter</li>
+</ul>
+
+<p>Returns: Nothing.</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">indexFillSet = </span><span class="nf">(index, x, y, set, filter) -&gt;</span>
+        <span class="nv">hash = </span><span class="nx">index</span><span class="p">[</span><span class="nx">x</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nx">hash</span><span class="o">?</span>
+          <span class="nv">array = </span><span class="nx">hash</span><span class="p">.</span><span class="nx">values</span><span class="p">[</span><span class="nx">y</span><span class="p">]</span>
+          <span class="k">if</span> <span class="nx">array</span><span class="o">?</span>
+            <span class="k">if</span> <span class="nx">filter</span><span class="o">?</span>
+              <span class="k">for</span> <span class="nx">z</span> <span class="k">in</span> <span class="nx">array</span>
+                <span class="nx">set</span><span class="p">.</span><span class="nx">add</span> <span class="nx">z</span> <span class="k">if</span> <span class="nx">filter</span><span class="p">.</span><span class="nx">contains</span> <span class="nx">z</span>
+            <span class="k">else</span>
+              <span class="nx">set</span><span class="p">.</span><span class="nx">add</span> <span class="nx">z</span> <span class="k">for</span> <span class="nx">z</span> <span class="k">in</span> <span class="nx">array</span></pre></div></td></tr><tr id="section-20"><td class="docs"><div class="pilwrap"><a href="#section-20" class="pilcrow">&#182;</a></div><h3>getUnion (private)</h3>
+
+<p>Parameters:</p>
+
+<ul>
+<li>index</li>
+<li>xSet</li>
+<li>y</li>
+<li>set</li>
+<li>filter</li>
+</ul>
+
+<p>Returns:</p>
+
+<p>If set is not defined, then a new set is created and returned. Otherwise, the set passed in is returned
+with the additional items added.</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">getUnion = </span><span class="nf">(index, xSet, y, set, filter) -&gt;</span>
+        <span class="k">if</span> <span class="o">!</span><span class="nx">set</span><span class="o">?</span>
+          <span class="nv">set = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+
+        <span class="nx">xSet</span><span class="p">.</span><span class="nx">visit</span> <span class="nf">(x) -&gt;</span> <span class="nx">indexFillSet</span> <span class="nx">index</span><span class="p">,</span> <span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">,</span> <span class="nx">set</span><span class="p">,</span> <span class="nx">filter</span>
+        <span class="nx">set</span></pre></div></td></tr><tr id="section-21"><td class="docs"><div class="pilwrap"><a href="#section-21" class="pilcrow">&#182;</a></div><h3>#addProperty</h3>
+
+<p>Adds metadata about a property.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>nom - property name</li>
+<li>options - object holding metadata about the property</li>
+</ul>
+
+<p>Returns:</p>
+
+<p>The property object holding the information.</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.addProperty = </span><span class="nf">(nom, options) -&gt;</span>
+        <span class="nv">prop = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initProperty</span> <span class="nx">nom</span>
+        <span class="k">if</span> <span class="nx">options</span><span class="o">?</span><span class="p">.</span><span class="nx">valueType</span><span class="o">?</span>
+          <span class="nv">prop.valueType = </span><span class="nx">options</span><span class="p">.</span><span class="nx">valueType</span>
+          <span class="nx">properties</span><span class="p">[</span><span class="nx">nom</span><span class="p">]</span> <span class="o">=</span> <span class="nx">prop</span>
+        <span class="nx">prop</span></pre></div></td></tr><tr id="section-22"><td class="docs"><div class="pilwrap"><a href="#section-22" class="pilcrow">&#182;</a></div><h3>#getProperty</h3>
+
+<p>Returns the property object holding the related metadata.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>nom - property name</li>
+</ul>
+
+<p>Returns:</p>
+
+<p>Object holding the property metadata.</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.getProperty = </span><span class="nf">(nom) -&gt;</span> <span class="nx">properties</span><span class="p">[</span><span class="nx">nom</span><span class="p">]</span> <span class="o">?</span> <span class="nx">Data</span><span class="p">.</span><span class="nx">initProperty</span><span class="p">(</span><span class="nx">nom</span><span class="p">)</span></pre></div></td></tr><tr id="section-23"><td class="docs"><div class="pilwrap"><a href="#section-23" class="pilcrow">&#182;</a></div><h3>#addType</h3>
+
+<p>Adds metadata about a type.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>nom - type name</li>
+<li>options - object holding metadata about the type</li>
+</ul>
+
+<p>Returns:</p>
+
+<p>The type object holding the information.</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.addType = </span><span class="nf">(nom, options) -&gt;</span>
+        <span class="nv">type = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initType</span><span class="p">(</span><span class="nx">nom</span><span class="p">)</span>
+        <span class="nx">types</span><span class="p">[</span><span class="nx">nom</span><span class="p">]</span> <span class="o">=</span> <span class="nx">type</span>
+        <span class="nx">type</span></pre></div></td></tr><tr id="section-24"><td class="docs"><div class="pilwrap"><a href="#section-24" class="pilcrow">&#182;</a></div><h3>#getType</h3>
+
+<p>Returns the type object holding the related metadata.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>nom - type name</li>
+</ul>
+
+<p>Returns:</p>
+
+<p>Object holding the type metadata.</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.getType = </span><span class="nf">(nom) -&gt;</span> <span class="nx">types</span><span class="p">[</span><span class="nx">nom</span><span class="p">]</span> <span class="o">?</span> <span class="nx">Data</span><span class="p">.</span><span class="nx">initType</span><span class="p">(</span><span class="nx">nom</span><span class="p">)</span></pre></div></td></tr><tr id="section-25"><td class="docs"><div class="pilwrap"><a href="#section-25" class="pilcrow">&#182;</a></div><h3>#getItem</h3>
+
+<p>Returns the triples related to an item ID</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>id - item ID</li>
+</ul>
+
+<p>Returns:</p>
+
+<p>An object containing the triples related to the item ID. If the item ID is not in the data store, then
+and empty object is returned.</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.getItem = </span><span class="nf">(id) -&gt;</span> <span class="nx">spo</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="nx">values</span> <span class="o">?</span> <span class="p">{}</span></pre></div></td></tr><tr id="section-26"><td class="docs"><div class="pilwrap"><a href="#section-26" class="pilcrow">&#182;</a></div><h3>#getItems</h3>
+
+<p>Returns an array of objects holding the triples associated with an array of item IDs.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>ids - array of item IDs</li>
+</ul>
+
+<p>Returns:</p>
+
+<p>An array of objects containing the triples related to the item IDs.</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.getItems = </span><span class="nf">(ids) -&gt;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nx">that</span><span class="p">.</span><span class="nx">getItem</span> <span class="nx">ids</span><span class="p">]</span> <span class="k">if</span> <span class="o">!</span><span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span> <span class="nx">ids</span>
+        <span class="nx">$</span><span class="p">.</span><span class="nx">map</span> <span class="nx">ids</span><span class="p">,</span> <span class="nf">(id, idx) -&gt;</span> <span class="nx">that</span><span class="p">.</span><span class="nx">getItem</span> <span class="nx">id</span>
+        </pre></div></td></tr><tr id="section-27"><td class="docs"><div class="pilwrap"><a href="#section-27" class="pilcrow">&#182;</a></div><h3>#removeItems</h3>
+
+<p>Removes triples associated with the item IDs.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>ids - list of item IDs</li>
+<li>fn - callback function</li>
+</ul>
+
+<p>Returns: Nothing</p>
+
+<p>Events:</p>
+
+<ul>
+<li>onModelChange</li>
+</ul>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.removeItems = </span><span class="nf">(ids, fn) -&gt;</span>
+        <span class="nv">id_list = </span><span class="p">[]</span>
+    </pre></div></td></tr><tr id="section-28"><td class="docs"><div class="pilwrap"><a href="#section-28" class="pilcrow">&#182;</a></div><h4>indexRemove (private to #removeItems)</h4>
+
+<p>Removes a triple from an index if the reference count is zero.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>index</li>
+<li>x, y, z</li>
+</ul>
+
+<p>Returns: Nothing.</p>
+</td><td class="code"><div class="highlight"><pre>        <span class="nv">indexRemove = </span><span class="nf">(index, x, y, z) -&gt;</span>
+          <span class="nv">hash = </span><span class="nx">index</span><span class="p">[</span><span class="nx">x</span><span class="p">]</span>
+          <span class="k">return</span> <span class="k">if</span> <span class="o">!</span><span class="nx">hash</span><span class="o">?</span>
+
+          <span class="nv">array = </span><span class="nx">hash</span><span class="p">.</span><span class="nx">values</span><span class="p">[</span><span class="nx">y</span><span class="p">];</span>
+          <span class="nv">counts = </span><span class="nx">hash</span><span class="p">.</span><span class="nx">counts</span><span class="p">[</span><span class="nx">y</span><span class="p">];</span>
+
+          <span class="k">return</span> <span class="k">if</span> <span class="o">!</span><span class="nx">array</span><span class="o">?</span> <span class="o">or</span> <span class="o">!</span><span class="nx">counts</span><span class="o">?</span>
+
+          <span class="nx">counts</span><span class="p">[</span><span class="nx">z</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+          <span class="k">if</span> <span class="nx">counts</span><span class="p">[</span><span class="nx">z</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">1</span>
+            <span class="nv">i = </span><span class="nx">$</span><span class="p">.</span><span class="nx">inArray</span> <span class="nx">z</span><span class="p">,</span> <span class="nx">array</span>
+            <span class="k">if</span> <span class="nx">i</span> <span class="o">==</span> <span class="mi">0</span>
+              <span class="nv">array = </span><span class="nx">array</span><span class="p">[</span><span class="mi">1</span><span class="p">...</span><span class="nx">array</span><span class="p">.</span><span class="nx">length</span><span class="p">]</span>
+            <span class="k">else</span> <span class="k">if</span> <span class="nx">i</span> <span class="o">==</span> <span class="nx">array</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span>
+              <span class="nv">array = </span><span class="nx">array</span><span class="p">[</span><span class="mi">0</span> <span class="p">...</span> <span class="nx">i</span><span class="p">]</span>
+            <span class="k">else</span> <span class="k">if</span> <span class="nx">i</span> <span class="o">&gt;</span> <span class="mi">0</span>
+              <span class="nv">array = </span><span class="nx">array</span><span class="p">[</span><span class="mi">0</span> <span class="p">...</span> <span class="nx">i</span><span class="p">].</span><span class="nx">concat</span> <span class="nx">array</span><span class="p">[</span><span class="nx">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">...</span> <span class="nx">array</span><span class="p">.</span><span class="nx">length</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nx">array</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+              <span class="nx">hash</span><span class="p">.</span><span class="nx">values</span><span class="p">[</span><span class="nx">y</span><span class="p">]</span> <span class="o">=</span> <span class="nx">array</span>
+            <span class="k">else</span>
+              <span class="k">delete</span> <span class="nx">hash</span><span class="p">.</span><span class="nx">values</span><span class="p">[</span><span class="nx">y</span><span class="p">]</span>
+            <span class="k">delete</span> <span class="nx">counts</span><span class="p">[</span><span class="nx">z</span><span class="p">]</span></pre></div></td></tr><tr id="section-29"><td class="docs"><div class="pilwrap"><a href="#section-29" class="pilcrow">&#182;</a></div><p>TODO: if counts empty, then we need to bubble up the deletion</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="nv">sum = </span><span class="mi">0</span>
+            <span class="k">for</span> <span class="nx">k</span><span class="p">,</span> <span class="nx">v</span> <span class="k">of</span> <span class="nx">counts</span>
+              <span class="nx">sum</span> <span class="o">+=</span> <span class="nx">v</span>
+            <span class="k">if</span> <span class="nx">sum</span> <span class="o">==</span> <span class="mi">0</span>
+              <span class="k">delete</span> <span class="nx">index</span><span class="p">[</span><span class="nx">x</span><span class="p">]</span></pre></div></td></tr><tr id="section-30"><td class="docs"><div class="pilwrap"><a href="#section-30" class="pilcrow">&#182;</a></div><h4>indexRemoveFn (private to #removeItems)</h4>
+
+<p>Removes the triple from the forward and backward indices.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>s - subject (item ID)</li>
+<li>p - predicate (property)</li>
+<li>o - object (value)</li>
+</ul>
+
+<p>Returns: Nothing.</p>
+</td><td class="code"><div class="highlight"><pre>        <span class="nv">indexRemoveFn = </span><span class="nf">(s, p, o) -&gt;</span>
+          <span class="nx">indexRemove</span> <span class="nx">spo</span><span class="p">,</span> <span class="nx">s</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">o</span>
+          <span class="nx">indexRemove</span> <span class="nx">ops</span><span class="p">,</span> <span class="nx">o</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">s</span>
+    </pre></div></td></tr><tr id="section-31"><td class="docs"><div class="pilwrap"><a href="#section-31" class="pilcrow">&#182;</a></div><h4>removeValues (private to #removeItems)</h4>
+
+<p>Removes the listed values for the property associated with the item ID.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>id - item ID</li>
+<li>p - property name</li>
+<li>list - list of values associated with the property</li>
+</ul>
+
+<p>Returns: Nothing</p>
+</td><td class="code"><div class="highlight"><pre>        <span class="nv">removeValues = </span><span class="nf">(id, p, list) -&gt;</span> <span class="nx">indexRemoveFn</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">o</span><span class="p">)</span> <span class="k">for</span> <span class="nx">o</span> <span class="k">in</span> <span class="nx">list</span>
+    </pre></div></td></tr><tr id="section-32"><td class="docs"><div class="pilwrap"><a href="#section-32" class="pilcrow">&#182;</a></div><h4>removeItem (private to #removeItems)</h4>
+
+<p>Removes the item from the data store.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>id - item ID</li>
+</ul>
+
+<p>Returns: Nothing.</p>
+</td><td class="code"><div class="highlight"><pre>        <span class="nv">removeItem = </span><span class="nf">(id) -&gt;</span>
+          <span class="nv">entry = </span><span class="nx">that</span><span class="p">.</span><span class="nx">getItem</span> <span class="nx">id</span>
+          <span class="nv">type = </span><span class="nx">entry</span><span class="p">.</span><span class="nx">type</span>
+          <span class="nv">type = </span><span class="nx">type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">type</span><span class="p">)</span>
+      
+          <span class="k">for</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">items</span> <span class="k">of</span> <span class="nx">entry</span>
+            <span class="k">continue</span> <span class="k">if</span> <span class="k">typeof</span><span class="p">(</span><span class="nx">p</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&quot;string&quot;</span> <span class="o">or</span> <span class="nx">p</span> <span class="k">in</span> <span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="s">&quot;type&quot;</span><span class="p">]</span>
+            <span class="nx">removeValues</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">items</span>
+      
+          <span class="nx">removeValues</span> <span class="nx">id</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">,</span> <span class="p">[</span> <span class="nx">type</span> <span class="p">]</span>
+      
+        
+        <span class="k">for</span> <span class="nx">id</span> <span class="k">in</span> <span class="nx">ids</span>
+          <span class="nx">removeItem</span> <span class="nx">id</span>
+          <span class="nx">id_list</span><span class="p">.</span><span class="nx">push</span> <span class="nx">id</span>
+          <span class="nx">set</span><span class="p">.</span><span class="nx">remove</span> <span class="nx">id</span>
+      
+        <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">id_list</span>
+        <span class="k">if</span> <span class="nx">fn</span><span class="o">?</span>
+          <span class="nx">fn</span><span class="p">()</span>
+          </pre></div></td></tr><tr id="section-33"><td class="docs"><div class="pilwrap"><a href="#section-33" class="pilcrow">&#182;</a></div><h3>#updateItems</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.updateItems = </span><span class="nf">(items, fn) -&gt;</span>
+        <span class="nv">id_list = </span><span class="p">[]</span></pre></div></td></tr><tr id="section-34"><td class="docs"><div class="pilwrap"><a href="#section-34" class="pilcrow">&#182;</a></div><h4>indexRemove (private to #updateItems)</h4>
+</td><td class="code"><div class="highlight"><pre>        <span class="nv">indexRemove = </span><span class="nf">(index, x, y, z) -&gt;</span>
+          <span class="nv">hash = </span><span class="nx">index</span><span class="p">[</span><span class="nx">x</span><span class="p">]</span>
+          <span class="k">return</span> <span class="k">if</span> <span class="o">!</span><span class="nx">hash</span><span class="o">?</span>
+
+          <span class="nv">array = </span><span class="nx">hash</span><span class="p">.</span><span class="nx">values</span><span class="p">[</span><span class="nx">y</span><span class="p">]</span>
+          <span class="nv">counts = </span><span class="nx">hash</span><span class="p">.</span><span class="nx">counts</span><span class="p">[</span><span class="nx">y</span><span class="p">]</span>
+
+          <span class="k">return</span> <span class="k">if</span> <span class="o">!</span><span class="nx">array</span><span class="o">?</span> <span class="o">or</span> <span class="o">!</span><span class="nx">counts</span><span class="o">?</span></pre></div></td></tr><tr id="section-35"><td class="docs"><div class="pilwrap"><a href="#section-35" class="pilcrow">&#182;</a></div><p>we need to remove the old z values</p>
+</td><td class="code"><div class="highlight"><pre>          <span class="nx">counts</span><span class="p">[</span><span class="nx">z</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+          <span class="k">if</span> <span class="nx">counts</span><span class="p">[</span><span class="nx">z</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">1</span>
+            <span class="nv">i = </span><span class="nx">$</span><span class="p">.</span><span class="nx">inArray</span> <span class="nx">z</span><span class="p">,</span> <span class="nx">array</span>
+            <span class="k">if</span> <span class="nx">i</span> <span class="o">==</span> <span class="mi">0</span>
+              <span class="nv">array = </span><span class="nx">array</span><span class="p">[</span><span class="mi">1</span><span class="p">...</span><span class="nx">array</span><span class="p">.</span><span class="nx">length</span><span class="p">]</span>
+            <span class="k">else</span> <span class="k">if</span> <span class="nx">i</span> <span class="o">==</span> <span class="nx">array</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span>
+              <span class="nv">array = </span><span class="nx">array</span><span class="p">[</span><span class="mi">0</span> <span class="p">...</span> <span class="nx">i</span><span class="p">]</span>
+            <span class="k">else</span> <span class="k">if</span> <span class="nx">i</span> <span class="o">&gt;</span> <span class="mi">0</span>
+              <span class="nv">array = </span><span class="nx">array</span><span class="p">[</span><span class="mi">0</span> <span class="p">...</span> <span class="nx">i</span><span class="p">].</span><span class="nx">concat</span> <span class="nx">array</span><span class="p">[</span><span class="nx">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">...</span> <span class="nx">array</span><span class="p">.</span><span class="nx">length</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nx">array</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+              <span class="nx">hash</span><span class="p">.</span><span class="nx">values</span><span class="p">[</span><span class="nx">y</span><span class="p">]</span> <span class="o">=</span> <span class="nx">array</span>
+            <span class="k">else</span>
+              <span class="k">delete</span> <span class="nx">hash</span><span class="p">.</span><span class="nx">values</span><span class="p">[</span><span class="nx">y</span><span class="p">]</span>
+            <span class="k">delete</span> <span class="nx">counts</span><span class="p">[</span><span class="nx">z</span><span class="p">]</span>
+          </pre></div></td></tr><tr id="section-36"><td class="docs"><div class="pilwrap"><a href="#section-36" class="pilcrow">&#182;</a></div><h4>indexPutFn (private to #updateItems)</h4>
+</td><td class="code"><div class="highlight"><pre>        <span class="nv">indexPutFn = </span><span class="nf">(s, p, o) -&gt;</span>
+          <span class="nx">indexPut</span> <span class="nx">spo</span><span class="p">,</span> <span class="nx">s</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">o</span>
+          <span class="nx">indexPut</span> <span class="nx">ops</span><span class="p">,</span> <span class="nx">o</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">s</span></pre></div></td></tr><tr id="section-37"><td class="docs"><div class="pilwrap"><a href="#section-37" class="pilcrow">&#182;</a></div><h4>indexRemoveFn (private to #updateItems)</h4>
+</td><td class="code"><div class="highlight"><pre>        <span class="nv">indexRemoveFn = </span><span class="nf">(s, p, o) -&gt;</span>
+          <span class="nx">indexRemove</span> <span class="nx">spo</span><span class="p">,</span> <span class="nx">s</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">o</span>
+          <span class="nx">indexRemove</span> <span class="nx">ops</span><span class="p">,</span> <span class="nx">o</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">s</span></pre></div></td></tr><tr id="section-38"><td class="docs"><div class="pilwrap"><a href="#section-38" class="pilcrow">&#182;</a></div><h4>updateItem (private to #updateItems)</h4>
+</td><td class="code"><div class="highlight"><pre>        <span class="nv">updateItem = </span><span class="nf">(entry) -&gt;</span></pre></div></td></tr><tr id="section-39"><td class="docs"><div class="pilwrap"><a href="#section-39" class="pilcrow">&#182;</a></div><p>we only update things that are different from the old_item
+we also only update properties that are in the new item
+if anything is changed, we return true
+otherwise, we return false</p>
+</td><td class="code"><div class="highlight"><pre>          <span class="nv">id = </span><span class="nx">entry</span><span class="p">.</span><span class="nx">id</span>
+          <span class="nv">type = </span><span class="nx">entry</span><span class="p">.</span><span class="nx">type</span>
+          <span class="nv">changed = </span><span class="kc">false</span>
+
+          <span class="nv">itemListIdentical = </span><span class="nf">(to, from) -&gt;</span>
+            <span class="nv">items_same = </span><span class="kc">true</span>
+            <span class="k">return</span> <span class="kc">false</span> <span class="k">if</span> <span class="nx">to</span><span class="p">.</span><span class="nx">length</span> <span class="o">!=</span> <span class="nx">from</span><span class="p">.</span><span class="nx">length</span>
+            <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">...</span><span class="nx">to</span><span class="p">.</span><span class="nx">length</span><span class="p">]</span>
+              <span class="k">if</span> <span class="nx">to</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">!=</span> <span class="nx">from</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+                <span class="nv">items_same = </span><span class="kc">false</span>
+            <span class="nx">items_same</span>
+
+          <span class="nv">removeValues = </span><span class="nf">(id, p, list) -&gt;</span> <span class="nx">indexRemoveFn</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">o</span><span class="p">)</span> <span class="k">for</span> <span class="nx">o</span> <span class="k">in</span> <span class="nx">list</span>
+          <span class="nv">putValues = </span><span class="nf">(id, p, list) -&gt;</span> <span class="nx">indexPutFn</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">o</span><span class="p">)</span> <span class="k">for</span> <span class="nx">o</span> <span class="k">in</span> <span class="nx">list</span>
+      
+          <span class="nv">id = </span><span class="nx">id</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+          <span class="nv">type = </span><span class="nx">type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">type</span><span class="p">)</span>
+
+          <span class="nv">old_item = </span><span class="nx">that</span><span class="p">.</span><span class="nx">getItem</span> <span class="nx">id</span>
+
+          <span class="k">for</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">items</span> <span class="k">of</span> <span class="nx">entry</span>
+            <span class="k">continue</span> <span class="k">if</span> <span class="k">typeof</span><span class="p">(</span><span class="nx">p</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&quot;string&quot;</span> <span class="o">or</span> <span class="nx">p</span> <span class="k">in</span> <span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="s">&quot;type&quot;</span><span class="p">]</span></pre></div></td></tr><tr id="section-40"><td class="docs"><div class="pilwrap"><a href="#section-40" class="pilcrow">&#182;</a></div><p>if entry[p] and old_item[p] have the same members in the same order, then
+we do nothing</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="nv">items = </span><span class="p">[</span><span class="nx">items</span><span class="p">]</span> <span class="k">if</span> <span class="o">!</span><span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">items</span><span class="p">)</span>
+            <span class="nv">s = </span><span class="nx">items</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+            <span class="k">if</span> <span class="o">!</span><span class="nx">old_item</span><span class="p">[</span><span class="nx">p</span><span class="p">]</span><span class="o">?</span>
+              <span class="nx">putValues</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">items</span>
+              <span class="nv">changed = </span><span class="kc">true</span>
+            <span class="k">else</span> <span class="k">if</span> <span class="o">!</span><span class="nx">itemListIdentical</span> <span class="nx">items</span><span class="p">,</span> <span class="nx">old_item</span><span class="p">[</span><span class="nx">p</span><span class="p">]</span>
+              <span class="nv">changed = </span><span class="kc">true</span>
+              <span class="nx">removeValues</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">old_item</span><span class="p">[</span><span class="nx">p</span><span class="p">]</span>
+              <span class="nx">putValues</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">items</span>
+          <span class="nx">changed</span>
+
+        <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onBeforeUpdating</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">that</span>
+
+        <span class="nv">n = </span><span class="nx">items</span><span class="p">.</span><span class="nx">length</span>
+        <span class="nv">chunk_size = </span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">n</span> <span class="o">/</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="nv">chunk_size = </span><span class="mi">200</span> <span class="k">if</span> <span class="nx">chunk_size</span> <span class="o">&gt;</span> <span class="mi">200</span>
+        <span class="nv">chunk_size = </span><span class="mi">1</span> <span class="k">if</span> <span class="nx">chunk_size</span> <span class="o">&lt;</span> <span class="mi">1</span>
+
+        <span class="nv">f = </span><span class="nf">(start) -&gt;</span>
+          <span class="nv">end = </span><span class="nx">start</span> <span class="o">+</span> <span class="nx">chunk_size</span><span class="p">;</span>
+          <span class="nv">end = </span><span class="nx">n</span> <span class="k">if</span> <span class="nx">end</span> <span class="o">&gt;</span> <span class="nx">n</span>
+
+          <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span><span class="nx">start</span> <span class="p">...</span> <span class="nx">end</span><span class="p">]</span>
+            <span class="nv">entry = </span><span class="nx">items</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="k">typeof</span><span class="p">(</span><span class="nx">entry</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;object&quot;</span> <span class="o">and</span> <span class="nx">updateItem</span> <span class="nx">entry</span>
+              <span class="nx">id_list</span><span class="p">.</span><span class="nx">push</span> <span class="nx">entry</span><span class="p">.</span><span class="nx">id</span>
+
+          <span class="k">if</span> <span class="nx">end</span> <span class="o">&lt;</span> <span class="nx">n</span>
+            <span class="nx">setTimeout</span> <span class="nf">() -&gt;</span>
+              <span class="nx">f</span> <span class="nx">end</span>
+            <span class="p">,</span>
+            <span class="mi">0</span>
+          <span class="k">else</span>
+            <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onAfterUpdating</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">that</span>
+            <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">id_list</span>
+            <span class="k">if</span> <span class="nx">fn</span><span class="o">?</span>
+              <span class="nx">fn</span><span class="p">()</span>
+        <span class="nx">f</span> <span class="mi">0</span></pre></div></td></tr><tr id="section-41"><td class="docs"><div class="pilwrap"><a href="#section-41" class="pilcrow">&#182;</a></div><h3>#loadItems</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.loadItems = </span><span class="nf">(items, endFn) -&gt;</span>
+        <span class="nv">id_list = </span><span class="p">[]</span></pre></div></td></tr><tr id="section-42"><td class="docs"><div class="pilwrap"><a href="#section-42" class="pilcrow">&#182;</a></div><h4>indexFn (private to #loadItems)</h4>
+</td><td class="code"><div class="highlight"><pre>        <span class="nv">indexFn = </span><span class="nf">(s, p, o) -&gt;</span>
+          <span class="nx">indexPut</span> <span class="nx">spo</span><span class="p">,</span> <span class="nx">s</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">o</span>
+          <span class="nx">indexPut</span> <span class="nx">ops</span><span class="p">,</span> <span class="nx">o</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">s</span></pre></div></td></tr><tr id="section-43"><td class="docs"><div class="pilwrap"><a href="#section-43" class="pilcrow">&#182;</a></div><h4>loadItem (private to #loadItems)</h4>
+</td><td class="code"><div class="highlight"><pre>        <span class="nv">loadItem = </span><span class="nf">(item) -&gt;</span>
+          <span class="k">if</span> <span class="o">!</span><span class="nx">item</span><span class="p">.</span><span class="nx">id</span><span class="o">?</span>
+            <span class="k">throw</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Item entry has no id: &quot;</span><span class="p">,</span> <span class="nx">item</span>
+          <span class="k">if</span> <span class="o">!</span><span class="nx">item</span><span class="p">.</span><span class="nx">type</span><span class="o">?</span>
+            <span class="k">throw</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Item entry has no type: &quot;</span><span class="p">,</span> <span class="nx">item</span>
+
+          <span class="nv">id = </span><span class="nx">item</span><span class="p">.</span><span class="nx">id</span>
+          <span class="nv">type = </span><span class="nx">item</span><span class="p">.</span><span class="nx">type</span>
+
+          <span class="nv">id = </span><span class="nx">id</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span> <span class="nx">id</span>
+          <span class="nv">type = </span><span class="nx">type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span> <span class="nx">type</span>
+
+          <span class="nx">set</span><span class="p">.</span><span class="nx">add</span> <span class="nx">id</span>
+          <span class="nx">id_list</span><span class="p">.</span><span class="nx">push</span> <span class="nx">id</span>
+
+          <span class="nx">indexFn</span> <span class="nx">id</span><span class="p">,</span> <span class="s">&quot;type&quot;</span><span class="p">,</span> <span class="nx">type</span>
+          <span class="nx">indexFn</span> <span class="nx">id</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="nx">id</span>
+      
+          <span class="k">for</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">v</span> <span class="k">of</span> <span class="nx">item</span>
+            <span class="k">if</span> <span class="k">typeof</span><span class="p">(</span><span class="nx">p</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&quot;string&quot;</span>
+              <span class="k">continue</span>
+          
+            <span class="k">if</span> <span class="nx">p</span> <span class="o">not</span> <span class="k">in</span> <span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="s">&quot;type&quot;</span><span class="p">]</span>
+              <span class="k">if</span> <span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span>
+                <span class="nx">indexFn</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">vv</span> <span class="k">for</span> <span class="nx">vv</span> <span class="k">in</span> <span class="nx">v</span>
+              <span class="k">else</span> <span class="k">if</span> <span class="nx">v</span><span class="o">?</span>
+                <span class="nx">indexFn</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">v</span>
+        <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onBeforeLoading</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">that</span>
+    
+        <span class="nv">n = </span><span class="nx">items</span><span class="p">.</span><span class="nx">length</span>
+        <span class="k">if</span> <span class="nx">endFn</span><span class="o">?</span>
+          <span class="nv">chunk_size = </span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">n</span> <span class="o">/</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+          <span class="nv">chunk_size = </span><span class="mi">200</span> <span class="k">if</span> <span class="nx">chunk_size</span> <span class="o">&gt;</span> <span class="mi">200</span>
+        <span class="k">else</span>
+          <span class="nv">chunk_size = </span><span class="nx">n</span>
+        <span class="nv">chunk_size = </span><span class="mi">1</span> <span class="k">if</span> <span class="nx">chunk_size</span> <span class="o">&lt;</span> <span class="mi">1</span>
+    
+        <span class="nv">f = </span><span class="nf">(start) -&gt;</span>
+          <span class="nv">end = </span><span class="nx">start</span> <span class="o">+</span> <span class="nx">chunk_size</span>
+          <span class="nv">end = </span><span class="nx">n</span> <span class="k">if</span> <span class="nx">end</span> <span class="o">&gt;</span> <span class="nx">n</span>
+
+          <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span> <span class="nx">start</span> <span class="p">...</span> <span class="nx">end</span> <span class="p">]</span>
+            <span class="nv">entry = </span><span class="nx">items</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+            <span class="nx">loadItem</span> <span class="nx">entry</span> <span class="k">if</span> <span class="k">typeof</span><span class="p">(</span><span class="nx">entry</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;object&quot;</span>
+
+          <span class="k">if</span> <span class="nx">end</span> <span class="o">&lt;</span> <span class="nx">n</span>
+            <span class="nx">setTimeout</span> <span class="nf">() -&gt;</span>
+              <span class="nx">f</span><span class="p">(</span><span class="nx">end</span><span class="p">)</span>
+            <span class="p">,</span> <span class="mi">0</span>
+          <span class="k">else</span>
+            <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onAfterLoading</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">that</span>
+            <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">id_list</span>
+            <span class="nx">setTimeout</span> <span class="nx">endFn</span><span class="p">,</span> <span class="mi">0</span> <span class="k">if</span> <span class="nx">endFn</span><span class="o">?</span>
+        <span class="nx">f</span> <span class="mi">0</span></pre></div></td></tr><tr id="section-44"><td class="docs"><div class="pilwrap"><a href="#section-44" class="pilcrow">&#182;</a></div><h3>#prepare</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.prepare = </span><span class="nf">(expressions) -&gt;</span>
+        <span class="nv">parser = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Expression</span><span class="p">.</span><span class="nx">initParser</span><span class="p">()</span>
+        <span class="nv">parsed = </span><span class="p">(</span><span class="nx">parser</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">ex</span><span class="p">)</span> <span class="k">for</span> <span class="nx">ex</span> <span class="k">in</span> <span class="nx">expressions</span><span class="p">)</span>
+        <span class="nv">valueType = </span><span class="kc">undefined</span>
+        <span class="nv">evaluate: </span><span class="nf">(id) -&gt;</span>
+          <span class="nv">values = </span><span class="p">[]</span>
+          <span class="nv">valueType = </span><span class="kc">undefined</span>
+          <span class="k">for</span> <span class="nx">ex</span> <span class="k">in</span> <span class="nx">parsed</span>
+            <span class="nx">do</span> <span class="nf">(ex) -&gt;</span>
+              <span class="nv">items = </span><span class="nx">ex</span><span class="p">.</span><span class="nx">evaluateOnItem</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">that</span>
+              <span class="nx">valueType</span> <span class="o">or=</span> <span class="nx">items</span><span class="p">.</span><span class="nx">valueType</span>
+              <span class="nv">values = </span><span class="nx">values</span><span class="p">.</span><span class="nx">concat</span> <span class="nx">items</span><span class="p">.</span><span class="nx">values</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+          <span class="nx">values</span>
+        <span class="nv">valueType: </span><span class="nf">() -&gt;</span> <span class="nx">valueType</span></pre></div></td></tr><tr id="section-45"><td class="docs"><div class="pilwrap"><a href="#section-45" class="pilcrow">&#182;</a></div><h3>#getObjectsUnion</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.getObjectsUnion = </span><span class="nf">(subjects, p, set, filter) -&gt;</span> <span class="nx">getUnion</span> <span class="nx">spo</span><span class="p">,</span> <span class="nx">subjects</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">set</span><span class="p">,</span> <span class="nx">filter</span>
+      </pre></div></td></tr><tr id="section-46"><td class="docs"><div class="pilwrap"><a href="#section-46" class="pilcrow">&#182;</a></div><h3>#getSubjectsUnion</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.getSubjectsUnion = </span><span class="nf">(objects, p, set, filter) -&gt;</span> <span class="nx">getUnion</span> <span class="nx">ops</span><span class="p">,</span> <span class="nx">objects</span><span class="p">,</span>  <span class="nx">p</span><span class="p">,</span> <span class="nx">set</span><span class="p">,</span> <span class="nx">filter</span></pre></div></td></tr><tr id="section-47"><td class="docs"><div class="pilwrap"><a href="#section-47" class="pilcrow">&#182;</a></div><h3>#registerPresentation</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.registerPresentation = </span><span class="nf">(ob) -&gt;</span>
+        <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">addListener</span> <span class="nf">(m, i) -&gt;</span> <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">m</span><span class="p">,</span> <span class="nx">i</span>
+        <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">that</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+    
+      <span class="nx">that</span></pre></div></td></tr><tr id="section-48"><td class="docs"><div class="pilwrap"><a href="#section-48" class="pilcrow">&#182;</a></div><h1>Data View</h1>
+
+<p>Provides a filtered view of a data store based on configured filters (e.g., facets). The filtered view can
+also be constrained based on item types or other simple property value expectations.</p>
+</td><td class="code"><div class="highlight"><pre>  <span class="nx">Data</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;View&#39;</span><span class="p">,</span> <span class="nf">(View) -&gt;</span></pre></div></td></tr><tr id="section-49"><td class="docs"><div class="pilwrap"><a href="#section-49" class="pilcrow">&#182;</a></div><h2>View.initInstance</h2>
+</td><td class="code"><div class="highlight"><pre>    <span class="nv">View.initInstance = </span><span class="nf">(options) -&gt;</span>
+      <span class="nv">that = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initView</span> <span class="s">&quot;MITHGrid.Data.View&quot;</span><span class="p">,</span> <span class="nx">options</span>
+  
+      <span class="nv">set = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+  </pre></div></td></tr><tr id="section-50"><td class="docs"><div class="pilwrap"><a href="#section-50" class="pilcrow">&#182;</a></div><h3>filterItem (private)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">filterItem = </span><span class="nf">(id) -&gt;</span>
+        <span class="kc">false</span> <span class="o">!=</span> <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onFilterItem</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">,</span> <span class="nx">id</span></pre></div></td></tr><tr id="section-51"><td class="docs"><div class="pilwrap"><a href="#section-51" class="pilcrow">&#182;</a></div><h3>filterItems (private)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">filterItems = </span><span class="nf">(endFn) -&gt;</span>
+        <span class="nv">ids = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+        <span class="nv">n = </span><span class="nx">ids</span><span class="p">.</span><span class="nx">length</span>
+        <span class="k">if</span> <span class="nx">n</span> <span class="o">==</span> <span class="mi">0</span>
+          <span class="nx">endFn</span><span class="p">()</span>
+          <span class="k">return</span>
+
+        <span class="k">if</span> <span class="nx">n</span> <span class="o">&gt;</span> <span class="mi">200</span>
+          <span class="nv">chunk_size = </span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">n</span> <span class="o">/</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+          <span class="nv">chunk_size = </span><span class="mi">200</span> <span class="k">if</span> <span class="nx">chunk_size</span> <span class="o">&gt;</span> <span class="mi">200</span>
+        <span class="k">else</span>
+          <span class="nv">chunk_size = </span><span class="nx">n</span>
+        <span class="nv">chunk_size = </span><span class="mi">1</span> <span class="k">if</span> <span class="nx">chunk_size</span> <span class="o">&lt;</span> <span class="mi">1</span>
+
+        <span class="nv">f = </span><span class="nf">(start) -&gt;</span>
+          <span class="nv">end = </span><span class="nx">start</span> <span class="o">+</span> <span class="nx">chunk_size</span>
+          <span class="nv">end = </span><span class="nx">n</span> <span class="k">if</span> <span class="nx">end</span> <span class="o">&gt;</span> <span class="nx">n</span>
+
+          <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span> <span class="nx">start</span> <span class="p">...</span> <span class="nx">end</span> <span class="p">]</span>
+            <span class="nv">id = </span><span class="nx">ids</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nx">filterItem</span> <span class="nx">id</span>
+              <span class="nx">set</span><span class="p">.</span><span class="nx">add</span> <span class="nx">id</span>
+            <span class="k">else</span>
+              <span class="nx">set</span><span class="p">.</span><span class="nx">remove</span> <span class="nx">id</span>
+          <span class="k">if</span> <span class="nx">end</span> <span class="o">&lt;</span> <span class="nx">n</span>
+            <span class="nx">setTimeout</span> <span class="nf">() -&gt;</span>
+              <span class="nx">f</span> <span class="nx">end</span>
+            <span class="p">,</span> <span class="mi">0</span>
+          <span class="k">else</span>
+            <span class="nv">that.items = </span><span class="nx">set</span><span class="p">.</span><span class="nx">items</span>
+            <span class="nv">that.size = </span><span class="nx">set</span><span class="p">.</span><span class="nx">size</span>
+            <span class="nv">that.contains = </span><span class="nx">set</span><span class="p">.</span><span class="nx">contains</span>
+            <span class="nv">that.visit = </span><span class="nx">set</span><span class="p">.</span><span class="nx">visit</span>
+            <span class="k">if</span> <span class="nx">endFn</span><span class="o">?</span>
+              <span class="nx">setTimeout</span> <span class="nx">endFn</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="nx">f</span> <span class="mi">0</span></pre></div></td></tr><tr id="section-52"><td class="docs"><div class="pilwrap"><a href="#section-52" class="pilcrow">&#182;</a></div><h3>#registerFilter</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.registerFilter = </span><span class="nf">(ob) -&gt;</span>
+        <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onFilterItem</span><span class="p">.</span><span class="nx">addListener</span> <span class="nf">(x, y) -&gt;</span> <span class="nx">ob</span><span class="p">.</span><span class="nx">eventFilterItem</span> <span class="nx">x</span><span class="p">,</span> <span class="nx">y</span>
+        <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">addListener</span> <span class="nf">(m, i) -&gt;</span> <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">m</span><span class="p">,</span> <span class="nx">i</span>
+        <span class="nx">ob</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onFilterChange</span><span class="p">.</span><span class="nx">addListener</span> <span class="nx">that</span><span class="p">.</span><span class="nx">eventFilterChange</span></pre></div></td></tr><tr id="section-53"><td class="docs"><div class="pilwrap"><a href="#section-53" class="pilcrow">&#182;</a></div><h3>#registerPresentation</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.registerPresentation = </span><span class="nf">(ob) -&gt;</span>
+        <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">addListener</span> <span class="nf">(m, i) -&gt;</span> <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">m</span><span class="p">,</span> <span class="nx">i</span>
+        <span class="nx">filterItems</span> <span class="nf">() -&gt;</span> <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">that</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+
+      </pre></div></td></tr><tr id="section-54"><td class="docs"><div class="pilwrap"><a href="#section-54" class="pilcrow">&#182;</a></div><h3>#items (see Set#items)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.items = </span><span class="nx">set</span><span class="p">.</span><span class="nx">items</span></pre></div></td></tr><tr id="section-55"><td class="docs"><div class="pilwrap"><a href="#section-55" class="pilcrow">&#182;</a></div><h3>#contains (see Set#contains)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.contains = </span><span class="nx">set</span><span class="p">.</span><span class="nx">contains</span></pre></div></td></tr><tr id="section-56"><td class="docs"><div class="pilwrap"><a href="#section-56" class="pilcrow">&#182;</a></div><h3>#visit (see Set#visit)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.visit = </span><span class="nx">set</span><span class="p">.</span><span class="nx">visit</span></pre></div></td></tr><tr id="section-57"><td class="docs"><div class="pilwrap"><a href="#section-57" class="pilcrow">&#182;</a></div><h3>#size (see Set#size)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.size = </span><span class="nx">set</span><span class="p">.</span><span class="nx">size</span>
+  
+      <span class="nv">that.eventFilterChange = </span><span class="nf">() -&gt;</span>
+        <span class="nv">current_set = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span> <span class="nx">that</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+        <span class="nx">filterItems</span> <span class="nf">() -&gt;</span>
+          <span class="nv">changed_set = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+          <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="nx">current_set</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="o">!</span><span class="nx">that</span><span class="p">.</span><span class="nx">contains</span> <span class="nx">i</span>
+              <span class="nx">changed_set</span><span class="p">.</span><span class="nx">add</span> <span class="nx">i</span>
+          <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="nx">that</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="o">!</span><span class="nx">current_set</span><span class="p">.</span><span class="nx">contains</span> <span class="nx">i</span>
+              <span class="nx">changed_set</span><span class="p">.</span><span class="nx">add</span> <span class="nx">i</span>
+          <span class="k">if</span> <span class="nx">changed_set</span><span class="p">.</span><span class="nx">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">changed_set</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+      
+      <span class="nv">that.eventModelChange = </span><span class="nf">(model, items) -&gt;</span>
+        <span class="nv">changed_set = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+      
+        <span class="k">for</span> <span class="nx">id</span> <span class="k">in</span> <span class="nx">items</span>
+          <span class="k">if</span> <span class="nx">model</span><span class="p">.</span><span class="nx">contains</span> <span class="nx">id</span>
+            <span class="k">if</span> <span class="nx">filterItem</span> <span class="nx">id</span>
+              <span class="nx">set</span><span class="p">.</span><span class="nx">add</span> <span class="nx">id</span>
+              <span class="nx">changed_set</span><span class="p">.</span><span class="nx">add</span> <span class="nx">id</span>
+            <span class="k">else</span>
+              <span class="k">if</span> <span class="nx">set</span><span class="p">.</span><span class="nx">contains</span> <span class="nx">id</span>
+                <span class="nx">changed_set</span><span class="p">.</span><span class="nx">add</span> <span class="nx">id</span>
+                <span class="nx">set</span><span class="p">.</span><span class="nx">remove</span> <span class="nx">id</span>
+          <span class="k">else</span>
+            <span class="nx">changed_set</span><span class="p">.</span><span class="nx">add</span> <span class="nx">id</span>
+            <span class="nx">set</span><span class="p">.</span><span class="nx">remove</span> <span class="nx">id</span>
+
+        <span class="k">if</span> <span class="nx">changed_set</span><span class="p">.</span><span class="nx">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span>
+          <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">changed_set</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+
+      <span class="k">if</span> <span class="nx">options</span><span class="o">?</span><span class="p">.</span><span class="nx">types</span><span class="o">?</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="p">(</span><span class="nf">(types) -&gt;</span>
+          <span class="nx">that</span><span class="p">.</span><span class="nx">registerFilter</span>
+            <span class="nv">eventFilterItem: </span><span class="nf">(model, id) -&gt;</span>
+              <span class="nv">item = </span><span class="nx">model</span><span class="p">.</span><span class="nx">getItem</span> <span class="nx">id</span>
+              <span class="k">return</span> <span class="kc">false</span> <span class="k">if</span> <span class="o">!</span><span class="nx">item</span><span class="p">.</span><span class="nx">type</span><span class="o">?</span>
+              <span class="k">for</span> <span class="nx">t</span> <span class="k">in</span> <span class="nx">types</span>
+                <span class="k">return</span> <span class="k">if</span> <span class="nx">t</span> <span class="k">in</span> <span class="nx">item</span><span class="p">.</span><span class="nx">type</span>
+              <span class="k">return</span> <span class="kc">false</span>
+            <span class="nv">eventModelChange: </span><span class="nf">(x, y) -&gt;</span>
+            <span class="nv">events:</span>
+              <span class="nv">onFilterChange:</span>
+                <span class="nv">addListener: </span><span class="nf">(x) -&gt;</span>
+        <span class="p">)(</span><span class="nx">options</span><span class="p">.</span><span class="nx">types</span><span class="p">)</span>
+
+      <span class="k">if</span> <span class="nx">options</span><span class="o">?</span><span class="p">.</span><span class="nx">filters</span><span class="o">?</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="p">(</span><span class="nf">(filters) -&gt;</span>
+          <span class="nv">parser = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Expression</span><span class="p">.</span><span class="nx">initParser</span><span class="p">()</span>
+          <span class="nv">parsedFilters = </span><span class="p">(</span><span class="nx">parser</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">ex</span><span class="p">)</span> <span class="k">for</span> <span class="nx">ex</span> <span class="k">in</span> <span class="nx">filters</span><span class="p">)</span>
+          <span class="nx">that</span><span class="p">.</span><span class="nx">registerFilter</span>
+            <span class="nv">eventFilterItem: </span><span class="nf">(model, id) -&gt;</span>
+              <span class="k">for</span> <span class="nx">ex</span> <span class="k">in</span> <span class="nx">parsedFilters</span>
+                <span class="nv">values = </span><span class="nx">ex</span><span class="p">.</span><span class="nx">evaluateOnItem</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span> <span class="nx">model</span><span class="p">)</span>
+                <span class="nv">values = </span><span class="nx">values</span><span class="p">.</span><span class="nx">values</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+                <span class="k">for</span> <span class="nx">v</span> <span class="k">in</span> <span class="nx">values</span>
+                  <span class="k">return</span> <span class="k">if</span> <span class="nx">v</span> <span class="o">!=</span> <span class="s">&quot;false&quot;</span>
+              <span class="k">return</span> <span class="kc">false</span>
+            <span class="nv">eventModelChange: </span><span class="nf">(x, y) -&gt;</span>
+            <span class="nv">events:</span>
+              <span class="nv">onFilterChange:</span>
+                <span class="nv">addListener: </span><span class="nf">(x) -&gt;</span>
+        <span class="p">)(</span><span class="nx">options</span><span class="p">.</span><span class="nx">filters</span><span class="p">)</span>
+
+      <span class="k">if</span> <span class="nx">options</span><span class="o">?</span><span class="p">.</span><span class="nx">collection</span><span class="o">?</span>
+        <span class="nx">that</span><span class="p">.</span><span class="nx">registerFilter</span>
+          <span class="nv">eventFilterItem: </span><span class="nx">options</span><span class="p">.</span><span class="nx">collection</span>
+          <span class="nv">eventModelChange: </span><span class="nf">(x, y) -&gt;</span>
+          <span class="nv">events:</span>
+            <span class="nv">onFilterChange:</span>
+              <span class="nv">addListener: </span><span class="nf">(x) -&gt;</span>
+
+      <span class="k">if</span> <span class="nx">options</span><span class="o">?</span><span class="p">.</span><span class="nx">expressions</span><span class="o">?</span></pre></div></td></tr><tr id="section-58"><td class="docs"><div class="pilwrap"><a href="#section-58" class="pilcrow">&#182;</a></div><p>We want a way to make our set of items depend on running expressions on the items
+passed to us from the parent dataView/dataStore.
+It needs to be quick, similar to the current propagation of changes.
+<strong>N.B.:</strong> These are not event-based expressions.
+The expressions must result in itemIds that are contained in the parent dataStore.</p>
+</td><td class="code"><div class="highlight"><pre>        <span class="nv">expressions = </span><span class="nx">options</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">prepare</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="p">)</span>
+        <span class="nv">prevEventModelChange = </span><span class="nx">that</span><span class="p">.</span><span class="nx">eventModelChange</span>
+        <span class="nv">intermediateDataStore = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">initStore</span><span class="p">({})</span>
+        <span class="nv">subjectSet = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+        <span class="nv">that.eventModelChange = </span><span class="nf">(model, items) -&gt;</span>
+          <span class="nv">itemList = </span><span class="p">[]</span>
+          <span class="nv">removedItems = </span><span class="p">[]</span>
+          <span class="nv">intermediateSet = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+          <span class="nv">intermediateSet = </span><span class="nx">intermediateDataStore</span><span class="p">.</span><span class="nx">getObjectsUnion</span> <span class="nx">subjectSet</span><span class="p">,</span> <span class="s">&quot;mapsTo&quot;</span><span class="p">,</span> <span class="nx">intermediateSet</span>
+          <span class="k">for</span> <span class="nx">id</span> <span class="k">in</span> <span class="nx">items</span>
+            <span class="k">if</span> <span class="nx">intermediateSet</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+              <span class="nx">itemList</span><span class="p">.</span><span class="nx">push</span> <span class="nx">id</span>
+              <span class="k">if</span> <span class="o">!</span><span class="nx">model</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span></pre></div></td></tr><tr id="section-59"><td class="docs"><div class="pilwrap"><a href="#section-59" class="pilcrow">&#182;</a></div><p>we need to find everything that maps to id</p>
+</td><td class="code"><div class="highlight"><pre>                <span class="nv">idSet = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+                <span class="nx">intermediateDataStore</span><span class="p">.</span><span class="nx">getSubjectsUnion</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">([</span><span class="nx">id</span><span class="p">]),</span> <span class="s">&quot;mapsTo&quot;</span><span class="p">,</span> <span class="nx">idSet</span>
+                <span class="nx">idSet</span><span class="p">.</span><span class="nx">visit</span> <span class="nf">(x) -&gt;</span>
+                  <span class="nv">item = </span><span class="nx">intermediateDataStore</span><span class="p">.</span><span class="nx">getItem</span> <span class="nx">x</span>
+                  <span class="nv">mapsTo = </span><span class="nx">item</span><span class="p">.</span><span class="nx">mapsTo</span>
+                  <span class="k">if</span> <span class="nx">mapsTo</span><span class="o">?</span>
+                    <span class="nv">i = </span><span class="nx">mapsTo</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nx">i</span> <span class="o">==</span> <span class="mi">0</span>
+                      <span class="nv">mapsTo = </span><span class="nx">mapsTo</span><span class="p">[</span><span class="mi">1</span> <span class="p">...</span> <span class="nx">mapsTo</span><span class="p">.</span><span class="nx">length</span><span class="p">]</span>
+                    <span class="k">else</span> <span class="k">if</span> <span class="nx">i</span> <span class="o">==</span> <span class="nx">mapsTo</span><span class="p">.</span><span class="nx">length</span><span class="o">-</span><span class="mi">1</span>
+                      <span class="nv">mapsTo = </span><span class="nx">mapsTo</span><span class="p">[</span><span class="mi">0</span> <span class="p">...</span> <span class="nx">mapsTo</span><span class="p">.</span><span class="nx">length</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">else</span> <span class="k">if</span> <span class="nx">i</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span>
+                      <span class="nv">mapsTo = </span><span class="nx">mapsTo</span><span class="p">[</span><span class="mi">0</span> <span class="p">...</span> <span class="nx">i</span><span class="p">].</span><span class="nx">concat</span> <span class="nx">mapsTo</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">1</span> <span class="p">...</span> <span class="nx">mapsTo</span><span class="p">.</span><span class="nx">length</span><span class="p">]</span>
+                    <span class="nx">intermediateDataStore</span><span class="p">.</span><span class="nx">updateItems</span> <span class="p">[</span>
+                      <span class="nv">id: </span><span class="nx">x</span>
+                      <span class="nv">mapsTo: </span><span class="nx">mapsTo</span>
+                    <span class="p">]</span>     
+            <span class="k">else</span> <span class="k">if</span> <span class="nx">model</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+              <span class="nv">itemSet = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+              <span class="k">for</span> <span class="nx">v</span> <span class="k">in</span> <span class="nx">expressions</span><span class="p">.</span><span class="nx">evaluate</span><span class="p">([</span><span class="nx">id</span><span class="p">])</span>
+                <span class="nx">itemSet</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span>
+              <span class="k">if</span> <span class="nx">intermediateDataStore</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+                <span class="nx">intermediateDataStore</span><span class="p">.</span><span class="nx">updateItems</span> <span class="p">[</span>
+                  <span class="nv">id: </span><span class="nx">id</span>
+                  <span class="nv">mapsTo: </span><span class="nx">itemSet</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+                <span class="p">]</span>
+              <span class="k">else</span>
+                <span class="nx">intermediateDataStore</span><span class="p">.</span><span class="nx">loadItems</span> <span class="p">[</span>
+                  <span class="nv">id: </span><span class="nx">id</span>
+                  <span class="nv">mapsTo: </span><span class="nx">itemSet</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+                <span class="p">]</span>
+            <span class="k">else</span></pre></div></td></tr><tr id="section-60"><td class="docs"><div class="pilwrap"><a href="#section-60" class="pilcrow">&#182;</a></div><p>push onto itemList the items mapped to by this id</p>
+</td><td class="code"><div class="highlight"><pre>              <span class="nv">itemList = </span><span class="nx">itemList</span><span class="p">.</span><span class="nx">concat</span><span class="p">(</span><span class="nx">intermediateDataStore</span><span class="p">.</span><span class="nx">getItem</span><span class="p">(</span><span class="nx">id</span><span class="p">).</span><span class="nx">mapsTo</span><span class="p">)</span>
+              <span class="nx">removedItems</span><span class="p">.</span><span class="nx">push</span> <span class="nx">id</span>
+
+          <span class="k">if</span> <span class="nx">removedItems</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="nx">intermediateDataStore</span><span class="p">.</span><span class="nx">removeItems</span><span class="p">(</span><span class="nx">removedItems</span><span class="p">)</span>
+
+          <span class="nv">intermediateSet = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+          <span class="nx">intermediateDataStore</span><span class="p">.</span><span class="nx">getObjectsUnion</span> <span class="nx">subjectSet</span><span class="p">,</span> <span class="s">&quot;mapsTo&quot;</span><span class="p">,</span> <span class="nx">intermediateSet</span>
+          <span class="nv">itemList = </span><span class="p">(</span><span class="nx">item</span> <span class="k">for</span> <span class="nx">item</span> <span class="k">in</span> <span class="nx">itemList</span> <span class="k">when</span> <span class="nx">item</span> <span class="k">in</span> <span class="nx">items</span><span class="p">)</span>
+          <span class="nx">prevEventModelChange</span> <span class="nx">intermediateSet</span><span class="p">,</span> <span class="nx">itemList</span>
+
+      <span class="nv">that.dataStore = </span><span class="nx">options</span><span class="p">.</span><span class="nx">dataStore</span></pre></div></td></tr><tr id="section-61"><td class="docs"><div class="pilwrap"><a href="#section-61" class="pilcrow">&#182;</a></div><h3>#getItems (see Data Store #getItems)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.getItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getItems</span>
+      </pre></div></td></tr><tr id="section-62"><td class="docs"><div class="pilwrap"><a href="#section-62" class="pilcrow">&#182;</a></div><h3>#getItem (see Data Store #getItem)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.getItem = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getItem</span>
+      </pre></div></td></tr><tr id="section-63"><td class="docs"><div class="pilwrap"><a href="#section-63" class="pilcrow">&#182;</a></div><h3>#removeItems (see Data Store #removeItems)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.removeItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">removeItems</span>
+      </pre></div></td></tr><tr id="section-64"><td class="docs"><div class="pilwrap"><a href="#section-64" class="pilcrow">&#182;</a></div><h3>#updateItems (see Data Store #updateItems)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.updateItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">updateItems</span>
+      </pre></div></td></tr><tr id="section-65"><td class="docs"><div class="pilwrap"><a href="#section-65" class="pilcrow">&#182;</a></div><h3>#loadItems (see Data Store #loadItems)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.loadItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">loadItems</span>
+      </pre></div></td></tr><tr id="section-66"><td class="docs"><div class="pilwrap"><a href="#section-66" class="pilcrow">&#182;</a></div><h3>#prepare (see Data Store #prepare)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.prepare = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">prepare</span>
+      </pre></div></td></tr><tr id="section-67"><td class="docs"><div class="pilwrap"><a href="#section-67" class="pilcrow">&#182;</a></div><h3>#addType (see Data Store #addType)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.addType = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">addType</span>
+      </pre></div></td></tr><tr id="section-68"><td class="docs"><div class="pilwrap"><a href="#section-68" class="pilcrow">&#182;</a></div><h3>#getType (see Data Store #getType)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.getType = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getType</span>
+      </pre></div></td></tr><tr id="section-69"><td class="docs"><div class="pilwrap"><a href="#section-69" class="pilcrow">&#182;</a></div><h3>#addProperty (see Data Store #addProperty)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.addProperty = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">addProperty</span>
+      </pre></div></td></tr><tr id="section-70"><td class="docs"><div class="pilwrap"><a href="#section-70" class="pilcrow">&#182;</a></div><h3>#getProperty (see Data Store #getProperty)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.getProperty = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getProperty</span>
+      </pre></div></td></tr><tr id="section-71"><td class="docs"><div class="pilwrap"><a href="#section-71" class="pilcrow">&#182;</a></div><h3>#getObjectsUnion (see Data Store #getObjectsUnion)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.getObjectsUnion = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getObjectsUnion</span>
+      </pre></div></td></tr><tr id="section-72"><td class="docs"><div class="pilwrap"><a href="#section-72" class="pilcrow">&#182;</a></div><h3>#getSubjectsUnion (see Data Store #getSubjectsUnion)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.getSubjectsUnion = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getSubjectsUnion</span>
+  
+      <span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">addListener</span> <span class="nx">that</span><span class="p">.</span><span class="nx">eventModelChange</span>
+
+      <span class="nx">that</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">,</span> <span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+
+      <span class="nx">that</span>
+  </pre></div></td></tr><tr id="section-73"><td class="docs"><div class="pilwrap"><a href="#section-73" class="pilcrow">&#182;</a></div><h1>Data Subset View</h1>
+</td><td class="code"><div class="highlight"><pre>  <span class="nx">Data</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;SubSet&#39;</span><span class="p">,</span> <span class="nf">(SubSet) -&gt;</span></pre></div></td></tr><tr id="section-74"><td class="docs"><div class="pilwrap"><a href="#section-74" class="pilcrow">&#182;</a></div><h2>SubSet.initInstance</h2>
+
+<p>Given a set of expressions and a key value, the resulting set of items will consist of all items which
+satisfy the expressions by producing the key value.</p>
+
+<p>Note that this is a fragile data view. Expressions that hop through other items may result in inconsistent
+lists of items.</p>
+</td><td class="code"><div class="highlight"><pre>    <span class="nv">SubSet.initInstance = </span><span class="nf">(options) -&gt;</span>
+      <span class="nv">that = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initView</span> <span class="s">&quot;MITHGrid.Data.SubSet&quot;</span><span class="p">,</span> <span class="nx">options</span>
+      <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
+      <span class="nv">key = </span><span class="nx">options</span><span class="p">.</span><span class="nx">key</span>
+  
+      <span class="nv">set = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span></pre></div></td></tr><tr id="section-75"><td class="docs"><div class="pilwrap"><a href="#section-75" class="pilcrow">&#182;</a></div><h3>#items (see Set#items)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.items = </span><span class="nx">set</span><span class="p">.</span><span class="nx">items</span></pre></div></td></tr><tr id="section-76"><td class="docs"><div class="pilwrap"><a href="#section-76" class="pilcrow">&#182;</a></div><h3>#contains (see Set#contains)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.contains = </span><span class="nx">set</span><span class="p">.</span><span class="nx">contains</span></pre></div></td></tr><tr id="section-77"><td class="docs"><div class="pilwrap"><a href="#section-77" class="pilcrow">&#182;</a></div><h3>#visit (see Set#visit)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.visit = </span><span class="nx">set</span><span class="p">.</span><span class="nx">visit</span></pre></div></td></tr><tr id="section-78"><td class="docs"><div class="pilwrap"><a href="#section-78" class="pilcrow">&#182;</a></div><h3>#size (see Set#size)</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.size = </span><span class="nx">set</span><span class="p">.</span><span class="nx">size</span>
+  </pre></div></td></tr><tr id="section-79"><td class="docs"><div class="pilwrap"><a href="#section-79" class="pilcrow">&#182;</a></div><h3>#setKey</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.setKey = </span><span class="nf">(k) -&gt;</span>
+        <span class="nv">key = </span><span class="nx">k</span>
+        <span class="nx">that</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">options</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+
+      <span class="nv">expressions = </span><span class="nx">options</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">prepare</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="p">)</span>
+      </pre></div></td></tr><tr id="section-80"><td class="docs"><div class="pilwrap"><a href="#section-80" class="pilcrow">&#182;</a></div><h3>#eventModelChange</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.eventModelChange = </span><span class="nf">(model, items) -&gt;</span>
+        <span class="k">if</span> <span class="nx">key</span><span class="o">?</span>
+          <span class="nv">newItems = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">(</span><span class="nx">expressions</span><span class="p">.</span><span class="nx">evaluate</span><span class="p">([</span><span class="nx">key</span><span class="p">]))</span>
+        <span class="k">else</span>
+          <span class="nv">newItems = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+      
+        <span class="nv">changed = </span><span class="p">[]</span>
+    
+        <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="nx">items</span>
+          <span class="k">if</span> <span class="nx">set</span><span class="p">.</span><span class="nx">contains</span> <span class="nx">i</span>
+            <span class="nx">changed</span><span class="p">.</span><span class="nx">push</span> <span class="nx">i</span>
+            <span class="k">if</span> <span class="o">!</span><span class="nx">newItems</span><span class="p">.</span><span class="nx">contains</span> <span class="nx">i</span>
+              <span class="nx">set</span><span class="p">.</span><span class="nx">remove</span> <span class="nx">i</span>
+          <span class="k">else</span> <span class="k">if</span> <span class="nx">newItems</span><span class="p">.</span><span class="nx">contains</span> <span class="nx">i</span>
+            <span class="nx">set</span><span class="p">.</span><span class="nx">add</span> <span class="nx">i</span>
+            <span class="nx">changed</span><span class="p">.</span><span class="nx">push</span> <span class="nx">i</span>
+        <span class="k">if</span> <span class="nx">changed</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+          <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">changed</span>
+        
+      <span class="nv">that.dataStore = </span><span class="nx">options</span><span class="p">.</span><span class="nx">dataStore</span></pre></div></td></tr><tr id="section-81"><td class="docs"><div class="pilwrap"><a href="#section-81" class="pilcrow">&#182;</a></div><p>these mappings allow a data View to stand in for a data Store</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.getItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getItems</span>
+      <span class="nv">that.getItem = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getItem</span>
+      <span class="nv">that.removeItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">removeItems</span>
+      <span class="nv">that.fetchData = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">fetchData</span>
+      <span class="nv">that.updateItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">updateItems</span>
+      <span class="nv">that.loadItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">loadItems</span>
+      <span class="nv">that.prepare = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">prepare</span>
+      <span class="nv">that.addType = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">addType</span>
+      <span class="nv">that.getType = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getType</span>
+      <span class="nv">that.addProperty = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">addProperty</span>
+      <span class="nv">that.getProperty = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getProperty</span>
+      <span class="nv">that.getObjectsUnion = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getObjectsUnion</span>
+      <span class="nv">that.getSubjectsUnion = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getSubjectsUnion</span>
+  
+      <span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">addListener</span> <span class="nx">that</span><span class="p">.</span><span class="nx">eventModelChange</span>
+
+      <span class="nx">that</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">,</span> <span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+  
+      <span class="nv">that.registerPresentation = </span><span class="nf">(ob) -&gt;</span>
+        <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">addListener</span> <span class="nf">(m, i) -&gt;</span> <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">m</span><span class="p">,</span> <span class="nx">i</span>
+        <span class="nx">setTimeout</span> <span class="nf">() -&gt;</span> 
+          <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">that</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+        <span class="p">,</span> <span class="mi">0</span>
+  
+      <span class="nx">that</span>
+  </pre></div></td></tr><tr id="section-82"><td class="docs"><div class="pilwrap"><a href="#section-82" class="pilcrow">&#182;</a></div><h1>Data List Pager</h1>
+</td><td class="code"><div class="highlight"><pre>  <span class="nx">Data</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;ListPager&#39;</span><span class="p">,</span> <span class="nf">(ListPager) -&gt;</span>
+    <span class="nv">ListPager.initInstance = </span><span class="nf">(options) -&gt;</span>
+      <span class="nv">that = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Data.ListPager&quot;</span><span class="p">,</span> <span class="nx">options</span>
+      <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
+
+      <span class="nv">itemList = </span><span class="p">[]</span>
+      <span class="nv">itemListStart = </span><span class="mi">0</span>
+      <span class="nv">itemListStop = </span><span class="o">-</span><span class="mi">1</span>
+      <span class="nv">leftKey = </span><span class="kc">undefined</span>
+      <span class="nv">rightKey = </span><span class="kc">undefined</span>
+    
+      <span class="nv">findItemPosition = </span><span class="nf">(itemId) -&gt;</span> <span class="nx">itemList</span><span class="p">.</span><span class="nx">indexOf</span> <span class="nx">itemId</span>
+    
+      <span class="nv">set = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+
+      <span class="nv">that.items = </span><span class="nx">set</span><span class="p">.</span><span class="nx">items</span>
+      <span class="nv">that.size = </span><span class="nx">set</span><span class="p">.</span><span class="nx">size</span>
+      <span class="nv">that.contains = </span><span class="nx">set</span><span class="p">.</span><span class="nx">contains</span>
+      <span class="nv">that.visit = </span><span class="nx">set</span><span class="p">.</span><span class="nx">visit</span>
+
+      <span class="nv">that.dataStore = </span><span class="nx">options</span><span class="p">.</span><span class="nx">dataStore</span></pre></div></td></tr><tr id="section-83"><td class="docs"><div class="pilwrap"><a href="#section-83" class="pilcrow">&#182;</a></div><p>these mappings allow a data pager to stand in for a data Store</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.getItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getItems</span>
+      <span class="nv">that.getItem = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getItem</span>
+      <span class="nv">that.removeItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">removeItems</span>
+      <span class="nv">that.fetchData = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">fetchData</span>
+      <span class="nv">that.updateItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">updateItems</span>
+      <span class="nv">that.loadItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">loadItems</span>
+      <span class="nv">that.prepare = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">prepare</span>
+      <span class="nv">that.addType = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">addType</span>
+      <span class="nv">that.getType = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getType</span>
+      <span class="nv">that.addProperty = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">addProperty</span>
+      <span class="nv">that.getProperty = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getProperty</span>
+      <span class="nv">that.getObjectsUnion = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getObjectsUnion</span>
+      <span class="nv">that.getSubjectsUnion = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getSubjectsUnion</span>
+  
+      <span class="nv">that.setList = </span><span class="nf">(idList) -&gt;</span>
+        <span class="nv">itemList = </span><span class="nx">idList</span>
+        <span class="nv">changedItems = </span><span class="p">[]</span>
+        <span class="k">for</span> <span class="nx">id</span> <span class="k">in</span> <span class="nx">itemList</span>
+          <span class="k">if</span> <span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="o">and</span> <span class="o">!</span><span class="nx">set</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nx">itemListStart</span> <span class="o">&lt;=</span> <span class="nx">itemList</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nx">itemListStop</span>
+              <span class="nx">changedItems</span><span class="p">.</span><span class="nx">push</span> <span class="nx">id</span>
+              <span class="nx">set</span><span class="p">.</span><span class="nx">add</span> <span class="nx">id</span>
+          <span class="k">else</span> <span class="k">if</span> <span class="nx">set</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="o">and</span> <span class="o">!</span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+            <span class="nx">changedItems</span><span class="p">.</span><span class="nx">push</span> <span class="nx">id</span>
+            <span class="nx">set</span><span class="p">.</span><span class="nx">remove</span> <span class="nx">id</span>
+        <span class="k">for</span> <span class="nx">id</span> <span class="k">in</span> <span class="nx">set</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+          <span class="k">if</span> <span class="o">!</span><span class="nx">id</span> <span class="k">in</span> <span class="nx">itemList</span> <span class="o">or</span> <span class="o">!</span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">contains</span> <span class="nx">id</span>
+            <span class="nx">changedItems</span><span class="p">.</span><span class="nx">push</span> <span class="nx">id</span>
+            <span class="nx">set</span><span class="p">.</span><span class="nx">remove</span> <span class="nx">id</span>
+        <span class="k">if</span> <span class="nx">changedItems</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+          <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">changedItems</span>
+
+      <span class="nv">that.eventModelChange = </span><span class="nf">(model, items) -&gt;</span></pre></div></td></tr><tr id="section-84"><td class="docs"><div class="pilwrap"><a href="#section-84" class="pilcrow">&#182;</a></div><p>we're modifying the items we're tracking, possibly expanding or decreasing the set</p>
+</td><td class="code"><div class="highlight"><pre>        <span class="nv">changedItems = </span><span class="p">[]</span> <span class="c1"># to propogate on to the next level</span>
+        <span class="k">for</span> <span class="nx">itemId</span> <span class="k">in</span> <span class="nx">items</span>
+          <span class="k">if</span> <span class="nx">model</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">itemId</span><span class="p">)</span>
+            <span class="nv">key = </span><span class="nx">findItemPosition</span> <span class="nx">itemId</span>
+            <span class="k">if</span> <span class="nx">set</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">itemId</span><span class="p">)</span>
+              <span class="nx">changedItems</span><span class="p">.</span><span class="nx">push</span> <span class="nx">itemId</span>
+              <span class="k">if</span> <span class="o">!</span><span class="p">(</span><span class="nx">itemListStart</span> <span class="o">&lt;=</span> <span class="nx">key</span> <span class="o">&lt;</span> <span class="nx">itemListStop</span><span class="p">)</span>
+                <span class="nx">set</span><span class="p">.</span><span class="nx">remove</span> <span class="nx">itemId</span>
+            <span class="k">else</span>
+              <span class="k">if</span> <span class="nx">itemListStart</span> <span class="o">&lt;=</span> <span class="nx">key</span> <span class="o">&lt;</span> <span class="nx">itemListStop</span>
+                <span class="nx">set</span><span class="p">.</span><span class="nx">add</span> <span class="nx">itemId</span>
+                <span class="nx">changedItems</span><span class="p">.</span><span class="nx">push</span> <span class="nx">itemId</span>
+          <span class="k">else</span>
+            <span class="nx">set</span><span class="p">.</span><span class="nx">remove</span> <span class="nx">itemId</span>
+            <span class="nx">changedItems</span><span class="p">.</span><span class="nx">push</span> <span class="nx">itemId</span>
+
+        <span class="k">if</span> <span class="nx">changedItems</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+          <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">changedItems</span>
+
+      <span class="nv">that.setKeyRange = </span><span class="nf">(l, r) -&gt;</span>
+        <span class="k">if</span> <span class="nx">l</span> <span class="o">&lt;</span> <span class="nx">r</span>
+          <span class="nv">itemListStart = </span><span class="nx">l</span>
+          <span class="nv">itemListStop = </span><span class="nx">r</span>
+        <span class="k">else</span>
+          <span class="nv">itemListStart = </span><span class="nx">r</span>
+          <span class="nv">itemListStop = </span><span class="nx">l</span>
+    
+        <span class="nv">oldSet = </span><span class="nx">set</span>
+        <span class="nv">changedItems = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+        <span class="nv">set = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+        <span class="nv">that.items = </span><span class="nx">set</span><span class="p">.</span><span class="nx">items</span>
+        <span class="nv">that.size = </span><span class="nx">set</span><span class="p">.</span><span class="nx">size</span>
+        <span class="nv">that.contains = </span><span class="nx">set</span><span class="p">.</span><span class="nx">contains</span>
+        <span class="nv">that.visit = </span><span class="nx">set</span><span class="p">.</span><span class="nx">visit</span>
+    
+        <span class="k">if</span> <span class="nx">itemListStart</span> <span class="o">&lt;</span> <span class="nx">itemListStop</span>
+          <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span><span class="nx">itemListStart</span><span class="p">..</span><span class="nx">itemListStop</span><span class="p">]</span>
+            <span class="nv">itemId = </span><span class="nx">itemList</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="o">!</span><span class="nx">oldSet</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">itemId</span><span class="p">)</span>
+              <span class="nx">changedItems</span><span class="p">.</span><span class="nx">add</span> <span class="nx">itemId</span>
+            <span class="nx">set</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">itemId</span><span class="p">)</span>
+        <span class="nx">oldSet</span><span class="p">.</span><span class="nx">visit</span> <span class="nf">(x) -&gt;</span>
+          <span class="k">if</span> <span class="o">!</span><span class="nx">set</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span>
+            <span class="nx">changedItems</span><span class="p">.</span><span class="nx">add</span> <span class="nx">x</span>
+        <span class="k">if</span> <span class="nx">changedItems</span><span class="p">.</span><span class="nx">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span>
+          <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">changedItems</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+
+  
+      <span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">registerPresentation</span> <span class="nx">that</span>
+
+      <span class="nv">that.registerPresentation = </span><span class="nf">(ob) -&gt;</span>
+        <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">addListener</span> <span class="nf">(m, i) -&gt;</span> <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">m</span><span class="p">,</span> <span class="nx">i</span>
+        <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">that</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+
+      <span class="nx">that</span></pre></div></td></tr><tr id="section-85"><td class="docs"><div class="pilwrap"><a href="#section-85" class="pilcrow">&#182;</a></div><h1>Data Pager</h1>
+</td><td class="code"><div class="highlight"><pre>  <span class="nx">Data</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Pager&#39;</span><span class="p">,</span> <span class="nf">(Pager) -&gt;</span>
+    <span class="nv">Pager.initInstance = </span><span class="nf">(options) -&gt;</span>
+      <span class="nv">that = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Data.Pager&quot;</span><span class="p">,</span> <span class="nx">options</span>
+      <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
+
+      <span class="nv">itemList = </span><span class="p">[]</span>
+      <span class="nv">itemListStart = </span><span class="o">-</span><span class="mi">1</span>
+      <span class="nv">itemListStop = </span><span class="o">-</span><span class="mi">1</span>
+      <span class="nv">leftKey = </span><span class="kc">undefined</span>
+      <span class="nv">rightKey = </span><span class="kc">undefined</span>
+  </pre></div></td></tr><tr id="section-86"><td class="docs"><div class="pilwrap"><a href="#section-86" class="pilcrow">&#182;</a></div><p>returns the first index that has a key greater than or equal to the given key</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">findLeftPoint = </span><span class="nf">(key) -&gt;</span>
+        <span class="k">if</span> <span class="o">!</span><span class="nx">key</span><span class="o">?</span>
+          <span class="k">return</span> <span class="mi">0</span>
+        <span class="nv">left = </span><span class="mi">0</span>
+        <span class="k">if</span> <span class="nx">key</span><span class="o">?</span>
+          <span class="nv">right = </span><span class="nx">itemList</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span>
+          <span class="k">while</span> <span class="nx">left</span> <span class="o">&lt;</span> <span class="nx">right</span>
+            <span class="nv">mid = </span><span class="o">~~</span><span class="p">((</span><span class="nx">left</span> <span class="o">+</span> <span class="nx">right</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+      
+            <span class="k">if</span> <span class="nx">itemList</span><span class="p">[</span><span class="nx">mid</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="nx">key</span>
+              <span class="nv">left = </span><span class="nx">mid</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">else</span> <span class="k">if</span> <span class="nx">itemList</span><span class="p">[</span><span class="nx">mid</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nx">key</span>
+              <span class="nv">right = </span><span class="nx">mid</span>
+            <span class="k">else</span>
+              <span class="nv">right = </span><span class="nx">mid</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="nx">left</span>
+    </pre></div></td></tr><tr id="section-87"><td class="docs"><div class="pilwrap"><a href="#section-87" class="pilcrow">&#182;</a></div><p>returns the last index that has a key less than or equal to the given key</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">findRightPoint = </span><span class="nf">(key) -&gt;</span>
+        <span class="k">if</span> <span class="o">!</span><span class="nx">key</span><span class="o">?</span>
+          <span class="k">return</span> <span class="nx">itemList</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="nv">left = </span><span class="mi">0</span>
+        <span class="nv">right = </span><span class="nx">itemList</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="nx">key</span><span class="o">?</span>
+          <span class="k">while</span> <span class="nx">left</span> <span class="o">&lt;</span> <span class="nx">right</span>
+            <span class="nv">mid = </span><span class="o">~~</span><span class="p">((</span><span class="nx">left</span> <span class="o">+</span> <span class="nx">right</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nx">itemList</span><span class="p">[</span><span class="nx">mid</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="nx">key</span>
+              <span class="nv">left = </span><span class="nx">mid</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">else</span>
+              <span class="nv">right = </span><span class="nx">mid</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="nx">right</span>
+    
+      <span class="nv">findItemPosition = </span><span class="nf">(itemId) -&gt;</span>
+        <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span><span class="mi">0</span> <span class="p">...</span> <span class="nx">itemList</span><span class="p">.</span><span class="nx">length</span><span class="p">]</span>
+          <span class="k">return</span> <span class="nx">i</span> <span class="k">if</span> <span class="nx">itemList</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="nx">itemId</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+    
+
+      <span class="nv">set = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+  
+      <span class="nv">that.items = </span><span class="nx">set</span><span class="p">.</span><span class="nx">items</span>
+      <span class="nv">that.size = </span><span class="nx">set</span><span class="p">.</span><span class="nx">size</span>
+      <span class="nv">that.contains = </span><span class="nx">set</span><span class="p">.</span><span class="nx">contains</span>
+      <span class="nv">that.visit = </span><span class="nx">set</span><span class="p">.</span><span class="nx">visit</span>
+  
+      <span class="nv">that.dataStore = </span><span class="nx">options</span><span class="p">.</span><span class="nx">dataStore</span></pre></div></td></tr><tr id="section-88"><td class="docs"><div class="pilwrap"><a href="#section-88" class="pilcrow">&#182;</a></div><p>these mappings allow a data pager to stand in for a data Store</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.getItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getItems</span>
+      <span class="nv">that.getItem = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getItem</span>
+      <span class="nv">that.removeItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">removeItems</span>
+      <span class="nv">that.fetchData = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">fetchData</span>
+      <span class="nv">that.updateItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">updateItems</span>
+      <span class="nv">that.loadItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">loadItems</span>
+      <span class="nv">that.prepare = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">prepare</span>
+      <span class="nv">that.addType = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">addType</span>
+      <span class="nv">that.getType = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getType</span>
+      <span class="nv">that.addProperty = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">addProperty</span>
+      <span class="nv">that.getProperty = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getProperty</span>
+      <span class="nv">that.getObjectsUnion = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getObjectsUnion</span>
+      <span class="nv">that.getSubjectsUnion = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getSubjectsUnion</span>
+  
+      <span class="nv">expressions = </span><span class="nx">that</span><span class="p">.</span><span class="nx">prepare</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="p">)</span>
+    
+      <span class="nv">that.eventModelChange = </span><span class="nf">(model, items) -&gt;</span></pre></div></td></tr><tr id="section-89"><td class="docs"><div class="pilwrap"><a href="#section-89" class="pilcrow">&#182;</a></div><p>we're modifying the items we're tracking, possibly expanding or decreasing the set</p>
+</td><td class="code"><div class="highlight"><pre>        <span class="nv">changedItems = </span><span class="p">[]</span> <span class="c1"># to propogate on to the next level</span>
+        <span class="k">for</span> <span class="nx">itemId</span> <span class="k">in</span> <span class="nx">items</span>
+          <span class="k">if</span> <span class="nx">model</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">itemId</span><span class="p">)</span>
+            <span class="nv">keys = </span><span class="nx">expressions</span><span class="p">.</span><span class="nx">evaluate</span><span class="p">(</span><span class="nx">itemId</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nx">keys</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+              <span class="k">if</span> <span class="nx">expressions</span><span class="p">.</span><span class="nx">valueType</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;numeric&quot;</span>
+                <span class="nv">key = </span><span class="nb">parseFloat</span><span class="p">(</span><span class="nx">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+              <span class="k">else</span>
+                <span class="nv">key = </span><span class="nx">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+              <span class="k">if</span> <span class="nx">set</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">itemId</span><span class="p">)</span>
+                <span class="nv">i = </span><span class="nx">findItemPosition</span> <span class="nx">itemId</span>
+                <span class="k">if</span> <span class="nx">i</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
+                  <span class="nx">itemList</span><span class="p">.</span><span class="nx">push</span> <span class="p">[</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">itemId</span> <span class="p">]</span>
+                <span class="k">else</span>
+                  <span class="nx">itemList</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nx">key</span>
+                <span class="nx">changedItems</span><span class="p">.</span><span class="nx">push</span> <span class="nx">itemId</span>
+                <span class="k">if</span> <span class="nx">leftKey</span><span class="o">?</span> <span class="o">and</span> <span class="nx">key</span> <span class="o">&lt;</span> <span class="nx">leftKey</span> <span class="o">or</span> <span class="nx">rightKey</span><span class="o">?</span> <span class="o">and</span> <span class="nx">key</span> <span class="o">&gt;</span> <span class="nx">rightKey</span>
+                  <span class="nx">set</span><span class="p">.</span><span class="nx">remove</span><span class="p">(</span><span class="nx">itemId</span><span class="p">)</span>
+              <span class="k">else</span>
+                <span class="nx">itemList</span><span class="p">.</span><span class="nx">push</span> <span class="p">[</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">itemId</span> <span class="p">]</span>
+                <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">leftKey</span><span class="o">?</span> <span class="o">or</span> <span class="nx">key</span> <span class="o">&gt;=</span> <span class="nx">leftKey</span><span class="p">)</span> <span class="o">and</span> <span class="p">(</span><span class="o">!</span><span class="nx">rightKey</span><span class="o">?</span> <span class="o">or</span> <span class="nx">key</span> <span class="o">&lt;=</span> <span class="nx">rightKey</span><span class="p">)</span>
+                  <span class="nx">set</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">itemId</span><span class="p">)</span>
+                  <span class="nx">changedItems</span><span class="p">.</span><span class="nx">push</span> <span class="nx">itemId</span>              
+            <span class="k">else</span>
+              <span class="k">if</span> <span class="nx">set</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">itemId</span><span class="p">)</span>
+                <span class="nv">i = </span><span class="nx">findItemPosition</span> <span class="nx">itemId</span>
+                <span class="k">if</span> <span class="nx">i</span> <span class="o">==</span> <span class="mi">0</span>
+                  <span class="nv">itemList = </span><span class="nx">itemList</span><span class="p">[</span><span class="mi">1</span><span class="p">...</span><span class="nx">itemList</span><span class="p">.</span><span class="nx">length</span><span class="p">]</span>
+                <span class="k">else</span> <span class="k">if</span> <span class="nx">i</span> <span class="o">==</span> <span class="nx">itemList</span><span class="p">.</span><span class="nx">length</span><span class="o">-</span><span class="mi">1</span>
+                  <span class="nv">itemList = </span><span class="nx">itemList</span><span class="p">[</span><span class="mi">0</span><span class="p">...</span><span class="nx">itemList</span><span class="p">.</span><span class="nx">length</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">else</span> <span class="k">if</span> <span class="nx">i</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span>
+                  <span class="nv">itemList = </span><span class="nx">itemList</span><span class="p">[</span><span class="mi">0</span><span class="p">...</span><span class="nx">i</span><span class="p">].</span><span class="nx">concat</span> <span class="nx">itemList</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">1</span><span class="p">...</span><span class="nx">itemList</span><span class="p">.</span><span class="nx">length</span><span class="p">]</span>
+                <span class="nx">set</span><span class="p">.</span><span class="nx">remove</span><span class="p">(</span><span class="nx">itemId</span><span class="p">)</span>
+                <span class="nx">changedItems</span><span class="p">.</span><span class="nx">push</span> <span class="nx">itemId</span>
+          <span class="k">else</span>
+            <span class="nx">set</span><span class="p">.</span><span class="nx">remove</span> <span class="nx">itemId</span>
+            <span class="nx">changedItems</span><span class="p">.</span><span class="nx">push</span> <span class="nx">itemId</span></pre></div></td></tr><tr id="section-90"><td class="docs"><div class="pilwrap"><a href="#section-90" class="pilcrow">&#182;</a></div><p>now sort itemList
+and redo left and right positions
+and double check set and changedItems list?</p>
+</td><td class="code"><div class="highlight"><pre>        <span class="nx">itemList</span><span class="p">.</span><span class="nx">sort</span> <span class="nf">(a,b) -&gt;</span>
+          <span class="k">return</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="nx">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="nx">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+          <span class="k">return</span>  <span class="mi">1</span> <span class="k">if</span> <span class="nx">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="nx">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+          <span class="k">return</span>  <span class="mi">0</span>
+        <span class="nv">itemListStart = </span><span class="nx">findLeftPoint</span> <span class="nx">leftKey</span>
+        <span class="nv">itemListStop  = </span><span class="nx">findRightPoint</span> <span class="nx">rightKey</span>
+
+        <span class="k">if</span> <span class="nx">changedItems</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+          <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">changedItems</span>
+
+      <span class="nv">that.setKeyRange = </span><span class="nf">(l, r) -&gt;</span>
+        <span class="k">if</span> <span class="nx">l</span><span class="o">?</span> <span class="o">and</span> <span class="nx">r</span><span class="o">?</span>
+          <span class="k">if</span> <span class="nx">l</span> <span class="o">&lt;</span> <span class="nx">r</span>
+            <span class="nv">leftKey = </span><span class="nx">l</span>
+            <span class="nv">rightKey = </span><span class="nx">r</span>
+          <span class="k">else</span>
+            <span class="nv">leftKey = </span><span class="nx">r</span>
+            <span class="nv">rightKey = </span><span class="nx">l</span>
+        <span class="k">else</span>
+          <span class="nv">leftKey = </span><span class="nx">l</span>
+          <span class="nv">rightKey = </span><span class="nx">r</span>
+      
+        <span class="nv">itemListStart = </span><span class="nx">findLeftPoint</span> <span class="nx">leftKey</span>
+        <span class="nv">itemListStop  = </span><span class="nx">findRightPoint</span> <span class="nx">rightKey</span>
+        <span class="nv">changedItems = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+        <span class="nv">oldSet = </span><span class="nx">set</span>
+    
+        <span class="nv">set = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+        <span class="nv">that.items = </span><span class="nx">set</span><span class="p">.</span><span class="nx">items</span>
+        <span class="nv">that.size = </span><span class="nx">set</span><span class="p">.</span><span class="nx">size</span>
+        <span class="nv">that.contains = </span><span class="nx">set</span><span class="p">.</span><span class="nx">contains</span>
+        <span class="nv">that.visit = </span><span class="nx">set</span><span class="p">.</span><span class="nx">visit</span>
+    
+        <span class="k">if</span> <span class="nx">itemListStart</span> <span class="o">&lt;</span> <span class="nx">itemListStop</span>
+          <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span><span class="nx">itemListStart</span><span class="p">..</span><span class="nx">itemListStop</span><span class="p">]</span>
+            <span class="nv">itemId = </span><span class="nx">itemList</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="o">!</span><span class="nx">oldSet</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">itemId</span><span class="p">)</span>
+              <span class="nx">changedItems</span><span class="p">.</span><span class="nx">add</span> <span class="nx">itemId</span>
+            <span class="nx">set</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">itemId</span><span class="p">)</span>
+        <span class="nx">oldSet</span><span class="p">.</span><span class="nx">visit</span> <span class="nf">(x) -&gt;</span>
+          <span class="k">if</span> <span class="o">!</span><span class="nx">set</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span>
+            <span class="nx">changedItems</span><span class="p">.</span><span class="nx">add</span> <span class="nx">x</span>
+        <span class="k">if</span> <span class="nx">changedItems</span><span class="p">.</span><span class="nx">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span>
+          <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">changedItems</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+
+  
+      <span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">registerPresentation</span> <span class="nx">that</span>
+
+      <span class="nv">that.registerPresentation = </span><span class="nf">(ob) -&gt;</span>
+        <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">addListener</span> <span class="nf">(m, i) -&gt;</span> <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">m</span><span class="p">,</span> <span class="nx">i</span>
+        <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">that</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+
+      <span class="nx">that</span></pre></div></td></tr><tr id="section-91"><td class="docs"><div class="pilwrap"><a href="#section-91" class="pilcrow">&#182;</a></div><h1>Data Range Pager</h1>
+</td><td class="code"><div class="highlight"><pre>  <span class="nx">Data</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;RangePager&#39;</span><span class="p">,</span> <span class="nf">(RangePager) -&gt;</span>
+    <span class="nv">RangePager.initInstance = </span><span class="nf">(options) -&gt;</span>
+      <span class="nv">that = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Data.RangePager&quot;</span><span class="p">,</span> <span class="nx">options</span>
+      <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
+
+      <span class="nv">leftPager = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">Pager</span><span class="p">.</span><span class="nx">initInstance</span>
+        <span class="nv">dataStore: </span><span class="nx">options</span><span class="p">.</span><span class="nx">dataStore</span>
+        <span class="nv">expressions: </span><span class="nx">options</span><span class="p">.</span><span class="nx">leftExpressions</span>
+      <span class="nv">rightPager = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">Pager</span><span class="p">.</span><span class="nx">initInstance</span>
+        <span class="nv">dataStore: </span><span class="nx">options</span><span class="p">.</span><span class="nx">dataStore</span>
+        <span class="nv">expressions: </span><span class="nx">options</span><span class="p">.</span><span class="nx">rightExpressions</span>
+  
+      <span class="nv">set = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+      <span class="nv">that.items = </span><span class="nx">set</span><span class="p">.</span><span class="nx">items</span>
+      <span class="nv">that.size = </span><span class="nx">set</span><span class="p">.</span><span class="nx">size</span>
+      <span class="nv">that.contains = </span><span class="nx">set</span><span class="p">.</span><span class="nx">contains</span>
+      <span class="nv">that.visit = </span><span class="nx">set</span><span class="p">.</span><span class="nx">visit</span>
+  
+      <span class="nv">that.dataStore = </span><span class="nx">options</span><span class="p">.</span><span class="nx">dataStore</span></pre></div></td></tr><tr id="section-92"><td class="docs"><div class="pilwrap"><a href="#section-92" class="pilcrow">&#182;</a></div><p>these mappings allow a data pager to stand in for a data Store</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.getItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getItems</span>
+      <span class="nv">that.getItem = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getItem</span>
+      <span class="nv">that.removeItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">removeItems</span>
+      <span class="nv">that.fetchData = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">fetchData</span>
+      <span class="nv">that.updateItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">updateItems</span>
+      <span class="nv">that.loadItems = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">loadItems</span>
+      <span class="nv">that.prepare = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">prepare</span>
+      <span class="nv">that.addType = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">addType</span>
+      <span class="nv">that.getType = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getType</span>
+      <span class="nv">that.addProperty = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">addProperty</span>
+      <span class="nv">that.getProperty = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getProperty</span>
+      <span class="nv">that.getObjectsUnion = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getObjectsUnion</span>
+      <span class="nv">that.getSubjectsUnion = </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">getSubjectsUnion</span>
+    
+      <span class="nv">that.eventModelChange = </span><span class="nf">(model, itemIds) -&gt;</span>
+        <span class="nv">changedIds = </span><span class="p">[]</span>
+        <span class="k">for</span> <span class="nx">id</span> <span class="k">in</span> <span class="nx">itemIds</span>
+          <span class="k">if</span> <span class="nx">leftPager</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="o">and</span> <span class="nx">rightPager</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+            <span class="nx">changedIds</span><span class="p">.</span><span class="nx">push</span> <span class="nx">id</span>
+            <span class="nx">set</span><span class="p">.</span><span class="nx">add</span> <span class="nx">id</span>
+          <span class="k">else</span>
+            <span class="nx">changedIds</span><span class="p">.</span><span class="nx">push</span> <span class="nx">id</span> <span class="k">if</span> <span class="nx">set</span><span class="p">.</span><span class="nx">contains</span> <span class="nx">id</span>
+            <span class="nx">set</span><span class="p">.</span><span class="nx">remove</span> <span class="nx">id</span>
+        <span class="k">if</span> <span class="nx">changedIds</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+          <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">changedIds</span> 
+
+      <span class="nv">that.setKeyRange = </span><span class="nf">(l, r) -&gt;</span>
+        <span class="k">if</span> <span class="nx">l</span> <span class="o">&gt;</span> <span class="nx">r</span>
+          <span class="p">[</span><span class="nx">l</span><span class="p">,</span> <span class="nx">r</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nx">r</span><span class="p">,</span> <span class="nx">l</span><span class="p">]</span>
+    
+        <span class="nx">leftPager</span><span class="p">.</span><span class="nx">setKeyRange</span>  <span class="kc">undefined</span><span class="p">,</span> <span class="nx">r</span>
+        <span class="nx">rightPager</span><span class="p">.</span><span class="nx">setKeyRange</span> <span class="nx">l</span><span class="p">,</span> <span class="kc">undefined</span>
+
+      <span class="nx">that</span><span class="p">.</span><span class="nx">setKeyRange</span> <span class="kc">undefined</span><span class="p">,</span> <span class="kc">undefined</span>
+  
+      <span class="nx">leftPager</span><span class="p">.</span><span class="nx">registerPresentation</span> <span class="nx">that</span>
+      <span class="nx">rightPager</span><span class="p">.</span><span class="nx">registerPresentation</span> <span class="nx">that</span>
+  
+      <span class="nv">that.registerPresentation = </span><span class="nf">(ob) -&gt;</span>
+        <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">addListener</span> <span class="nf">(m, i) -&gt;</span> <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">m</span><span class="p">,</span> <span class="nx">i</span>
+        <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">that</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+      
+      <span class="nx">that</span>
+
+</pre></div></td></tr></tbody></table><div id="generated">generated Wed Apr 04 2012 15:48:30 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHGrid</a></div></div></body></html>
