@@ -30,10 +30,16 @@ MITHGrid.namespace "Plugin", (exports) ->
 				options.properties
 			else
 				[ ]
+				
+		that.getComponents = () ->
+			if options?.components?
+				options.components
+			else
+				[ ]
 	
 		that.getPresentations = () ->
 			if options?.presentations?
-				options.presentations;
+				options.presentations
 			else
 				[ ]
 	
