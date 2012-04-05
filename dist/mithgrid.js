@@ -2,7 +2,7 @@
 /*
 # mithgrid JavaScript Library v0.0.1
 #
-# Date: Wed Jan 18 11:51:47 2012 -0500
+# Date: Tue Apr 3 15:51:37 2012 -0400
 #
 # (c) Copyright University of Maryland 2011-2012.  All rights reserved.
 #
@@ -2814,12 +2814,13 @@
         onReady = [];
         that.presentation = {};
         that.facet = {};
+        that.component = {};
         that.dataStore = {};
         that.dataView = {};
         that.controller = {};
         options = that.options;
         configureInstance = function() {
-          var cName, cconfig, config, fName, fconfig, pName, pconfig, storeName, varName, viewConfig, viewName, _i, _len, _ref10, _ref11, _ref5, _ref6, _ref7, _ref8, _ref9, _results;
+          var cName, cconfig, config, fName, fconfig, pName, pconfig, storeName, varName, viewConfig, viewName, _i, _len, _ref10, _ref11, _ref12, _ref5, _ref6, _ref7, _ref8, _ref9, _results;
           if ((options != null ? options.variables : void 0) != null) {
             _ref5 = options.variables;
             for (varName in _ref5) {
@@ -2866,18 +2867,25 @@
               that.addFacet(fName, fconfig);
             }
           }
+          if ((options != null ? options.components : void 0) != null) {
+            _ref10 = options.components;
+            for (cName in _ref10) {
+              cconfig = _ref10[cName];
+              that.addComponent(cName, cconfig);
+            }
+          }
           if ((options != null ? options.presentations : void 0) != null) {
-            _ref10 = options.presentations;
-            for (pName in _ref10) {
-              pconfig = _ref10[pName];
+            _ref11 = options.presentations;
+            for (pName in _ref11) {
+              pconfig = _ref11[pName];
               that.addPresentation(pName, pconfig);
             }
           }
           if ((options != null ? options.plugins : void 0) != null) {
-            _ref11 = options.plugins;
+            _ref12 = options.plugins;
             _results = [];
-            for (_i = 0, _len = _ref11.length; _i < _len; _i++) {
-              pconfig = _ref11[_i];
+            for (_i = 0, _len = _ref12.length; _i < _len; _i++) {
+              pconfig = _ref12[_i];
               _results.push(that.addPlugin(pconfig));
             }
             return _results;
@@ -3018,20 +3026,73 @@
             return facet.selfRender();
           });
         };
+        that.addComponent = function(cName, pconfig) {
+          var coptions;
+          coptions = $.extend(true, {}, cconfig);
+          return that.ready(function() {
+            var ccName, cconfig, ccontainer, ccoptions, _ref5, _ref6;
+            ccontainer = $(container).find(coptions.container);
+            if ($.isArray(ccontainer)) ccontainer = ccontainer[0];
+            coptions.application = that;
+            if (cconfig.components != null) {
+              coptions.components = {};
+              _ref5 = cconfig.components;
+              for (ccName in _ref5) {
+                cconfig = _ref5[ccName];
+                if (typeof cconfig === "string") {
+                  coptions.components[ccName] = that.component[ccName];
+                } else {
+                  ccoptions = $.extend(true, {}, ccconfig);
+                  ccoptions.application = that;
+                  coptions.components[ccName] = cconfig.type.initInstance(ccoptions);
+                }
+              }
+            }
+            if (cconfig.controllers != null) {
+              coptions.controllers = {};
+              _ref6 = pconfig.controllers;
+              for (ccName in _ref6) {
+                cconfig = _ref6[ccName];
+                if (typeof cconfig === "string") {
+                  coptions.controllers[ccName] = that.controller[ccName];
+                } else {
+                  ccoptions = $.extend(true, {}, ccconfig);
+                  ccoptions.application = that;
+                  coptions.controllers[ccName] = cconfig.type.initController(ccoptions);
+                }
+              }
+            }
+            return that.component[cName] = cconfig.type.initInstance(ccontainer, coptions);
+          });
+        };
         that.addPresentation = function(pName, pconfig) {
           var poptions;
           poptions = $.extend(true, {}, pconfig);
           return that.ready(function() {
-            var cName, cconfig, coptions, pcontainer, presentation, _ref5;
+            var cName, ccName, cconfig, ccoptions, coptions, pcontainer, presentation, _ref5, _ref6;
             pcontainer = $(container).find(poptions.container);
             if ($.isArray(pcontainer)) pcontainer = pcontainer[0];
             poptions.dataView = that.dataView[pconfig.dataView];
             poptions.application = that;
+            if (pconfig.components != null) {
+              poptions.components = {};
+              _ref5 = pconfig.components;
+              for (ccName in _ref5) {
+                cconfig = _ref5[ccName];
+                if (typeof cconfig === "string") {
+                  poptions.components[ccName] = that.component[ccName];
+                } else {
+                  ccoptions = $.extend(true, {}, ccconfig);
+                  ccoptions.application = that;
+                  poptions.components[ccName] = cconfig.type.initInstance(ccoptions);
+                }
+              }
+            }
             if (pconfig.controllers != null) {
               poptions.controllers = {};
-              _ref5 = pconfig.controllers;
-              for (cName in _ref5) {
-                cconfig = _ref5[cName];
+              _ref6 = pconfig.controllers;
+              for (cName in _ref6) {
+                cconfig = _ref6[cName];
                 if (typeof cconfig === "string") {
                   poptions.controllers[cName] = that.controller[cName];
                 } else {
@@ -3126,6 +3187,13 @@
         that.getProperties = function() {
           if ((options != null ? options.properties : void 0) != null) {
             return options.properties;
+          } else {
+            return [];
+          }
+        };
+        that.getComponents = function() {
+          if ((options != null ? options.components : void 0) != null) {
+            return options.components;
           } else {
             return [];
           }

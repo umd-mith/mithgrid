@@ -21,6 +21,7 @@ MITHGrid.namespace 'Application', (Application) ->
 	
 		that.presentation = {}
 		that.facet = {}
+		that.component = {}
 		that.dataStore = {}
 		that.dataView = {}
 		that.controller = {}
@@ -77,6 +78,14 @@ MITHGrid.namespace 'Application', (Application) ->
 				for fName, fconfig of options.facets
 					that.addFacet fName, fconfig
 				
+			# ### components
+			#
+			# See the section on #addComponent
+			#
+			if options?.components?
+				for cName, cconfig of options.components
+					that.addComponent cName, cconfig
+					
 			# ### presentations
 			#
 			# See the section on #addPresentation.
@@ -279,6 +288,47 @@ MITHGrid.namespace 'Application', (Application) ->
 				that.facet[fName] = facet
 				facet.selfRender()
 	
+		# ### #addComponent
+		#
+		# Adds a component to the application. Components tie together renderings with controllers, but do not base
+		# their DOM content on data. Components are good for things like bounding boxes used by a presentation, menus,
+		# or other UI elements that might be considered chrome.
+		#
+		# Parameters:
+		#
+		# * cName - name of the component
+		#
+		# * cconfig - object holding configuration options
+		#
+		# Returns: Nothing.
+		#
+		that.addComponent = (cName, pconfig) ->
+			coptions = $.extend(true, {}, cconfig)
+			that.ready () ->
+				ccontainer = $(container).find(coptions.container)
+				ccontainer = ccontainer[0] if $.isArray(ccontainer)
+				coptions.application = that
+				if cconfig.components?
+					coptions.components = {}
+					for ccName, cconfig of cconfig.components
+						if typeof cconfig == "string"
+							coptions.components[ccName] = that.component[ccName]
+						else
+							ccoptions = $.extend(true, {}, ccconfig)
+							ccoptions.application = that
+							coptions.components[ccName] = cconfig.type.initInstance ccoptions
+				if cconfig.controllers?
+					coptions.controllers = {}
+					for ccName, cconfig of pconfig.controllers
+						if typeof cconfig == "string"
+							coptions.controllers[ccName] = that.controller[ccName]
+						else
+							ccoptions = $.extend(true, {}, ccconfig)
+							ccoptions.application = that
+							coptions.controllers[ccName] = cconfig.type.initController ccoptions
+
+				that.component[cName] = cconfig.type.initInstance ccontainer, coptions
+	
 		# ### #addPresentation
 		#
 		# Adds a presentation to the application.
@@ -298,6 +348,15 @@ MITHGrid.namespace 'Application', (Application) ->
 				pcontainer = pcontainer[0] if $.isArray(pcontainer)
 				poptions.dataView = that.dataView[pconfig.dataView]
 				poptions.application = that
+				if pconfig.components?
+					poptions.components = {}
+					for ccName, cconfig of pconfig.components
+						if typeof cconfig == "string"
+							poptions.components[ccName] = that.component[ccName]
+						else
+							ccoptions = $.extend(true, {}, ccconfig)
+							ccoptions.application = that
+							poptions.components[ccName] = cconfig.type.initInstance ccoptions
 				if pconfig.controllers?
 					poptions.controllers = {}
 					for cName, cconfig of pconfig.controllers
