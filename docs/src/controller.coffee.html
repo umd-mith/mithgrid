@@ -1,0 +1,166 @@
+<!DOCTYPE html><html><head><title>controller.coffee</title><meta http-equiv="Content-Type" content="text/html" charset="UTF-8"><link rel="stylesheet" media="all" href="../docco.css"></head><body><div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a><a href="../src/promise.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">promise.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>controller.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><h1>MITHGrid Controllers</h1>
+
+<p>Controllers translate UI events into MITHGrid events. The goal is to create programs that only need a different set of
+controllers to allow a different manner of user interaction.</p>
+</td><td class="code"><div class="highlight"><pre><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Controller&#39;</span><span class="p">,</span> <span class="nf">(Controller) -&gt;</span></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><h2>Controller.initInstance</h2>
+
+<p>Controllers do not have any display component, so they only need a class name and the configuration object.
+Controller objects use the #bind() method to bind a controller to a UI element. The returned object is used to
+manage that particular binding.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li><p>klass - the controller type name as a string</p></li>
+<li><p>options - object holding configuration options</p></li>
+</ul>
+
+<p>Returns:</p>
+
+<p>An initialized controller object.</p>
+
+<p>Options:</p>
+
+<ul>
+<li><p><strong>bind</strong> - configuration options passed to the binding object constructor</p></li>
+<li><p><strong>selectors</strong> - a map of strings to CSS selectors for finding children of a UI element when binding</p></li>
+</ul>
+</td><td class="code"><div class="highlight"><pre>  <span class="nv">Controller.initInstance = </span><span class="nf">(klass, options) -&gt;</span>
+    <span class="p">[</span> <span class="nx">klass</span><span class="p">,</span> <span class="nx">c</span><span class="p">,</span> <span class="nx">options</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">normalizeArgs</span> <span class="s">&quot;MITHGrid.Controller&quot;</span><span class="p">,</span> <span class="nx">klass</span><span class="p">,</span> <span class="kc">undefined</span><span class="p">,</span> <span class="nx">options</span>
+    <span class="nv">that = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initView</span> <span class="nx">klass</span><span class="p">,</span> <span class="nx">options</span>
+    <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
+    <span class="nx">options</span><span class="p">.</span><span class="nx">selectors</span> <span class="o">or=</span> <span class="p">{}</span>
+  </pre></div></td></tr><tr id="section-3"><td class="docs"><div class="pilwrap"><a href="#section-3" class="pilcrow">&#182;</a></div><p>We need something that can have functions bindable to an element
+this isn't that object, but can produce that object, so this is a kind of controller factory
+that can be used by lenses</p>
+</td><td class="code"><div class="highlight"><pre>      
+    <span class="nv">initDOMBinding = </span><span class="nf">(element) -&gt;</span>
+      <span class="nv">binding = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="nx">options</span><span class="p">.</span><span class="nx">bind</span>
+      <span class="nv">bindingsCache = </span><span class="p">{</span> <span class="s">&#39;&#39;</span><span class="o">:</span> <span class="nx">$</span><span class="p">(</span><span class="nx">element</span><span class="p">)</span> <span class="p">}</span>
+    
+      <span class="nv">binding.locate = </span><span class="nf">(internalSelector) -&gt;</span>
+        <span class="nv">selector = </span><span class="nx">options</span><span class="p">.</span><span class="nx">selectors</span><span class="p">[</span><span class="nx">internalSelector</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nx">selector</span><span class="o">?</span>
+          <span class="k">if</span> <span class="nx">selector</span> <span class="o">==</span> <span class="s">&#39;&#39;</span>
+            <span class="nv">el = </span><span class="nx">$</span><span class="p">(</span><span class="nx">element</span><span class="p">)</span>
+          <span class="k">else</span>
+            <span class="nv">el = </span><span class="nx">$</span><span class="p">(</span><span class="nx">element</span><span class="p">).</span><span class="nx">find</span><span class="p">(</span><span class="nx">selector</span><span class="p">)</span>
+          <span class="nx">bindingsCache</span><span class="p">[</span><span class="nx">selector</span><span class="p">]</span> <span class="o">=</span> <span class="nx">el</span>
+          <span class="k">return</span> <span class="nx">el</span>
+        <span class="k">return</span> <span class="kc">undefined</span>
+    
+      <span class="nv">binding.fastLocate = </span><span class="nf">(internalSelector) -&gt;</span>
+        <span class="nv">selector = </span><span class="nx">options</span><span class="p">.</span><span class="nx">selectors</span><span class="p">[</span><span class="nx">internalSelector</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nx">selector</span><span class="o">?</span>
+          <span class="k">if</span> <span class="nx">bindingsCache</span><span class="p">[</span><span class="nx">selector</span><span class="p">]</span><span class="o">?</span>
+            <span class="k">return</span> <span class="nx">bindingsCache</span><span class="p">[</span><span class="nx">selector</span><span class="p">]</span>
+          <span class="k">return</span> <span class="nx">binding</span><span class="p">.</span><span class="nx">locate</span> <span class="nx">internalSelector</span>
+        <span class="k">return</span> <span class="kc">undefined</span>
+      
+      <span class="nv">binding.refresh = </span><span class="nf">(listOfSelectors) -&gt;</span>
+        <span class="k">for</span> <span class="nx">internalSelector</span> <span class="k">in</span> <span class="nx">listOfSelectors</span>
+          <span class="nv">selector = </span><span class="nx">options</span><span class="p">.</span><span class="nx">selectors</span><span class="p">[</span><span class="nx">internalSelector</span><span class="p">]</span>
+          <span class="k">if</span> <span class="nx">selector</span><span class="o">?</span>
+            <span class="k">if</span> <span class="nx">selector</span> <span class="o">==</span> <span class="s">&#39;&#39;</span>
+              <span class="nx">bindingsCache</span><span class="p">[</span><span class="s">&#39;&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="nx">element</span><span class="p">)</span>
+            <span class="k">else</span>
+              <span class="nx">bindingsCache</span><span class="p">[</span><span class="nx">selector</span><span class="p">]</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="nx">element</span><span class="p">).</span><span class="nx">find</span><span class="p">(</span><span class="nx">selector</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">undefined</span>
+    
+      <span class="nv">binding.clearCache = </span><span class="nf">() -&gt;</span>
+        <span class="nv">bindingsCache = </span><span class="p">{</span> <span class="s">&#39;&#39;</span><span class="o">:</span> <span class="nx">$</span><span class="p">(</span><span class="nx">element</span><span class="p">)</span> <span class="p">}</span>
+
+      <span class="nx">binding</span>
+  
+    <span class="nv">initRaphaelBinding = </span><span class="nf">(raphaelDrawing) -&gt;</span>
+      <span class="nv">binding = </span><span class="nx">initDOMBinding</span> <span class="nx">raphaelDrawing</span><span class="p">.</span><span class="nx">node</span>
+
+      <span class="nv">superLocate = </span><span class="nx">binding</span><span class="p">.</span><span class="nx">locate</span>
+      <span class="nv">superFastLocate = </span><span class="nx">binding</span><span class="p">.</span><span class="nx">fastLocate</span>
+      <span class="nv">superRefresh = </span><span class="nx">binding</span><span class="p">.</span><span class="nx">refresh</span>
+      <span class="nv">superBind = </span><span class="nx">binding</span><span class="p">.</span><span class="nx">bind</span>
+
+      <span class="nv">binding.locate = </span><span class="nf">(internalSelector) -&gt;</span>
+        <span class="k">if</span> <span class="nx">internalSelector</span> <span class="o">==</span> <span class="s">&#39;raphael&#39;</span>
+          <span class="nx">raphaelDrawing</span>
+        <span class="k">else</span>
+          <span class="nx">superLocate</span> <span class="nx">internalSelector</span>
+
+      <span class="nv">binding.fastLocate = </span><span class="nf">(internalSelector) -&gt;</span>
+        <span class="k">if</span> <span class="nx">internalSelector</span> <span class="o">==</span> <span class="s">&#39;raphael&#39;</span>
+          <span class="nx">raphaelDrawing</span>
+        <span class="k">else</span>
+          <span class="nx">superFastLocate</span> <span class="nx">internalSelector</span>
+
+      <span class="nv">binding.refresh = </span><span class="nf">(listOfSelectors) -&gt;</span>
+        <span class="nv">listOfSelectors = </span><span class="p">(</span><span class="nx">s</span> <span class="k">for</span> <span class="nx">s</span> <span class="k">in</span> <span class="nx">listOfSelectors</span> <span class="k">when</span> <span class="nx">s</span> <span class="o">!=</span> <span class="s">&#39;raphael&#39;</span><span class="p">)</span>
+        <span class="nx">superRefresh</span> <span class="nx">listOfSelectors</span>
+
+      <span class="nx">binding</span>
+    </pre></div></td></tr><tr id="section-4"><td class="docs"><div class="pilwrap"><a href="#section-4" class="pilcrow">&#182;</a></div><h3>#initBind</h3>
+
+<p>Initialize the binding for the given element. If the element is a string or an object without
+a .node property, then the element is assumed to be a DOM element. Otherwise, it is assumed to be
+a Raphaël node.</p>
+
+<p>FIXME: This overloading should be two different classes. We should move the Raphaël code out of here
+since this is the only piece of MITHGrid that understands anything about Raphaël. It's reasonable that
+a developer know if they're dealing with a regular DOM element or a Raphaël node.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>element - the DOM element being bound</li>
+</ul>
+
+<p>Returns:</p>
+
+<p>The initialized binding object.</p>
+</td><td class="code"><div class="highlight"><pre>    <span class="nv">that.initBind = </span><span class="nf">(element) -&gt;</span>
+      <span class="k">if</span> <span class="k">typeof</span> <span class="nx">element</span> <span class="o">==</span> <span class="s">&quot;string&quot;</span>
+        <span class="nx">initDOMBinding</span> <span class="nx">$</span><span class="p">(</span><span class="nx">element</span><span class="p">)</span>
+      <span class="k">else</span> <span class="k">if</span> <span class="nx">element</span><span class="p">.</span><span class="nx">node</span><span class="o">?</span>
+        <span class="nx">initRaphaelBinding</span> <span class="nx">element</span>
+      <span class="k">else</span>
+        <span class="nx">initDOMBinding</span> <span class="nx">element</span>
+    </pre></div></td></tr><tr id="section-5"><td class="docs"><div class="pilwrap"><a href="#section-5" class="pilcrow">&#182;</a></div><h3>#bind</h3>
+
+<p>Binds the controller to the given UI element and returns an object that can be used to manage the
+binding. This is the method that will be used most outside the controller definition.</p>
+
+<p>Bindings can have events associated with them depending on how the controller is configured.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li><p>element - the DOM element (or Raphaël node) to which the controller should bind</p></li>
+<li><p>args... - optional arguments to be passed to the #applyBindings() method</p></li>
+</ul>
+
+<p>Returns:</p>
+
+<p>The binding object used to manage the binding.</p>
+</td><td class="code"><div class="highlight"><pre>    <span class="nv">that.bind = </span><span class="nf">(element, args...) -&gt;</span>
+      <span class="nv">binding = </span><span class="nx">that</span><span class="p">.</span><span class="nx">initBind</span> <span class="nx">element</span>
+    
+      <span class="nx">that</span><span class="p">.</span><span class="nx">applyBindings</span> <span class="nx">binding</span><span class="p">,</span> <span class="nx">args</span><span class="p">...</span>
+    
+      <span class="nx">binding</span>
+  </pre></div></td></tr><tr id="section-6"><td class="docs"><div class="pilwrap"><a href="#section-6" class="pilcrow">&#182;</a></div><h3>#applyBindings</h3>
+
+<p>This method should be overridden in any subclass. The #bind() method will call this with the
+new binding object and any arguments passed to the #bind() method.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li><p>binding - the new binding object</p></li>
+<li><p>args... - any additional arguments passed to the #bind() method after the element being bound</p></li>
+</ul>
+
+<p>Returns: Nothing.</p>
+</td><td class="code"><div class="highlight"><pre>    <span class="nv">that.applyBindings = </span><span class="nf">(binding, args...) -&gt;</span>
+    
+    <span class="nx">that</span>
+
+</pre></div></td></tr></tbody></table><div id="generated">generated Wed Apr 04 2012 15:48:30 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHGrid</a></div></div></body></html>
