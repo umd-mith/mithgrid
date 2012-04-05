@@ -1,0 +1,55 @@
+<!DOCTYPE html><html><head><title>outro.coffee</title><meta http-equiv="Content-Type" content="text/html" charset="UTF-8"><link rel="stylesheet" media="all" href="../docco.css"></head><body><div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a><a href="../src/promise.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">promise.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>outro.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div>
+</td><td class="code"><div class="highlight"><pre></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><p>Here, we have our deprecated ways of referring to initializers
+<strong>These aliases will be removed in the first public release.</strong></p>
+</td><td class="code"><div class="highlight"><pre>  <span class="nv">MITHGrid.initView = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initInstance</span>
+  <span class="nv">MITHGrid.Data.initSet = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span>
+  <span class="nv">MITHGrid.Data.initType = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Type</span><span class="p">.</span><span class="nx">initInstance</span>
+  <span class="nv">MITHGrid.Data.initProperty = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Property</span><span class="p">.</span><span class="nx">initInstance</span>
+  <span class="nv">MITHGrid.Data.initStore = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Store</span><span class="p">.</span><span class="nx">initInstance</span>
+  <span class="nv">MITHGrid.Data.initView = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">View</span><span class="p">.</span><span class="nx">initInstance</span>
+  <span class="nv">MITHGrid.Controller.initController = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Controller</span><span class="p">.</span><span class="nx">initInstance</span>
+  <span class="nv">MITHGrid.Controller.initRaphaelController = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Controller</span><span class="p">.</span><span class="nx">initController</span>
+  <span class="nv">MITHGrid.Presentation.initPresentation = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Presentation</span><span class="p">.</span><span class="nx">initInstance</span>
+  <span class="nv">MITHGrid.Presentation.SimpleText.initPresentation = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Presentation</span><span class="p">.</span><span class="nx">SimpleText</span><span class="p">.</span><span class="nx">initInstance</span>
+  <span class="nv">MITHGrid.Application.initApp = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">initInstance</span>
+  
+<span class="p">)(</span><span class="nx">jQuery</span><span class="p">,</span> <span class="nx">MITHGrid</span><span class="p">)</span>
+
+<span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">defaults</span> <span class="s">&quot;MITHGrid.Data.Store&quot;</span><span class="p">,</span>
+    <span class="nv">events:</span>
+        <span class="nv">onModelChange: </span><span class="kc">null</span>
+        <span class="nv">onBeforeLoading: </span><span class="kc">null</span>
+        <span class="nv">onAfterLoading: </span><span class="kc">null</span>
+        <span class="nv">onBeforeUpdating: </span><span class="kc">null</span>
+        <span class="nv">onAfterUpdating: </span><span class="kc">null</span>
+
+<span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">defaults</span> <span class="s">&quot;MITHGrid.Data.View&quot;</span><span class="p">,</span>
+    <span class="nv">events:</span>
+        <span class="nv">onModelChange: </span><span class="kc">null</span>
+        <span class="nv">onFilterItem: </span><span class="s">&quot;preventable&quot;</span>
+
+<span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">defaults</span> <span class="s">&quot;MITHGrid.Data.SubSet&quot;</span><span class="p">,</span>
+    <span class="nv">events:</span>
+        <span class="nv">onModelChange: </span><span class="kc">null</span>
+
+<span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">defaults</span> <span class="s">&quot;MITHGrid.Data.Pager&quot;</span><span class="p">,</span>
+    <span class="nv">events:</span>
+        <span class="nv">onModelChange: </span><span class="kc">null</span>
+
+<span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">defaults</span> <span class="s">&quot;MITHGrid.Data.RangePager&quot;</span><span class="p">,</span>
+    <span class="nv">events:</span>
+        <span class="nv">onModelChange: </span><span class="kc">null</span>
+
+<span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">defaults</span> <span class="s">&quot;MITHGrid.Data.ListPager&quot;</span><span class="p">,</span>
+    <span class="nv">events:</span>
+        <span class="nv">onModelChange: </span><span class="kc">null</span>
+
+<span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">defaults</span> <span class="s">&quot;MITHGrid.Facet&quot;</span><span class="p">,</span>
+  <span class="nv">events:</span>
+    <span class="nv">onFilterChange: </span><span class="kc">null</span>
+
+<span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">defaults</span> <span class="s">&quot;MITHGrid.Facet.TextSearch&quot;</span><span class="p">,</span>
+  <span class="nv">facetLabel: </span><span class="s">&quot;Search&quot;</span>
+  <span class="nv">expressions: </span><span class="p">[</span> <span class="s">&quot;.label&quot;</span> <span class="p">]</span>
+
+</pre></div></td></tr></tbody></table><div id="generated">generated Wed Apr 04 2012 15:48:31 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHGrid</a></div></div></body></html>
