@@ -6,6 +6,7 @@ BUILD_DIR = build
 
 PREFIX = .
 DIST_DIR = ${PREFIX}/dist
+COMPILED_DOCS_DIR = ${PREFIX}/compiled_docs
 
 JS_ENGINE ?= `which node nodejs`
 COMPILER = ${JS_ENGINE} ${BUILD_DIR}/uglify.js --unsafe
@@ -43,7 +44,10 @@ core: mithgrid min lint test
 ${DIST_DIR}:
 		@@mkdir -p ${DIST_DIR}
 
-docs: ${MODULES}
+${COMPILED_DOCS_DIR}/src:
+		@@mkdir -p ${COMPILED_DOCS_DIR}/src
+
+docs: ${MODULES} ${COMPILED_DOCS_DIR}/src
 		@@${DOCCO} ${SRC_DIR}
 
 test: mithgrid

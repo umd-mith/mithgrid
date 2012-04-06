@@ -1,0 +1,6 @@
+{
+  "docco_husky": {
+    "output_dir": "compiled_docs",
+    "project_name": "MITHgrid"
+  }
+}
