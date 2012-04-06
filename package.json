@@ -10,8 +10,7 @@
     "url": "git://github.com/umd-mith/mithgrid.git"
   },
   "dependencies": {
-    "jquery": "latest",
-    "raphaeljs": "latest"
+    "jquery": "latest"
   },
   "directories": {
     "src": "./src"
