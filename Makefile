@@ -13,6 +13,7 @@ COMPILER = ${JS_ENGINE} ${BUILD_DIR}/uglify.js --unsafe
 POST_COMPILER = ${JS_ENGINE} ${BUILD_DIR}/post-compile.js
 DOCCO ?= `which docco-husky`
 GRUNT ?= `which grunt`
+COFFEE ?= `which coffee`
 
 BASE_FILES = ${SRC_DIR}/core.coffee \
 			${SRC_DIR}/data.coffee \
@@ -47,12 +48,13 @@ ${DIST_DIR}:
 ${COMPILED_DOCS_DIR}/src:
 		@@mkdir -p ${COMPILED_DOCS_DIR}/src
 
-docs: ${MODULES} ${COMPILED_DOCS_DIR}/src
+docs: ${MODULES} ${COMPILED_DOCS_DIR}/src README.md
 		@@${DOCCO} ${SRC_DIR}
 
 test: mithgrid
 		@@if test ! -z ${GRUNT}; then \
 			echo "Testing mithgrid"; \
+			${COFFEE} -c ${TEST_DIR}; \
 			${GRUNT} qunit; \
 		else \
 			echo "You must have grunt installed in order to test mithgrid."; \
@@ -80,7 +82,7 @@ ${MG_C}: ${MODULES} | ${DIST_DIR}
 		@@rm -f ${MG_C}.tmp;
 
 ${MG}: ${MG_C}
-		@@coffee -c ${MG_C};
+		@@${COFFEE} -c ${MG_C};
 
 lint: mithgrid
 		@@if test ! -z ${JS_ENGINE}; then \
