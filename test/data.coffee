@@ -362,7 +362,7 @@ $(document).ready ->
 		ok !dp.contains('c'), "!contains <c,-1>"
 		ok dp.contains('d'), "contains <d,0>"
 		ok dp.contains('e'), "contains <e,1>"
-		ok dp.contains('f'), "contains <f,2>"
+		ok !dp.contains('f'), "!contains <f,2>"
 		ok !dp.contains('g'), "!contains <g,3>"
 	
 		dp.setKeyRange 0, 3
@@ -370,7 +370,7 @@ $(document).ready ->
 		ok dp.contains('d'), "contains <d,0>"
 		ok dp.contains('e'), "contains <e,1>"
 		ok dp.contains('f'), "contains <f,2>"
-		ok dp.contains('g'), "contains <g,3>"
+		ok !dp.contains('g'), "!contains <g,3>"
 		ok !dp.contains('h'), "!contains <h,4>"
 		
 		dp.setKeyRange -5, 1
@@ -378,22 +378,25 @@ $(document).ready ->
 		ok dp.contains('b'), "contains <b,-5>"	
 		ok dp.contains('c'), "contains <c,-1>"
 		ok dp.contains('d'), "contains <d,0>"
-		ok dp.contains('e'), "contains <e,1>"
-		ok !dp.contains('f'), "contains <f,2>"
-		ok !dp.contains('g'), "contains <g,3>"
+		ok !dp.contains('e'), "!contains <e,1>"
+		ok !dp.contains('f'), "!contains <f,2>"
+		ok !dp.contains('g'), "!contains <g,3>"
 		ok !dp.contains('h'), "!contains <h,4>"
 	
+	module "Data.RangePager"
+	
 	test "Check data range pager loading and range function", ->
-		loadPair = (a,b) ->
+		loadPair = (a,b,c) ->
+			c ?= b*b
 			dp.loadItems [
 				id: a,
 				label: a,
 				start: b,
-				end: b*b,
+				end: c,
 				type: 'Text'
 			]
 		
-		expect 19
+		expect 33
 		dp = MITHGrid.Data.RangePager.initInstance
 			dataStore: MITHGrid.Data.initView
 				dataStore: MITHGrid.Data.initStore()
@@ -417,27 +420,90 @@ $(document).ready ->
 		loadPair 'h', 4   # 4 .. 16
 		loadPair 'i', 5   # 5 .. 25
 		loadPair 'j', 10  # 10 .. 100
+		equal dp.dataStore.items().length, 10, "Right number of items in dataStore"
 
 		ok dp.contains('c'), "contains <c,-1>"
 		ok dp.contains('d'), "contains <d,0>"
 		ok dp.contains('e'), "contains <e,1>"
-		ok dp.contains('f'), "!contains <f,2>"
+		ok !dp.contains('f'), "!contains <f,2>"
 		ok !dp.contains('g'), "!contains <g,3>"
+		equal dp.items().length, 5, "Right number of items in dataView for (0,2)"
 	
 		dp.setKeyRange 0, 3
 		ok dp.contains('c'), "!contains <c,-1>"
 		ok dp.contains('d'), "contains <d,0>"
 		ok dp.contains('e'), "contains <e,1>"
 		ok dp.contains('f'), "contains <f,2>"
-		ok dp.contains('g'), "contains <g,3>"
+		ok !dp.contains('g'), "!contains <g,3>"
 		ok !dp.contains('h'), "!contains <h,4>"
+		equal dp.items().length, 6, "Right number of items in dataView for (0,3)"
 		
 		dp.setKeyRange -5, 1
 		ok dp.contains('a'), "!contains <a,-10>"
 		ok dp.contains('b'), "contains <b,-5>"	
 		ok dp.contains('c'), "contains <c,-1>"
 		ok dp.contains('d'), "contains <d,0>"
-		ok dp.contains('e'), "contains <e,1>"
-		ok !dp.contains('f'), "contains <f,2>"
-		ok !dp.contains('g'), "contains <g,3>"
+		ok !dp.contains('e'), "!contains <e,1>"
+		ok !dp.contains('f'), "!contains <f,2>"
+		ok !dp.contains('g'), "!contains <g,3>"
 		ok !dp.contains('h'), "!contains <h,4>"
+		equal dp.items().length, 4, "Right number of items in dataView for (-5,1)"
+		
+		loadPair 'k', -10, -6
+		ok !dp.contains('k'), "!contains <k,-10,-6>"
+		equal dp.dataStore.items().length, 11, "Right number of items in dataStore"
+		equal dp.items().length, 4, "Right number of items in dataView for (-5,1)"
+		
+		loadPair 'l', -4 # -4 .. 16
+		ok dp.contains('l'), "contains <l,-4>"
+		equal dp.dataStore.items().length, 12, "Right number of items in dataStore"
+		equal dp.items().length, 5, "Right number of items in dataView for (-5,1)"
+		
+		loadPair 'm', 1 # 1 .. 1
+		ok !dp.contains('m'), "!contains <m, 1>"
+		equal dp.dataStore.items().length, 13, "Right number of items in dataStore"
+		equal dp.items().length, 5, "Right number of items in dataView for (-5,1)"
+		
+		dp.setKeyRange 200, 300
+		equal dp.items().length, 0, "Nothing in the dataView for (200,300)"
+	
+	test "Check OAC video annotator behavior", ->
+		expect 10
+		
+		dp = MITHGrid.Data.RangePager.initInstance
+			dataStore: MITHGrid.Data.initStore()
+			leftExpressions: [ '.start' ]
+			rightExpressions: [ '.end' ]
+		
+		dp.setKeyRange 0, 5
+		equal dp.dataStore.items().length, 0, "No items in data store at beginning of test"
+		equal dp.items().length, 0, "No items in data view at beginning of test"
+		
+		dp.loadItems [
+			id: "a"
+			type: "Annotation"
+			start: 0
+			end: 5
+		]
+		
+		equal dp.dataStore.items().length, 1, "One item in data store"
+		equal dp.items().length, 1, "One item in data view"
+		
+		dp.setKeyRange 15, 25
+		equal dp.dataStore.items().length, 1, "One item in data store after keyrange change"
+		equal dp.items().length, 0, "No items in data view after keyrange change"
+		
+		dp.setKeyRange 0, 5
+		equal dp.dataStore.items().length, 1, "One item in data store after keyrange change"
+		equal dp.items().length, 1, "One item in data view after keyrange change"
+		
+		dp.loadItems [
+			id: "b"
+			type: "Annotation"
+			start: 0
+			end: 5
+		]
+		
+		equal dp.dataStore.items().length, 2, "Two items in data store after keyrange change"
+		equal dp.items().length, 2, "Two items in data view after keyrange change"
+		

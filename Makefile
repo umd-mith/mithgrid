@@ -40,76 +40,80 @@ DATE=$(shell git log --pretty=format:%ad | head -1)
 all: core docs
 
 core: mithgrid min lint test
-		@@echo "mithgrid build complete"
+	@@echo "mithgrid build complete"
 
 ${DIST_DIR}:
-		@@mkdir -p ${DIST_DIR}
+	@@mkdir -p ${DIST_DIR}
 
 ${COMPILED_DOCS_DIR}/src:
-		@@mkdir -p ${COMPILED_DOCS_DIR}/src
+	@@mkdir -p ${COMPILED_DOCS_DIR}/src
 
 docs: ${MODULES} ${COMPILED_DOCS_DIR}/src README.md
-		@@${DOCCO} ${SRC_DIR}
+	@@${DOCCO} ${SRC_DIR}
 
 test: mithgrid
-		@@if test ! -z ${GRUNT}; then \
-			echo "Testing mithgrid"; \
-			${COFFEE} -c ${TEST_DIR}; \
-			${GRUNT} qunit; \
-		else \
-			echo "You must have grunt installed in order to test mithgrid."; \
-		fi
+	@@if test ! -z ${GRUNT}; then \
+		echo "Testing mithgrid"; \
+		${COFFEE} -c ${TEST_DIR}; \
+		${GRUNT} qunit; \
+	else \
+		echo "You must have grunt installed in order to test mithgrid."; \
+	fi
 
 
 mithgrid: ${MG}
 
-#| \
-#sed 's/.function....MITHGrid..{//' | \
-#sed 's/}..jQuery..MITHGrid.;//' > ${MG}.tmp;
-
-${MG_C}: ${MODULES} | ${DIST_DIR}
-		@@echo "Building" ${MG_C}
-		
-		@@rm -f ${MG_C}.tmp
-		@@for i in ${BASE_FILES}; do \
-			cat $$i | sed 's/^/	/' >> ${MG_C}.tmp; \
-			echo >> ${MG_C}.tmp; \
-			done
-		
-		@@cat ${SRC_DIR}/intro.coffee ${MG_C}.tmp ${SRC_DIR}/outro.coffee | \
-			sed 's/@DATE/'"${DATE}"'/' | \
-			${VER} > ${MG_C};
-		@@rm -f ${MG_C}.tmp;
+${MG_C}: ${MODULES} ${DIST_DIR}
+	@@echo "Building" ${MG_C}
+	
+	@@rm -f ${MG_C}.tmp
+	@@for i in ${BASE_FILES}; do \
+		cat $$i | sed 's/^/	/' >> ${MG_C}.tmp; \
+		echo >> ${MG_C}.tmp; \
+		done
+	
+	@@cat ${SRC_DIR}/intro.coffee ${MG_C}.tmp ${SRC_DIR}/outro.coffee | \
+		sed 's/@DATE/'"${DATE}"'/' | \
+		${VER} > ${MG_C};
+	@@rm -f ${MG_C}.tmp;
 
 ${MG}: ${MG_C}
-		@@${COFFEE} -c ${MG_C};
+	@@${COFFEE} -c ${MG_C};
 
 lint: mithgrid
-		@@if test ! -z ${JS_ENGINE}; then \
-				echo "Checking mithgrid against JSLint..."; \
-				${JS_ENGINE} build/jslint-check.js; \
-		else \
-				echo "You must have NodeJS installed in order to test mithgrid against JSLint."; \
-		fi
+	@@if test ! -z ${JS_ENGINE}; then \
+		echo "Checking mithgrid against JSLint..."; \
+		${JS_ENGINE} build/jslint-check.js; \
+	else \
+		echo "You must have NodeJS installed in order to test mithgrid against JSLint."; \
+	fi
 
 min: mithgrid ${MG_MIN}
 
+#echo "/*" > ${MG_MIN}; \
+#cat ${MG_C} | \
+#	awk '/###/ { i = i + 1; l = 0; j = j + 1 }; l = l + 1 { }; (i ~ 1 && l !~ 1 && j < 3) { print  }' | \
+#	sed 's/^#/ */' >> ${MG_MIN}; \
+#echo " */" >> ${MG_MIN}; \
+		
 ${MG_MIN}: ${MG}
-		@@if test ! -z ${JS_ENGINE}; then \
-				echo "Minifying mithgrid" ${MG_MIN}; \
-				echo "/*" > ${MG_MIN}; \
-				cat ${MG_C} | awk '/###/ { i = i + 1; l = 0 }; l = l + 1 { }; (i ~ 1 && l !~ 1) { print  }' >> ${MG_MIN}; \
-				echo " */" >> ${MG_MIN}; \
-				${COMPILER} ${MG} > ${MG_MIN}.tmp; \
-				${POST_COMPILER} ${MG_MIN}.tmp >> ${MG_MIN}; \
-				rm -f ${MG_MIN}.tmp; \
-		else \
-				echo "You must have NodeJS installed in order to minify mithgrid."; \
-		fi
+	@@if test ! -z ${JS_ENGINE}; then \
+		echo "Minifying mithgrid" ${MG_MIN}; \
+		${COMPILER} ${MG} | \
+		sed 's/^#/ */' > ${MG_MIN}.tmp; \
+		${POST_COMPILER} ${MG_MIN}.tmp > ${MG_MIN}; \
+		rm -f ${MG_MIN}.tmp; \
+	else \
+		echo "You must have NodeJS installed in order to minify mithgrid."; \
+	fi
 
 clean:
-		@@echo "Removing Distribution directory:" ${DIST_DIR}
-		@@rm -rf ${DIST_DIR}
+	@@echo "Removing Distribution directory:" ${DIST_DIR}
+	@@rm -rf ${DIST_DIR}
+	@@echo "Removing compiled test scripts:" ${TEST_DIR}/*.js
+	@@rm -f ${TEST_DIR}/*.js
+	@@echo "Removing compiled documentation: " ${COMPILED_DOCS_DIR}
+	@@rm -rf ${COMPILED_DOCS_DIR}
 
 distclean: clean
 

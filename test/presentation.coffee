@@ -11,23 +11,21 @@ $(document).ready ->
 	test "Simple Text presentation", ->
 		expect 7
 		ds = MITHGrid.Data.initStore()
+		ok ds?, "Data store is created"
 		renderings = []
 		updates = []
 		removals = []
-		try
-			p = MITHGrid.Presentation.SimpleText.initPresentation $("#presentation-simple-text-p"),
-				dataView: MITHGrid.Data.initView
-					dataStore: ds 
-				lenses:
-					'Item': (container, view, model, id) ->
-						renderings.push id
-						that = {}
-						that.update = (item) -> updates.push id
-						that.remove = (item) -> removals.push id
-						that
-			ok true, "Presentation created without error"
-		catch e
-			ok !e, "Uh oh... errors: #{e}"
+		p = MITHGrid.Presentation.SimpleText.initPresentation $("#presentation-simple-text-p"),
+			dataView: MITHGrid.Data.initView
+				dataStore: ds 
+			lenses:
+				'Item': (container, view, model, id) ->
+					renderings.push id
+					that = {}
+					that.update = (item) -> updates.push id
+					that.remove = (item) -> removals.push id
+					that
+	
 			
 		ok p?, "Presentation object is returned"
 		stop()
