@@ -1,23 +1,6 @@
 {
-  "contributors": [
-    "James Smith",
-    "Grant Dickie"
-  ],
-  "version": "0.0.1",
-  "author": "James Smith",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/umd-mith/mithgrid.git"
-  },
-  "dependencies": {
-    "jquery": "latest",
-    "raphaeljs": "latest"
-  },
-  "directories": {
-    "src": "./src"
-  },
   "docco_husky": {
-    "project_name": "MITHGrid",
-    "output_dir": "./compiled_docs"
+    "output_dir": "compiled_docs",
+    "project_name": "MITHgrid"
   }
 }

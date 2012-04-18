@@ -106,35 +106,50 @@ MITHGrid.globalNamespace = (nom, fn) ->
 #
 # An array of three elements: a list of namespaces, the DOM container, and the options object.
 #
-MITHGrid.normalizeArgs = (type, types, container, options) ->
-	if !options? && $.isPlainObject(container)
-		options = container
-		container = undefined
-	if !container?
-		if typeof types != "string"
-			if !$.isArray(types)
-				container = types
-				types = []
-
-	if !options?
-		if typeof types == "string"
-			types = [ types, type ]
-			options = {}
-		else if $.isArray types
-			types.push type
-			options = {}
-		else
-			options = types
-			types = type
+MITHGrid.normalizeArgs = (args...) ->
+	# String
+	# optional String/Array
+	# optional DOM/String
+	# optional Object
+	# optional Function
+	
+	callbacks = []
+	t = args.pop()
+	while $.isFunction t
+		callbacks.push t
+		t = args.pop()
+	
+	if callbacks.length == 0
+		cb = (t...) ->
 	else
-		if typeof types == "string"
-			types = [ types, type ]
-		else if $.isArray types
-			types.push type
-		else
-			types = type
+		cb = (t...) ->
+			for c in callbacks
+				c(t...)
+	
+	if $.isPlainObject t
+		options = t
+	else
+		args.push t
+		options = {}
+	
+	# while the front of args is a string, we shift into the type array
+	types = []
+	while typeof args[0] == "string"
+		if args[0].substr(0,1) in ["#", "."]
+			break
+		types.push args.shift()
+	
+	types = types.reverse()
+	
+	if $.isArray args[0]
+		types = types.concat args.shift()
+	
+	if args.length > 0
+		container = args.pop()
+	else
+		container = null
 			
-	[ types, container, options ]
+	[ types, container, options, cb ]
 	
 
 MITHGridDefaults = {}
@@ -364,13 +379,8 @@ initViewCounter = 0
 #
 # The instantiated and initialized object.
 #
-MITHGrid.initInstance = (namespace, container, config) ->
-	if !config?
-		config = container
-		container = undefined
-	if !config? and !(typeof namespace == "string" || $.isArray(namespace))
-		config = namespace
-		namespace = null
+MITHGrid.initInstance = (args...) ->
+	[namespace, container, config, cb] = MITHGrid.normalizeArgs args...
 	that = {}
 	options = {}
 	if namespace? 
@@ -380,7 +390,7 @@ MITHGrid.initInstance = (namespace, container, config) ->
 		for ns in namespace
 			bits = ns.split('.')
 			ns = bits.shift()
-			options = $.extend(true, {}, MITHGridDefaults[ns]||{})
+			options = $.extend(true, options, MITHGridDefaults[ns]||{})
 			while bits.length > 0
 				ns = ns + "." + bits.shift()
 				options = $.extend(true, options, MITHGridDefaults[ns]||{})
@@ -400,4 +410,7 @@ MITHGrid.initInstance = (namespace, container, config) ->
 			else
 				c = []
 			that.events[k] = MITHGrid.initEventFirer( ("preventable" in c), ("unicast" in c))
+	
+	if cb?
+		cb that, container
 	that
