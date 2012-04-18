@@ -26,145 +26,142 @@ MITHGrid.namespace 'Controller', (Controller) ->
 	#
 	# * **selectors** - a map of strings to CSS selectors for finding children of a UI element when binding
 	#
-	Controller.initInstance = (klass, options) ->
-		[ klass, c, options ] = MITHGrid.normalizeArgs "MITHGrid.Controller", klass, undefined, options
-		that = MITHGrid.initView klass, options
-		options = that.options
-		options.selectors or= {}
+	Controller.initInstance = (args...) ->
+		MITHGrid.initInstance "MITHGrid.Controller", args..., (that) ->
+			options = that.options
+			options.selectors or= {}
 	
-		#
-		# We need something that can have functions bindable to an element
-		# this isn't that object, but can produce that object, so this is a kind of controller factory
-		# that can be used by lenses
-		#
+			#
+			# We need something that can have functions bindable to an element
+			# this isn't that object, but can produce that object, so this is a kind of controller factory
+			# that can be used by lenses
+			#
 			
-		initDOMBinding = (element) ->
-			binding = MITHGrid.initInstance options.bind
-			bindingsCache = { '': $(element) }
+			initDOMBinding = (element) ->
+				binding = MITHGrid.initInstance options.bind
+				bindingsCache = { '': $(element) }
 		
-			binding.locate = (internalSelector) ->
-				selector = options.selectors[internalSelector]
-				if selector?
-					if selector == ''
-						el = $(element)
-					else
-						el = $(element).find(selector)
-					bindingsCache[selector] = el
-					return el
-				return undefined
-		
-			binding.fastLocate = (internalSelector) ->
-				selector = options.selectors[internalSelector]
-				if selector?
-					if bindingsCache[selector]?
-						return bindingsCache[selector]
-					return binding.locate internalSelector
-				return undefined
-			
-			binding.refresh = (listOfSelectors) ->
-				for internalSelector in listOfSelectors
+				binding.locate = (internalSelector) ->
 					selector = options.selectors[internalSelector]
 					if selector?
 						if selector == ''
-							bindingsCache[''] = $(element)
+							el = $(element)
 						else
-							bindingsCache[selector] = $(element).find(selector)
-				return undefined
+							el = $(element).find(selector)
+						bindingsCache[selector] = el
+						return el
+					return undefined
 		
-			binding.clearCache = () ->
-				bindingsCache = { '': $(element) }
+				binding.fastLocate = (internalSelector) ->
+					selector = options.selectors[internalSelector]
+					if selector?
+						if bindingsCache[selector]?
+							return bindingsCache[selector]
+						return binding.locate internalSelector
+					return undefined
+			
+				binding.refresh = (listOfSelectors) ->
+					for internalSelector in listOfSelectors
+						selector = options.selectors[internalSelector]
+						if selector?
+							if selector == ''
+								bindingsCache[''] = $(element)
+							else
+								bindingsCache[selector] = $(element).find(selector)
+					return undefined
+		
+				binding.clearCache = () ->
+					bindingsCache = { '': $(element) }
 
-			binding
+				binding
 	
-		initRaphaelBinding = (raphaelDrawing) ->
-			binding = initDOMBinding raphaelDrawing.node
+			initRaphaelBinding = (raphaelDrawing) ->
+				binding = initDOMBinding raphaelDrawing.node
 
-			superLocate = binding.locate
-			superFastLocate = binding.fastLocate
-			superRefresh = binding.refresh
-			superBind = binding.bind
+				superLocate = binding.locate
+				superFastLocate = binding.fastLocate
+				superRefresh = binding.refresh
+				superBind = binding.bind
 
-			binding.locate = (internalSelector) ->
-				if internalSelector == 'raphael'
-					raphaelDrawing
+				binding.locate = (internalSelector) ->
+					if internalSelector == 'raphael'
+						raphaelDrawing
+					else
+						superLocate internalSelector
+
+				binding.fastLocate = (internalSelector) ->
+					if internalSelector == 'raphael'
+						raphaelDrawing
+					else
+						superFastLocate internalSelector
+
+				binding.refresh = (listOfSelectors) ->
+					listOfSelectors = (s for s in listOfSelectors when s != 'raphael')
+					superRefresh listOfSelectors
+
+				binding
+		
+			# ### #initBind
+			#
+			# Initialize the binding for the given element. If the element is a string or an object without
+			# a .node property, then the element is assumed to be a DOM element. Otherwise, it is assumed to be
+			# a Raphaël node.
+			#
+			# FIXME: This overloading should be two different classes. We should move the Raphaël code out of here
+			# since this is the only piece of MITHGrid that understands anything about Raphaël. It's reasonable that
+			# a developer know if they're dealing with a regular DOM element or a Raphaël node.
+			#
+			# Parameters:
+			#
+			# * element - the DOM element being bound
+			#
+			# Returns:
+			#
+			# The initialized binding object.
+			#
+			that.initBind = (element) ->
+				if typeof element == "string"
+					initDOMBinding $(element)
+				else if element.node?
+					initRaphaelBinding element
 				else
-					superLocate internalSelector
-
-			binding.fastLocate = (internalSelector) ->
-				if internalSelector == 'raphael'
-					raphaelDrawing
-				else
-					superFastLocate internalSelector
-
-			binding.refresh = (listOfSelectors) ->
-				listOfSelectors = (s for s in listOfSelectors when s != 'raphael')
-				superRefresh listOfSelectors
-
-			binding
+					initDOMBinding element
 		
-		# ### #initBind
-		#
-		# Initialize the binding for the given element. If the element is a string or an object without
-		# a .node property, then the element is assumed to be a DOM element. Otherwise, it is assumed to be
-		# a Raphaël node.
-		#
-		# FIXME: This overloading should be two different classes. We should move the Raphaël code out of here
-		# since this is the only piece of MITHGrid that understands anything about Raphaël. It's reasonable that
-		# a developer know if they're dealing with a regular DOM element or a Raphaël node.
-		#
-		# Parameters:
-		#
-		# * element - the DOM element being bound
-		#
-		# Returns:
-		#
-		# The initialized binding object.
-		#
-		that.initBind = (element) ->
-			if typeof element == "string"
-				initDOMBinding $(element)
-			else if element.node?
-				initRaphaelBinding element
-			else
-				initDOMBinding element
+			# ### #bind
+			#
+			# Binds the controller to the given UI element and returns an object that can be used to manage the
+			# binding. This is the method that will be used most outside the controller definition.
+			#
+			# Bindings can have events associated with them depending on how the controller is configured.
+			#
+			# Parameters:
+			#
+			# * element - the DOM element (or Raphaël node) to which the controller should bind
+			#
+			# * args... - optional arguments to be passed to the #applyBindings() method
+			#
+			# Returns:
+			#
+			# The binding object used to manage the binding.
+			#
+			that.bind = (element, args...) ->
+				binding = that.initBind element
 		
-		# ### #bind
-		#
-		# Binds the controller to the given UI element and returns an object that can be used to manage the
-		# binding. This is the method that will be used most outside the controller definition.
-		#
-		# Bindings can have events associated with them depending on how the controller is configured.
-		#
-		# Parameters:
-		#
-		# * element - the DOM element (or Raphaël node) to which the controller should bind
-		#
-		# * args... - optional arguments to be passed to the #applyBindings() method
-		#
-		# Returns:
-		#
-		# The binding object used to manage the binding.
-		#
-		that.bind = (element, args...) ->
-			binding = that.initBind element
+				that.applyBindings binding, args...
 		
-			that.applyBindings binding, args...
-		
-			binding
+				binding
 	
-		# ### #applyBindings
-		#
-		# This method should be overridden in any subclass. The #bind() method will call this with the
-		# new binding object and any arguments passed to the #bind() method.
-		#
-		# Parameters:
-		#
-		# * binding - the new binding object
-		#
-		# * args... - any additional arguments passed to the #bind() method after the element being bound
-		#
-		# Returns: Nothing.
-		#
-		that.applyBindings = (binding, args...) ->
-		
-		that
+			# ### #applyBindings
+			#
+			# This method should be overridden in any subclass. The #bind() method will call this with the
+			# new binding object and any arguments passed to the #bind() method.
+			#
+			# Parameters:
+			#
+			# * binding - the new binding object
+			#
+			# * args... - any additional arguments passed to the #bind() method after the element being bound
+			#
+			# Returns: Nothing.
+			#
+			that.applyBindings = (binding, args...) ->
