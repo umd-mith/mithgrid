@@ -273,10 +273,10 @@ MITHGrid.namespace 'Application', (Application) ->
 			#
 			that.addController = (cName, cconfig) ->
 				coptions = $.extend(true, {}, cconfig)
-				that.ready () ->
-					coptions.application = that
-					controller = cconfig.type.initController coptions
-					that.controller[cName] = controller
+
+				coptions.application = that
+				controller = cconfig.type.initController coptions
+				that.controller[cName] = controller
 	
 			# ### #addFacet
 			#
@@ -343,7 +343,7 @@ MITHGrid.namespace 'Application', (Application) ->
 								coptions.controllers[ccName] = cconfig.type.initController ccoptions
 
 					that.component[cName] = cconfig.type.initInstance ccontainer, coptions
-	
+				
 			# ### #addPresentation
 			#
 			# Adds a presentation to the application.
@@ -399,32 +399,35 @@ MITHGrid.namespace 'Application', (Application) ->
 			that.addPlugin = (pconf) ->
 				pconfig = $.extend(true, {}, pconf)
 				pconfig.application = that
-				that.ready () ->
-					plugin = pconfig.type.initPlugin(pconfig)
-					if plugin?
-						if pconfig?.dataView?
-							# hook plugin up with dataView requested by app configuration
-							plugin.dataView = that.dataView[pconfig.dataView]
-							# add
-							plugin.dataView.addType type for type, typeInfo of plugin.getTypes()
 
-							plugin.dataView.addProperty prop, propOptions for prop, propOptions of plugin.getProperties()
+				plugin = pconfig.type.initPlugin(pconfig)
+				if plugin?
+					if pconfig?.dataView?
+						# hook plugin up with dataView requested by app configuration
+						plugin.dataView = that.dataView[pconfig.dataView]
+						# add
+						plugin.dataView.addType type for type, typeInfo of plugin.getTypes()
 
-						for pname, prconfig of plugin.getPresentations()
-							proptions = $.extend(true, {}, prconfig.options)
-							pcontainer = $(container).find(prconfig.container)
-							#pcontainer = $("#" + $(container).attr('id') + ' > ' + prconfig.container)
-							pcontainer = pcontainer[0] if $.isArray(pcontainer)
+						plugin.dataView.addProperty prop, propOptions for prop, propOptions of plugin.getProperties()
 
-							proptions.lenses = prconfig.lenses if prconfig?.lenses?
-							if prconfig.dataView?
-								proptions.dataView = that.dataView[prconfig.dataView] 
-							else if pconfig.dataView?
-								proptions.dataView = that.dataView[pconfig.dataView]
-							proptions.application = that
-							presentation = prconfig.type.initPresentation pcontainer, proptions
-							plugin.presentation[pname] = presentation
-							presentation.selfRender()
+					for pname, prconfig of plugin.getPresentations()
+						(pname, prconfig) ->
+							that.ready ->
+								proptions = $.extend(true, {}, prconfig.options)
+								pcontainer = $(container).find(prconfig.container)
+								#pcontainer = $("#" + $(container).attr('id') + ' > ' + prconfig.container)
+								pcontainer = pcontainer[0] if $.isArray(pcontainer)
+
+								proptions.lenses = prconfig.lenses if prconfig?.lenses?
+								if prconfig.dataView?
+									proptions.dataView = that.dataView[prconfig.dataView] 
+								else if pconfig.dataView?
+									proptions.dataView = that.dataView[pconfig.dataView]
+								proptions.application = that
+								presentation = prconfig.type.initPresentation pcontainer, proptions
+								plugin.presentation[pname] = presentation
+								presentation.selfRender()
+	
 	
 			configureInstance()
 
@@ -437,4 +440,4 @@ MITHGrid.namespace 'Application', (Application) ->
 				$(document).ready () ->
 					fn() for fn in onReady						
 					onReady = []
-					that.ready = (fn) -> setTimeout fn, 0
+					that.ready = (fn) -> fn()

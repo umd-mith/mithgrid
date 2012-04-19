@@ -121,6 +121,8 @@ MITHGrid.normalizeArgs = (args...) ->
 	
 	if callbacks.length == 0
 		cb = (t...) ->
+	else if callbacks.length == 1
+		cb = callbacks[0]
 	else
 		cb = (t...) ->
 			for c in callbacks
@@ -226,8 +228,8 @@ MITHGrid.initSynchronizer = (callbacks) ->
 		that.decrement = () ->
 			counter -= 1
 			if counter <= 0 and done and !fired
-				setTimeout callbacks.done, 0
 				fired = true
+				callbacks.done
 			counter
 		# ### #done
 		#
@@ -382,7 +384,7 @@ initViewCounter = 0
 MITHGrid.initInstance = (args...) ->
 	[namespace, container, config, cb] = MITHGrid.normalizeArgs args...
 	that = {}
-	options = {}
+	optionsArray = [ ]
 	if namespace? 
 		if typeof namespace == "string"
 			namespace = [ namespace ]
@@ -390,12 +392,17 @@ MITHGrid.initInstance = (args...) ->
 		for ns in namespace
 			bits = ns.split('.')
 			ns = bits.shift()
-			options = $.extend(true, options, MITHGridDefaults[ns]||{})
+			if MITHGridDefaults[ns]?
+				optionsArray.push MITHGridDefaults[ns]
 			while bits.length > 0
 				ns = ns + "." + bits.shift()
-				options = $.extend(true, options, MITHGridDefaults[ns]||{})
-	options = $.extend(true, options, config||{})
+				if MITHGridDefaults[ns]?
+					optionsArray.push MITHGridDefaults[ns]
+	if config?
+		optionsArray.push config
 
+	options = $.extend(true, {}, optionsArray...)
+	
 	initViewCounter += 1
 	that.id = initViewCounter
 	that.options = options
@@ -410,7 +417,6 @@ MITHGrid.initInstance = (args...) ->
 			else
 				c = []
 			that.events[k] = MITHGrid.initEventFirer( ("preventable" in c), ("unicast" in c))
-	
 	if cb?
 		cb that, container
 	that

@@ -602,8 +602,8 @@ MITHGrid.namespace 'Data', (Data) ->
 
 					n = items.length
 					chunk_size = parseInt(n / 100, 10)
-					chunk_size = 200 if chunk_size > 200
-					chunk_size = 1 if chunk_size < 1
+					chunk_size = 500 if chunk_size > 500
+					chunk_size = 100 if chunk_size < 100
 
 					f = (start) ->
 						end = start + chunk_size;
@@ -668,10 +668,10 @@ MITHGrid.namespace 'Data', (Data) ->
 					n = items.length
 					if endFn?
 						chunk_size = parseInt(n / 100, 10)
-						chunk_size = 200 if chunk_size > 200
+						chunk_size = 500 if chunk_size > 500
 					else
 						chunk_size = n
-					chunk_size = 1 if chunk_size < 1
+					chunk_size = 100 if chunk_size < 100
 		
 					f = (start) ->
 						end = start + chunk_size
@@ -688,7 +688,7 @@ MITHGrid.namespace 'Data', (Data) ->
 						else
 							that.events.onAfterLoading.fire that
 							that.events.onModelChange.fire that, id_list
-							setTimeout endFn, 0 if endFn?
+							endFn() if endFn?
 					f 0
 
 				# ### #prepare
@@ -750,10 +750,10 @@ MITHGrid.namespace 'Data', (Data) ->
 
 					if n > 200
 						chunk_size = parseInt(n / 100, 10)
-						chunk_size = 200 if chunk_size > 200
+						chunk_size = 500 if chunk_size > 500
 					else
 						chunk_size = n
-					chunk_size = 1 if chunk_size < 1
+					chunk_size = 100 if chunk_size < 100
 
 					f = (start) ->
 						end = start + chunk_size
@@ -774,8 +774,7 @@ MITHGrid.namespace 'Data', (Data) ->
 							that.size = set.size
 							that.contains = set.contains
 							that.visit = set.visit
-							if endFn?
-								setTimeout endFn, 0
+							endFn() if endFn?
 					f 0
 
 				# ### #registerFilter
@@ -1064,9 +1063,7 @@ MITHGrid.namespace 'Data', (Data) ->
 	
 				that.registerPresentation = (ob) ->
 					that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
-					setTimeout () -> 
-						ob.eventModelChange that, that.items()
-					, 0
+					ob.eventModelChange that, that.items()
 		
 	# # Data List Pager
 	#
