@@ -57,7 +57,7 @@ genericNamespacer = (base, nom, fn) ->
 			namespace: (nom2, fn2) ->
 				genericNamespacer newbase, nom2, fn2
 			debug: MITHGrid.debug
-	base[bits[0]] = newbase
+		base[bits[0]] = newbase
 	if fn?
 		fn base[bits[0]]
 	base[bits[0]]
@@ -420,3 +420,51 @@ MITHGrid.initInstance = (args...) ->
 	if cb?
 		cb that, container
 	that
+
+# # Global Behaviors
+#
+# Sometimes, we need to do things on a global basis without having to create an object for each application, component,
+# or plugin.
+#
+# ## Window Resize Handler
+#
+# Use MITHGrid.events.onWindowResize.addListener( fn() { } ) to receive notifications when the browser window is resized.
+#
+MITHGrid.namespace 'events', (events) ->
+	events.onWindowResize = MITHGrid.initEventFirer( false, false )
+	
+	$(document).ready ->
+		$(window).resize ->
+			setTimeout MITHGrid.events.onWindowResize.fire, 0
+
+# ## Mouse capture
+#
+# To receive notices of mouse movement and mouse button up events regardless of where they are in the document,
+# register appropriate functions.
+#
+MITHGrid.namespace 'mouse', (mouse) ->
+	mouseCaptureCallbacks = []
+		
+	mouse.capture = (cb) ->
+		oldCB = mouseCaptureCallbacks[0]
+		mouseCaptureCallbacks.unshift cb
+		if mouseCaptureCallbacks.length == 1
+			# it was zero before, so no bindings
+			#$(document).mousedown (e) ->
+			#	e.preventDefault()
+			#	mouseCaptureCallbacks[0].call e, "mousedown"
+			$(document).mousemove (e) ->
+				e.preventDefault()
+				mouseCaptureCallbacks[0].call e, "mousemove"
+			$(document).mouseup (e) ->
+				e.preventDefault()
+				mouseCaptureCallbacks[0].call e, "mouseup"
+		oldCB
+	
+	mouse.uncapture = ->
+		oldCB = mouseCaptureCallbacks.shift()
+		if mouseCaptureCallbacks.length == 0
+			#$(document).unbind "mousedown"
+			$(document).unbind "mousemove"
+			$(document).unbind "mouseup"
+		oldCB
