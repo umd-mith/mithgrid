@@ -98,7 +98,7 @@ img {
 header {
   width:270px;
   float:left;
-  position:fixed;
+  /* position:fixed; */
 }
 
 ul.downloads {
@@ -186,12 +186,14 @@ footer {
 #banner {
 	background-color: black;
 	min-width: 29em;
+	width: 860px;
+	margin: 0 auto;
 }
 
 #title {
 	text-shadow: 0 0 3px black;
+	color: #cccccc;
 	font-weight: bold;
-	text-align: center;
 }
 
 #title h1, #description {
