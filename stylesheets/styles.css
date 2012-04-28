@@ -216,7 +216,8 @@ footer {
 }
 
 #description {
-	font-size: 28px;
+	font-size: 14px;
+	font-style: italic;
 }
 
 @media print, screen and (max-width: 960px) {
