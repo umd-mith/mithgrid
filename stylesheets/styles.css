@@ -186,17 +186,17 @@ footer {
 
 #top {
 	background-color: black;
-	min-width: 29em;
 	margin-bottom: 1em;
 	padding-bottom: 2em;
+	padding-left: 0.5em;
 }
 
 #bottom {
 	clear: both;
 	background-color: black;
-	min-width: 29em;
 	margin-top: 1em;
-	min-height: 2em;
+	padding-top: 2em;
+	padding-left: 0.5em;
 }
 
 #title {
