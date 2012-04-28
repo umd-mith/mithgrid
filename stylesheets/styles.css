@@ -179,21 +179,21 @@ hr {
 footer {
   width:270px;
   float:left;
-  position:fixed;
+  /* position:fixed; */
   bottom:50px;
 }
 
 #banner {
 	background-color: black;
 	min-width: 29em;
-	width: 860px;
-	margin: 0 auto;
 }
 
 #title {
 	text-shadow: 0 0 3px black;
 	color: #cccccc;
 	font-weight: bold;
+	width: 860px;
+	margin: 0 auto;
 }
 
 #title h1, #description {
