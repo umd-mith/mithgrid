@@ -14,10 +14,15 @@
     <![endif]-->
   </head>
   <body>
+	{% include top.html %}
     <div class="wrapper">
+	  {% include header.html %}
+	  <section>
       {{ content }}
+      </section>
       {% include footer.html %}
     </div>
+    {% include bottom.html %}
     <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
   </body>
 </html>
