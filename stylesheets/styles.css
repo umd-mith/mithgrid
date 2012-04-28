@@ -191,6 +191,7 @@ footer {
 }
 
 #bottom {
+	clear: both;
 	background-color: black;
 	min-width: 29em;
 	margin-top: 3px;
