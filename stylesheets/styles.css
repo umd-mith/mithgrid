@@ -1,7 +1,8 @@
 @import url(https://fonts.googleapis.com/css?family=Lato:300italic,700italic,300,700);
 
 body {
-  padding:50px;
+  padding-left:50px;
+  padding-right: 50px;
   font:14px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
   color:#777;
   font-weight:300;
@@ -183,9 +184,17 @@ footer {
   bottom:50px;
 }
 
-#banner {
+#top {
 	background-color: black;
 	min-width: 29em;
+	margin-bottom: 3px;
+}
+
+#bottom {
+	background-color: black;
+	min-width: 29em;
+	margin-top: 3px;
+	min-height: 20px;
 }
 
 #title {
