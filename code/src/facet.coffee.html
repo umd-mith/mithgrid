@@ -1,13 +1,17 @@
-<!DOCTYPE html><html><head><title>facet.coffee</title><meta http-equiv="Content-Type" content="text/html" charset="UTF-8"><link rel="stylesheet" media="all" href="../docco.css"></head><body><div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>facet.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><h1>Facets</h1>
+---
+layout: docco
+title: mithgrid/code/src/facet.coffee.html
+---
+<div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>facet.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><h1>Facets</h1>
 </td><td class="code"><div class="highlight"><pre><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Facet&#39;</span><span class="p">,</span> <span class="nf">(Facet) -&gt;</span></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><h2>Facet.initInstance</h2>
-</td><td class="code"><div class="highlight"><pre>  <span class="nv">Facet.initInstance = </span><span class="nf">(klass, container, options) -&gt;</span>
-    <span class="nv">that = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">(</span><span class="nx">klass</span><span class="p">,</span> <span class="nx">container</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+</td><td class="code"><div class="highlight"><pre>  <span class="nv">Facet.initInstance = </span><span class="nf">(args...) -&gt;</span>
+    <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Facet&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that, container) -&gt;</span>
   
-    <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
+      <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
   </pre></div></td></tr><tr id="section-3"><td class="docs"><div class="pilwrap"><a href="#section-3" class="pilcrow">&#182;</a></div><h3>#selfRender</h3>
 
 <p>Renders the facet UI elements. This <strong>must</strong> be implemented in any subclass.</p>
-</td><td class="code"><div class="highlight"><pre>    <span class="nv">that.selfRender = </span><span class="nf">() -&gt;</span>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.selfRender = </span><span class="nf">() -&gt;</span>
   </pre></div></td></tr><tr id="section-4"><td class="docs"><div class="pilwrap"><a href="#section-4" class="pilcrow">&#182;</a></div><h3>#eventFilterItem</h3>
 
 <p>The default event listener for filtering items</p>
@@ -24,8 +28,8 @@
 <p>If the item should not be included in the data view's list of items, then this
 should return the "false" value. The default implementation returns "false" for
 all items.</p>
-</td><td class="code"><div class="highlight"><pre>    <span class="nv">that.eventFilterItem = </span><span class="nf">(model, itemId) -&gt;</span>
-      <span class="k">return</span> <span class="kc">false</span>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.eventFilterItem = </span><span class="nf">(model, itemId) -&gt;</span>
+        <span class="k">return</span> <span class="kc">false</span>
     </pre></div></td></tr><tr id="section-5"><td class="docs"><div class="pilwrap"><a href="#section-5" class="pilcrow">&#182;</a></div><h3>#eventModelChange</h3>
 
 <p>The default event listener for model changes</p>
@@ -38,7 +42,7 @@ all items.</p>
 </ul>
 
 <p>Returns: Nothing.</p>
-</td><td class="code"><div class="highlight"><pre>    <span class="nv">that.eventModelChange = </span><span class="nf">(model, itemList) -&gt;</span>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.eventModelChange = </span><span class="nf">(model, itemList) -&gt;</span>
       </pre></div></td></tr><tr id="section-6"><td class="docs"><div class="pilwrap"><a href="#section-6" class="pilcrow">&#182;</a></div><h3>#constructFacetFrame</h3>
 
 <p>Builds a standard HTML scaffold for facets.</p>
@@ -63,129 +67,121 @@ all items.</p>
 <li>.body</li>
 <li>.setSelectionCount(count)</li>
 </ul>
-</td><td class="code"><div class="highlight"><pre>    <span class="nv">that.constructFacetFrame = </span><span class="nf">(container, options) -&gt;</span>
-      <span class="nv">dom = </span><span class="p">{}</span>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.constructFacetFrame = </span><span class="nf">(container, options) -&gt;</span>
+        <span class="nv">dom = </span><span class="p">{}</span>
     
-      <span class="nx">$</span><span class="p">(</span><span class="nx">container</span><span class="p">).</span><span class="nx">addClass</span> <span class="s">&quot;mithgrid-facet&quot;</span>
-      <span class="nv">dom.header = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;div class=&#39;header&#39; /&gt;&quot;</span><span class="p">)</span>
-      <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">onClearAllSelections</span><span class="o">?</span>
-        <span class="nv">dom.controls = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;div class=&#39;control&#39; title=&#39;Clear Selection&#39;&gt;&quot;</span><span class="p">)</span>
-        <span class="nv">dom.counter = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;span class=&#39;counter&#39;&gt;&lt;/span&gt;&quot;</span><span class="p">)</span>
-        <span class="nx">dom</span><span class="p">.</span><span class="nx">controls</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">dom</span><span class="p">.</span><span class="nx">counter</span><span class="p">)</span>
-        <span class="nx">dom</span><span class="p">.</span><span class="nx">header</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">dom</span><span class="p">.</span><span class="nx">controls</span><span class="p">)</span>
-      <span class="nv">dom.title = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;span class=&#39;title&#39;&gt;&lt;/span&gt;&quot;</span><span class="p">)</span>
-      <span class="nx">dom</span><span class="p">.</span><span class="nx">title</span><span class="p">.</span><span class="nx">text</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">facetLabel</span> <span class="o">or</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
-      <span class="nx">dom</span><span class="p">.</span><span class="nx">header</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">dom</span><span class="p">.</span><span class="nx">title</span><span class="p">)</span>
-      <span class="nv">dom.bodyFrame = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;div class=&#39;body-frame&#39;&gt;&lt;/div&gt;&quot;</span><span class="p">)</span>
-      <span class="nv">dom.body = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;div class=&#39;body&#39;&gt;&lt;/div&gt;&quot;</span><span class="p">)</span>
-      <span class="nx">dom</span><span class="p">.</span><span class="nx">bodyFrame</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">dom</span><span class="p">.</span><span class="nx">body</span><span class="p">)</span>
+        <span class="nx">$</span><span class="p">(</span><span class="nx">container</span><span class="p">).</span><span class="nx">addClass</span> <span class="s">&quot;mithgrid-facet&quot;</span>
+        <span class="nv">dom.header = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;div class=&#39;header&#39; /&gt;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">onClearAllSelections</span><span class="o">?</span>
+          <span class="nv">dom.controls = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;div class=&#39;control&#39; title=&#39;Clear Selection&#39;&gt;&quot;</span><span class="p">)</span>
+          <span class="nv">dom.counter = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;span class=&#39;counter&#39;&gt;&lt;/span&gt;&quot;</span><span class="p">)</span>
+          <span class="nx">dom</span><span class="p">.</span><span class="nx">controls</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">dom</span><span class="p">.</span><span class="nx">counter</span><span class="p">)</span>
+          <span class="nx">dom</span><span class="p">.</span><span class="nx">header</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">dom</span><span class="p">.</span><span class="nx">controls</span><span class="p">)</span>
+        <span class="nv">dom.title = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;span class=&#39;title&#39;&gt;&lt;/span&gt;&quot;</span><span class="p">)</span>
+        <span class="nx">dom</span><span class="p">.</span><span class="nx">title</span><span class="p">.</span><span class="nx">text</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">facetLabel</span> <span class="o">or</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="nx">dom</span><span class="p">.</span><span class="nx">header</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">dom</span><span class="p">.</span><span class="nx">title</span><span class="p">)</span>
+        <span class="nv">dom.bodyFrame = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;div class=&#39;body-frame&#39;&gt;&lt;/div&gt;&quot;</span><span class="p">)</span>
+        <span class="nv">dom.body = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;div class=&#39;body&#39;&gt;&lt;/div&gt;&quot;</span><span class="p">)</span>
+        <span class="nx">dom</span><span class="p">.</span><span class="nx">bodyFrame</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">dom</span><span class="p">.</span><span class="nx">body</span><span class="p">)</span>
     
-      <span class="nx">$</span><span class="p">(</span><span class="nx">container</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="nx">dom</span><span class="p">.</span><span class="nx">header</span><span class="p">)</span>
-      <span class="nx">$</span><span class="p">(</span><span class="nx">container</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="nx">dom</span><span class="p">.</span><span class="nx">bodyFrame</span><span class="p">)</span>
+        <span class="nx">$</span><span class="p">(</span><span class="nx">container</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="nx">dom</span><span class="p">.</span><span class="nx">header</span><span class="p">)</span>
+        <span class="nx">$</span><span class="p">(</span><span class="nx">container</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="nx">dom</span><span class="p">.</span><span class="nx">bodyFrame</span><span class="p">)</span>
     
-      <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">onClearAllSelections</span><span class="o">?</span>
-        <span class="nx">dom</span><span class="p">.</span><span class="nx">controls</span><span class="p">.</span><span class="nx">bind</span> <span class="s">&quot;click&quot;</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">onClearAllSelections</span>
+        <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">onClearAllSelections</span><span class="o">?</span>
+          <span class="nx">dom</span><span class="p">.</span><span class="nx">controls</span><span class="p">.</span><span class="nx">bind</span> <span class="s">&quot;click&quot;</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">onClearAllSelections</span>
     
-      <span class="nv">dom.setSelectionCount = </span><span class="nf">(count) -&gt;</span>
-        <span class="nv">dom.counter.innerHTML = </span><span class="nx">count</span>
-        <span class="k">if</span> <span class="nx">count</span> <span class="o">&gt;</span> <span class="mi">0</span>
-          <span class="nx">dom</span><span class="p">.</span><span class="nx">counter</span><span class="p">.</span><span class="nx">show</span><span class="p">()</span>
-        <span class="k">else</span>
-          <span class="nx">dom</span><span class="p">.</span><span class="nx">counter</span><span class="p">.</span><span class="nx">hide</span><span class="p">()</span>
+        <span class="nv">dom.setSelectionCount = </span><span class="nf">(count) -&gt;</span>
+          <span class="nv">dom.counter.innerHTML = </span><span class="nx">count</span>
+          <span class="k">if</span> <span class="nx">count</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="nx">dom</span><span class="p">.</span><span class="nx">counter</span><span class="p">.</span><span class="nx">show</span><span class="p">()</span>
+          <span class="k">else</span>
+            <span class="nx">dom</span><span class="p">.</span><span class="nx">counter</span><span class="p">.</span><span class="nx">hide</span><span class="p">()</span>
     
-      <span class="nx">dom</span>
+        <span class="nx">dom</span>
   
-    <span class="nx">options</span><span class="p">.</span><span class="nx">dataView</span><span class="p">.</span><span class="nx">registerFilter</span> <span class="nx">that</span>
-  
-    <span class="nx">that</span>
-  
+      <span class="nx">options</span><span class="p">.</span><span class="nx">dataView</span><span class="p">.</span><span class="nx">registerFilter</span> <span class="nx">that</span>
+    
   <span class="nx">Facet</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;TextSearch&#39;</span><span class="p">,</span> <span class="nf">(TextSearch) -&gt;</span></pre></div></td></tr><tr id="section-7"><td class="docs"><div class="pilwrap"><a href="#section-7" class="pilcrow">&#182;</a></div><h2>TextSearch Facet</h2>
-</td><td class="code"><div class="highlight"><pre>    <span class="nv">TextSearch.initInstance = </span><span class="nf">(container, options) -&gt;</span>
-      <span class="nv">that = </span><span class="nx">Facet</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">(</span><span class="s">&quot;MITHGrid.Facet.TextSearch&quot;</span><span class="p">,</span> <span class="nx">container</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+</td><td class="code"><div class="highlight"><pre>    <span class="nv">TextSearch.initInstance = </span><span class="nf">(args...) -&gt;</span>
+      <span class="nx">Facet</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Facet.TextSearch&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that) -&gt;</span>
   
-      <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
+        <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
   
-      <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="o">?</span>
-        <span class="k">if</span> <span class="o">!</span><span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="p">)</span>
-          <span class="nv">options.expressions = </span><span class="p">[</span> <span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span> <span class="p">]</span>
-          <span class="nv">parsed = </span><span class="p">(</span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Expression</span><span class="p">.</span><span class="nx">initParser</span><span class="p">().</span><span class="nx">parse</span><span class="p">(</span><span class="nx">ex</span><span class="p">)</span> <span class="k">for</span> <span class="nx">ex</span> <span class="k">in</span> <span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="o">?</span>
+          <span class="k">if</span> <span class="o">!</span><span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="p">)</span>
+            <span class="nv">options.expressions = </span><span class="p">[</span> <span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span> <span class="p">]</span>
+            <span class="nv">parsed = </span><span class="p">(</span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Expression</span><span class="p">.</span><span class="nx">initParser</span><span class="p">().</span><span class="nx">parse</span><span class="p">(</span><span class="nx">ex</span><span class="p">)</span> <span class="k">for</span> <span class="nx">ex</span> <span class="k">in</span> <span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="p">)</span>
   
-      <span class="nv">that.eventFilterItem = </span><span class="nf">(dataSource, id) -&gt;</span>
-        <span class="k">if</span> <span class="nx">that</span><span class="p">.</span><span class="nx">text</span><span class="o">?</span> <span class="o">and</span> <span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="o">?</span>
-          <span class="k">for</span> <span class="nx">ex</span> <span class="k">in</span> <span class="nx">parsed</span>
-            <span class="nv">items = </span><span class="nx">ex</span><span class="p">.</span><span class="nx">evaluateOnItem</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">dataSource</span>
-            <span class="k">for</span> <span class="nx">v</span> <span class="k">in</span> <span class="nx">items</span><span class="p">.</span><span class="nx">values</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
-              <span class="k">if</span> <span class="nx">v</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">().</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">that</span><span class="p">.</span><span class="nx">text</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span>
-                <span class="k">return</span>
+        <span class="nv">that.eventFilterItem = </span><span class="nf">(dataSource, id) -&gt;</span>
+          <span class="k">if</span> <span class="nx">that</span><span class="p">.</span><span class="nx">text</span><span class="o">?</span> <span class="o">and</span> <span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="o">?</span>
+            <span class="k">for</span> <span class="nx">ex</span> <span class="k">in</span> <span class="nx">parsed</span>
+              <span class="nv">items = </span><span class="nx">ex</span><span class="p">.</span><span class="nx">evaluateOnItem</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">dataSource</span>
+              <span class="k">for</span> <span class="nx">v</span> <span class="k">in</span> <span class="nx">items</span><span class="p">.</span><span class="nx">values</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nx">v</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">().</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">that</span><span class="p">.</span><span class="nx">text</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+                  <span class="k">return</span>
     
-        <span class="k">return</span> <span class="kc">false</span>
+          <span class="k">return</span> <span class="kc">false</span>
     
-      <span class="nv">that.eventModelChange = </span><span class="nf">(dataView, itemList) -&gt;</span>
+        <span class="nv">that.eventModelChange = </span><span class="nf">(dataView, itemList) -&gt;</span>
   
-      <span class="nv">that.selfRender = </span><span class="nf">() -&gt;</span>
-        <span class="nv">dom = </span><span class="nx">that</span><span class="p">.</span><span class="nx">constructFacetFrame</span> <span class="nx">container</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span>
-          <span class="nv">facetLabel: </span><span class="nx">options</span><span class="p">.</span><span class="nx">facetLabel</span>
-        <span class="nx">$</span><span class="p">(</span><span class="nx">container</span><span class="p">).</span><span class="nx">addClass</span> <span class="s">&quot;mithgrid-facet-textsearch&quot;</span>
-        <span class="nv">inputElement = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;input type=&#39;text&#39;&gt;&quot;</span><span class="p">)</span>
-        <span class="nx">dom</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">inputElement</span><span class="p">)</span>
-        <span class="nx">inputElement</span><span class="p">.</span><span class="nx">keyup</span> <span class="nf">() -&gt;</span>
-          <span class="nv">that.text = </span><span class="nx">$</span><span class="p">.</span><span class="nx">trim</span><span class="p">(</span><span class="nx">inputElement</span><span class="p">.</span><span class="nx">val</span><span class="p">().</span><span class="nx">toLowerCase</span><span class="p">())</span>
-          <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onFilterChange</span><span class="p">.</span><span class="nx">fire</span><span class="p">()</span>
+        <span class="nv">that.selfRender = </span><span class="nf">() -&gt;</span>
+          <span class="nv">dom = </span><span class="nx">that</span><span class="p">.</span><span class="nx">constructFacetFrame</span> <span class="nx">container</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span>
+            <span class="nv">facetLabel: </span><span class="nx">options</span><span class="p">.</span><span class="nx">facetLabel</span>
+          <span class="nx">$</span><span class="p">(</span><span class="nx">container</span><span class="p">).</span><span class="nx">addClass</span> <span class="s">&quot;mithgrid-facet-textsearch&quot;</span>
+          <span class="nv">inputElement = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;input type=&#39;text&#39;&gt;&quot;</span><span class="p">)</span>
+          <span class="nx">dom</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">inputElement</span><span class="p">)</span>
+          <span class="nx">inputElement</span><span class="p">.</span><span class="nx">keyup</span> <span class="nf">() -&gt;</span>
+            <span class="nv">that.text = </span><span class="nx">$</span><span class="p">.</span><span class="nx">trim</span><span class="p">(</span><span class="nx">inputElement</span><span class="p">.</span><span class="nx">val</span><span class="p">().</span><span class="nx">toLowerCase</span><span class="p">())</span>
+            <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onFilterChange</span><span class="p">.</span><span class="nx">fire</span><span class="p">()</span>
   
-      <span class="nx">that</span>
-
   <span class="nx">Facet</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;List&#39;</span><span class="p">,</span> <span class="nf">(List) -&gt;</span>
-    <span class="nv">List.initInstance = </span><span class="nf">(container, options) -&gt;</span>
-      <span class="nv">that = </span><span class="nx">Facet</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">(</span><span class="s">&quot;MITHGrid.Facet.List&quot;</span><span class="p">,</span> <span class="nx">container</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+    <span class="nv">List.initInstance = </span><span class="nf">(args...) -&gt;</span>
+      <span class="nx">Facet</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Facet.List&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that) -&gt;</span>
   
-      <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
+        <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
   
-      <span class="nv">that.selections = </span><span class="p">[]</span>
+        <span class="nv">that.selections = </span><span class="p">[]</span>
   
-      <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="o">?</span>
-        <span class="k">if</span> <span class="o">!</span><span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="p">)</span>
-          <span class="nv">options.expressions = </span><span class="p">[</span> <span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span> <span class="p">]</span>
-          <span class="nv">parsed = </span><span class="p">(</span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Expression</span><span class="p">.</span><span class="nx">initParser</span><span class="p">().</span><span class="nx">parse</span><span class="p">(</span><span class="nx">ex</span><span class="p">)</span> <span class="k">for</span> <span class="nx">ex</span> <span class="k">in</span> <span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="o">?</span>
+          <span class="k">if</span> <span class="o">!</span><span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="p">)</span>
+            <span class="nv">options.expressions = </span><span class="p">[</span> <span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span> <span class="p">]</span>
+            <span class="nv">parsed = </span><span class="p">(</span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Expression</span><span class="p">.</span><span class="nx">initParser</span><span class="p">().</span><span class="nx">parse</span><span class="p">(</span><span class="nx">ex</span><span class="p">)</span> <span class="k">for</span> <span class="nx">ex</span> <span class="k">in</span> <span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="p">)</span>
   
-      <span class="nv">that.eventFilterItem = </span><span class="nf">(dataSource, id) -&gt;</span>
-        <span class="k">if</span> <span class="nx">that</span><span class="p">.</span><span class="nx">text</span><span class="o">?</span> <span class="o">and</span> <span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="o">?</span>
-          <span class="k">for</span> <span class="nx">ex</span> <span class="k">in</span> <span class="nx">parsed</span>
-            <span class="nv">items = </span><span class="nx">ex</span><span class="p">.</span><span class="nx">evaluateOnItem</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">dataSource</span>
-            <span class="k">for</span> <span class="nx">v</span> <span class="k">in</span> <span class="nx">items</span><span class="p">.</span><span class="nx">values</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
-              <span class="k">if</span> <span class="nx">v</span> <span class="k">in</span> <span class="nx">that</span><span class="p">.</span><span class="nx">selections</span>
-                <span class="k">return</span>
+        <span class="nv">that.eventFilterItem = </span><span class="nf">(dataSource, id) -&gt;</span>
+          <span class="k">if</span> <span class="nx">that</span><span class="p">.</span><span class="nx">text</span><span class="o">?</span> <span class="o">and</span> <span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="o">?</span>
+            <span class="k">for</span> <span class="nx">ex</span> <span class="k">in</span> <span class="nx">parsed</span>
+              <span class="nv">items = </span><span class="nx">ex</span><span class="p">.</span><span class="nx">evaluateOnItem</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">dataSource</span>
+              <span class="k">for</span> <span class="nx">v</span> <span class="k">in</span> <span class="nx">items</span><span class="p">.</span><span class="nx">values</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nx">v</span> <span class="k">in</span> <span class="nx">that</span><span class="p">.</span><span class="nx">selections</span>
+                  <span class="k">return</span>
             
-      <span class="nv">that.selfRender = </span><span class="nf">() -&gt;</span>
-        <span class="nv">dom = </span><span class="nx">that</span><span class="p">.</span><span class="nx">constructFacetFrame</span> <span class="nx">container</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span>
-          <span class="nv">facetLabel: </span><span class="nx">options</span><span class="p">.</span><span class="nx">facetLabel</span>
-          <span class="nv">resizable: </span><span class="kc">true</span>
-  
-      <span class="nx">that</span>
+        <span class="nv">that.selfRender = </span><span class="nf">() -&gt;</span>
+          <span class="nv">dom = </span><span class="nx">that</span><span class="p">.</span><span class="nx">constructFacetFrame</span> <span class="nx">container</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span>
+            <span class="nv">facetLabel: </span><span class="nx">options</span><span class="p">.</span><span class="nx">facetLabel</span>
+            <span class="nv">resizable: </span><span class="kc">true</span>
   
   <span class="nx">Facet</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Range&#39;</span><span class="p">,</span> <span class="nf">(Range) -&gt;</span>
-    <span class="nv">Range.initInstance = </span><span class="nf">(container, options) -&gt;</span>
-      <span class="nv">that = </span><span class="nx">Facet</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">(</span><span class="s">&quot;MITHGrid.Facet.Range&quot;</span><span class="p">,</span> <span class="nx">container</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+    <span class="nv">Range.initInstance = </span><span class="nf">(args...) -&gt;</span>
+      <span class="nx">Facet</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Facet.Range&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that) -&gt;</span>
   
-      <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
-      <span class="nx">options</span><span class="p">.</span><span class="nx">min</span> <span class="o">?=</span> <span class="mi">0</span>
-      <span class="nx">options</span><span class="p">.</span><span class="nx">max</span> <span class="o">?=</span> <span class="mi">100</span>
-      <span class="nx">options</span><span class="p">.</span><span class="nx">step</span> <span class="o">?=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">30.0</span>
+        <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
+        <span class="nx">options</span><span class="p">.</span><span class="nx">min</span> <span class="o">?=</span> <span class="mi">0</span>
+        <span class="nx">options</span><span class="p">.</span><span class="nx">max</span> <span class="o">?=</span> <span class="mi">100</span>
+        <span class="nx">options</span><span class="p">.</span><span class="nx">step</span> <span class="o">?=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">30.0</span>
 
-      <span class="nv">that.selfRender = </span><span class="nf">() -&gt;</span>
-        <span class="nv">dom = </span><span class="nx">that</span><span class="p">.</span><span class="nx">constructFacetFrame</span> <span class="nx">container</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span>
-          <span class="nv">facetLabel: </span><span class="nx">options</span><span class="p">.</span><span class="nx">facetLabel</span>
-          <span class="nv">resizable: </span><span class="kc">false</span>
+        <span class="nv">that.selfRender = </span><span class="nf">() -&gt;</span>
+          <span class="nv">dom = </span><span class="nx">that</span><span class="p">.</span><span class="nx">constructFacetFrame</span> <span class="nx">container</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span>
+            <span class="nv">facetLabel: </span><span class="nx">options</span><span class="p">.</span><span class="nx">facetLabel</span>
+            <span class="nv">resizable: </span><span class="kc">false</span>
 
-        <span class="nv">inputElement = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;input type=&#39;range&#39;&gt;&quot;</span><span class="p">)</span>
-        <span class="nx">inputElement</span><span class="p">.</span><span class="nx">attr</span>
-          <span class="nv">min: </span><span class="nx">options</span><span class="p">.</span><span class="nx">min</span>
-          <span class="nv">max: </span><span class="nx">options</span><span class="p">.</span><span class="nx">max</span>
-          <span class="nv">step: </span><span class="nx">options</span><span class="p">.</span><span class="nx">step</span>
-        <span class="nx">dom</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">inputElement</span><span class="p">)</span>
-        <span class="nx">inputElement</span><span class="p">.</span><span class="nx">event</span> <span class="nf">() -&gt;</span>
-          <span class="nv">that.value = </span><span class="nx">inputElement</span><span class="p">.</span><span class="nx">val</span><span class="p">()</span>
-          <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onFilterChange</span><span class="p">.</span><span class="nx">fire</span><span class="p">()</span>
+          <span class="nv">inputElement = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;input type=&#39;range&#39;&gt;&quot;</span><span class="p">)</span>
+          <span class="nx">inputElement</span><span class="p">.</span><span class="nx">attr</span>
+            <span class="nv">min: </span><span class="nx">options</span><span class="p">.</span><span class="nx">min</span>
+            <span class="nv">max: </span><span class="nx">options</span><span class="p">.</span><span class="nx">max</span>
+            <span class="nv">step: </span><span class="nx">options</span><span class="p">.</span><span class="nx">step</span>
+          <span class="nx">dom</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">inputElement</span><span class="p">)</span>
+          <span class="nx">inputElement</span><span class="p">.</span><span class="nx">event</span> <span class="nf">() -&gt;</span>
+            <span class="nv">that.value = </span><span class="nx">inputElement</span><span class="p">.</span><span class="nx">val</span><span class="p">()</span>
+            <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onFilterChange</span><span class="p">.</span><span class="nx">fire</span><span class="p">()</span>
 
-      <span class="nx">that</span>
-
-</pre></div></td></tr></tbody></table><div id="generated">generated Fri Apr 06 2012 09:26:57 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div></body></html>
+</pre></div></td></tr></tbody></table><div id="generated">generated Sat Apr 28 2012 20:09:58 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
