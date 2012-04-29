@@ -98,7 +98,7 @@ img {
   max-width:100%;
 }
 
-header {
+header, section#meta {
   width:270px;
   float:left;
   /* position:fixed; */
@@ -162,10 +162,15 @@ ul.downloads a strong {
   color:#222;
 }
 
+section#meta ul {
+	list-style: none;
+	padding: 0px;
+}
+
 section {
   width:500px;
   float:right;
-  padding-bottom:50px;
+  /* padding-bottom:50px; */
 }
 
 small {
@@ -245,20 +250,20 @@ footer {
     margin:0;
   }
   
-  header, section, footer {
+  header, section, footer, section#meta {
     float:none;
     position:static;
     width:auto;
   }
   
-  header {
+  header, section#meta {
     padding-right:320px;
   }
   
   section {
-    border:1px solid #e5e5e5;
-    border-width:1px 0;
-    padding:20px 0;
+    /* border:1px solid #e5e5e5;
+    border-width:1px 0; 
+    padding:20px 0; */
     margin:0 0 20px;
   }
   
@@ -278,7 +283,7 @@ footer {
     word-wrap:break-word;
   }
   
-  header {
+  header, section#meta {
     padding:0;
   }
   
@@ -289,7 +294,7 @@ footer {
 
 @media print, screen and (max-width: 480px) {
   body {
-    padding:15px;
+    /* padding:15px; */
   }
   
   ul.downloads {
