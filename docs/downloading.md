@@ -4,7 +4,7 @@ title: Downloading MITHgrid
 ---
 ## About the Code
 
-MITHgrid is written in [CoffeeScript](http://coffeescript.org/) to make more readable.
+MITHgrid is written in [CoffeeScript](http://coffeescript.org/) to make it more readable.
 Each part of MITHgrid is a separate source file. These files are combined into a single
 CoffeeScript file before being compiled into JavaScript.
 
