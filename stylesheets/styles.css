@@ -177,6 +177,10 @@ section {
   /* padding-bottom:50px; */
 }
 
+section h1 {
+	border-bottom: 1px solid black;
+}
+
 small {
   font-size:11px;
 }
