@@ -177,7 +177,7 @@ ul.menu {
 }
 
 ul.menu li {
-	border-bottom: 1px solid #999;
+	border-bottom: 1px solid #ccc;
 }
 
 section {
@@ -187,7 +187,7 @@ section {
 }
 
 section h1 {
-	border-bottom: 1px solid black;
+	border-bottom: 1px solid #ccc;
 }
 
 small {
