@@ -417,6 +417,82 @@ MITHGrid.initInstance = (args...) ->
 			else
 				c = []
 			that.events[k] = MITHGrid.initEventFirer( ("preventable" in c), ("unicast" in c))
+	
+	# ### #addVariable
+	#
+	# Adds a managed variable to the instance object.
+	#
+	# Parameters:
+	#
+	# * varName - the name of the variable
+	#
+	# * config - object holding configuration options
+	#
+	# Returns: Nothing.
+	#
+	# Configuration:
+	#
+	# * **is** - the mutability of the variable is one of the following:
+	# 	* 'rw' for read-write
+	# 	* 'r' for read-only
+	# 	* 'w' for write-only.
+	#
+	# * **event** - the name of the event associated with this variable. This event will fire when the value of the variable changes.
+	#           This defaults to 'on' + varName + 'Change'.
+	#
+	# * **setter** - the name of the method that will be used to set the variable. This defaults to 'set' + varName.
+	#
+	# * **getter** - the name of the method that will be used to retrieve the variable. This defaults to 'get' + varName.
+	#
+	# * **validate** - a function that will be called to validate the value the variable is being set to. This function
+	#              should expect the new value and return "true" or "false".
+	#
+	# * **filter** - a function that will be called to filter the value the variable is being set to. This function
+	#            should expect the new value and return the filtered value. If both the filter and validate
+	#            options are set, the filter will be run before the validate function.
+	#
+	that.addVariable = (varName, config) ->
+		value = config.default
+		config.is or= 'rw'
+		if config.is in ['rw', 'w']
+			filter = config.filter
+			validate = config.validate
+			eventName = config.event || ('on' + varName + 'Change')
+			setName = config.setter || ('set' + varName)
+			that.events[eventName] = MITHGrid.initEventFirer()
+			if filter?
+				if validate?
+					that[setName] = (v) ->
+						v = validate filter v
+						if value != v
+							value = v
+							that.events[eventName].fire(value)
+				else
+					that[setName] = (v) ->
+						v = filter v
+						if value != v
+							value = v
+							that.events[eventName].fire(value)
+			else
+				if validate?
+					that[setName] = (v) ->
+						v = validate v
+						if value != v
+							value = v
+							that.events[eventName].fire(value)
+				else
+					that[setName] = (v) ->
+						if value != v
+							value = v
+							that.events[eventName].fire(value)
+		if config.is in ['r', 'rw']
+			getName = config.getter || ('get' + varName)
+			that[getName] = () -> value
+		
+	if that.options?.variables?
+		for varName, config of options.variables
+			that.addVariable varName, config
+
 	if cb?
 		cb that, container
 	that

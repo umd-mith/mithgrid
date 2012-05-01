@@ -34,9 +34,9 @@ MITHGrid.namespace 'Application', (Application) ->
 				#
 				# See the section on #addVariable.
 				#
-				if options?.variables?
-					for varName, config of options.variables
-						that.addVariable varName, config
+				#if options?.variables?
+				#	for varName, config of options.variables
+				#		that.addVariable varName, config
 
 				# ### dataStores
 				#
@@ -136,6 +136,7 @@ MITHGrid.namespace 'Application', (Application) ->
 			#            should expect the new value and return the filtered value. If both the filter and validate
 			#            options are set, the filter will be run before the validate function.
 			#
+			###
 			that.addVariable = (varName, config) ->
 				value = config.default
 				config.is or= 'rw'
@@ -173,7 +174,8 @@ MITHGrid.namespace 'Application', (Application) ->
 				if config.is in ['r', 'rw']
 					getName = config.getter || ('get' + varName)
 					that[getName] = () -> value
-	
+			###
+			
 			# ### #addDataStore
 			#
 			# Adds a data store to the application.
