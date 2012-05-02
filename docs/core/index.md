@@ -3,6 +3,9 @@ layout: docs
 title: MITHgrid Core
 ---
 
+* TOC
+{:toc}
+
 ## Event Management
 
 Generally, event handlers are created when objects are instantiated. However, you can add an event handler to any
