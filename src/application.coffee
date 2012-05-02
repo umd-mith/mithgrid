@@ -277,7 +277,7 @@ MITHGrid.namespace 'Application', (Application) ->
 				coptions = $.extend(true, {}, cconfig)
 
 				coptions.application = that
-				controller = cconfig.type.initController coptions
+				controller = cconfig.type.initInstance coptions
 				that.controller[cName] = controller
 	
 			# ### #addFacet
@@ -342,7 +342,7 @@ MITHGrid.namespace 'Application', (Application) ->
 							else
 								ccoptions = $.extend(true, {}, ccconfig)
 								ccoptions.application = that
-								coptions.controllers[ccName] = cconfig.type.initController ccoptions
+								coptions.controllers[ccName] = cconfig.type.initInstance ccoptions
 
 					that.component[cName] = cconfig.type.initInstance ccontainer, coptions
 				
@@ -382,9 +382,9 @@ MITHGrid.namespace 'Application', (Application) ->
 							else
 								coptions = $.extend(true, {}, cconfig)
 								coptions.application = that
-								poptions.controllers[cName] = cconfig.type.initController coptions
+								poptions.controllers[cName] = cconfig.type.initInstance coptions
 		
-					presentation = pconfig.type.initPresentation pcontainer, poptions
+					presentation = pconfig.type.initInstance pcontainer, poptions
 					that.presentation[pName] = presentation
 					presentation.selfRender()
 			
@@ -426,7 +426,7 @@ MITHGrid.namespace 'Application', (Application) ->
 								else if pconfig.dataView?
 									proptions.dataView = that.dataView[pconfig.dataView]
 								proptions.application = that
-								presentation = prconfig.type.initPresentation pcontainer, proptions
+								presentation = prconfig.type.initInstance pcontainer, proptions
 								plugin.presentation[pname] = presentation
 								presentation.selfRender()
 	

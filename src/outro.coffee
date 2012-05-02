@@ -7,8 +7,6 @@
 	MITHGrid.Data.initProperty = MITHGrid.Data.Property.initInstance
 	MITHGrid.Data.initStore = MITHGrid.Data.Store.initInstance
 	MITHGrid.Data.initView = MITHGrid.Data.View.initInstance
-	MITHGrid.Controller.initController = MITHGrid.Controller.initInstance
-	MITHGrid.Controller.initRaphaelController = MITHGrid.Controller.initController
 	MITHGrid.Presentation.initPresentation = MITHGrid.Presentation.initInstance
 	MITHGrid.Presentation.SimpleText.initPresentation = MITHGrid.Presentation.SimpleText.initInstance
 	MITHGrid.Application.initApp = MITHGrid.Application.initInstance
