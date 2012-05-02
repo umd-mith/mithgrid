@@ -67,6 +67,7 @@ MITHGrid.namespace 'Presentation', (Presentation) ->
 			#
 			that.addLens = (key, lens) ->
 				lenses[key] = lens
+				that.selfRender()
 		
 			# ### #removeLens
 			#
@@ -153,10 +154,10 @@ MITHGrid.namespace 'Presentation', (Presentation) ->
 
 						for i in [start ... end]
 							id = items[i]
-							hasItem = model.contains(id)
+							hasItem = model.contains(id) and that.hasLensFor(id)
 							if renderings[id]?
 								if !hasItem
-								# item was removed
+								# item or its lens was removed
 								# we need to remove it from the display
 								# .remove() should not make changes in the model
 									renderings[id].eventUnfocus() if activeRenderingId == id and renderings[id].eventUnfocus?
@@ -166,9 +167,8 @@ MITHGrid.namespace 'Presentation', (Presentation) ->
 									renderings[id].update model.getItem(id)
 							else if hasItem
 								rendering = that.render container, model, id
-								#lens = that.getLens id
-								if rendering? #lens?
-									renderings[id] = rendering #lens.render container, that, model, id
+								if rendering?
+									renderings[id] = rendering
 									if activeRenderingId == id and rendering.eventFocus?
 										rendering.eventFocus()
 
@@ -199,6 +199,10 @@ MITHGrid.namespace 'Presentation', (Presentation) ->
 				lens = that.getLens i
 				if lens?
 					lens.render c, that, m, i
+			
+			that.hasLensFor = (id) ->
+				lens = that.getLens id
+				lens?
 
 			# ### #eventModelChange
 			#
