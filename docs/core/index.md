@@ -2,8 +2,9 @@
 layout: docs
 title: MITHgrid Core
 ---
+# MITHgrid Core
 
-* TOC
+* auto-gen TOC:
 {:toc}
 
 ## Event Management
