@@ -1,4 +1,8 @@
-<!DOCTYPE html><html><head><title>core.coffee</title><meta http-equiv="Content-Type" content="text/html" charset="UTF-8"><link rel="stylesheet" media="all" href="../docco.css"></head><body><div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a><a href="../src/promise.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">promise.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>core.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><h1>namespace management</h1>
+---
+layout: docco
+title: mithgrid/code/src/core.coffee.html
+---
+<div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>core.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><h1>namespace management</h1>
 
 <p>These functions are available as properties of the global MITHGrid object. The debug() and namespace()
 functions are properties of all namespaces created using MITHGrid.</p>
@@ -46,7 +50,7 @@ namespace.</p>
       <span class="nv">namespace: </span><span class="nf">(nom2, fn2) -&gt;</span>
         <span class="nx">genericNamespacer</span> <span class="nx">newbase</span><span class="p">,</span> <span class="nx">nom2</span><span class="p">,</span> <span class="nx">fn2</span>
       <span class="nv">debug: </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">debug</span>
-  <span class="nx">base</span><span class="p">[</span><span class="nx">bits</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="nx">newbase</span>
+    <span class="nx">base</span><span class="p">[</span><span class="nx">bits</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="nx">newbase</span>
   <span class="k">if</span> <span class="nx">fn</span><span class="o">?</span>
     <span class="nx">fn</span> <span class="nx">base</span><span class="p">[</span><span class="nx">bits</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
   <span class="nx">base</span><span class="p">[</span><span class="nx">bits</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span></pre></div></td></tr><tr id="section-7"><td class="docs"><div class="pilwrap"><a href="#section-7" class="pilcrow">&#182;</a></div><h2>MITHGrid.globalNamespace</h2>
@@ -92,38 +96,53 @@ Any namespace created will have the debug() and namespace() functions available.
 <p>Returns:</p>
 
 <p>An array of three elements: a list of namespaces, the DOM container, and the options object.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nv">MITHGrid.normalizeArgs = </span><span class="nf">(type, types, container, options) -&gt;</span>
-  <span class="k">if</span> <span class="o">!</span><span class="nx">options</span><span class="o">?</span> <span class="o">&amp;&amp;</span> <span class="nx">$</span><span class="p">.</span><span class="nx">isPlainObject</span><span class="p">(</span><span class="nx">container</span><span class="p">)</span>
-    <span class="nv">options = </span><span class="nx">container</span>
-    <span class="nv">container = </span><span class="kc">undefined</span>
-  <span class="k">if</span> <span class="o">!</span><span class="nx">container</span><span class="o">?</span>
-    <span class="k">if</span> <span class="k">typeof</span> <span class="nx">types</span> <span class="o">!=</span> <span class="s">&quot;string&quot;</span>
-      <span class="k">if</span> <span class="o">!</span><span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">types</span><span class="p">)</span>
-        <span class="nv">container = </span><span class="nx">types</span>
-        <span class="nv">types = </span><span class="p">[]</span>
-
-  <span class="k">if</span> <span class="o">!</span><span class="nx">options</span><span class="o">?</span>
-    <span class="k">if</span> <span class="k">typeof</span> <span class="nx">types</span> <span class="o">==</span> <span class="s">&quot;string&quot;</span>
-      <span class="nv">types = </span><span class="p">[</span> <span class="nx">types</span><span class="p">,</span> <span class="nx">type</span> <span class="p">]</span>
-      <span class="nv">options = </span><span class="p">{}</span>
-    <span class="k">else</span> <span class="k">if</span> <span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span> <span class="nx">types</span>
-      <span class="nx">types</span><span class="p">.</span><span class="nx">push</span> <span class="nx">type</span>
-      <span class="nv">options = </span><span class="p">{}</span>
-    <span class="k">else</span>
-      <span class="nv">options = </span><span class="nx">types</span>
-      <span class="nv">types = </span><span class="nx">type</span>
+</td><td class="code"><div class="highlight"><pre><span class="nv">MITHGrid.normalizeArgs = </span><span class="nf">(args...) -&gt;</span></pre></div></td></tr><tr id="section-10"><td class="docs"><div class="pilwrap"><a href="#section-10" class="pilcrow">&#182;</a></div><p>String
+optional String/Array
+optional DOM/String
+optional Object
+optional Function</p>
+</td><td class="code"><div class="highlight"><pre>  
+  <span class="nv">callbacks = </span><span class="p">[]</span>
+  <span class="nv">t = </span><span class="nx">args</span><span class="p">.</span><span class="nx">pop</span><span class="p">()</span>
+  <span class="k">while</span> <span class="nx">$</span><span class="p">.</span><span class="nx">isFunction</span> <span class="nx">t</span>
+    <span class="nx">callbacks</span><span class="p">.</span><span class="nx">push</span> <span class="nx">t</span>
+    <span class="nv">t = </span><span class="nx">args</span><span class="p">.</span><span class="nx">pop</span><span class="p">()</span>
+  
+  <span class="k">if</span> <span class="nx">callbacks</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="nv">cb = </span><span class="nf">(t...) -&gt;</span>
+  <span class="k">else</span> <span class="k">if</span> <span class="nx">callbacks</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="nv">cb = </span><span class="nx">callbacks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
   <span class="k">else</span>
-    <span class="k">if</span> <span class="k">typeof</span> <span class="nx">types</span> <span class="o">==</span> <span class="s">&quot;string&quot;</span>
-      <span class="nv">types = </span><span class="p">[</span> <span class="nx">types</span><span class="p">,</span> <span class="nx">type</span> <span class="p">]</span>
-    <span class="k">else</span> <span class="k">if</span> <span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span> <span class="nx">types</span>
-      <span class="nx">types</span><span class="p">.</span><span class="nx">push</span> <span class="nx">type</span>
-    <span class="k">else</span>
-      <span class="nv">types = </span><span class="nx">type</span>
+    <span class="nv">cb = </span><span class="nf">(t...) -&gt;</span>
+      <span class="k">for</span> <span class="nx">c</span> <span class="k">in</span> <span class="nx">callbacks</span>
+        <span class="nx">c</span><span class="p">(</span><span class="nx">t</span><span class="p">...)</span>
+  
+  <span class="k">if</span> <span class="nx">$</span><span class="p">.</span><span class="nx">isPlainObject</span> <span class="nx">t</span>
+    <span class="nv">options = </span><span class="nx">t</span>
+  <span class="k">else</span>
+    <span class="nx">args</span><span class="p">.</span><span class="nx">push</span> <span class="nx">t</span>
+    <span class="nv">options = </span><span class="p">{}</span>
+  </pre></div></td></tr><tr id="section-11"><td class="docs"><div class="pilwrap"><a href="#section-11" class="pilcrow">&#182;</a></div><p>while the front of args is a string, we shift into the type array</p>
+</td><td class="code"><div class="highlight"><pre>  <span class="nv">types = </span><span class="p">[]</span>
+  <span class="k">while</span> <span class="k">typeof</span> <span class="nx">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;string&quot;</span>
+    <span class="k">if</span> <span class="nx">args</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">substr</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="k">in</span> <span class="p">[</span><span class="s">&quot;</span><span class="err">#</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;.&quot;</span><span class="p">]</span>
+      <span class="k">break</span>
+    <span class="nx">types</span><span class="p">.</span><span class="nx">push</span> <span class="nx">args</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span>
+  
+  <span class="nv">types = </span><span class="nx">types</span><span class="p">.</span><span class="nx">reverse</span><span class="p">()</span>
+  
+  <span class="k">if</span> <span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span> <span class="nx">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nv">types = </span><span class="nx">types</span><span class="p">.</span><span class="nx">concat</span> <span class="nx">args</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span>
+  
+  <span class="k">if</span> <span class="nx">args</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="nv">container = </span><span class="nx">args</span><span class="p">.</span><span class="nx">pop</span><span class="p">()</span>
+  <span class="k">else</span>
+    <span class="nv">container = </span><span class="kc">null</span>
       
-  <span class="p">[</span> <span class="nx">types</span><span class="p">,</span> <span class="nx">container</span><span class="p">,</span> <span class="nx">options</span> <span class="p">]</span>
+  <span class="p">[</span> <span class="nx">types</span><span class="p">,</span> <span class="nx">container</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="nx">cb</span> <span class="p">]</span>
   
 
-<span class="nv">MITHGridDefaults = </span><span class="p">{}</span></pre></div></td></tr><tr id="section-10"><td class="docs"><div class="pilwrap"><a href="#section-10" class="pilcrow">&#182;</a></div><h2>MITHGrid.defaults</h2>
+<span class="nv">MITHGridDefaults = </span><span class="p">{}</span></pre></div></td></tr><tr id="section-12"><td class="docs"><div class="pilwrap"><a href="#section-12" class="pilcrow">&#182;</a></div><h2>MITHGrid.defaults</h2>
 
 <p>Allows default configuration values to be set for a given namespace.</p>
 
@@ -138,7 +157,7 @@ Any namespace created will have the debug() and namespace() functions available.
 </td><td class="code"><div class="highlight"><pre><span class="nv">MITHGrid.defaults = </span><span class="nf">(namespace, defaults) -&gt;</span>
   <span class="nx">MITHGridDefaults</span><span class="p">[</span><span class="nx">namespace</span><span class="p">]</span> <span class="o">or=</span> <span class="p">{}</span>
   <span class="nx">MITHGridDefaults</span><span class="p">[</span><span class="nx">namespace</span><span class="p">]</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="nx">MITHGridDefaults</span><span class="p">[</span><span class="nx">namespace</span><span class="p">],</span> <span class="nx">defaults</span><span class="p">)</span>
-  </pre></div></td></tr><tr id="section-11"><td class="docs"><div class="pilwrap"><a href="#section-11" class="pilcrow">&#182;</a></div><h1>Synchonizer</h1>
+  </pre></div></td></tr><tr id="section-13"><td class="docs"><div class="pilwrap"><a href="#section-13" class="pilcrow">&#182;</a></div><h1>Synchonizer</h1>
 
 <h2>MITHGrid.initSynchronizer</h2>
 
@@ -162,14 +181,14 @@ the done() method has been called.</li>
     <span class="nv">that.decrement = </span><span class="nx">that</span><span class="p">.</span><span class="nx">increment</span>
     <span class="nv">that.done = </span><span class="nx">that</span><span class="p">.</span><span class="nx">increment</span>
     <span class="nv">that.add = </span><span class="nf">(v) -&gt;</span>
-  <span class="k">else</span></pre></div></td></tr><tr id="section-12"><td class="docs"><div class="pilwrap"><a href="#section-12" class="pilcrow">&#182;</a></div><h3>#increment</h3>
+  <span class="k">else</span></pre></div></td></tr><tr id="section-14"><td class="docs"><div class="pilwrap"><a href="#section-14" class="pilcrow">&#182;</a></div><h3>#increment</h3>
 
 <p>Increments the synchronizer counter by one.</p>
 
 <p>Returns:</p>
 
 <p>The new value of the synchronizer counter.</p>
-</td><td class="code"><div class="highlight"><pre>    <span class="nv">that.increment = </span><span class="nf">() -&gt;</span> <span class="nx">counter</span> <span class="o">+=</span> <span class="mi">1</span></pre></div></td></tr><tr id="section-13"><td class="docs"><div class="pilwrap"><a href="#section-13" class="pilcrow">&#182;</a></div><h3>#add</h3>
+</td><td class="code"><div class="highlight"><pre>    <span class="nv">that.increment = </span><span class="nf">() -&gt;</span> <span class="nx">counter</span> <span class="o">+=</span> <span class="mi">1</span></pre></div></td></tr><tr id="section-15"><td class="docs"><div class="pilwrap"><a href="#section-15" class="pilcrow">&#182;</a></div><h3>#add</h3>
 
 <p>Adds the indicated number to the synchronizer.</p>
 
@@ -182,7 +201,7 @@ the done() method has been called.</li>
 <p>Returns:</p>
 
 <p>The new value of the synchronizer counter.</p>
-</td><td class="code"><div class="highlight"><pre>    <span class="nv">that.add = </span><span class="nf">(n) -&gt;</span> <span class="nx">counter</span> <span class="o">+=</span> <span class="nx">n</span></pre></div></td></tr><tr id="section-14"><td class="docs"><div class="pilwrap"><a href="#section-14" class="pilcrow">&#182;</a></div><h3>#decrement</h3>
+</td><td class="code"><div class="highlight"><pre>    <span class="nv">that.add = </span><span class="nf">(n) -&gt;</span> <span class="nx">counter</span> <span class="o">+=</span> <span class="nx">n</span></pre></div></td></tr><tr id="section-16"><td class="docs"><div class="pilwrap"><a href="#section-16" class="pilcrow">&#182;</a></div><h3>#decrement</h3>
 
 <p>Decrements the synchronizer counter by one.</p>
 
@@ -192,9 +211,9 @@ the done() method has been called.</li>
 </td><td class="code"><div class="highlight"><pre>    <span class="nv">that.decrement = </span><span class="nf">() -&gt;</span>
       <span class="nx">counter</span> <span class="o">-=</span> <span class="mi">1</span>
       <span class="k">if</span> <span class="nx">counter</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">and</span> <span class="nx">done</span> <span class="o">and</span> <span class="o">!</span><span class="nx">fired</span>
-        <span class="nx">setTimeout</span> <span class="nx">callbacks</span><span class="p">.</span><span class="nx">done</span><span class="p">,</span> <span class="mi">0</span>
         <span class="nv">fired = </span><span class="kc">true</span>
-      <span class="nx">counter</span></pre></div></td></tr><tr id="section-15"><td class="docs"><div class="pilwrap"><a href="#section-15" class="pilcrow">&#182;</a></div><h3>#done</h3>
+        <span class="nx">callbacks</span><span class="p">.</span><span class="nx">done</span>
+      <span class="nx">counter</span></pre></div></td></tr><tr id="section-17"><td class="docs"><div class="pilwrap"><a href="#section-17" class="pilcrow">&#182;</a></div><h3>#done</h3>
 
 <p>Marks the synchronizer as done. The counter should monotonically decrease after this. Once it is zero, the
 "done" callback will run.</p>
@@ -207,7 +226,7 @@ the done() method has been called.</li>
       <span class="nx">that</span><span class="p">.</span><span class="nx">decrement</span><span class="p">()</span>
 
   <span class="nx">that</span>
-       </pre></div></td></tr><tr id="section-16"><td class="docs"><div class="pilwrap"><a href="#section-16" class="pilcrow">&#182;</a></div><h1>EventFirer</h1>
+       </pre></div></td></tr><tr id="section-18"><td class="docs"><div class="pilwrap"><a href="#section-18" class="pilcrow">&#182;</a></div><h1>EventFirer</h1>
 
 <h2>MITHGrid.initEventFirer</h2>
 
@@ -226,7 +245,7 @@ the done() method has been called.</li>
   <span class="nv">that.isPreventable = </span><span class="nx">isPreventable</span>
   <span class="nv">that.isUnicast = </span><span class="nx">isUnicast</span>
   <span class="nv">listeners = </span><span class="p">[]</span>
-  </pre></div></td></tr><tr id="section-17"><td class="docs"><div class="pilwrap"><a href="#section-17" class="pilcrow">&#182;</a></div><h3>#addListener</h3>
+  </pre></div></td></tr><tr id="section-19"><td class="docs"><div class="pilwrap"><a href="#section-19" class="pilcrow">&#182;</a></div><h3>#addListener</h3>
 
 <p>Adds a listener to an event.</p>
 
@@ -240,7 +259,7 @@ the done() method has been called.</li>
 <p>Returns: Nothing.</p>
 </td><td class="code"><div class="highlight"><pre>  <span class="nv">that.addListener = </span><span class="nf">(listener, namespace) -&gt;</span>
     <span class="nx">listeners</span><span class="p">.</span><span class="nx">push</span> <span class="p">[</span><span class="nx">listener</span><span class="p">,</span> <span class="nx">namespace</span><span class="p">]</span>
-  </pre></div></td></tr><tr id="section-18"><td class="docs"><div class="pilwrap"><a href="#section-18" class="pilcrow">&#182;</a></div><h3>#removeListener</h3>
+  </pre></div></td></tr><tr id="section-20"><td class="docs"><div class="pilwrap"><a href="#section-20" class="pilcrow">&#182;</a></div><h3>#removeListener</h3>
 
 <p>Removes a listener (or set of listeners) from an event firer.</p>
 
@@ -255,7 +274,7 @@ the done() method has been called.</li>
     <span class="k">if</span> <span class="k">typeof</span> <span class="nx">listener</span> <span class="o">==</span> <span class="s">&quot;string&quot;</span>
       <span class="nv">listeners = </span><span class="p">(</span><span class="nx">l</span> <span class="k">for</span> <span class="nx">l</span> <span class="k">in</span> <span class="nx">listeners</span> <span class="k">when</span> <span class="nx">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="nx">listener</span><span class="p">)</span>
     <span class="k">else</span>
-      <span class="nv">listeners = </span><span class="p">(</span><span class="nx">l</span> <span class="k">for</span> <span class="nx">l</span> <span class="k">in</span> <span class="nx">listeners</span> <span class="k">when</span> <span class="nx">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="nx">listener</span><span class="p">)</span></pre></div></td></tr><tr id="section-19"><td class="docs"><div class="pilwrap"><a href="#section-19" class="pilcrow">&#182;</a></div><h3>#fire</h3>
+      <span class="nv">listeners = </span><span class="p">(</span><span class="nx">l</span> <span class="k">for</span> <span class="nx">l</span> <span class="k">in</span> <span class="nx">listeners</span> <span class="k">when</span> <span class="nx">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="nx">listener</span><span class="p">)</span></pre></div></td></tr><tr id="section-21"><td class="docs"><div class="pilwrap"><a href="#section-21" class="pilcrow">&#182;</a></div><h3>#fire</h3>
 
 <p>Fire's behavior depends on the type of event that is firing.</p>
 
@@ -319,11 +338,11 @@ it will return "true".</p>
 
   
   <span class="nx">that</span>
-  </pre></div></td></tr><tr id="section-20"><td class="docs"><div class="pilwrap"><a href="#section-20" class="pilcrow">&#182;</a></div><h1>Object Instances</h1>
+  </pre></div></td></tr><tr id="section-22"><td class="docs"><div class="pilwrap"><a href="#section-22" class="pilcrow">&#182;</a></div><h1>Object Instances</h1>
 
 <p>We use a local global to track how many objects we've initialized so we can assign a unique number
 to each. This is useful when debugging to see if you are creating the right number of objects or too many.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nv">initViewCounter = </span><span class="mi">0</span></pre></div></td></tr><tr id="section-21"><td class="docs"><div class="pilwrap"><a href="#section-21" class="pilcrow">&#182;</a></div><h2>MITHGrid.initInstance</h2>
+</td><td class="code"><div class="highlight"><pre><span class="nv">initViewCounter = </span><span class="mi">0</span></pre></div></td></tr><tr id="section-23"><td class="docs"><div class="pilwrap"><a href="#section-23" class="pilcrow">&#182;</a></div><h2>MITHGrid.initInstance</h2>
 
 <p>Initialize an object based on that-ism principles.</p>
 
@@ -338,15 +357,10 @@ to each. This is useful when debugging to see if you are creating the right numb
 <p>Returns:</p>
 
 <p>The instantiated and initialized object.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nv">MITHGrid.initInstance = </span><span class="nf">(namespace, container, config) -&gt;</span>
-  <span class="k">if</span> <span class="o">!</span><span class="nx">config</span><span class="o">?</span>
-    <span class="nv">config = </span><span class="nx">container</span>
-    <span class="nv">container = </span><span class="kc">undefined</span>
-  <span class="k">if</span> <span class="o">!</span><span class="nx">config</span><span class="o">?</span> <span class="o">and</span> <span class="o">!</span><span class="p">(</span><span class="k">typeof</span> <span class="nx">namespace</span> <span class="o">==</span> <span class="s">&quot;string&quot;</span> <span class="o">||</span> <span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">namespace</span><span class="p">))</span>
-    <span class="nv">config = </span><span class="nx">namespace</span>
-    <span class="nv">namespace = </span><span class="kc">null</span>
+</td><td class="code"><div class="highlight"><pre><span class="nv">MITHGrid.initInstance = </span><span class="nf">(args...) -&gt;</span>
+  <span class="p">[</span><span class="nx">namespace</span><span class="p">,</span> <span class="nx">container</span><span class="p">,</span> <span class="nx">config</span><span class="p">,</span> <span class="nx">cb</span><span class="p">]</span> <span class="o">=</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">normalizeArgs</span> <span class="nx">args</span><span class="p">...</span>
   <span class="nv">that = </span><span class="p">{}</span>
-  <span class="nv">options = </span><span class="p">{}</span>
+  <span class="nv">optionsArray = </span><span class="p">[</span> <span class="p">]</span>
   <span class="k">if</span> <span class="nx">namespace</span><span class="o">?</span> 
     <span class="k">if</span> <span class="k">typeof</span> <span class="nx">namespace</span> <span class="o">==</span> <span class="s">&quot;string&quot;</span>
       <span class="nv">namespace = </span><span class="p">[</span> <span class="nx">namespace</span> <span class="p">]</span>
@@ -354,12 +368,17 @@ to each. This is useful when debugging to see if you are creating the right numb
     <span class="k">for</span> <span class="nx">ns</span> <span class="k">in</span> <span class="nx">namespace</span>
       <span class="nv">bits = </span><span class="nx">ns</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
       <span class="nv">ns = </span><span class="nx">bits</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span>
-      <span class="nv">options = </span><span class="nx">$</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="p">{},</span> <span class="nx">MITHGridDefaults</span><span class="p">[</span><span class="nx">ns</span><span class="p">]</span><span class="o">||</span><span class="p">{})</span>
+      <span class="k">if</span> <span class="nx">MITHGridDefaults</span><span class="p">[</span><span class="nx">ns</span><span class="p">]</span><span class="o">?</span>
+        <span class="nx">optionsArray</span><span class="p">.</span><span class="nx">push</span> <span class="nx">MITHGridDefaults</span><span class="p">[</span><span class="nx">ns</span><span class="p">]</span>
       <span class="k">while</span> <span class="nx">bits</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="nv">ns = </span><span class="nx">ns</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span> <span class="o">+</span> <span class="nx">bits</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span>
-        <span class="nv">options = </span><span class="nx">$</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="nx">MITHGridDefaults</span><span class="p">[</span><span class="nx">ns</span><span class="p">]</span><span class="o">||</span><span class="p">{})</span>
-  <span class="nv">options = </span><span class="nx">$</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="nx">config</span><span class="o">||</span><span class="p">{})</span>
+        <span class="k">if</span> <span class="nx">MITHGridDefaults</span><span class="p">[</span><span class="nx">ns</span><span class="p">]</span><span class="o">?</span>
+          <span class="nx">optionsArray</span><span class="p">.</span><span class="nx">push</span> <span class="nx">MITHGridDefaults</span><span class="p">[</span><span class="nx">ns</span><span class="p">]</span>
+  <span class="k">if</span> <span class="nx">config</span><span class="o">?</span>
+    <span class="nx">optionsArray</span><span class="p">.</span><span class="nx">push</span> <span class="nx">config</span>
 
+  <span class="nv">options = </span><span class="nx">$</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="p">{},</span> <span class="nx">optionsArray</span><span class="p">...)</span>
+  
   <span class="nx">initViewCounter</span> <span class="o">+=</span> <span class="mi">1</span>
   <span class="nv">that.id = </span><span class="nx">initViewCounter</span>
   <span class="nv">that.options = </span><span class="nx">options</span>
@@ -374,6 +393,48 @@ to each. This is useful when debugging to see if you are creating the right numb
       <span class="k">else</span>
         <span class="nv">c = </span><span class="p">[]</span>
       <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span> <span class="o">=</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initEventFirer</span><span class="p">(</span> <span class="p">(</span><span class="s">&quot;preventable&quot;</span> <span class="k">in</span> <span class="nx">c</span><span class="p">),</span> <span class="p">(</span><span class="s">&quot;unicast&quot;</span> <span class="k">in</span> <span class="nx">c</span><span class="p">))</span>
-  <span class="nx">that</span>
+  <span class="k">if</span> <span class="nx">cb</span><span class="o">?</span>
+    <span class="nx">cb</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">container</span>
+  <span class="nx">that</span></pre></div></td></tr><tr id="section-24"><td class="docs"><div class="pilwrap"><a href="#section-24" class="pilcrow">&#182;</a></div><h1>Global Behaviors</h1>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Wed Apr 04 2012 15:48:30 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHGrid</a></div></div></body></html>
+<p>Sometimes, we need to do things on a global basis without having to create an object for each application, component,
+or plugin.</p>
+
+<h2>Window Resize Handler</h2>
+
+<p>Use MITHGrid.events.onWindowResize.addListener( fn() { } ) to receive notifications when the browser window is resized.</p>
+</td><td class="code"><div class="highlight"><pre><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;events&#39;</span><span class="p">,</span> <span class="nf">(events) -&gt;</span>
+  <span class="nv">events.onWindowResize = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initEventFirer</span><span class="p">(</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">false</span> <span class="p">)</span>
+  
+  <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ready</span> <span class="o">-&gt;</span>
+    <span class="nx">$</span><span class="p">(</span><span class="nb">window</span><span class="p">).</span><span class="nx">resize</span> <span class="o">-&gt;</span>
+      <span class="nx">setTimeout</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onWindowResize</span><span class="p">.</span><span class="nx">fire</span><span class="p">,</span> <span class="mi">0</span></pre></div></td></tr><tr id="section-25"><td class="docs"><div class="pilwrap"><a href="#section-25" class="pilcrow">&#182;</a></div><h2>Mouse capture</h2>
+
+<p>To receive notices of mouse movement and mouse button up events regardless of where they are in the document,
+register appropriate functions.</p>
+</td><td class="code"><div class="highlight"><pre><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;mouse&#39;</span><span class="p">,</span> <span class="nf">(mouse) -&gt;</span>
+  <span class="nv">mouseCaptureCallbacks = </span><span class="p">[]</span>
+    
+  <span class="nv">mouse.capture = </span><span class="nf">(cb) -&gt;</span>
+    <span class="nv">oldCB = </span><span class="nx">mouseCaptureCallbacks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nx">mouseCaptureCallbacks</span><span class="p">.</span><span class="nx">unshift</span> <span class="nx">cb</span>
+    <span class="k">if</span> <span class="nx">mouseCaptureCallbacks</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">1</span></pre></div></td></tr><tr id="section-26"><td class="docs"><div class="pilwrap"><a href="#section-26" class="pilcrow">&#182;</a></div><p>it was zero before, so no bindings
+$(document).mousedown (e) ->
+e.preventDefault()
+mouseCaptureCallbacks[0].call e, "mousedown"</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">mousemove</span> <span class="nf">(e) -&gt;</span>
+        <span class="nx">e</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">()</span>
+        <span class="nx">mouseCaptureCallbacks</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">call</span> <span class="nx">e</span><span class="p">,</span> <span class="s">&quot;mousemove&quot;</span>
+      <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">mouseup</span> <span class="nf">(e) -&gt;</span>
+        <span class="nx">e</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">()</span>
+        <span class="nx">mouseCaptureCallbacks</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">call</span> <span class="nx">e</span><span class="p">,</span> <span class="s">&quot;mouseup&quot;</span>
+    <span class="nx">oldCB</span>
+  
+  <span class="nv">mouse.uncapture = </span><span class="o">-&gt;</span>
+    <span class="nv">oldCB = </span><span class="nx">mouseCaptureCallbacks</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nx">mouseCaptureCallbacks</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">0</span></pre></div></td></tr><tr id="section-27"><td class="docs"><div class="pilwrap"><a href="#section-27" class="pilcrow">&#182;</a></div><p>$(document).unbind "mousedown"</p>
+</td><td class="code"><div class="highlight"><pre>      <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">unbind</span> <span class="s">&quot;mousemove&quot;</span>
+      <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">unbind</span> <span class="s">&quot;mouseup&quot;</span>
+    <span class="nx">oldCB</span>
+
+</pre></div></td></tr></tbody></table><div id="generated">generated Sat Apr 28 2012 20:09:58 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
