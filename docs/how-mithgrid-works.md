@@ -49,8 +49,8 @@ MITHgrid application, you might use the following CoffeeScript code:
 
 {% highlight coffeescript %}
 Foo.initInstance = (args...) ->
-    MITHgrid.Application.initInstance "Foo", args..., (that, container) ->
-        # add methods to the `that` object
+  MITHgrid.Application.initInstance "Foo", args..., (that, container) ->
+      # add methods to the `that` object
 {% endhighlight %}
 
 Here, we are creating the initializer for the `Foo` application object type. It inherits from
@@ -66,9 +66,9 @@ This pattern is a little more complex in JavaScript but still easy to do once yo
 
 {% highlight js %}
 Foo.initInstance = function() {
-	return MITHGrid.Application.initInstance.apply({},["Foo"].concat(arguments).concat(function(that, container) {
-		// add methods to the `that` object
-	}));
+  return MITHGrid.Application.initInstance.apply({}, ["Foo"].concat(arguments).concat(function(that, container) {
+    // add methods to the `that` object
+  }));
 };
 {% endhighlight %}
 
