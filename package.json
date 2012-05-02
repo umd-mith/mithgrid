@@ -1,4 +1,31 @@
 {
+  "name": "MITHgrid",
+  "description": "A JavaScript framework for building browser-based applications composed of a small core and a set of plugins.",
+  "bugs": {
+     "url": "https://github.com/umd-mith/mithgrid/issues"
+  },
+  "contributors": [
+    "James Smith"
+  ],
+  "author": "Maryland Institute for Technology in the Humanities (MITH)",
+  "version": "0.0.1",
+  "licenses": [{
+    "type": "BSD",
+    "url": "http://opensource.org/licenses/BSD-3-Clause"
+  }],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/umd-mith/mithgrid.git"
+  },
+  "dependencies": {
+    "jQuery": "1.6.1"
+  },
+  "optionalDependencies": {
+    "raphael.js": "1.5.2"
+  },
+  "devDependencies": {
+    "coffee-script": "latest"
+  },
   "docco_husky": {
     "output_dir": "compiled_docs",
     "project_name": "MITHgrid"

@@ -36,71 +36,6 @@ MITHGrid.namespace 'Controller', (Controller) ->
 			# this isn't that object, but can produce that object, so this is a kind of controller factory
 			# that can be used by lenses
 			#
-			
-			initDOMBinding = (element) ->
-				binding = MITHGrid.initInstance options.bind
-				bindingsCache = { '': $(element) }
-		
-				binding.locate = (internalSelector) ->
-					selector = options.selectors[internalSelector]
-					if selector?
-						if selector == ''
-							el = $(element)
-						else
-							el = $(element).find(selector)
-						bindingsCache[selector] = el
-						return el
-					return undefined
-		
-				binding.fastLocate = (internalSelector) ->
-					selector = options.selectors[internalSelector]
-					if selector?
-						if bindingsCache[selector]?
-							return bindingsCache[selector]
-						return binding.locate internalSelector
-					return undefined
-			
-				binding.refresh = (listOfSelectors) ->
-					for internalSelector in listOfSelectors
-						selector = options.selectors[internalSelector]
-						if selector?
-							if selector == ''
-								bindingsCache[''] = $(element)
-							else
-								bindingsCache[selector] = $(element).find(selector)
-					return undefined
-		
-				binding.clearCache = () ->
-					bindingsCache = { '': $(element) }
-
-				binding
-	
-			initRaphaelBinding = (raphaelDrawing) ->
-				binding = initDOMBinding raphaelDrawing.node
-
-				superLocate = binding.locate
-				superFastLocate = binding.fastLocate
-				superRefresh = binding.refresh
-				superBind = binding.bind
-
-				binding.locate = (internalSelector) ->
-					if internalSelector == 'raphael'
-						raphaelDrawing
-					else
-						superLocate internalSelector
-
-				binding.fastLocate = (internalSelector) ->
-					if internalSelector == 'raphael'
-						raphaelDrawing
-					else
-						superFastLocate internalSelector
-
-				binding.refresh = (listOfSelectors) ->
-					listOfSelectors = (s for s in listOfSelectors when s != 'raphael')
-					superRefresh listOfSelectors
-
-				binding
-		
 			# ### #initBind
 			#
 			# Initialize the binding for the given element. If the element is a string or an object without
@@ -120,12 +55,40 @@ MITHGrid.namespace 'Controller', (Controller) ->
 			# The initialized binding object.
 			#
 			that.initBind = (element) ->
-				if typeof element == "string"
-					initDOMBinding $(element)
-				else if element.node?
-					initRaphaelBinding element
-				else
-					initDOMBinding element
+				MITHGrid.initInstance options.bind, (binding) ->
+					bindingsCache = { '': $(element) }
+		
+					binding.locate = (internalSelector) ->
+						selector = options.selectors[internalSelector]
+						if selector?
+							if selector == ''
+								el = $(element)
+							else
+								el = $(element).find(selector)
+							bindingsCache[selector] = el
+							return el
+						return undefined
+		
+					binding.fastLocate = (internalSelector) ->
+						selector = options.selectors[internalSelector]
+						if selector?
+							if bindingsCache[selector]?
+								return bindingsCache[selector]
+							return binding.locate internalSelector
+						return undefined
+			
+					binding.refresh = (listOfSelectors) ->
+						for internalSelector in listOfSelectors
+							selector = options.selectors[internalSelector]
+							if selector?
+								if selector == ''
+									bindingsCache[''] = $(element)
+								else
+									bindingsCache[selector] = $(element).find(selector)
+						return undefined
+		
+					binding.clearCache = () ->
+						bindingsCache = { '': $(element) }
 		
 			# ### #bind
 			#
@@ -148,6 +111,9 @@ MITHGrid.namespace 'Controller', (Controller) ->
 				binding = that.initBind element
 		
 				that.applyBindings binding, args...
+				
+				binding.unbind = ->
+					that.removeBindings binding, args...
 		
 				binding
 	
@@ -165,3 +131,48 @@ MITHGrid.namespace 'Controller', (Controller) ->
 			# Returns: Nothing.
 			#
 			that.applyBindings = (binding, args...) ->
+			
+			# ### #removeBindings
+			#
+			# This method should be overridden in any subclass. The #unbind() method on the binding object
+			# will call this with the binding object and any arguments passed to the #bind() method.
+			#
+			# Parameters:
+			#
+			# * binding - the binding object
+			#
+			# * args... - any additional aguments passed to the #bind() method that returned the binding object
+			#
+			# Returns: Nothing.
+			#
+			that.removeBindings = (binding, args...) ->
+
+	Controller.namespace "Raphael", (Raphael) ->
+		Raphael.initInstance = (args...) ->
+			MITHGrid.Controller.initInstance "MITHGrid.Controller.Raphael", args..., (that) ->
+				initDOMBinding = that.initBind
+				that.initBind = (raphaelDrawing) ->
+					binding = initDOMBinding raphaelDrawing.node
+
+					superLocate = binding.locate
+					superFastLocate = binding.fastLocate
+					superRefresh = binding.refresh
+					superBind = binding.bind
+
+					binding.locate = (internalSelector) ->
+						if internalSelector == 'raphael'
+							raphaelDrawing
+						else
+							superLocate internalSelector
+
+					binding.fastLocate = (internalSelector) ->
+						if internalSelector == 'raphael'
+							raphaelDrawing
+						else
+							superFastLocate internalSelector
+
+					binding.refresh = (listOfSelectors) ->
+						listOfSelectors = (s for s in listOfSelectors when s != 'raphael')
+						superRefresh listOfSelectors
+
+					binding
