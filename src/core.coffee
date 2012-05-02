@@ -57,7 +57,7 @@ genericNamespacer = (base, nom, fn) ->
 			namespace: (nom2, fn2) ->
 				genericNamespacer newbase, nom2, fn2
 			debug: MITHGrid.debug
-	base[bits[0]] = newbase
+		base[bits[0]] = newbase
 	if fn?
 		fn base[bits[0]]
 	base[bits[0]]
@@ -121,6 +121,8 @@ MITHGrid.normalizeArgs = (args...) ->
 	
 	if callbacks.length == 0
 		cb = (t...) ->
+	else if callbacks.length == 1
+		cb = callbacks[0]
 	else
 		cb = (t...) ->
 			for c in callbacks
@@ -226,8 +228,8 @@ MITHGrid.initSynchronizer = (callbacks) ->
 		that.decrement = () ->
 			counter -= 1
 			if counter <= 0 and done and !fired
-				setTimeout callbacks.done, 0
 				fired = true
+				callbacks.done
 			counter
 		# ### #done
 		#
@@ -382,7 +384,7 @@ initViewCounter = 0
 MITHGrid.initInstance = (args...) ->
 	[namespace, container, config, cb] = MITHGrid.normalizeArgs args...
 	that = {}
-	options = {}
+	optionsArray = [ ]
 	if namespace? 
 		if typeof namespace == "string"
 			namespace = [ namespace ]
@@ -390,12 +392,17 @@ MITHGrid.initInstance = (args...) ->
 		for ns in namespace
 			bits = ns.split('.')
 			ns = bits.shift()
-			options = $.extend(true, options, MITHGridDefaults[ns]||{})
+			if MITHGridDefaults[ns]?
+				optionsArray.push MITHGridDefaults[ns]
 			while bits.length > 0
 				ns = ns + "." + bits.shift()
-				options = $.extend(true, options, MITHGridDefaults[ns]||{})
-	options = $.extend(true, options, config||{})
+				if MITHGridDefaults[ns]?
+					optionsArray.push MITHGridDefaults[ns]
+	if config?
+		optionsArray.push config
 
+	options = $.extend(true, {}, optionsArray...)
+	
 	initViewCounter += 1
 	that.id = initViewCounter
 	that.options = options
@@ -411,6 +418,129 @@ MITHGrid.initInstance = (args...) ->
 				c = []
 			that.events[k] = MITHGrid.initEventFirer( ("preventable" in c), ("unicast" in c))
 	
+	# ### #addVariable
+	#
+	# Adds a managed variable to the instance object.
+	#
+	# Parameters:
+	#
+	# * varName - the name of the variable
+	#
+	# * config - object holding configuration options
+	#
+	# Returns: Nothing.
+	#
+	# Configuration:
+	#
+	# * **is** - the mutability of the variable is one of the following:
+	# 	* 'rw' for read-write
+	# 	* 'r' for read-only
+	# 	* 'w' for write-only.
+	#
+	# * **event** - the name of the event associated with this variable. This event will fire when the value of the variable changes.
+	#           This defaults to 'on' + varName + 'Change'.
+	#
+	# * **setter** - the name of the method that will be used to set the variable. This defaults to 'set' + varName.
+	#
+	# * **getter** - the name of the method that will be used to retrieve the variable. This defaults to 'get' + varName.
+	#
+	# * **validate** - a function that will be called to validate the value the variable is being set to. This function
+	#              should expect the new value and return "true" or "false".
+	#
+	# * **filter** - a function that will be called to filter the value the variable is being set to. This function
+	#            should expect the new value and return the filtered value. If both the filter and validate
+	#            options are set, the filter will be run before the validate function.
+	#
+	that.addVariable = (varName, config) ->
+		value = config.default
+		config.is or= 'rw'
+		if config.is in ['rw', 'w']
+			filter = config.filter
+			validate = config.validate
+			eventName = config.event || ('on' + varName + 'Change')
+			setName = config.setter || ('set' + varName)
+			that.events[eventName] = MITHGrid.initEventFirer()
+			if filter?
+				if validate?
+					that[setName] = (v) ->
+						v = validate filter v
+						if value != v
+							value = v
+							that.events[eventName].fire(value)
+				else
+					that[setName] = (v) ->
+						v = filter v
+						if value != v
+							value = v
+							that.events[eventName].fire(value)
+			else
+				if validate?
+					that[setName] = (v) ->
+						v = validate v
+						if value != v
+							value = v
+							that.events[eventName].fire(value)
+				else
+					that[setName] = (v) ->
+						if value != v
+							value = v
+							that.events[eventName].fire(value)
+		if config.is in ['r', 'rw']
+			getName = config.getter || ('get' + varName)
+			that[getName] = () -> value
+		
+	if that.options?.variables?
+		for varName, config of options.variables
+			that.addVariable varName, config
+
 	if cb?
 		cb that, container
 	that
+
+# # Global Behaviors
+#
+# Sometimes, we need to do things on a global basis without having to create an object for each application, component,
+# or plugin.
+#
+# ## Window Resize Handler
+#
+# Use MITHGrid.events.onWindowResize.addListener( fn() { } ) to receive notifications when the browser window is resized.
+#
+MITHGrid.namespace 'events', (events) ->
+	events.onWindowResize = MITHGrid.initEventFirer( false, false )
+	
+	$(document).ready ->
+		$(window).resize ->
+			setTimeout MITHGrid.events.onWindowResize.fire, 0
+
+# ## Mouse capture
+#
+# To receive notices of mouse movement and mouse button up events regardless of where they are in the document,
+# register appropriate functions.
+#
+MITHGrid.namespace 'mouse', (mouse) ->
+	mouseCaptureCallbacks = []
+		
+	mouse.capture = (cb) ->
+		oldCB = mouseCaptureCallbacks[0]
+		mouseCaptureCallbacks.unshift cb
+		if mouseCaptureCallbacks.length == 1
+			# it was zero before, so no bindings
+			#$(document).mousedown (e) ->
+			#	e.preventDefault()
+			#	mouseCaptureCallbacks[0].call e, "mousedown"
+			$(document).mousemove (e) ->
+				e.preventDefault()
+				mouseCaptureCallbacks[0].call e, "mousemove"
+			$(document).mouseup (e) ->
+				e.preventDefault()
+				mouseCaptureCallbacks[0].call e, "mouseup"
+		oldCB
+	
+	mouse.uncapture = ->
+		oldCB = mouseCaptureCallbacks.shift()
+		if mouseCaptureCallbacks.length == 0
+			#$(document).unbind "mousedown"
+			$(document).unbind "mousemove"
+			$(document).unbind "mouseup"
+		oldCB
