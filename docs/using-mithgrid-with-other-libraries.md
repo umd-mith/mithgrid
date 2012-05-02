@@ -2,6 +2,8 @@
 layout: docs
 title: Using MITHgrid with Other Libraries
 ---
+# Using MITHgrid with Other Libraries
+
 ## General
 
 MITHgrid keeps everything in within the MITHgrid namespace. No other "global" objects are created when the

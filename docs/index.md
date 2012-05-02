@@ -2,6 +2,8 @@
 layout: docs
 title: Main Page
 ---
+# Main Page
+
 ## Getting Started
 
 * [Downloading MITHgrid](/mithgrid/docs/downloading.html)

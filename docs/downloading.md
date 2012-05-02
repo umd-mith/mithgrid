@@ -2,6 +2,8 @@
 layout: docs
 title: Downloading MITHgrid
 ---
+# Downloading MITHgrid
+
 ## About the Code
 
 MITHgrid is written in [CoffeeScript](http://coffeescript.org/) to make it more readable.
