@@ -100,6 +100,10 @@ useful for scoping to a given namespace.
 
 ## Object Instance Management
 
+### Default Configurations
+
+### Creating Object Instances
+
 ## Synchronization
 
 ## That-ism Helpers
