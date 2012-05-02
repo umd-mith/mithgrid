@@ -4,6 +4,9 @@ title: Downloading MITHgrid
 ---
 # Downloading MITHgrid
 
+* auto-generated TOC:
+{:toc}
+
 ## About the Code
 
 MITHgrid is written in [CoffeeScript](http://coffeescript.org/) to make it more readable.
