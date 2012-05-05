@@ -2,7 +2,7 @@
 /*
 # mithgrid JavaScript Library v0.0.1
 #
-# Date: Sat May 5 14:32:12 2012 -0400
+# Date: Sat May 5 15:25:33 2012 -0400
 #
 # (c) Copyright University of Maryland 2011-2012.  All rights reserved.
 #
@@ -306,18 +306,20 @@
         }
       }
       that.addVariable = function(varName, config) {
-        var eventName, filter, getName, setName, validate, value, _ref6, _ref7;
+        var eventName, filter, getName, lockName, locked, oldSetter, setName, setter, unlockName, validate, value;
         value = config["default"];
         config.is || (config.is = 'rw');
-        if ((_ref6 = config.is) === 'rw' || _ref6 === 'w') {
+        if (__indexOf.call(config.is, 'w') >= 0) {
           filter = config.filter;
           validate = config.validate;
           eventName = config.event || ('on' + varName + 'Change');
           setName = config.setter || ('set' + varName);
+          lockName = config.locker || ('lock' + varName);
+          unlockName = config.unlocker || ('unlock' + varName);
           that.events[eventName] = MITHGrid.initEventFirer();
           if (filter != null) {
             if (validate != null) {
-              that[setName] = function(v) {
+              setter = function(v) {
                 v = validate(filter(v));
                 if (value !== v) {
                   value = v;
@@ -325,7 +327,7 @@
                 }
               };
             } else {
-              that[setName] = function(v) {
+              setter = function(v) {
                 v = filter(v);
                 if (value !== v) {
                   value = v;
@@ -335,7 +337,7 @@
             }
           } else {
             if (validate != null) {
-              that[setName] = function(v) {
+              setter = function(v) {
                 v = validate(v);
                 if (value !== v) {
                   value = v;
@@ -343,7 +345,7 @@
                 }
               };
             } else {
-              that[setName] = function(v) {
+              setter = function(v) {
                 if (value !== v) {
                   value = v;
                   return that.events[eventName].fire(value);
@@ -351,8 +353,22 @@
               };
             }
           }
+          if (__indexOf.call(config.is, 'l') >= 0) {
+            locked = 0;
+            that[lockName] = function() {
+              return locked += 1;
+            };
+            that[unlockName] = function() {
+              return locked -= 1;
+            };
+            oldSetter = setter;
+            setter = function(v) {
+              if (locked === 0) return oldSetter(v);
+            };
+          }
+          that[setName] = setter;
         }
-        if ((_ref7 = config.is) === 'r' || _ref7 === 'rw') {
+        if (__indexOf.call(config.is, 'r') >= 0) {
           getName = config.getter || ('get' + varName);
           return that[getName] = function() {
             return value;
