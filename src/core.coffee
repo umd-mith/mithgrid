@@ -454,38 +454,49 @@ MITHGrid.initInstance = (args...) ->
 	that.addVariable = (varName, config) ->
 		value = config.default
 		config.is or= 'rw'
-		if config.is in ['rw', 'w']
+		if config.is in ['rw', 'w', 'rwl', 'wl']
 			filter = config.filter
 			validate = config.validate
 			eventName = config.event || ('on' + varName + 'Change')
 			setName = config.setter || ('set' + varName)
+			lockName = config.locker || ('lock' + varName)
+			unlockName = config.unlocker || ('unlock' + varName)
 			that.events[eventName] = MITHGrid.initEventFirer()
 			if filter?
 				if validate?
-					that[setName] = (v) ->
+					setter = (v) ->
 						v = validate filter v
 						if value != v
 							value = v
 							that.events[eventName].fire(value)
 				else
-					that[setName] = (v) ->
+					setter = (v) ->
 						v = filter v
 						if value != v
 							value = v
 							that.events[eventName].fire(value)
 			else
 				if validate?
-					that[setName] = (v) ->
+					setter = (v) ->
 						v = validate v
 						if value != v
 							value = v
 							that.events[eventName].fire(value)
 				else
-					that[setName] = (v) ->
+					setter = (v) ->
 						if value != v
 							value = v
 							that.events[eventName].fire(value)
-		if config.is in ['r', 'rw']
+			if config.is in ['rwl', 'wl']
+				locked = 0
+				that[lockName] = -> locked += 1
+				that[unlockName] = -> locked -= 1
+				oldSetter = setter
+				setter = (v) ->
+					if locked == 0
+						oldSetter(v)
+			that[setName] = setter
+		if config.is in ['r', 'rw', 'rwl']
 			getName = config.getter || ('get' + varName)
 			that[getName] = () -> value
 		
