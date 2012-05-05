@@ -2,7 +2,7 @@
 /*
 # mithgrid JavaScript Library v0.0.1
 #
-# Date: Tue May 1 15:50:36 2012 -0400
+# Date: Wed May 2 12:52:57 2012 -0700
 #
 # (c) Copyright University of Maryland 2011-2012.  All rights reserved.
 #
@@ -2528,7 +2528,8 @@
             }
           };
           that.addLens = function(key, lens) {
-            return lenses[key] = lens;
+            lenses[key] = lens;
+            return that.selfRender();
           };
           that.removeLens = function(key) {
             return delete lenses[key];
@@ -2562,7 +2563,7 @@
                 if (end > n) end = n;
                 for (i = start; start <= end ? i < end : i > end; start <= end ? i++ : i--) {
                   id = items[i];
-                  hasItem = model.contains(id);
+                  hasItem = model.contains(id) && that.hasLensFor(id);
                   if (renderings[id] != null) {
                     if (!hasItem) {
                       if (activeRenderingId === id && (renderings[id].eventUnfocus != null)) {
@@ -2597,6 +2598,11 @@
             var lens;
             lens = that.getLens(i);
             if (lens != null) return lens.render(c, that, m, i);
+          };
+          that.hasLensFor = function(id) {
+            var lens;
+            lens = that.getLens(id);
+            return lens != null;
           };
           that.eventModelChange = that.renderItems;
           that.startDisplayUpdate = function() {};
@@ -2827,9 +2833,10 @@
         var args;
         args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
         return MITHGrid.initInstance.apply(MITHGrid, ["MITHGrid.Controller"].concat(__slice.call(args), [function(that) {
-          var options;
+          var options, _base;
           options = that.options;
-          options.selectors || (options.selectors = {});
+          if (options.selectors == null) options.selectors = {};
+          if ((_base = options.selectors)[''] == null) _base[''] = '';
           that.initBind = function(element) {
             return MITHGrid.initInstance(options.bind, function(binding) {
               var bindingsCache;
