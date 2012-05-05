@@ -2,7 +2,7 @@
 /*
 # mithgrid JavaScript Library v0.0.1
 #
-# Date: Wed May 2 12:52:57 2012 -0700
+# Date: Sat May 5 14:32:12 2012 -0400
 #
 # (c) Copyright University of Maryland 2011-2012.  All rights reserved.
 #
@@ -263,7 +263,7 @@
     };
     initViewCounter = 0;
     MITHGrid.initInstance = function() {
-      var args, bits, c, cb, config, container, k, namespace, ns, options, optionsArray, that, varName, _i, _len, _ref4, _ref5, _ref6, _ref7;
+      var args, bits, c, cb, config, container, k, namespace, ns, options, optionsArray, that, varName, vs, _i, _len, _ref4, _ref5, _ref6, _ref7;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
       _ref4 = MITHGrid.normalizeArgs.apply(MITHGrid, args), namespace = _ref4[0], container = _ref4[1], config = _ref4[2], cb = _ref4[3];
       that = {};
@@ -364,6 +364,18 @@
         for (varName in _ref7) {
           config = _ref7[varName];
           that.addVariable(varName, config);
+        }
+      }
+      if (((options != null ? options.viewSetup : void 0) != null) && (container != null)) {
+        vs = options.viewSetup;
+        if ($.isFunction(vs)) {
+          $(document).ready(function() {
+            return vs($(container));
+          });
+        } else {
+          $(document).ready(function() {
+            return $(container).append(vs);
+          });
         }
       }
       if (cb != null) cb(that, container);
@@ -2989,17 +3001,6 @@
               for (cName in _ref6) {
                 cconfig = _ref6[cName];
                 that.addController(cName, cconfig);
-              }
-            }
-            if ((options != null ? options.viewSetup : void 0) != null) {
-              if ($.isFunction(options.viewSetup)) {
-                that.ready(function() {
-                  return options.viewSetup($(container));
-                });
-              } else {
-                that.ready(function() {
-                  return $(container).append(options.viewSetup);
-                });
               }
             }
             if ((options != null ? options.facets : void 0) != null) {
