@@ -29,7 +29,8 @@ MITHGrid.namespace 'Controller', (Controller) ->
 	Controller.initInstance = (args...) ->
 		MITHGrid.initInstance "MITHGrid.Controller", args..., (that) ->
 			options = that.options
-			options.selectors or= {}
+			options.selectors ?= {}
+			options.selectors[''] ?= ''
 	
 			#
 			# We need something that can have functions bindable to an element

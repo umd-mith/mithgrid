@@ -493,6 +493,14 @@ MITHGrid.initInstance = (args...) ->
 		for varName, config of options.variables
 			that.addVariable varName, config
 
+	# ### viewSetup
+	if options?.viewSetup? and container?
+		vs = options.viewSetup
+		if $.isFunction(vs)
+			$(document).ready -> vs $(container)
+		else
+			$(document).ready -> $(container).append vs
+			
 	if cb?
 		cb that, container
 	that

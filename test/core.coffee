@@ -32,3 +32,10 @@ $(document).ready ->
 		ok thing?.events?, "thing has events"
 		ok thing?.events?.onHit?, "thing has onHit event"
 		ok thing?.events?.onHit?.fire?, "thing has onHint firer"
+	
+	test "Check instance initialization with only a container", ->
+		expect 1
+		
+		MITHGrid.initInstance $("body"), (that, container) ->
+			ok container?, "container is defined"
+			

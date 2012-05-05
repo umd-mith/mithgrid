@@ -61,13 +61,6 @@ MITHGrid.namespace 'Application', (Application) ->
 				if options?.controllers?
 					for cName, cconfig of options.controllers
 						that.addController cName, cconfig
-
-				# ### viewSetup
-				if options?.viewSetup?
-					if $.isFunction(options.viewSetup)
-						that.ready () -> options.viewSetup $(container)
-					else
-						that.ready () -> $(container).append options.viewSetup
 	
 				# ### facets
 				#
