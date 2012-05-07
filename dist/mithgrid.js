@@ -2,7 +2,7 @@
 /*
 # mithgrid JavaScript Library v0.0.1
 #
-# Date: Sat May 5 15:25:33 2012 -0400
+# Date: Sat May 5 15:28:28 2012 -0400
 #
 # (c) Copyright University of Maryland 2011-2012.  All rights reserved.
 #
@@ -95,14 +95,20 @@
       return globals[nom];
     };
     MITHGrid.normalizeArgs = function() {
-      var args, callbacks, cb, container, options, t, types, _ref4;
+      var args, callbacks, cb, container, options, opts, t, types, _ref4;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
       callbacks = [];
+      options = [];
       t = args.pop();
-      while ($.isFunction(t)) {
-        callbacks.push(t);
+      while ($.isFunction(t) || $.isPlainObject(t)) {
+        if ($.isFunction(t)) {
+          callbacks.push(t);
+        } else {
+          options.push(t);
+        }
         t = args.pop();
       }
+      args.push(t);
       if (callbacks.length === 0) {
         cb = function() {
           var t;
@@ -122,11 +128,13 @@
           return _results;
         };
       }
-      if ($.isPlainObject(t)) {
-        options = t;
+      if (options.length === 0) {
+        opts = {};
+      } else if (options.length === 1) {
+        opts = options[0];
       } else {
-        args.push(t);
-        options = {};
+        options = options.reverse();
+        opts = $.extend.apply($, [true, {}].concat(__slice.call(options)));
       }
       types = [];
       while (typeof args[0] === "string") {
@@ -140,7 +148,7 @@
       } else {
         container = null;
       }
-      return [types, container, options, cb];
+      return [types, container, opts, cb];
     };
     MITHGridDefaults = {};
     MITHGrid.defaults = function(namespace, defaults) {
