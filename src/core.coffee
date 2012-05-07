@@ -114,10 +114,18 @@ MITHGrid.normalizeArgs = (args...) ->
 	# optional Function
 	
 	callbacks = []
+	options = []
+	
 	t = args.pop()
-	while $.isFunction t
-		callbacks.push t
+	while $.isFunction(t) or $.isPlainObject(t)
+		if $.isFunction t
+			callbacks.push t
+		else
+			options.push t
 		t = args.pop()
+
+	args.push t
+	
 	
 	if callbacks.length == 0
 		cb = (t...) ->
@@ -128,11 +136,13 @@ MITHGrid.normalizeArgs = (args...) ->
 			for c in callbacks
 				c(t...)
 	
-	if $.isPlainObject t
-		options = t
+	if options.length == 0
+		opts = {}
+	else if options.length == 1
+		opts = options[0]
 	else
-		args.push t
-		options = {}
+		options = options.reverse()
+		opts = $.extend true, {}, options...
 	
 	# while the front of args is a string, we shift into the type array
 	types = []
@@ -151,7 +161,7 @@ MITHGrid.normalizeArgs = (args...) ->
 	else
 		container = null
 			
-	[ types, container, options, cb ]
+	[ types, container, opts, cb ]
 	
 
 MITHGridDefaults = {}
@@ -454,38 +464,49 @@ MITHGrid.initInstance = (args...) ->
 	that.addVariable = (varName, config) ->
 		value = config.default
 		config.is or= 'rw'
-		if config.is in ['rw', 'w']
+		if 'w' in config.is
 			filter = config.filter
 			validate = config.validate
 			eventName = config.event || ('on' + varName + 'Change')
 			setName = config.setter || ('set' + varName)
+			lockName = config.locker || ('lock' + varName)
+			unlockName = config.unlocker || ('unlock' + varName)
 			that.events[eventName] = MITHGrid.initEventFirer()
 			if filter?
 				if validate?
-					that[setName] = (v) ->
+					setter = (v) ->
 						v = validate filter v
 						if value != v
 							value = v
 							that.events[eventName].fire(value)
 				else
-					that[setName] = (v) ->
+					setter = (v) ->
 						v = filter v
 						if value != v
 							value = v
 							that.events[eventName].fire(value)
 			else
 				if validate?
-					that[setName] = (v) ->
+					setter = (v) ->
 						v = validate v
 						if value != v
 							value = v
 							that.events[eventName].fire(value)
 				else
-					that[setName] = (v) ->
+					setter = (v) ->
 						if value != v
 							value = v
 							that.events[eventName].fire(value)
-		if config.is in ['r', 'rw']
+			if 'l' in config.is 
+				locked = 0
+				that[lockName] = -> locked += 1
+				that[unlockName] = -> locked -= 1
+				oldSetter = setter
+				setter = (v) ->
+					if locked == 0
+						oldSetter(v)
+			that[setName] = setter
+		if 'r' in config.is
 			getName = config.getter || ('get' + varName)
 			that[getName] = () -> value
 		
@@ -493,6 +514,14 @@ MITHGrid.initInstance = (args...) ->
 		for varName, config of options.variables
 			that.addVariable varName, config
 
+	# ### viewSetup
+	if options?.viewSetup? and container?
+		vs = options.viewSetup
+		if $.isFunction(vs)
+			$(document).ready -> vs $(container)
+		else
+			$(document).ready -> $(container).append vs
+			
 	if cb?
 		cb that, container
 	that
