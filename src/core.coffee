@@ -114,10 +114,18 @@ MITHGrid.normalizeArgs = (args...) ->
 	# optional Function
 	
 	callbacks = []
+	options = []
+	
 	t = args.pop()
-	while $.isFunction t
-		callbacks.push t
+	while $.isFunction(t) or $.isPlainObject(t)
+		if $.isFunction t
+			callbacks.push t
+		else
+			options.push t
 		t = args.pop()
+
+	args.push t
+	
 	
 	if callbacks.length == 0
 		cb = (t...) ->
@@ -128,11 +136,13 @@ MITHGrid.normalizeArgs = (args...) ->
 			for c in callbacks
 				c(t...)
 	
-	if $.isPlainObject t
-		options = t
+	if options.length == 0
+		opts = {}
+	else if options.length == 1
+		opts = options[0]
 	else
-		args.push t
-		options = {}
+		options = options.reverse()
+		opts = $.extend true, {}, options...
 	
 	# while the front of args is a string, we shift into the type array
 	types = []
@@ -151,7 +161,7 @@ MITHGrid.normalizeArgs = (args...) ->
 	else
 		container = null
 			
-	[ types, container, options, cb ]
+	[ types, container, opts, cb ]
 	
 
 MITHGridDefaults = {}

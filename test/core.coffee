@@ -38,4 +38,10 @@ $(document).ready ->
 		
 		MITHGrid.initInstance $("body"), (that, container) ->
 			ok container?, "container is defined"
-			
+	
+	test "Check instance initialization with no container, multiple options", ->
+		expect 2
+		MITHGrid.initInstance { foo: "bar", bar: "boo" }, { bar: "baz" }, (that) ->
+			options = that.options
+			equal options.foo, "bar", "foo == bar"
+			equal options.bar, "baz", "bar == baz"
