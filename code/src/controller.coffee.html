@@ -32,7 +32,8 @@ manage that particular binding.</p>
 </td><td class="code"><div class="highlight"><pre>  <span class="nv">Controller.initInstance = </span><span class="nf">(args...) -&gt;</span>
     <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Controller&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that) -&gt;</span>
       <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
-      <span class="nx">options</span><span class="p">.</span><span class="nx">selectors</span> <span class="o">or=</span> <span class="p">{}</span>
+      <span class="nx">options</span><span class="p">.</span><span class="nx">selectors</span> <span class="o">?=</span> <span class="p">{}</span>
+      <span class="nx">options</span><span class="p">.</span><span class="nx">selectors</span><span class="p">[</span><span class="s">&#39;&#39;</span><span class="p">]</span> <span class="o">?=</span> <span class="s">&#39;&#39;</span>
   </pre></div></td></tr><tr id="section-3"><td class="docs"><div class="pilwrap"><a href="#section-3" class="pilcrow">&#182;</a></div><p>We need something that can have functions bindable to an element
 this isn't that object, but can produce that object, so this is a kind of controller factory
 that can be used by lenses</p>
@@ -176,4 +177,4 @@ will call this with the binding object and any arguments passed to the #bind() m
 
           <span class="nx">binding</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Sat Apr 28 2012 20:09:57 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
+</pre></div></td></tr></tbody></table><div id="generated">generated Tue May 08 2012 14:37:17 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
