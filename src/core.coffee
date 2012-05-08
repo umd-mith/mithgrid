@@ -393,11 +393,16 @@ initViewCounter = 0
 #
 MITHGrid.initInstance = (args...) ->
 	[namespace, container, config, cb] = MITHGrid.normalizeArgs args...
-	that = {}
+	that =
+		_mithgrid_type: "MITHGrid"
+	
 	optionsArray = [ ]
 	if namespace? 
 		if typeof namespace == "string"
 			namespace = [ namespace ]
+		
+		that._mithgrid_type = namespace[0]
+			
 		namespace.reverse()
 		for ns in namespace
 			bits = ns.split('.')

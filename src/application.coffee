@@ -17,6 +17,8 @@ MITHGrid.namespace 'Application', (Application) ->
 	Application.initInstance = (args...) ->		
 		MITHGrid.initInstance "MITHGrid.Application", args..., (that, container) ->
 			onReady = []
+			
+			thatFn = -> that
 	
 			that.presentation = {}
 			that.facet = {}
@@ -32,11 +34,9 @@ MITHGrid.namespace 'Application', (Application) ->
 				#
 				# ### variables
 				#
-				# See the section on #addVariable.
+				# See the section on MITHGrid.initInstance#addVariable.
 				#
-				#if options?.variables?
-				#	for varName, config of options.variables
-				#		that.addVariable varName, config
+
 
 				# ### dataStores
 				#
@@ -95,79 +95,6 @@ MITHGrid.namespace 'Application', (Application) ->
 						that.addPlugin pconfig
 			
 			that.ready = (fn) -> onReady.push fn
-	
-			# ### #addVariable
-			#
-			# Adds a managed variable to the application object.
-			#
-			# Parameters:
-			#
-			# * varName - the name of the variable
-			#
-			# * config - object holding configuration options
-			#
-			# Returns: Nothing.
-			#
-			# Configuration:
-			#
-			# * **is** - the mutability of the variable is one of the following:
-			# 	* 'rw' for read-write
-			# 	* 'r' for read-only
-			# 	* 'w' for write-only.
-			#
-			# * **event** - the name of the event associated with this variable. This event will fire when the value of the variable changes.
-			#           This defaults to 'on' + varName + 'Change'.
-			#
-			# * **setter** - the name of the method that will be used to set the variable. This defaults to 'set' + varName.
-			#
-			# * **getter** - the name of the method that will be used to retrieve the variable. This defaults to 'get' + varName.
-			#
-			# * **validate** - a function that will be called to validate the value the variable is being set to. This function
-			#              should expect the new value and return "true" or "false".
-			#
-			# * **filter** - a function that will be called to filter the value the variable is being set to. This function
-			#            should expect the new value and return the filtered value. If both the filter and validate
-			#            options are set, the filter will be run before the validate function.
-			#
-			###
-			that.addVariable = (varName, config) ->
-				value = config.default
-				config.is or= 'rw'
-				if config.is in ['rw', 'w']
-					filter = config.filter
-					validate = config.validate
-					eventName = config.event || ('on' + varName + 'Change')
-					setName = config.setter || ('set' + varName)
-					that.events[eventName] = MITHGrid.initEventFirer()
-					if filter?
-						if validate?
-							that[setName] = (v) ->
-								v = validate filter v
-								if value != v
-									value = v
-									that.events[eventName].fire(value)
-						else
-							that[setName] = (v) ->
-								v = filter v
-								if value != v
-									value = v
-									that.events[eventName].fire(value)
-					else
-						if validate?
-							that[setName] = (v) ->
-								v = validate v
-								if value != v
-									value = v
-									that.events[eventName].fire(value)
-						else
-							that[setName] = (v) ->
-								if value != v
-									value = v
-									that.events[eventName].fire(value)
-				if config.is in ['r', 'rw']
-					getName = config.getter || ('get' + varName)
-					that[getName] = () -> value
-			###
 			
 			# ### #addDataStore
 			#
@@ -269,7 +196,7 @@ MITHGrid.namespace 'Application', (Application) ->
 			that.addController = (cName, cconfig) ->
 				coptions = $.extend(true, {}, cconfig)
 
-				coptions.application = that
+				coptions.application = thatFn
 				controller = cconfig.type.initInstance coptions
 				that.controller[cName] = controller
 	
@@ -292,7 +219,7 @@ MITHGrid.namespace 'Application', (Application) ->
 					fcontainer = fcontainer[0] if $.isArray(fcontainer)
 			
 					foptions.dataView = that.dataView[fconfig.dataView]
-					foptions.application = that
+					foptions.application = thatFn
 			
 					facet = fconfig.type.initFacet fcontainer, foptions
 					that.facet[fName] = facet
@@ -317,7 +244,7 @@ MITHGrid.namespace 'Application', (Application) ->
 				that.ready () ->
 					ccontainer = $(container).find(coptions.container)
 					ccontainer = ccontainer[0] if $.isArray(ccontainer)
-					coptions.application = that
+					coptions.application = thatFn
 					if cconfig.components?
 						coptions.components = {}
 						for ccName, cconfig of cconfig.components
@@ -325,7 +252,7 @@ MITHGrid.namespace 'Application', (Application) ->
 								coptions.components[ccName] = that.component[ccName]
 							else
 								ccoptions = $.extend(true, {}, ccconfig)
-								ccoptions.application = that
+								ccoptions.application = thatFn
 								coptions.components[ccName] = cconfig.type.initInstance ccoptions
 					if cconfig.controllers?
 						coptions.controllers = {}
@@ -334,7 +261,7 @@ MITHGrid.namespace 'Application', (Application) ->
 								coptions.controllers[ccName] = that.controller[ccName]
 							else
 								ccoptions = $.extend(true, {}, ccconfig)
-								ccoptions.application = that
+								ccoptions.application = thatFn
 								coptions.controllers[ccName] = cconfig.type.initInstance ccoptions
 
 					that.component[cName] = cconfig.type.initInstance ccontainer, coptions
@@ -357,7 +284,7 @@ MITHGrid.namespace 'Application', (Application) ->
 					pcontainer = $(container).find(poptions.container)
 					pcontainer = pcontainer[0] if $.isArray(pcontainer)
 					poptions.dataView = that.dataView[pconfig.dataView]
-					poptions.application = that
+					poptions.application = thatFn
 					if pconfig.components?
 						poptions.components = {}
 						for ccName, cconfig of pconfig.components
@@ -365,7 +292,7 @@ MITHGrid.namespace 'Application', (Application) ->
 								poptions.components[ccName] = that.component[ccName]
 							else
 								ccoptions = $.extend(true, {}, ccconfig)
-								ccoptions.application = that
+								ccoptions.application = thatFn
 								poptions.components[ccName] = cconfig.type.initInstance ccoptions
 					if pconfig.controllers?
 						poptions.controllers = {}
@@ -374,7 +301,7 @@ MITHGrid.namespace 'Application', (Application) ->
 								poptions.controllers[cName] = that.controller[cName]
 							else
 								coptions = $.extend(true, {}, cconfig)
-								coptions.application = that
+								coptions.application = thatFn
 								poptions.controllers[cName] = cconfig.type.initInstance coptions
 		
 					presentation = pconfig.type.initInstance pcontainer, poptions
@@ -393,7 +320,7 @@ MITHGrid.namespace 'Application', (Application) ->
 			#
 			that.addPlugin = (pconf) ->
 				pconfig = $.extend(true, {}, pconf)
-				pconfig.application = that
+				pconfig.application = thatFn
 
 				plugin = pconfig.type.initPlugin(pconfig)
 				if plugin?
@@ -410,7 +337,6 @@ MITHGrid.namespace 'Application', (Application) ->
 							that.ready ->
 								proptions = $.extend(true, {}, prconfig.options)
 								pcontainer = $(container).find(prconfig.container)
-								#pcontainer = $("#" + $(container).attr('id') + ' > ' + prconfig.container)
 								pcontainer = pcontainer[0] if $.isArray(pcontainer)
 
 								proptions.lenses = prconfig.lenses if prconfig?.lenses?
@@ -418,7 +344,7 @@ MITHGrid.namespace 'Application', (Application) ->
 									proptions.dataView = that.dataView[prconfig.dataView] 
 								else if pconfig.dataView?
 									proptions.dataView = that.dataView[pconfig.dataView]
-								proptions.application = that
+								proptions.application = thatFn
 								presentation = prconfig.type.initInstance pcontainer, proptions
 								plugin.presentation[pname] = presentation
 								presentation.selfRender()
