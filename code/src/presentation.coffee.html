@@ -68,6 +68,7 @@ title: mithgrid/code/src/presentation.coffee.html
 <p>The rendering function should return an object that can be used to manage the rendering.</p>
 </td><td class="code"><div class="highlight"><pre>      <span class="nv">that.addLens = </span><span class="nf">(key, lens) -&gt;</span>
         <span class="nx">lenses</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">lens</span>
+        <span class="nx">that</span><span class="p">.</span><span class="nx">selfRender</span><span class="p">()</span>
     </pre></div></td></tr><tr id="section-5"><td class="docs"><div class="pilwrap"><a href="#section-5" class="pilcrow">&#182;</a></div><h3>#removeLens</h3>
 
 <p>Removes the renderer for the given key value.</p>
@@ -151,9 +152,9 @@ or the callback function returns the "false" value.</p>
 
             <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span><span class="nx">start</span> <span class="p">...</span> <span class="nx">end</span><span class="p">]</span>
               <span class="nv">id = </span><span class="nx">items</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
-              <span class="nv">hasItem = </span><span class="nx">model</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+              <span class="nv">hasItem = </span><span class="nx">model</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="o">and</span> <span class="nx">that</span><span class="p">.</span><span class="nx">hasLensFor</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
               <span class="k">if</span> <span class="nx">renderings</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span><span class="o">?</span>
-                <span class="k">if</span> <span class="o">!</span><span class="nx">hasItem</span></pre></div></td></tr><tr id="section-10"><td class="docs"><div class="pilwrap"><a href="#section-10" class="pilcrow">&#182;</a></div><p>item was removed
+                <span class="k">if</span> <span class="o">!</span><span class="nx">hasItem</span></pre></div></td></tr><tr id="section-10"><td class="docs"><div class="pilwrap"><a href="#section-10" class="pilcrow">&#182;</a></div><p>item or its lens was removed
 we need to remove it from the display
 .remove() should not make changes in the model</p>
 </td><td class="code"><div class="highlight"><pre>                  <span class="nx">renderings</span><span class="p">[</span><span class="nx">id</span><span class="p">].</span><span class="nx">eventUnfocus</span><span class="p">()</span> <span class="k">if</span> <span class="nx">activeRenderingId</span> <span class="o">==</span> <span class="nx">id</span> <span class="o">and</span> <span class="nx">renderings</span><span class="p">[</span><span class="nx">id</span><span class="p">].</span><span class="nx">eventUnfocus</span><span class="o">?</span>
@@ -162,9 +163,9 @@ we need to remove it from the display
                 <span class="k">else</span>
                   <span class="nx">renderings</span><span class="p">[</span><span class="nx">id</span><span class="p">].</span><span class="nx">update</span> <span class="nx">model</span><span class="p">.</span><span class="nx">getItem</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
               <span class="k">else</span> <span class="k">if</span> <span class="nx">hasItem</span>
-                <span class="nv">rendering = </span><span class="nx">that</span><span class="p">.</span><span class="nx">render</span> <span class="nx">container</span><span class="p">,</span> <span class="nx">model</span><span class="p">,</span> <span class="nx">id</span></pre></div></td></tr><tr id="section-11"><td class="docs"><div class="pilwrap"><a href="#section-11" class="pilcrow">&#182;</a></div><p>lens = that.getLens id</p>
-</td><td class="code"><div class="highlight"><pre>                <span class="k">if</span> <span class="nx">rendering</span><span class="o">?</span> <span class="c1">#lens?</span>
-                  <span class="nx">renderings</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span> <span class="o">=</span> <span class="nx">rendering</span> <span class="c1">#lens.render container, that, model, id</span>
+                <span class="nv">rendering = </span><span class="nx">that</span><span class="p">.</span><span class="nx">render</span> <span class="nx">container</span><span class="p">,</span> <span class="nx">model</span><span class="p">,</span> <span class="nx">id</span>
+                <span class="k">if</span> <span class="nx">rendering</span><span class="o">?</span>
+                  <span class="nx">renderings</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span> <span class="o">=</span> <span class="nx">rendering</span>
                   <span class="k">if</span> <span class="nx">activeRenderingId</span> <span class="o">==</span> <span class="nx">id</span> <span class="o">and</span> <span class="nx">rendering</span><span class="p">.</span><span class="nx">eventFocus</span><span class="o">?</span>
                     <span class="nx">rendering</span><span class="p">.</span><span class="nx">eventFocus</span><span class="p">()</span>
 
@@ -175,7 +176,7 @@ we need to remove it from the display
             <span class="nx">that</span><span class="p">.</span><span class="nx">finishDisplayUpdate</span><span class="p">()</span>
       
         <span class="nx">that</span><span class="p">.</span><span class="nx">startDisplayUpdate</span><span class="p">()</span>
-        <span class="nx">f</span> <span class="mi">0</span></pre></div></td></tr><tr id="section-12"><td class="docs"><div class="pilwrap"><a href="#section-12" class="pilcrow">&#182;</a></div><h3>#render</h3>
+        <span class="nx">f</span> <span class="mi">0</span></pre></div></td></tr><tr id="section-11"><td class="docs"><div class="pilwrap"><a href="#section-11" class="pilcrow">&#182;</a></div><h3>#render</h3>
 
 <p>Renders the given item using the appropriate lens.</p>
 
@@ -191,23 +192,27 @@ i - the item ID</p>
 </td><td class="code"><div class="highlight"><pre>      <span class="nv">that.render = </span><span class="nf">(c, m, i) -&gt;</span>
         <span class="nv">lens = </span><span class="nx">that</span><span class="p">.</span><span class="nx">getLens</span> <span class="nx">i</span>
         <span class="k">if</span> <span class="nx">lens</span><span class="o">?</span>
-          <span class="nx">lens</span><span class="p">.</span><span class="nx">render</span> <span class="nx">c</span><span class="p">,</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">m</span><span class="p">,</span> <span class="nx">i</span></pre></div></td></tr><tr id="section-13"><td class="docs"><div class="pilwrap"><a href="#section-13" class="pilcrow">&#182;</a></div><h3>#eventModelChange</h3>
+          <span class="nx">lens</span><span class="p">.</span><span class="nx">render</span> <span class="nx">c</span><span class="p">,</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">m</span><span class="p">,</span> <span class="nx">i</span>
+      
+      <span class="nv">that.hasLensFor = </span><span class="nf">(id) -&gt;</span>
+        <span class="nv">lens = </span><span class="nx">that</span><span class="p">.</span><span class="nx">getLens</span> <span class="nx">id</span>
+        <span class="nx">lens</span><span class="o">?</span></pre></div></td></tr><tr id="section-12"><td class="docs"><div class="pilwrap"><a href="#section-12" class="pilcrow">&#182;</a></div><h3>#eventModelChange</h3>
 
 <p>By default, a presentation renders items as needed when the underlying data store or data view sees changes in
 its data.</p>
-</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.eventModelChange = </span><span class="nx">that</span><span class="p">.</span><span class="nx">renderItems</span></pre></div></td></tr><tr id="section-14"><td class="docs"><div class="pilwrap"><a href="#section-14" class="pilcrow">&#182;</a></div><h3>#startDisplayUpdate</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.eventModelChange = </span><span class="nx">that</span><span class="p">.</span><span class="nx">renderItems</span></pre></div></td></tr><tr id="section-13"><td class="docs"><div class="pilwrap"><a href="#section-13" class="pilcrow">&#182;</a></div><h3>#startDisplayUpdate</h3>
 
 <p>Called before updating the renderings managed by the presentation.</p>
 </td><td class="code"><div class="highlight"><pre>      <span class="nv">that.startDisplayUpdate = </span><span class="nf">() -&gt;</span>
-    </pre></div></td></tr><tr id="section-15"><td class="docs"><div class="pilwrap"><a href="#section-15" class="pilcrow">&#182;</a></div><h3>#finishDisplayUpdate</h3>
+    </pre></div></td></tr><tr id="section-14"><td class="docs"><div class="pilwrap"><a href="#section-14" class="pilcrow">&#182;</a></div><h3>#finishDisplayUpdate</h3>
 
 <p>Called after updating the renderings managed by the presentation.</p>
-</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.finishDisplayUpdate = </span><span class="nf">() -&gt;</span></pre></div></td></tr><tr id="section-16"><td class="docs"><div class="pilwrap"><a href="#section-16" class="pilcrow">&#182;</a></div><h3>#selfRender</h3>
+</td><td class="code"><div class="highlight"><pre>      <span class="nv">that.finishDisplayUpdate = </span><span class="nf">() -&gt;</span></pre></div></td></tr><tr id="section-15"><td class="docs"><div class="pilwrap"><a href="#section-15" class="pilcrow">&#182;</a></div><h3>#selfRender</h3>
 
 <p>Renders all of the items in the data view attached to the presentation.</p>
 </td><td class="code"><div class="highlight"><pre>      <span class="nv">that.selfRender = </span><span class="nf">() -&gt;</span> 
         <span class="nx">that</span><span class="p">.</span><span class="nx">renderItems</span> <span class="nx">that</span><span class="p">.</span><span class="nx">dataView</span><span class="p">,</span> <span class="nx">that</span><span class="p">.</span><span class="nx">dataView</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
-    </pre></div></td></tr><tr id="section-17"><td class="docs"><div class="pilwrap"><a href="#section-17" class="pilcrow">&#182;</a></div><h3>#eventFocusChange</h3>
+    </pre></div></td></tr><tr id="section-16"><td class="docs"><div class="pilwrap"><a href="#section-16" class="pilcrow">&#182;</a></div><h3>#eventFocusChange</h3>
 
 <p>Changes focus to the rendering for the given item.</p>
 
@@ -230,14 +235,14 @@ its data.</p>
               <span class="nx">rendering</span><span class="p">.</span><span class="nx">eventFocus</span><span class="p">()</span>
           <span class="nv">activeRenderingId = </span><span class="nx">id</span>
         <span class="nx">activeRenderingId</span>
-    </pre></div></td></tr><tr id="section-18"><td class="docs"><div class="pilwrap"><a href="#section-18" class="pilcrow">&#182;</a></div><h3>#getFocusedRendering</h3>
+    </pre></div></td></tr><tr id="section-17"><td class="docs"><div class="pilwrap"><a href="#section-17" class="pilcrow">&#182;</a></div><h3>#getFocusedRendering</h3>
 
 <p>Returns the rendering that has focus.</p>
 </td><td class="code"><div class="highlight"><pre>      <span class="nv">that.getFocusedRendering = </span><span class="nf">() -&gt;</span>
         <span class="k">if</span> <span class="nx">activeRenderingId</span><span class="o">?</span>
           <span class="nx">that</span><span class="p">.</span><span class="nx">renderingFor</span> <span class="nx">activeRenderingId</span>
         <span class="k">else</span>
-          <span class="kc">null</span></pre></div></td></tr><tr id="section-19"><td class="docs"><div class="pilwrap"><a href="#section-19" class="pilcrow">&#182;</a></div><p>We do a little housekeeping to tie the presentation to the data view.</p>
+          <span class="kc">null</span></pre></div></td></tr><tr id="section-18"><td class="docs"><div class="pilwrap"><a href="#section-18" class="pilcrow">&#182;</a></div><p>We do a little housekeeping to tie the presentation to the data view.</p>
 </td><td class="code"><div class="highlight"><pre>      <span class="nv">that.dataView = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">dataView</span>
       <span class="nx">that</span><span class="p">.</span><span class="nx">dataView</span><span class="p">.</span><span class="nx">registerPresentation</span><span class="p">(</span><span class="nx">that</span><span class="p">)</span>
 
@@ -245,4 +250,4 @@ its data.</p>
     <span class="nv">SimpleText.initInstance = </span><span class="nf">(args...) -&gt;</span>
       <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Presentation</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Presentation.SimpleText&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that, container) -&gt;</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Sat Apr 28 2012 20:09:59 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
+</pre></div></td></tr></tbody></table><div id="generated">generated Tue May 08 2012 14:37:19 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
