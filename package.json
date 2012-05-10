@@ -1,13 +1,9 @@
 {
   "name": "MITHgrid",
-  "description": "A JavaScript framework for building browser-based applications composed of a small core and a set of plugins.",
+  "description": "JavaScript framework for building data-oriented, event-driven browser applications.",
   "bugs": {
      "url": "https://github.com/umd-mith/mithgrid/issues"
   },
-  "contributors": [
-    "James Smith"
-  ],
-  "author": "Maryland Institute for Technology in the Humanities (MITH)",
   "version": "0.0.1",
   "licenses": [{
     "type": "BSD",
@@ -18,7 +14,7 @@
     "url": "git://github.com/umd-mith/mithgrid.git"
   },
   "dependencies": {
-    "jQuery": "1.6.1"
+    "jQuery": "1.7.1"
   },
   "optionalDependencies": {
     "raphael.js": "1.5.2"

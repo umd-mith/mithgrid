@@ -2,7 +2,7 @@
 #
 # Everything here is private except for a few exported objects and functions.
 #
-MITHGrid.namespace "Expression", (exports) ->
+MITHGrid.namespace "Expression.Basic", (exports) ->
 	Expression = {}
 	_operators =
 		"+":

@@ -1,7 +1,7 @@
 MITHgrid
 ========
 
-MITHgrid is a JavaScript framework for building browser-based applications composed of a small core and a set of plugins.
+MITHgrid is a JavaScript framework for building data-oriented, event-driven browser applications..
 
 What you need to use MITHgrid
 -----------------------------
@@ -10,8 +10,7 @@ MITHgrid depends on jQuery.
 
 The following libraries and versions are included in the lib/ directory.  These are the versions with which MITHgrid is developed.
 
-* jQuery 1.6.1
-* Raphaël.js 1.5.2 (for the examples)
+* jQuery 1.7.1
 
 What you need to build your own MITHgrid
 ----------------------------------------

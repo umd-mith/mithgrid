@@ -1,16 +1,8 @@
 # # Applications
 #
-# ## MITHGrid.Application.initInstance
+# ## MITHGrid.Application
 #
 # Initializes an application instance.
-#
-# Parameters:
-#
-# * klass -
-#
-# * container -
-#
-# * options -
 #
 # 
 MITHGrid.namespace 'Application', (Application) ->

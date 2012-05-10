@@ -694,7 +694,7 @@ MITHGrid.namespace 'Data', (Data) ->
 				# ### #prepare
 				#
 				that.prepare = (expressions) ->
-					parser = MITHGrid.Expression.initParser()
+					parser = MITHGrid.Expression.Basic.initParser()
 					parsed = (parser.parse(ex) for ex in expressions)
 					valueType = undefined
 					evaluate: (id) ->
@@ -851,7 +851,7 @@ MITHGrid.namespace 'Data', (Data) ->
 
 				if options?.filters?.length > 0
 					((filters) ->
-						parser = MITHGrid.Expression.initParser()
+						parser = MITHGrid.Expression.Basic.initParser()
 						parsedFilters = (parser.parse(ex) for ex in filters)
 						that.registerFilter
 							eventFilterItem: (model, id) ->
