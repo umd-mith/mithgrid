@@ -10,13 +10,13 @@ $(document).ready ->
 	module "Presentation.SimpleText"
 	test "Simple Text presentation", ->
 		expect 7
-		ds = MITHGrid.Data.initStore()
+		ds = MITHGrid.Data.Store.initInstance()
 		ok ds?, "Data store is created"
 		renderings = []
 		updates = []
 		removals = []
-		p = MITHGrid.Presentation.SimpleText.initPresentation $("#presentation-simple-text-p"),
-			dataView: MITHGrid.Data.initView
+		p = MITHGrid.Presentation.SimpleText.initInstance $("#presentation-simple-text-p"),
+			dataView: MITHGrid.Data.View.initInstance
 				dataStore: ds 
 			lenses:
 				'Item': (container, view, model, id) ->

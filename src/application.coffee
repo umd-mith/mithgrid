@@ -213,7 +213,7 @@ MITHGrid.namespace 'Application', (Application) ->
 					foptions.dataView = that.dataView[fconfig.dataView]
 					foptions.application = thatFn
 			
-					facet = fconfig.type.initFacet fcontainer, foptions
+					facet = fconfig.type.initInstance fcontainer, foptions
 					that.facet[fName] = facet
 					facet.selfRender()
 	
@@ -314,7 +314,7 @@ MITHGrid.namespace 'Application', (Application) ->
 				pconfig = $.extend(true, {}, pconf)
 				pconfig.application = thatFn
 
-				plugin = pconfig.type.initPlugin(pconfig)
+				plugin = pconfig.type.initInstance(pconfig)
 				if plugin?
 					if pconfig?.dataView?
 						# hook plugin up with dataView requested by app configuration

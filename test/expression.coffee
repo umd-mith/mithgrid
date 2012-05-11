@@ -36,7 +36,7 @@ $(document).ready ->
 	test "Check collection construction (set)", ->
 		list = []
 		
-		set = MITHGrid.Data.initSet [ 'a', 'bc', 'def', 4 ]
+		set = MITHGrid.Data.Set.initInstance [ 'a', 'bc', 'def', 4 ]
 		
 		expect 3
 		col = MITHGrid.Expression.Basic.initCollection set

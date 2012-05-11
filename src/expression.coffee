@@ -43,7 +43,7 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
 			valueType: "boolean"
 			f: (a, b) -> a >= b
 
-	# ## MITHGrid.Expression.controls
+	# ## MITHGrid.Expression.Basic.controls
 	#
 	# Control functions may be defined for use in expressions. See the existing control functions for examples of
 	# how to write them.
@@ -76,6 +76,8 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
 					args[1].evaluate roots, rootValueTypes, defaultRootName, database
 				else
 					args[2].evaluate roots, rootValueTypes, defaultRootName, database
+		# ### foreach
+		#
 		"foreach":
 			f: (args, roots, rootValueTypes, defaultRootName, database) ->
 				collection = args[0].evaluate roots, rootValueTypes, defaultRootName, database
@@ -118,7 +120,7 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
 			}
 		
 		that.evaluateOnItem = (itemID, database) ->
-			this.evaluate({
+			that.evaluate({
 				"value": itemID
 			}, {
 				"value": "item"
@@ -172,7 +174,7 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
 					if f(v) == true
 						break;
 
-			that.getSet = () -> MITHGrid.Data.initSet values
+			that.getSet = () -> MITHGrid.Data.Set.initInstance values
 
 			that.contains = (v) -> v in values
 
@@ -315,7 +317,7 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
 				a
 
 			if filter instanceof Array
-				filter = MITHGrid.Data.initSet filter
+				filter = MITHGrid.Data.Set.initInstance filter
 
 			for i in [ _segments.length-1 .. 0 ]
 				segment = _segments[i];
@@ -372,7 +374,7 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
 		that.getSegmentCount = () -> _segments.length
 
 		that.rangeBackward = (from, to, filter, database) ->
-			set = MITHGrid.Data.initSet()
+			set = MITHGrid.Data.Set.initInstance()
 			valueType = "item"
 
 			if _segments.length > 0
@@ -430,7 +432,7 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
 
 		that
 
-	Expression.initParser = exports.initParser = () ->
+	Expression.initParser = exports.initInstance = ->
 		that = {}
 	
 		internalParse = (scanner, several) ->
@@ -711,7 +713,7 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
 	exports.registerSimpleMappingFunction = (name, f, valueType) ->
 		Expression.functions[name] =
 			f: (args) ->
-				set = MITHGrid.Data.initSet()
+				set = MITHGrid.Data.Set.initInstance()
 				evalArg = (arg) ->
 					arg.forEachValue (v) ->
 						v2 = f(v)
