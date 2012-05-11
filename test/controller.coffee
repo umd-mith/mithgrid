@@ -22,3 +22,17 @@ $(document).ready ->
 		ctrl = MITHGrid.Controller.initInstance("Test.Controller")
 		ok ctrl?.options?.bind?.events?.hasOwnProperty('onFocus'), "options has bind.events.onFocus"
 		ok ctrl?.options?.events?.hasOwnProperty('onFoo'), "options has events.onFoo"
+		
+	test "Check Raphael controller interface", ->
+		expect 2
+
+		MITHGrid.defaults "Test.Controller",
+			bind:
+				events:
+					onFocus: null
+			events:
+				onFoo: null
+
+		ctrl = MITHGrid.Controller.Raphael.initInstance("Test.Controller")
+		ok ctrl?.options?.bind?.events?.hasOwnProperty('onFocus'), "options has bind.events.onFocus"
+		ok ctrl?.options?.events?.hasOwnProperty('onFoo'), "options has events.onFoo"
