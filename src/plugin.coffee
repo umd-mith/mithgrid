@@ -6,8 +6,8 @@ MITHGrid.namespace "Plugin", (exports) ->
 	# an application.
 	#
     #
-    #  MITHGrid.Plugin.MyPlugin = function(options) {
-    #    var that = MITHGrid.Plugin.initPlugin('MyPlugin', options, { ... })
+    #  MITHGrid.Plugin.MyPlugin.initInstance = function(options) {
+    #    var that = MITHGrid.Plugin.initInstance('MyPlugin', options, { ... })
     #  };
     #
     #  var myApp = MITHGrid.Application({
@@ -15,7 +15,7 @@ MITHGrid.namespace "Plugin", (exports) ->
     #  });
 	#
 	
-	exports.initPlugin = (klass, options) ->
+	exports.initInstance = (klass, options) ->
 		that = { options: options, presentation: { } }
 		readyFns = [ ]
 	

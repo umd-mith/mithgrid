@@ -112,7 +112,8 @@ MITHGrid.namespace 'Facet', (Facet) ->
 				if options.expressions?
 					if !$.isArray(options.expressions)
 						options.expressions = [ options.expressions ]
-						parsed = (MITHGrid.Expression.initParser().parse(ex) for ex in options.expressions)
+					parser = MITHGrid.Expression.Basic.initInstance()
+					parsed = (parser.parse(ex) for ex in options.expressions)
 	
 				that.eventFilterItem = (dataSource, id) ->
 					if that.text? and options.expressions?
@@ -147,7 +148,8 @@ MITHGrid.namespace 'Facet', (Facet) ->
 				if options.expressions?
 					if !$.isArray(options.expressions)
 						options.expressions = [ options.expressions ]
-						parsed = (MITHGrid.Expression.initParser().parse(ex) for ex in options.expressions)
+					parser = MITHGrid.Expression.Basic.initInstance()
+					parsed = (parser.parse(ex) for ex in options.expressions)
 	
 				that.eventFilterItem = (dataSource, id) ->
 					if that.text? and options.expressions?

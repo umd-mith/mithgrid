@@ -7,20 +7,20 @@ $(document).ready ->
 		ok $.isFunction(MITHGrid.Data.namespace), "MITHGrid.Data.namespace is a function"
 		ok $.isFunction(MITHGrid.Data.debug), "MITHGrid.Data.debug is a function"
 
-	module "Data.initSet"
+	module "Data.Set.initInstance"
 
 	test "Check interface", ->		
 		expect 6
-		set = MITHGrid.Data.initSet([])
+		set = MITHGrid.Data.Set.initInstance([])
 		for prop in ["items", "add", "remove", "visit", "contains", "size"]
 			ok $.isFunction(set[prop]), ".#{prop} is a function"
 
 	test "Check set construction", ->
 		expect 13
-		ok MITHGrid.Data.initSet?, "Set exists"
-		ok $.isFunction(MITHGrid.Data.initSet), "initSet is a function"
+		ok MITHGrid.Data.Set?.initInstance?, "Set exists"
+		ok $.isFunction(MITHGrid.Data.Set.initInstance), "Set.initInstance is a function"
 
-		set = MITHGrid.Data.initSet ['a', 'bc', 'def', 4]
+		set = MITHGrid.Data.Set.initInstance ['a', 'bc', 'def', 4]
 		ok set?, "set object is not undefined"
 		equal set.isSet, true, "set object has .isSet as true"
 
@@ -49,21 +49,21 @@ $(document).ready ->
 
 	test "Check type construction", ->
 		expect 4
-		ok MITHGrid.Data.initType?, "Type exists"
-		ok $.isFunction(MITHGrid.Data.initType), "Type is a function"
+		ok MITHGrid.Data.Type?.initInstance?, "Type exists"
+		ok $.isFunction(MITHGrid.Data.Type.initInstance), "Type is a function"
 
-		type = MITHGrid.Data.initType 'Foo'
+		type = MITHGrid.Data.Type.initInstance 'Foo'
 		equals typeof(type), "object", "Type constructor returns an object"
 		equals type.name, "Foo", "Type .name returns correct name"
 
-	module "Data.initProperty"
+	module "Data.Property.initInstance"
 
 	test "Check property construction", ->
 		expect 6
-		ok MITHGrid.Data.initProperty?, "initProperty exists"
-		ok $.isFunction(MITHGrid.Data.initProperty), "Property is a function"
+		ok MITHGrid.Data.Property?.initInstance?, "Property.initInstance exists"
+		ok $.isFunction(MITHGrid.Data.Property.initInstance), "Property is a function"
 
-		prop = MITHGrid.Data.initProperty 'foo'
+		prop = MITHGrid.Data.Property.initInstance 'foo'
 		equals typeof(prop), "object", "Property constructor returns an object"
 		equals prop.name, "foo", "Property .name returns correct name"
 		equals prop.getValueType(), "text", "Property .getValueType returns correct default type"
@@ -71,42 +71,42 @@ $(document).ready ->
 		prop.valueType = "item"
 		equals "item", prop.getValueType(), "Property .getValueType returns correct type"
 
-	module "Data.initStore"
+	module "Data.Store.initInstance"
 
 	test "Check interface", ->
 		props = [ "items", "addProperty", "getProperty", "addType", "getType", "getItem", "getItems",
 				  "updateItems", "loadItems", "prepare", "getObjectsUnion", "getSubjectsUnion" ]
 		
 		expect props.length
-		ds = MITHGrid.Data.initStore
-			source: "Data.initStore.interface_test"
+		ds = MITHGrid.Data.Store.initInstance
+			source: "Data.Store.initInstance.interface_test"
 		for prop in props
 			ok $.isFunction(ds[prop]), ".#{prop} is a function"
 	
 	test "Check data source construction", ->
 		expect 5
-		ok MITHGrid.Data.initStore?, "Data.initStore exists"
-		ok $.isFunction(MITHGrid.Data.initStore), "Data.initStore is a function"
+		ok MITHGrid.Data.Store.initInstance?, "Data.Store.initInstance exists"
+		ok $.isFunction(MITHGrid.Data.Store.initInstance), "Data.Store.initInstance is a function"
 
-		ds = MITHGrid.Data.initStore
-			source: "Data.initStore.test"
+		ds = MITHGrid.Data.Store.initInstance
+			source: "Data.Store.initInstance.test"
 
 		equals typeof(ds), "object", "Source constructor returns an object"
 
-		ds2 = MITHGrid.Data.initStore
-			source: "Data.initStore.test"
+		ds2 = MITHGrid.Data.Store.initInstance
+			source: "Data.Store.initInstance.test"
 
 		notEqual ds.id, ds2.id, "Source constructor returns a different object for the same source name"
 
-		ds2 = MITHGrid.Data.initStore
-			source: "Data.initStore.test2"
+		ds2 = MITHGrid.Data.Store.initInstance
+			source: "Data.Store.initInstance.test2"
 
 		notEqual ds2.id, ds.id, "Source constructor returns different objects for different source names"
 
 	test "Check data source types and properties", ->
 		expect 9
-		ds = MITHGrid.Data.initStore
-			source: "Data.initStore.test3"
+		ds = MITHGrid.Data.Store.initInstance
+			source: "Data.Store.initInstance.test3"
 
 		equals typeof(ds), "object", "Source constructed"
 
@@ -136,7 +136,7 @@ $(document).ready ->
 
 	test "Check data source data loading", ->
 		expect 22
-		ds = MITHGrid.Data.initStore({})
+		ds = MITHGrid.Data.Store.initInstance({})
 		equals ds.items().length, 0, "Data source begins empty"
 
 		# items require an id and a type
@@ -229,8 +229,8 @@ $(document).ready ->
 	# using . and !
 	test "Check path traversal", ->
 		expect 14
-		ds = MITHGrid.Data.initStore
-			source: "Data.initStore.test5"
+		ds = MITHGrid.Data.Store.initInstance
+			source: "Data.Store.initInstance.test5"
 
 		equals ds.items().length, 0, "Data source begins empty"
 
@@ -278,23 +278,23 @@ $(document).ready ->
 		equals ids.length, 1, "There's a single item"
 		equals ids[0], "item-2", "It's the correct item"
 
-	module "Data.initView"
+	module "Data.View.initInstance"
 
 	test "Check interface", ->
 		props = [ "items", "addProperty", "getProperty", "addType", "getType", "getItem", "getItems",
 				  "updateItems", "loadItems", "prepare", "getObjectsUnion", "getSubjectsUnion" ]
 		
 		expect props.length
-		dv = MITHGrid.Data.initView
-			dataStore: MITHGrid.Data.initStore()
+		dv = MITHGrid.Data.View.initInstance
+			dataStore: MITHGrid.Data.Store.initInstance()
 
 		for prop in props
 			ok $.isFunction(dv[prop]), ".#{prop} is a function"
 
 	test "Check data view construction", ->
 		expect 2
-		ok MITHGrid.Data.initView?, "Data.initView exists"
-		ok $.isFunction(MITHGrid.Data.initView), "Data.initView is a function"
+		ok MITHGrid.Data.View.initInstance?, "Data.View.initInstance exists"
+		ok $.isFunction(MITHGrid.Data.View.initInstance), "Data.View.initInstance is a function"
 
 
 	module "Data.Pager"
@@ -398,8 +398,8 @@ $(document).ready ->
 		
 		expect 33
 		dp = MITHGrid.Data.RangePager.initInstance
-			dataStore: MITHGrid.Data.initView
-				dataStore: MITHGrid.Data.initStore()
+			dataStore: MITHGrid.Data.View.initInstance
+				dataStore: MITHGrid.Data.Store.initInstance()
 			leftExpressions: [ '.start' ]
 			rightExpressions: [ '.end' ]
 
@@ -471,7 +471,7 @@ $(document).ready ->
 		expect 10
 		
 		dp = MITHGrid.Data.RangePager.initInstance
-			dataStore: MITHGrid.Data.initStore()
+			dataStore: MITHGrid.Data.Store.initInstance()
 			leftExpressions: [ '.start' ]
 			rightExpressions: [ '.end' ]
 		
