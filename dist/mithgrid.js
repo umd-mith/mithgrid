@@ -2,7 +2,7 @@
 /*
 # mithgrid JavaScript Library v0.0.1
 #
-# Date: Mon May 7 10:28:51 2012 -0400
+# Date: Tue May 15 08:36:57 2012 -0400
 #
 # (c) Copyright University of Maryland 2011-2012.  All rights reserved.
 #
@@ -47,9 +47,9 @@
   jQuery = (_ref2 = this.jQuery) != null ? _ref2 : this.jQuery = {};
 
   (function($, MITHGrid) {
-    var MITHGridDefaults, genericNamespacer, initViewCounter, _ref3;
-    if ((typeof window !== "undefined" && window !== null ? (_ref3 = window.console) != null ? _ref3.log : void 0 : void 0) != null) {
-      MITHGrid.debug = window.console.log;
+    var MITHGridDefaults, genericNamespacer, initViewCounter;
+    if ((typeof console !== "undefined" && console !== null ? console.log : void 0) != null) {
+      MITHGrid.debug = console.log;
     } else {
       MITHGrid.debug = function() {};
     }
@@ -57,6 +57,14 @@
       MITHGrid.debug.call({}, arguments);
       return {
         'arguments': arguments
+      };
+    };
+    MITHGrid.deprecated = function(fname, cb) {
+      return function() {
+        var args;
+        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        console.log("Call to deprecated function " + fname + ".");
+        return cb.apply(null, args);
       };
     };
     MITHGrid.namespace = function(nom, fn) {
@@ -95,7 +103,7 @@
       return globals[nom];
     };
     MITHGrid.normalizeArgs = function() {
-      var args, callbacks, cb, container, options, opts, t, types, _ref4;
+      var args, callbacks, cb, container, options, opts, t, types, _ref3;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
       callbacks = [];
       options = [];
@@ -138,7 +146,7 @@
       }
       types = [];
       while (typeof args[0] === "string") {
-        if ((_ref4 = args[0].substr(0, 1)) === "#" || _ref4 === ".") break;
+        if ((_ref3 = args[0].substr(0, 1)) === "#" || _ref3 === ".") break;
         types.push(args.shift());
       }
       types = types.reverse();
@@ -188,92 +196,36 @@
       }
       return that;
     };
-    MITHGrid.initEventFirer = function(isPreventable, isUnicast) {
-      var listeners, that;
-      that = {};
-      that.isPreventable = isPreventable;
-      that.isUnicast = isUnicast;
-      listeners = [];
-      that.addListener = function(listener, namespace) {
-        return listeners.push([listener, namespace]);
+    MITHGrid.initEventFirer = function(isPreventable, isUnicast, hasMemory) {
+      var callbackFlags, callbacks, that;
+      that = {
+        isPreventable: !!isPreventable,
+        isUnicast: !!isUnicast,
+        hasMemory: !!hasMemory
+      };
+      callbackFlags = [];
+      if (that.isPreventable) callbackFlags.push("stopOnFalse");
+      if (that.isUnicast) callbackFlags.push("unique");
+      if (that.hasMemory) callbackFlags.push("memory");
+      callbacks = $.Callbacks(callbackFlags.join(" "));
+      that.addListener = function(listener) {
+        return callbacks.add(listener);
       };
       that.removeListener = function(listener) {
-        var l;
-        if (typeof listener === "string") {
-          return listeners = (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = listeners.length; _i < _len; _i++) {
-              l = listeners[_i];
-              if (l[1] !== listener) _results.push(l);
-            }
-            return _results;
-          })();
-        } else {
-          return listeners = (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = listeners.length; _i < _len; _i++) {
-              l = listeners[_i];
-              if (l[0] !== listener) _results.push(l);
-            }
-            return _results;
-          })();
-        }
+        return callbacks.remove(listener);
       };
-      if (isUnicast) {
-        that.fire = function() {
-          var args, _ref4;
-          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          if (listeners.length > 0) {
-            try {
-              return (_ref4 = listeners[0])[0].apply(_ref4, args);
-            } catch (e) {
-              return console.log(e);
-            }
-          } else {
-            return true;
-          }
-        };
-      } else if (isPreventable) {
-        that.fire = function() {
-          var args, l, listener, r, _i, _len;
-          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          r = true;
-          for (_i = 0, _len = listeners.length; _i < _len; _i++) {
-            listener = listeners[_i];
-            l = listener[0];
-            try {
-              r = l.apply(null, args);
-            } catch (e) {
-              console.log(e);
-            }
-            if (r === false) return false;
-          }
-          return true;
-        };
-      } else {
-        that.fire = function() {
-          var args, listener, _i, _len;
-          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          for (_i = 0, _len = listeners.length; _i < _len; _i++) {
-            listener = listeners[_i];
-            try {
-              listener[0].apply(listener, args);
-            } catch (e) {
-              console.log(listener[0], args, e);
-            }
-          }
-          return true;
-        };
-      }
+      that.fire = function() {
+        var args;
+        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        return callbacks.fire.apply(callbacks, args);
+      };
       return that;
     };
     initViewCounter = 0;
     MITHGrid.initInstance = function() {
-      var args, bits, c, cb, config, container, k, namespace, ns, options, optionsArray, that, varName, vs, _i, _len, _ref4, _ref5, _ref6, _ref7;
+      var args, bits, c, cb, config, container, k, namespace, ns, options, optionsArray, that, varName, vs, _i, _len, _ref3, _ref4, _ref5, _ref6;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      _ref4 = MITHGrid.normalizeArgs.apply(MITHGrid, args), namespace = _ref4[0], container = _ref4[1], config = _ref4[2], cb = _ref4[3];
+      _ref3 = MITHGrid.normalizeArgs.apply(MITHGrid, args), namespace = _ref3[0], container = _ref3[1], config = _ref3[2], cb = _ref3[3];
       that = {
         _mithgrid_type: "MITHGrid"
       };
@@ -305,15 +257,15 @@
       that.container = container;
       that.events = {};
       if (that.options.events != null) {
-        _ref5 = that.options.events;
-        for (k in _ref5) {
-          c = _ref5[k];
+        _ref4 = that.options.events;
+        for (k in _ref4) {
+          c = _ref4[k];
           if (c != null) {
             if (typeof c === "string") c = [c];
           } else {
             c = [];
           }
-          that.events[k] = MITHGrid.initEventFirer((__indexOf.call(c, "preventable") >= 0), (__indexOf.call(c, "unicast") >= 0));
+          that.events[k] = MITHGrid.initEventFirer((__indexOf.call(c, "preventable") >= 0), (__indexOf.call(c, "unicast") >= 0), (__indexOf.call(c, "memory") >= 0));
         }
       }
       that.addVariable = function(varName, config) {
@@ -386,10 +338,10 @@
           };
         }
       };
-      if (((_ref6 = that.options) != null ? _ref6.variables : void 0) != null) {
-        _ref7 = options.variables;
-        for (varName in _ref7) {
-          config = _ref7[varName];
+      if (((_ref5 = that.options) != null ? _ref5.variables : void 0) != null) {
+        _ref6 = options.variables;
+        for (varName in _ref6) {
+          config = _ref6[varName];
           that.addVariable(varName, config);
         }
       }
@@ -454,7 +406,6 @@
           count = 0;
           recalc_items = true;
           items_list = [];
-          that.isSet = true;
           that.items = function() {
             var i;
             if (recalc_items) {
@@ -532,8 +483,8 @@
           return that = {
             name: p,
             getValueType: function() {
-              var _ref4;
-              return (_ref4 = that.valueType) != null ? _ref4 : 'text';
+              var _ref3;
+              return (_ref3 = that.valueType) != null ? _ref3 : 'text';
             }
           };
         };
@@ -545,7 +496,7 @@
           return MITHGrid.initInstance.apply(MITHGrid, ["MITHGrid.Data.Store"].concat(__slice.call(args), [function(that) {
             var getUnion, indexFillSet, indexPut, ops, options, properties, quiesc_events, set, spo, types;
             quiesc_events = false;
-            set = Data.initSet();
+            set = Data.Set.initInstance();
             types = {};
             properties = {};
             spo = {};
@@ -610,7 +561,7 @@
               }
             };
             getUnion = function(index, xSet, y, set, filter) {
-              if (!(set != null)) set = Data.initSet();
+              if (!(set != null)) set = Data.Set.initInstance();
               xSet.visit(function(x) {
                 return indexFillSet(index, x, y, set, filter);
               });
@@ -618,7 +569,7 @@
             };
             that.addProperty = function(nom, options) {
               var prop;
-              prop = Data.initProperty(nom);
+              prop = Data.Property.initInstance(nom);
               if ((options != null ? options.valueType : void 0) != null) {
                 prop.valueType = options.valueType;
                 properties[nom] = prop;
@@ -626,22 +577,22 @@
               return prop;
             };
             that.getProperty = function(nom) {
-              var _ref4;
-              return (_ref4 = properties[nom]) != null ? _ref4 : Data.initProperty(nom);
+              var _ref3;
+              return (_ref3 = properties[nom]) != null ? _ref3 : Data.Property.initInstance(nom);
             };
             that.addType = function(nom, options) {
               var type;
-              type = Data.initType(nom);
+              type = Data.Type.initInstance(nom);
               types[nom] = type;
               return type;
             };
             that.getType = function(nom) {
-              var _ref4;
-              return (_ref4 = types[nom]) != null ? _ref4 : Data.initType(nom);
+              var _ref3;
+              return (_ref3 = types[nom]) != null ? _ref3 : Data.Type.initInstance(nom);
             };
             that.getItem = function(id) {
-              var _ref4, _ref5;
-              return (_ref4 = (_ref5 = spo[id]) != null ? _ref5.values : void 0) != null ? _ref4 : {};
+              var _ref3, _ref4;
+              return (_ref3 = (_ref4 = spo[id]) != null ? _ref4.values : void 0) != null ? _ref3 : {};
             };
             that.getItems = function(ids) {
               if (!$.isArray(ids)) return [that.getItem(ids)];
@@ -761,10 +712,10 @@
                 type = entry.type;
                 changed = false;
                 itemListIdentical = function(to, from) {
-                  var i, items_same, _ref4;
+                  var i, items_same, _ref3;
                   items_same = true;
                   if (to.length !== from.length) return false;
-                  for (i = 0, _ref4 = to.length; 0 <= _ref4 ? i < _ref4 : i > _ref4; 0 <= _ref4 ? i++ : i--) {
+                  for (i = 0, _ref3 = to.length; 0 <= _ref3 ? i < _ref3 : i > _ref3; 0 <= _ref3 ? i++ : i--) {
                     if (to[i] !== from[i]) items_same = false;
                   }
                   return items_same;
@@ -915,7 +866,7 @@
             };
             that.prepare = function(expressions) {
               var ex, parsed, parser, valueType;
-              parser = MITHGrid.Expression.initParser();
+              parser = MITHGrid.Expression.Basic.initInstance();
               parsed = (function() {
                 var _i, _len, _results;
                 _results = [];
@@ -968,8 +919,8 @@
           var args;
           args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
           return MITHGrid.initInstance.apply(MITHGrid, ["MITHGrid.Data.View"].concat(__slice.call(args), [function(that) {
-            var expressions, filterItem, filterItems, intermediateDataStore, options, prevEventModelChange, set, subjectSet, _ref4, _ref5;
-            set = Data.initSet();
+            var expressions, filterItem, filterItems, intermediateDataStore, options, prevEventModelChange, set, subjectSet, _ref3, _ref4;
+            set = Data.Set.initInstance();
             options = that.options;
             filterItem = function(id) {
               return false !== that.events.onFilterItem.fire(that.dataStore, id);
@@ -1038,18 +989,18 @@
             that.size = set.size;
             that.eventFilterChange = function() {
               var current_set;
-              current_set = Data.initSet(that.items());
+              current_set = Data.Set.initInstance(that.items());
               return filterItems(function() {
-                var changed_set, i, _i, _j, _len, _len2, _ref4, _ref5;
-                changed_set = Data.initSet();
-                _ref4 = current_set.items();
-                for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
-                  i = _ref4[_i];
+                var changed_set, i, _i, _j, _len, _len2, _ref3, _ref4;
+                changed_set = Data.Set.initInstance();
+                _ref3 = current_set.items();
+                for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+                  i = _ref3[_i];
                   if (!that.contains(i)) changed_set.add(i);
                 }
-                _ref5 = that.items();
-                for (_j = 0, _len2 = _ref5.length; _j < _len2; _j++) {
-                  i = _ref5[_j];
+                _ref4 = that.items();
+                for (_j = 0, _len2 = _ref4.length; _j < _len2; _j++) {
+                  i = _ref4[_j];
                   if (!current_set.contains(i)) changed_set.add(i);
                 }
                 if (changed_set.size() > 0) {
@@ -1059,7 +1010,7 @@
             };
             that.eventModelChange = function(model, items) {
               var changed_set, id, _i, _len;
-              changed_set = Data.initSet();
+              changed_set = Data.Set.initInstance();
               for (_i = 0, _len = items.length; _i < _len; _i++) {
                 id = items[_i];
                 if (model.contains(id)) {
@@ -1079,7 +1030,7 @@
               }
               return that.events.onModelChange.fire(that, changed_set.items());
             };
-            if ((options != null ? (_ref4 = options.types) != null ? _ref4.length : void 0 : void 0) > 0) {
+            if ((options != null ? (_ref3 = options.types) != null ? _ref3.length : void 0 : void 0) > 0) {
               (function(types) {
                 return that.registerFilter({
                   eventFilterItem: function(model, id) {
@@ -1101,10 +1052,10 @@
                 });
               })(options.types);
             }
-            if ((options != null ? (_ref5 = options.filters) != null ? _ref5.length : void 0 : void 0) > 0) {
+            if ((options != null ? (_ref4 = options.filters) != null ? _ref4.length : void 0 : void 0) > 0) {
               (function(filters) {
                 var ex, parsedFilters, parser;
-                parser = MITHGrid.Expression.initParser();
+                parser = MITHGrid.Expression.Basic.initInstance();
                 parsedFilters = (function() {
                   var _i, _len, _results;
                   _results = [];
@@ -1151,21 +1102,21 @@
             if ((options != null ? options.expressions : void 0) != null) {
               expressions = options.dataStore.prepare(options.expressions);
               prevEventModelChange = that.eventModelChange;
-              intermediateDataStore = MITHGrid.Data.initStore({});
-              subjectSet = MITHGrid.Data.initSet();
+              intermediateDataStore = MITHGrid.Data.Store.initInstance({});
+              subjectSet = MITHGrid.Data.Set.initInstance();
               that.eventModelChange = function(model, items) {
-                var id, idSet, intermediateSet, item, itemList, itemSet, removedItems, v, _i, _j, _len, _len2, _ref6;
+                var id, idSet, intermediateSet, item, itemList, itemSet, removedItems, v, _i, _j, _len, _len2, _ref5;
                 itemList = [];
                 removedItems = [];
-                intermediateSet = MITHGrid.Data.initSet();
+                intermediateSet = MITHGrid.Data.Set.initInstance();
                 intermediateSet = intermediateDataStore.getObjectsUnion(subjectSet, "mapsTo", intermediateSet);
                 for (_i = 0, _len = items.length; _i < _len; _i++) {
                   id = items[_i];
                   if (intermediateSet.contains(id)) {
                     itemList.push(id);
                     if (!model.contains(id)) {
-                      idSet = MITHGrid.Data.initSet();
-                      intermediateDataStore.getSubjectsUnion(MITHGrid.Data.initSet([id]), "mapsTo", idSet);
+                      idSet = MITHGrid.Data.Set.initInstance();
+                      intermediateDataStore.getSubjectsUnion(MITHGrid.Data.Set.initInstance([id]), "mapsTo", idSet);
                       idSet.visit(function(x) {
                         var i, item, mapsTo;
                         item = intermediateDataStore.getItem(x);
@@ -1189,10 +1140,10 @@
                       });
                     }
                   } else if (model.contains(id)) {
-                    itemSet = MITHGrid.Data.initSet();
-                    _ref6 = expressions.evaluate([id]);
-                    for (_j = 0, _len2 = _ref6.length; _j < _len2; _j++) {
-                      v = _ref6[_j];
+                    itemSet = MITHGrid.Data.Set.initInstance();
+                    _ref5 = expressions.evaluate([id]);
+                    for (_j = 0, _len2 = _ref5.length; _j < _len2; _j++) {
+                      v = _ref5[_j];
                       itemSet.add(v);
                     }
                     if (intermediateDataStore.contains(id)) {
@@ -1218,7 +1169,7 @@
                 if (removedItems.length > 0) {
                   intermediateDataStore.removeItems(removedItems);
                 }
-                intermediateSet = MITHGrid.Data.initSet();
+                intermediateSet = MITHGrid.Data.Set.initInstance();
                 intermediateDataStore.getObjectsUnion(subjectSet, "mapsTo", intermediateSet);
                 itemList = (function() {
                   var _k, _len3, _results;
@@ -1254,11 +1205,11 @@
         return SubSet.initInstance = function() {
           var args;
           args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          return MITHGrid.initView.apply(MITHGrid, ["MITHGrid.Data.SubSet"].concat(__slice.call(args), [function(that) {
+          return MITHGrid.initInstance.apply(MITHGrid, ["MITHGrid.Data.SubSet"].concat(__slice.call(args), [function(that) {
             var expressions, key, options, set;
             options = that.options;
             key = options.key;
-            set = Data.initSet();
+            set = Data.Set.initInstance();
             that.items = set.items;
             that.contains = set.contains;
             that.visit = set.visit;
@@ -1271,9 +1222,9 @@
             that.eventModelChange = function(model, items) {
               var changed, i, newItems, _i, _len;
               if (key != null) {
-                newItems = Data.initSet(expressions.evaluate([key]));
+                newItems = Data.Set.initInstance(expressions.evaluate([key]));
               } else {
-                newItems = Data.initSet();
+                newItems = Data.Set.initInstance();
               }
               changed = [];
               for (_i = 0, _len = items.length; _i < _len; _i++) {
@@ -1330,7 +1281,7 @@
             findItemPosition = function(itemId) {
               return itemList.indexOf(itemId);
             };
-            set = Data.initSet();
+            set = Data.Set.initInstance();
             that.items = set.items;
             that.size = set.size;
             that.contains = set.contains;
@@ -1350,13 +1301,13 @@
             that.getObjectsUnion = that.dataStore.getObjectsUnion;
             that.getSubjectsUnion = that.dataStore.getSubjectsUnion;
             that.setList = function(idList) {
-              var changedItems, id, _i, _j, _len, _len2, _ref4, _ref5, _ref6;
+              var changedItems, id, _i, _j, _len, _len2, _ref3, _ref4, _ref5;
               itemList = idList;
               changedItems = [];
               for (_i = 0, _len = itemList.length; _i < _len; _i++) {
                 id = itemList[_i];
                 if (that.dataStore.contains(id) && !set.contains(id)) {
-                  if ((itemListStart <= (_ref4 = itemList.indexOf(id)) && _ref4 < itemListStop)) {
+                  if ((itemListStart <= (_ref3 = itemList.indexOf(id)) && _ref3 < itemListStop)) {
                     changedItems.push(id);
                     set.add(id);
                   }
@@ -1365,10 +1316,10 @@
                   set.remove(id);
                 }
               }
-              _ref5 = set.items();
-              for (_j = 0, _len2 = _ref5.length; _j < _len2; _j++) {
-                id = _ref5[_j];
-                if ((_ref6 = !id, __indexOf.call(itemList, _ref6) >= 0) || !that.dataStore.contains(id)) {
+              _ref4 = set.items();
+              for (_j = 0, _len2 = _ref4.length; _j < _len2; _j++) {
+                id = _ref4[_j];
+                if ((_ref5 = !id, __indexOf.call(itemList, _ref5) >= 0) || !that.dataStore.contains(id)) {
                   changedItems.push(id);
                   set.remove(id);
                 }
@@ -1414,8 +1365,8 @@
                 itemListStop = l;
               }
               oldSet = set;
-              changedItems = Data.initSet();
-              set = Data.initSet();
+              changedItems = Data.Set.initInstance();
+              set = Data.Set.initInstance();
               that.items = set.items;
               that.size = set.size;
               that.contains = set.contains;
@@ -1495,13 +1446,13 @@
               return right;
             };
             findItemPosition = function(itemId) {
-              var i, _ref4;
-              for (i = 0, _ref4 = itemList.length; 0 <= _ref4 ? i < _ref4 : i > _ref4; 0 <= _ref4 ? i++ : i--) {
+              var i, _ref3;
+              for (i = 0, _ref3 = itemList.length; 0 <= _ref3 ? i < _ref3 : i > _ref3; 0 <= _ref3 ? i++ : i--) {
                 if (itemList[i][1] === itemId) return i;
               }
               return -1;
             };
-            set = Data.initSet();
+            set = Data.Set.initInstance();
             that.items = set.items;
             that.size = set.size;
             that.contains = set.contains;
@@ -1598,9 +1549,9 @@
               }
               itemListStart = findLeftPoint(leftKey);
               itemListStop = findRightPoint(rightKey);
-              changedItems = Data.initSet();
+              changedItems = Data.Set.initInstance();
               oldSet = set;
-              set = Data.initSet();
+              set = Data.Set.initInstance();
               that.items = set.items;
               that.size = set.size;
               that.contains = set.contains;
@@ -1644,7 +1595,7 @@
               dataStore: options.dataStore,
               expressions: options.rightExpressions
             });
-            set = Data.initSet();
+            set = Data.Set.initInstance();
             that.items = set.items;
             that.size = set.size;
             that.contains = set.contains;
@@ -1679,9 +1630,9 @@
               return that.events.onModelChange.fire(that, changedIds);
             };
             that.setKeyRange = function(l, r) {
-              var _ref4;
+              var _ref3;
               if ((l != null) && (r != null) && l > r) {
-                _ref4 = [r, l], l = _ref4[0], r = _ref4[1];
+                _ref3 = [r, l], l = _ref3[0], r = _ref3[1];
               }
               leftPager.setKeyRange(void 0, r);
               return rightPager.setKeyRange(l, void 0);
@@ -1699,7 +1650,7 @@
         };
       });
     });
-    MITHGrid.namespace("Expression", function(exports) {
+    MITHGrid.namespace("Expression.Basic", function(exports) {
       var Expression, _operators;
       Expression = {};
       _operators = {
@@ -1843,7 +1794,7 @@
           };
         };
         that.evaluateOnItem = function(itemID, database) {
-          return this.evaluate({
+          return that.evaluate({
             "value": itemID
           }, {
             "value": "item"
@@ -1909,7 +1860,7 @@
             return _results;
           };
           that.getSet = function() {
-            return MITHGrid.Data.initSet(values);
+            return MITHGrid.Data.Set.initInstance(values);
           };
           that.contains = function(v) {
             return __indexOf.call(values, v) >= 0;
@@ -1977,13 +1928,13 @@
         that = {};
         _args = args;
         that.evaluate = function(roots, rootValueTypes, defaultRootName, database) {
-          var a, _i, _len, _ref4;
+          var a, _i, _len, _ref3;
           args = [];
           for (_i = 0, _len = _args.length; _i < _len; _i++) {
             a = _args[_i];
             args.push(a.evaluate(roots, rootValueTypes, defaultRootName, database));
           }
-          if (((_ref4 = Expression.functions[name]) != null ? _ref4.f : void 0) != null) {
+          if (((_ref3 = Expression.functions[name]) != null ? _ref3.f : void 0) != null) {
             return Expression.functions[name].f(args);
           } else {
             throw new Error("No such function named " + _name);
@@ -2007,7 +1958,7 @@
         _rootName = null;
         _segments = [];
         walkForward = function(collection, database) {
-          var a, backwardArraySegmentFn, forwardArraySegmentFn, i, segment, valueType, values, _ref4;
+          var a, backwardArraySegmentFn, forwardArraySegmentFn, i, segment, valueType, values, _ref3;
           forwardArraySegmentFn = function(segment) {
             var a;
             a = [];
@@ -2028,7 +1979,7 @@
             });
             return a;
           };
-          for (i = 0, _ref4 = _segments.length; 0 <= _ref4 ? i < _ref4 : i > _ref4; 0 <= _ref4 ? i++ : i--) {
+          for (i = 0, _ref3 = _segments.length; 0 <= _ref3 ? i < _ref3 : i > _ref3; 0 <= _ref3 ? i++ : i--) {
             segment = _segments[i];
             if (segment.isMultiple) {
               a = [];
@@ -2056,7 +2007,7 @@
           return collection;
         };
         walkBackward = function(collection, filter, database) {
-          var a, backwardArraySegmentFn, forwardArraySegmentFn, i, segment, valueType, values, _ref4;
+          var a, backwardArraySegmentFn, forwardArraySegmentFn, i, segment, valueType, values, _ref3;
           forwardArraySegmentFn = function(segment) {
             var a;
             a = [];
@@ -2081,8 +2032,10 @@
             });
             return a;
           };
-          if (filter instanceof Array) filter = MITHGrid.Data.initSet(filter);
-          for (i = _ref4 = _segments.length - 1; _ref4 <= 0 ? i <= 0 : i >= 0; _ref4 <= 0 ? i++ : i--) {
+          if (filter instanceof Array) {
+            filter = MITHGrid.Data.Set.initInstance(filter);
+          }
+          for (i = _ref3 = _segments.length - 1; _ref3 <= 0 ? i <= 0 : i >= 0; _ref3 <= 0 ? i++ : i--) {
             segment = _segments[i];
             if (segment.isMultiple) {
               a = [];
@@ -2145,8 +2098,8 @@
           return _segments.length;
         };
         that.rangeBackward = function(from, to, filter, database) {
-          var i, segment, set, valueType, _ref4;
-          set = MITHGrid.Data.initSet();
+          var i, segment, set, valueType, _ref3;
+          set = MITHGrid.Data.Set.initInstance();
           valueType = "item";
           if (_segments.length > 0) {
             segment = _segments[_segments.length - 1];
@@ -2155,7 +2108,7 @@
             } else {
               throw new Error("Last path of segment must be forward");
             }
-            for (i = _ref4 = _segments.length - 2; _ref4 <= 0 ? i <= 0 : i >= 0; _ref4 <= 0 ? i++ : i--) {
+            for (i = _ref3 = _segments.length - 2; _ref3 <= 0 ? i <= 0 : i >= 0; _ref3 <= 0 ? i++ : i--) {
               segment = _segments[i];
               if (segment.forward) {
                 set = database.getSubjectsUnion(set, segment.property, null, i === 0 ? filter : null);
@@ -2180,7 +2133,7 @@
           collection = null;
           if (roots[rootName] != null) {
             root = roots[rootName];
-            if (root.isSet || root instanceof Array) {
+            if ($.isPlainObject(root) || root instanceof Array) {
               collection = Expression.initCollection(root, valueType);
             } else {
               collection = Expression.initCollection([root], valueType);
@@ -2206,46 +2159,16 @@
         };
         return that;
       };
-      Expression.initParser = exports.initParser = function() {
+      Expression.initParser = exports.initInstance = function() {
         var internalParse, that;
         that = {};
         internalParse = function(scanner, several) {
-          var Scanner, expressions, makePosition, next, parseExpression, parseExpressionList, parseFactor, parsePath, parseSubExpression, parseTerm, r, roots, token, _i, _len;
+          var Scanner, expressions, makePosition, next, parseExpression, parseExpressionList, parsePath, r, roots, token, _i, _len;
           token = scanner.token();
           Scanner = Expression.initScanner;
           next = function() {
             scanner.next();
             return token = scanner.token();
-          };
-          parseTerm = function() {
-            var operator, term, _ref4;
-            term = parseFactor();
-            while ((token != null) && token.type === Scanner.OPERATOR && ((_ref4 = token.value) === "*" || _ref4 === "/")) {
-              operator = token.value;
-              next();
-              term = Expression.initOperator(operator, [term, parseFactor()]);
-            }
-            return term;
-          };
-          parseSubExpression = function() {
-            var operator, subExpression, _ref4;
-            subExpression = parseTerm();
-            while ((token != null) && token.type === Scanner.OPERATOR && ((_ref4 = token.value) === "+" || _ref4 === "-")) {
-              operator = token.value;
-              next();
-              subExpression = Expression.initOperator(operator, [subExpression, parseTerm()]);
-            }
-            return subExpression;
-          };
-          parseExpression = function() {
-            var expression, operator, _ref4;
-            expression = parseSubExpression();
-            while ((token != null) && token.type === Scanner.OPERATOR && ((_ref4 = token.value) === "=" || _ref4 === "<>" || _ref4 === "<" || _ref4 === ">" || _ref4 === "<=" || _ref4 === ">=")) {
-              operator = token.value;
-              next();
-              expression = Expression.initOperator(operator, [expression, parseSubExpression()]);
-            }
-            return expression;
           };
           parseExpressionList = function() {
             var expressions;
@@ -2278,7 +2201,7 @@
             }
             return path;
           };
-          parseFactor = function() {
+          parseExpression = function() {
             var args, identifier, result;
             result = null;
             args = [];
@@ -2524,7 +2447,7 @@
         return Expression.functions[name] = {
           f: function(args) {
             var arg, evalArg, set, _i, _len;
-            set = MITHGrid.Data.initSet();
+            set = MITHGrid.Data.Set.initInstance();
             evalArg = function(arg) {
               return arg.forEachValue(function(v) {
                 var v2;
@@ -2681,9 +2604,9 @@
       };
       return Presentation.namespace("SimpleText", function(SimpleText) {
         return SimpleText.initInstance = function() {
-          var args, _ref4;
+          var args, _ref3;
           args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          return (_ref4 = MITHGrid.Presentation).initInstance.apply(_ref4, ["MITHGrid.Presentation.SimpleText"].concat(__slice.call(args), [function(that, container) {}]));
+          return (_ref3 = MITHGrid.Presentation).initInstance.apply(_ref3, ["MITHGrid.Presentation.SimpleText"].concat(__slice.call(args), [function(that, container) {}]));
         };
       });
     });
@@ -2739,32 +2662,33 @@
           var args;
           args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
           return Facet.initInstance.apply(Facet, ["MITHGrid.Facet.TextSearch"].concat(__slice.call(args), [function(that) {
-            var ex, options, parsed;
+            var ex, options, parsed, parser;
             options = that.options;
             if (options.expressions != null) {
               if (!$.isArray(options.expressions)) {
                 options.expressions = [options.expressions];
-                parsed = (function() {
-                  var _i, _len, _ref4, _results;
-                  _ref4 = options.expressions;
-                  _results = [];
-                  for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
-                    ex = _ref4[_i];
-                    _results.push(MITHGrid.Expression.initParser().parse(ex));
-                  }
-                  return _results;
-                })();
               }
+              parser = MITHGrid.Expression.Basic.initInstance();
+              parsed = (function() {
+                var _i, _len, _ref3, _results;
+                _ref3 = options.expressions;
+                _results = [];
+                for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+                  ex = _ref3[_i];
+                  _results.push(parser.parse(ex));
+                }
+                return _results;
+              })();
             }
             that.eventFilterItem = function(dataSource, id) {
-              var ex, items, v, _i, _j, _len, _len2, _ref4;
+              var ex, items, v, _i, _j, _len, _len2, _ref3;
               if ((that.text != null) && (options.expressions != null)) {
                 for (_i = 0, _len = parsed.length; _i < _len; _i++) {
                   ex = parsed[_i];
                   items = ex.evaluateOnItem(id, dataSource);
-                  _ref4 = items.values.items();
-                  for (_j = 0, _len2 = _ref4.length; _j < _len2; _j++) {
-                    v = _ref4[_j];
+                  _ref3 = items.values.items();
+                  for (_j = 0, _len2 = _ref3.length; _j < _len2; _j++) {
+                    v = _ref3[_j];
                     if (v.toLowerCase().indexOf(that.text) >= 0) return;
                   }
                 }
@@ -2793,33 +2717,34 @@
           var args;
           args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
           return Facet.initInstance.apply(Facet, ["MITHGrid.Facet.List"].concat(__slice.call(args), [function(that) {
-            var ex, options, parsed;
+            var ex, options, parsed, parser;
             options = that.options;
             that.selections = [];
             if (options.expressions != null) {
               if (!$.isArray(options.expressions)) {
                 options.expressions = [options.expressions];
-                parsed = (function() {
-                  var _i, _len, _ref4, _results;
-                  _ref4 = options.expressions;
-                  _results = [];
-                  for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
-                    ex = _ref4[_i];
-                    _results.push(MITHGrid.Expression.initParser().parse(ex));
-                  }
-                  return _results;
-                })();
               }
+              parser = MITHGrid.Expression.Basic.initInstance();
+              parsed = (function() {
+                var _i, _len, _ref3, _results;
+                _ref3 = options.expressions;
+                _results = [];
+                for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+                  ex = _ref3[_i];
+                  _results.push(parser.parse(ex));
+                }
+                return _results;
+              })();
             }
             that.eventFilterItem = function(dataSource, id) {
-              var ex, items, v, _i, _j, _len, _len2, _ref4;
+              var ex, items, v, _i, _j, _len, _len2, _ref3;
               if ((that.text != null) && (options.expressions != null)) {
                 for (_i = 0, _len = parsed.length; _i < _len; _i++) {
                   ex = parsed[_i];
                   items = ex.evaluateOnItem(id, dataSource);
-                  _ref4 = items.values.items();
-                  for (_j = 0, _len2 = _ref4.length; _j < _len2; _j++) {
-                    v = _ref4[_j];
+                  _ref3 = items.values.items();
+                  for (_j = 0, _len2 = _ref3.length; _j < _len2; _j++) {
+                    v = _ref3[_j];
                     if (__indexOf.call(that.selections, v) >= 0) return;
                   }
                 }
@@ -2948,9 +2873,9 @@
       };
       return Controller.namespace("Raphael", function(Raphael) {
         return Raphael.initInstance = function() {
-          var args, _ref4;
+          var args, _ref3;
           args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          return (_ref4 = MITHGrid.Controller).initInstance.apply(_ref4, ["MITHGrid.Controller.Raphael"].concat(__slice.call(args), [function(that) {
+          return (_ref3 = MITHGrid.Controller).initInstance.apply(_ref3, ["MITHGrid.Controller.Raphael"].concat(__slice.call(args), [function(that) {
             var initDOMBinding;
             initDOMBinding = that.initBind;
             return that.initBind = function(raphaelDrawing) {
@@ -2998,7 +2923,7 @@
         var args;
         args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
         return MITHGrid.initInstance.apply(MITHGrid, ["MITHGrid.Application"].concat(__slice.call(args), [function(that, container) {
-          var configureInstance, onReady, options, thatFn;
+          var cName, cconfig, config, fName, fconfig, onReady, options, pName, pconfig, storeName, thatFn, viewConfig, viewName, _i, _len, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9, _results;
           onReady = [];
           thatFn = function() {
             return that;
@@ -3010,72 +2935,28 @@
           that.dataView = {};
           that.controller = {};
           options = that.options;
-          configureInstance = function() {
-            var cName, cconfig, config, fName, fconfig, pName, pconfig, storeName, viewConfig, viewName, _i, _len, _ref10, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9, _results;
-            if ((options != null ? options.dataStores : void 0) != null) {
-              _ref4 = options.dataStores;
-              for (storeName in _ref4) {
-                config = _ref4[storeName];
-                that.addDataStore(storeName, config);
-              }
-            }
-            if ((options != null ? options.dataViews : void 0) != null) {
-              _ref5 = options.dataViews;
-              for (viewName in _ref5) {
-                viewConfig = _ref5[viewName];
-                that.addDataView(viewName, viewConfig);
-              }
-            }
-            if ((options != null ? options.controllers : void 0) != null) {
-              _ref6 = options.controllers;
-              for (cName in _ref6) {
-                cconfig = _ref6[cName];
-                that.addController(cName, cconfig);
-              }
-            }
-            if ((options != null ? options.facets : void 0) != null) {
-              _ref7 = options.facets;
-              for (fName in _ref7) {
-                fconfig = _ref7[fName];
-                that.addFacet(fName, fconfig);
-              }
-            }
-            if ((options != null ? options.components : void 0) != null) {
-              _ref8 = options.components;
-              for (cName in _ref8) {
-                cconfig = _ref8[cName];
-                that.addComponent(cName, cconfig);
-              }
-            }
-            if ((options != null ? options.presentations : void 0) != null) {
-              _ref9 = options.presentations;
-              for (pName in _ref9) {
-                pconfig = _ref9[pName];
-                that.addPresentation(pName, pconfig);
-              }
-            }
-            if ((options != null ? options.plugins : void 0) != null) {
-              _ref10 = options.plugins;
-              _results = [];
-              for (_i = 0, _len = _ref10.length; _i < _len; _i++) {
-                pconfig = _ref10[_i];
-                _results.push(that.addPlugin(pconfig));
-              }
-              return _results;
-            }
-          };
           that.ready = function(fn) {
             return onReady.push(fn);
           };
+          that.run = function() {
+            return $(document).ready(function() {
+              var fn, _i, _len;
+              for (_i = 0, _len = onReady.length; _i < _len; _i++) {
+                fn = onReady[_i];
+                fn();
+              }
+              onReady = [];
+              return that.ready = function(fn) {
+                return fn();
+              };
+            });
+          };
           that.addDataStore = function(storeName, config) {
-            var prop, propOptions, store, type, typeInfo, _ref4, _ref5, _results;
+            var prop, propOptions, store, type, typeInfo, _ref3, _ref4, _results;
             if (!(that.dataStore[storeName] != null)) {
               store = MITHGrid.Data.Store.initInstance();
               that.dataStore[storeName] = store;
               store.addType('Item');
-              store.addProperty('label', {
-                valueType: 'text'
-              });
               store.addProperty('type', {
                 valueType: 'text'
               });
@@ -3086,17 +2967,17 @@
               store = that.dataStore[storeName];
             }
             if ((config != null ? config.types : void 0) != null) {
-              _ref4 = config.types;
-              for (type in _ref4) {
-                typeInfo = _ref4[type];
+              _ref3 = config.types;
+              for (type in _ref3) {
+                typeInfo = _ref3[type];
                 store.addType(type);
               }
             }
             if ((config != null ? config.properties : void 0) != null) {
-              _ref5 = config.properties;
+              _ref4 = config.properties;
               _results = [];
-              for (prop in _ref5) {
-                propOptions = _ref5[prop];
+              for (prop in _ref4) {
+                propOptions = _ref4[prop];
                 _results.push(store.addProperty(prop, propOptions));
               }
               return _results;
@@ -3137,7 +3018,7 @@
               if ($.isArray(fcontainer)) fcontainer = fcontainer[0];
               foptions.dataView = that.dataView[fconfig.dataView];
               foptions.application = thatFn;
-              facet = fconfig.type.initFacet(fcontainer, foptions);
+              facet = fconfig.type.initInstance(fcontainer, foptions);
               that.facet[fName] = facet;
               return facet.selfRender();
             });
@@ -3146,15 +3027,15 @@
             var coptions;
             coptions = $.extend(true, {}, cconfig);
             return that.ready(function() {
-              var ccName, cconfig, ccontainer, ccoptions, _ref4, _ref5;
+              var ccName, cconfig, ccontainer, ccoptions, _ref3, _ref4;
               ccontainer = $(container).find(coptions.container);
               if ($.isArray(ccontainer)) ccontainer = ccontainer[0];
               coptions.application = thatFn;
               if (cconfig.components != null) {
                 coptions.components = {};
-                _ref4 = cconfig.components;
-                for (ccName in _ref4) {
-                  cconfig = _ref4[ccName];
+                _ref3 = cconfig.components;
+                for (ccName in _ref3) {
+                  cconfig = _ref3[ccName];
                   if (typeof cconfig === "string") {
                     coptions.components[ccName] = that.component[ccName];
                   } else {
@@ -3166,9 +3047,9 @@
               }
               if (cconfig.controllers != null) {
                 coptions.controllers = {};
-                _ref5 = pconfig.controllers;
-                for (ccName in _ref5) {
-                  cconfig = _ref5[ccName];
+                _ref4 = pconfig.controllers;
+                for (ccName in _ref4) {
+                  cconfig = _ref4[ccName];
                   if (typeof cconfig === "string") {
                     coptions.controllers[ccName] = that.controller[ccName];
                   } else {
@@ -3185,16 +3066,16 @@
             var poptions;
             poptions = $.extend(true, {}, pconfig);
             return that.ready(function() {
-              var cName, ccName, cconfig, ccoptions, coptions, pcontainer, presentation, _ref4, _ref5;
+              var cName, ccName, cconfig, ccoptions, coptions, pcontainer, presentation, _ref3, _ref4;
               pcontainer = $(container).find(poptions.container);
               if ($.isArray(pcontainer)) pcontainer = pcontainer[0];
               poptions.dataView = that.dataView[pconfig.dataView];
               poptions.application = thatFn;
               if (pconfig.components != null) {
                 poptions.components = {};
-                _ref4 = pconfig.components;
-                for (ccName in _ref4) {
-                  cconfig = _ref4[ccName];
+                _ref3 = pconfig.components;
+                for (ccName in _ref3) {
+                  cconfig = _ref3[ccName];
                   if (typeof cconfig === "string") {
                     poptions.components[ccName] = that.component[ccName];
                   } else {
@@ -3206,9 +3087,9 @@
               }
               if (pconfig.controllers != null) {
                 poptions.controllers = {};
-                _ref5 = pconfig.controllers;
-                for (cName in _ref5) {
-                  cconfig = _ref5[cName];
+                _ref4 = pconfig.controllers;
+                for (cName in _ref4) {
+                  cconfig = _ref4[cName];
                   if (typeof cconfig === "string") {
                     poptions.controllers[cName] = that.controller[cName];
                   } else {
@@ -3224,28 +3105,28 @@
             });
           };
           that.addPlugin = function(pconf) {
-            var pconfig, plugin, pname, prconfig, prop, propOptions, type, typeInfo, _ref4, _ref5, _ref6, _results;
+            var pconfig, plugin, pname, prconfig, prop, propOptions, type, typeInfo, _ref3, _ref4, _ref5, _results;
             pconfig = $.extend(true, {}, pconf);
             pconfig.application = thatFn;
-            plugin = pconfig.type.initPlugin(pconfig);
+            plugin = pconfig.type.initInstance(pconfig);
             if (plugin != null) {
               if ((pconfig != null ? pconfig.dataView : void 0) != null) {
                 plugin.dataView = that.dataView[pconfig.dataView];
-                _ref4 = plugin.getTypes();
-                for (type in _ref4) {
-                  typeInfo = _ref4[type];
+                _ref3 = plugin.getTypes();
+                for (type in _ref3) {
+                  typeInfo = _ref3[type];
                   plugin.dataView.addType(type);
                 }
-                _ref5 = plugin.getProperties();
-                for (prop in _ref5) {
-                  propOptions = _ref5[prop];
+                _ref4 = plugin.getProperties();
+                for (prop in _ref4) {
+                  propOptions = _ref4[prop];
                   plugin.dataView.addProperty(prop, propOptions);
                 }
               }
-              _ref6 = plugin.getPresentations();
+              _ref5 = plugin.getPresentations();
               _results = [];
-              for (pname in _ref6) {
-                prconfig = _ref6[pname];
+              for (pname in _ref5) {
+                prconfig = _ref5[pname];
                 _results.push(function(pname, prconfig) {
                   return that.ready(function() {
                     var pcontainer, presentation, proptions;
@@ -3270,25 +3151,62 @@
               return _results;
             }
           };
-          configureInstance();
-          return that.run = function() {
-            return $(document).ready(function() {
-              var fn, _i, _len;
-              for (_i = 0, _len = onReady.length; _i < _len; _i++) {
-                fn = onReady[_i];
-                fn();
-              }
-              onReady = [];
-              return that.ready = function(fn) {
-                return fn();
-              };
-            });
-          };
+          if ((options != null ? options.dataStores : void 0) != null) {
+            _ref3 = options.dataStores;
+            for (storeName in _ref3) {
+              config = _ref3[storeName];
+              that.addDataStore(storeName, config);
+            }
+          }
+          if ((options != null ? options.dataViews : void 0) != null) {
+            _ref4 = options.dataViews;
+            for (viewName in _ref4) {
+              viewConfig = _ref4[viewName];
+              that.addDataView(viewName, viewConfig);
+            }
+          }
+          if ((options != null ? options.controllers : void 0) != null) {
+            _ref5 = options.controllers;
+            for (cName in _ref5) {
+              cconfig = _ref5[cName];
+              that.addController(cName, cconfig);
+            }
+          }
+          if ((options != null ? options.facets : void 0) != null) {
+            _ref6 = options.facets;
+            for (fName in _ref6) {
+              fconfig = _ref6[fName];
+              that.addFacet(fName, fconfig);
+            }
+          }
+          if ((options != null ? options.components : void 0) != null) {
+            _ref7 = options.components;
+            for (cName in _ref7) {
+              cconfig = _ref7[cName];
+              that.addComponent(cName, cconfig);
+            }
+          }
+          if ((options != null ? options.presentations : void 0) != null) {
+            _ref8 = options.presentations;
+            for (pName in _ref8) {
+              pconfig = _ref8[pName];
+              that.addPresentation(pName, pconfig);
+            }
+          }
+          if ((options != null ? options.plugins : void 0) != null) {
+            _ref9 = options.plugins;
+            _results = [];
+            for (_i = 0, _len = _ref9.length; _i < _len; _i++) {
+              pconfig = _ref9[_i];
+              _results.push(that.addPlugin(pconfig));
+            }
+            return _results;
+          }
         }]));
       };
     });
     MITHGrid.namespace("Plugin", function(exports) {
-      return exports.initPlugin = function(klass, options) {
+      return exports.initInstance = function(klass, options) {
         var readyFns, that;
         that = {
           options: options,
@@ -3338,15 +3256,15 @@
         return that;
       };
     });
-    MITHGrid.initView = MITHGrid.initInstance;
-    MITHGrid.Data.initSet = MITHGrid.Data.Set.initInstance;
-    MITHGrid.Data.initType = MITHGrid.Data.Type.initInstance;
-    MITHGrid.Data.initProperty = MITHGrid.Data.Property.initInstance;
-    MITHGrid.Data.initStore = MITHGrid.Data.Store.initInstance;
-    MITHGrid.Data.initView = MITHGrid.Data.View.initInstance;
-    MITHGrid.Presentation.initPresentation = MITHGrid.Presentation.initInstance;
-    MITHGrid.Presentation.SimpleText.initPresentation = MITHGrid.Presentation.SimpleText.initInstance;
-    return MITHGrid.Application.initApp = MITHGrid.Application.initInstance;
+    MITHGrid.initView = MITHGrid.deprecated("MITHGrid.initView", MITHGrid.initInstance);
+    MITHGrid.Data.initSet = MITHGrid.deprecated("MITHGrid.Data.initSet", MITHGrid.Data.Set.initInstance);
+    MITHGrid.Data.initType = MITHGrid.deprecated("MITHGrid.Data.initType", MITHGrid.Data.Type.initInstance);
+    MITHGrid.Data.initProperty = MITHGrid.deprecated("MITHGrid.Data.initProperty", MITHGrid.Data.Property.initInstance);
+    MITHGrid.Data.initStore = MITHGrid.deprecated("MITHGrid.Data.initStore", MITHGrid.Data.Store.initInstance);
+    MITHGrid.Data.initView = MITHGrid.deprecated("MITHGrid.Data.initView", MITHGrid.Data.View.initInstance);
+    MITHGrid.Presentation.initPresentation = MITHGrid.deprecated("MITHGrid.Presentation.initPresentation", MITHGrid.Presentation.initInstance);
+    MITHGrid.Presentation.SimpleText.initPresentation = MITHGrid.deprecated("MITHGrid.Presentation.SimpleText.initPresentation", MITHGrid.Presentation.SimpleText.initInstance);
+    return MITHGrid.Application.initApp = MITHGrid.deprecated("MITHGrid.Application.initApp", MITHGrid.Application.initInstance);
   })(jQuery, MITHGrid);
 
   MITHGrid.defaults("MITHGrid.Data.Store", {

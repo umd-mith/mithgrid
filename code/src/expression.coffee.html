@@ -2,10 +2,10 @@
 layout: docco
 title: mithgrid/code/src/expression.coffee.html
 ---
-<div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>expression.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><h1>Expression Parser</h1>
+<div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression-alt.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression-alt.coffee</span></a><a href="../src/expression.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>expression.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><h1>Expression Parser</h1>
 
 <p>Everything here is private except for a few exported objects and functions.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&quot;Expression&quot;</span><span class="p">,</span> <span class="nf">(exports) -&gt;</span>
+</td><td class="code"><div class="highlight"><pre><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&quot;Expression.Basic&quot;</span><span class="p">,</span> <span class="nf">(exports) -&gt;</span>
   <span class="nv">Expression = </span><span class="p">{}</span>
   <span class="nv">_operators =</span>
     <span class="s">&quot;+&quot;</span><span class="o">:</span>
@@ -44,7 +44,7 @@ title: mithgrid/code/src/expression.coffee.html
       <span class="nv">f: </span><span class="nf">(a, b) -&gt;</span> <span class="nx">a</span> <span class="o">&lt;=</span> <span class="nx">b</span>
     <span class="s">&quot;&gt;=&quot;</span><span class="o">:</span>
       <span class="nv">valueType: </span><span class="s">&quot;boolean&quot;</span>
-      <span class="nv">f: </span><span class="nf">(a, b) -&gt;</span> <span class="nx">a</span> <span class="o">&gt;=</span> <span class="nx">b</span></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><h2>MITHGrid.Expression.controls</h2>
+      <span class="nv">f: </span><span class="nf">(a, b) -&gt;</span> <span class="nx">a</span> <span class="o">&gt;=</span> <span class="nx">b</span></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><h2>MITHGrid.Expression.Basic.controls</h2>
 
 <p>Control functions may be defined for use in expressions. See the existing control functions for examples of
 how to write them.</p>
@@ -75,8 +75,8 @@ how to write them.</p>
         <span class="k">if</span> <span class="nx">condition</span>
           <span class="nx">args</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nx">evaluate</span> <span class="nx">roots</span><span class="p">,</span> <span class="nx">rootValueTypes</span><span class="p">,</span> <span class="nx">defaultRootName</span><span class="p">,</span> <span class="nx">database</span>
         <span class="k">else</span>
-          <span class="nx">args</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="nx">evaluate</span> <span class="nx">roots</span><span class="p">,</span> <span class="nx">rootValueTypes</span><span class="p">,</span> <span class="nx">defaultRootName</span><span class="p">,</span> <span class="nx">database</span>
-    <span class="s">&quot;foreach&quot;</span><span class="o">:</span>
+          <span class="nx">args</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="nx">evaluate</span> <span class="nx">roots</span><span class="p">,</span> <span class="nx">rootValueTypes</span><span class="p">,</span> <span class="nx">defaultRootName</span><span class="p">,</span> <span class="nx">database</span></pre></div></td></tr><tr id="section-4"><td class="docs"><div class="pilwrap"><a href="#section-4" class="pilcrow">&#182;</a></div><h3>foreach</h3>
+</td><td class="code"><div class="highlight"><pre>    <span class="s">&quot;foreach&quot;</span><span class="o">:</span>
       <span class="nv">f: </span><span class="nf">(args, roots, rootValueTypes, defaultRootName, database) -&gt;</span>
         <span class="nv">collection = </span><span class="nx">args</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">evaluate</span> <span class="nx">roots</span><span class="p">,</span> <span class="nx">rootValueTypes</span><span class="p">,</span> <span class="nx">defaultRootName</span><span class="p">,</span> <span class="nx">database</span>
         <span class="nv">oldValue = </span><span class="nx">roots</span><span class="p">.</span><span class="nx">value</span>
@@ -118,7 +118,7 @@ how to write them.</p>
       <span class="p">}</span>
     
     <span class="nv">that.evaluateOnItem = </span><span class="nf">(itemID, database) -&gt;</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">evaluate</span><span class="p">({</span>
+      <span class="nx">that</span><span class="p">.</span><span class="nx">evaluate</span><span class="p">({</span>
         <span class="s">&quot;value&quot;</span><span class="o">:</span> <span class="nx">itemID</span>
       <span class="p">},</span> <span class="p">{</span>
         <span class="s">&quot;value&quot;</span><span class="o">:</span> <span class="s">&quot;item&quot;</span>
@@ -172,7 +172,7 @@ how to write them.</p>
           <span class="k">if</span> <span class="nx">f</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="o">==</span> <span class="kc">true</span>
             <span class="k">break</span><span class="p">;</span>
 
-      <span class="nv">that.getSet = </span><span class="nf">() -&gt;</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span> <span class="nx">values</span>
+      <span class="nv">that.getSet = </span><span class="nf">() -&gt;</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span> <span class="nx">values</span>
 
       <span class="nv">that.contains = </span><span class="nf">(v) -&gt;</span> <span class="nx">v</span> <span class="k">in</span> <span class="nx">values</span>
 
@@ -315,7 +315,7 @@ how to write them.</p>
         <span class="nx">a</span>
 
       <span class="k">if</span> <span class="nx">filter</span> <span class="k">instanceof</span> <span class="nb">Array</span>
-        <span class="nv">filter = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span> <span class="nx">filter</span>
+        <span class="nv">filter = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span> <span class="nx">filter</span>
 
       <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span> <span class="nx">_segments</span><span class="p">.</span><span class="nx">length</span><span class="o">-</span><span class="mi">1</span> <span class="p">..</span> <span class="mi">0</span> <span class="p">]</span>
         <span class="nv">segment = </span><span class="nx">_segments</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
@@ -372,7 +372,7 @@ how to write them.</p>
     <span class="nv">that.getSegmentCount = </span><span class="nf">() -&gt;</span> <span class="nx">_segments</span><span class="p">.</span><span class="nx">length</span>
 
     <span class="nv">that.rangeBackward = </span><span class="nf">(from, to, filter, database) -&gt;</span>
-      <span class="nv">set = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+      <span class="nv">set = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
       <span class="nv">valueType = </span><span class="s">&quot;item&quot;</span>
 
       <span class="k">if</span> <span class="nx">_segments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
@@ -406,7 +406,7 @@ how to write them.</p>
       <span class="k">if</span> <span class="nx">roots</span><span class="p">[</span><span class="nx">rootName</span><span class="p">]</span><span class="o">?</span>
         <span class="nv">root = </span><span class="nx">roots</span><span class="p">[</span><span class="nx">rootName</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="nx">root</span><span class="p">.</span><span class="nx">isSet</span> <span class="o">or</span> <span class="nx">root</span> <span class="k">instanceof</span> <span class="nb">Array</span>
+        <span class="k">if</span> <span class="nx">$</span><span class="p">.</span><span class="nx">isPlainObject</span><span class="p">(</span><span class="nx">root</span><span class="p">)</span> <span class="o">or</span> <span class="nx">root</span> <span class="k">instanceof</span> <span class="nb">Array</span>
           <span class="nv">collection = </span><span class="nx">Expression</span><span class="p">.</span><span class="nx">initCollection</span> <span class="nx">root</span><span class="p">,</span> <span class="nx">valueType</span>
         <span class="k">else</span>
           <span class="nv">collection = </span><span class="nx">Expression</span><span class="p">.</span><span class="nx">initCollection</span> <span class="p">[</span><span class="nx">root</span><span class="p">],</span> <span class="nx">valueType</span>
@@ -430,7 +430,7 @@ how to write them.</p>
 
     <span class="nx">that</span>
 
-  <span class="nv">Expression.initParser = exports.initParser = </span><span class="nf">() -&gt;</span>
+  <span class="nv">Expression.initParser = exports.initInstance = </span><span class="o">-&gt;</span>
     <span class="nv">that = </span><span class="p">{}</span>
   
     <span class="nv">internalParse = </span><span class="nf">(scanner, several) -&gt;</span>
@@ -440,36 +440,6 @@ how to write them.</p>
       <span class="nv">next = </span><span class="nf">() -&gt;</span>
         <span class="nx">scanner</span><span class="p">.</span><span class="nx">next</span><span class="p">()</span>
         <span class="nv">token = </span><span class="nx">scanner</span><span class="p">.</span><span class="nx">token</span><span class="p">()</span>
-
-      <span class="nv">parseTerm = </span><span class="nf">() -&gt;</span>
-        <span class="nv">term = </span><span class="nx">parseFactor</span><span class="p">()</span>
-
-        <span class="k">while</span> <span class="nx">token</span><span class="o">?</span> <span class="o">and</span> <span class="nx">token</span><span class="p">.</span><span class="nx">type</span> <span class="o">==</span> <span class="nx">Scanner</span><span class="p">.</span><span class="nx">OPERATOR</span> <span class="o">and</span> <span class="nx">token</span><span class="p">.</span><span class="nx">value</span> <span class="k">in</span> <span class="p">[</span> <span class="s">&quot;*&quot;</span><span class="p">,</span> <span class="s">&quot;/&quot;</span> <span class="p">]</span>
-          <span class="nv">operator = </span><span class="nx">token</span><span class="p">.</span><span class="nx">value</span>
-          <span class="nx">next</span><span class="p">()</span>
-
-          <span class="nv">term = </span><span class="nx">Expression</span><span class="p">.</span><span class="nx">initOperator</span> <span class="nx">operator</span><span class="p">,</span> <span class="p">[</span><span class="nx">term</span><span class="p">,</span> <span class="nx">parseFactor</span><span class="p">()]</span>
-        <span class="nx">term</span>
-
-      <span class="nv">parseSubExpression = </span><span class="nf">() -&gt;</span>
-        <span class="nv">subExpression = </span><span class="nx">parseTerm</span><span class="p">()</span>
-
-        <span class="k">while</span> <span class="nx">token</span><span class="o">?</span> <span class="o">and</span> <span class="nx">token</span><span class="p">.</span><span class="nx">type</span> <span class="o">==</span> <span class="nx">Scanner</span><span class="p">.</span><span class="nx">OPERATOR</span> <span class="o">and</span> <span class="nx">token</span><span class="p">.</span><span class="nx">value</span> <span class="k">in</span> <span class="p">[</span> <span class="s">&quot;+&quot;</span><span class="p">,</span> <span class="s">&quot;-&quot;</span> <span class="p">]</span>
-          <span class="nv">operator = </span><span class="nx">token</span><span class="p">.</span><span class="nx">value</span>
-          <span class="nx">next</span><span class="p">()</span>
-
-          <span class="nv">subExpression = </span><span class="nx">Expression</span><span class="p">.</span><span class="nx">initOperator</span> <span class="nx">operator</span><span class="p">,</span> <span class="p">[</span><span class="nx">subExpression</span><span class="p">,</span> <span class="nx">parseTerm</span><span class="p">()]</span>
-        <span class="nx">subExpression</span>
-
-      <span class="nv">parseExpression = </span><span class="nf">() -&gt;</span>
-        <span class="nv">expression = </span><span class="nx">parseSubExpression</span><span class="p">()</span>
-
-        <span class="k">while</span> <span class="nx">token</span><span class="o">?</span> <span class="o">and</span> <span class="nx">token</span><span class="p">.</span><span class="nx">type</span> <span class="o">==</span> <span class="nx">Scanner</span><span class="p">.</span><span class="nx">OPERATOR</span> <span class="o">and</span> <span class="nx">token</span><span class="p">.</span><span class="nx">value</span> <span class="k">in</span> <span class="p">[</span> <span class="s">&quot;=&quot;</span><span class="p">,</span> <span class="s">&quot;&lt;&gt;&quot;</span><span class="p">,</span> <span class="s">&quot;&lt;&quot;</span><span class="p">,</span> <span class="s">&quot;&gt;&quot;</span><span class="p">,</span> <span class="s">&quot;&lt;=&quot;</span><span class="p">,</span> <span class="s">&quot;&gt;=&quot;</span> <span class="p">]</span>
-          <span class="nv">operator = </span><span class="nx">token</span><span class="p">.</span><span class="nx">value</span>
-          <span class="nx">next</span><span class="p">()</span>
-
-          <span class="nv">expression = </span><span class="nx">Expression</span><span class="p">.</span><span class="nx">initOperator</span> <span class="nx">operator</span><span class="p">,</span> <span class="p">[</span><span class="nx">expression</span><span class="p">,</span> <span class="nx">parseSubExpression</span><span class="p">()]</span>
-        <span class="nx">expression</span>
 
       <span class="nv">parseExpressionList = </span><span class="nf">() -&gt;</span>
         <span class="nv">expressions = </span><span class="p">[</span><span class="nx">parseExpression</span><span class="p">()]</span>
@@ -494,7 +464,7 @@ how to write them.</p>
             <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&quot;Missing property ID at position &quot;</span> <span class="o">+</span> <span class="nx">makePosition</span><span class="p">()</span>
         <span class="nx">path</span>
 
-      <span class="nv">parseFactor = </span><span class="nf">() -&gt;</span>
+      <span class="nv">parseExpression = </span><span class="nf">() -&gt;</span>
         <span class="nv">result = </span><span class="kc">null</span>
         <span class="nv">args = </span><span class="p">[]</span>
 
@@ -647,7 +617,7 @@ how to write them.</p>
             <span class="nv">start: </span><span class="nx">_index</span>
             <span class="nv">end: </span><span class="nx">_index</span> <span class="o">+</span> <span class="mi">1</span>
           <span class="nx">_index</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">else</span> <span class="k">if</span> <span class="s">&quot;\&quot;&#39;&quot;</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">c1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span></pre></div></td></tr><tr id="section-4"><td class="docs"><div class="pilwrap"><a href="#section-4" class="pilcrow">&#182;</a></div><p>quoted strings</p>
+        <span class="k">else</span> <span class="k">if</span> <span class="s">&quot;\&quot;&#39;&quot;</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">c1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span></pre></div></td></tr><tr id="section-5"><td class="docs"><div class="pilwrap"><a href="#section-5" class="pilcrow">&#182;</a></div><p>quoted strings</p>
 </td><td class="code"><div class="highlight"><pre>          <span class="nv">i = </span><span class="nx">_index</span> <span class="o">+</span> <span class="mi">1</span>
           <span class="k">while</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">_maxIndex</span>
             <span class="k">break</span> <span class="k">if</span> <span class="nx">_text</span><span class="p">.</span><span class="nx">charAt</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span> <span class="o">==</span> <span class="nx">c1</span> <span class="o">and</span> <span class="nx">_text</span><span class="p">.</span><span class="nx">charAt</span><span class="p">(</span><span class="nx">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&quot;\\&quot;</span>
@@ -662,7 +632,7 @@ how to write them.</p>
             <span class="nv">_index = </span><span class="nx">i</span> <span class="o">+</span> <span class="mi">1</span>
           <span class="k">else</span>
             <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&quot;Unterminated string starting at &quot;</span> <span class="o">+</span> <span class="nb">String</span><span class="p">(</span><span class="nx">_index</span><span class="p">)</span>
-        <span class="k">else</span> <span class="k">if</span> <span class="nx">isDigit</span> <span class="nx">c1</span></pre></div></td></tr><tr id="section-5"><td class="docs"><div class="pilwrap"><a href="#section-5" class="pilcrow">&#182;</a></div><p>number</p>
+        <span class="k">else</span> <span class="k">if</span> <span class="nx">isDigit</span> <span class="nx">c1</span></pre></div></td></tr><tr id="section-6"><td class="docs"><div class="pilwrap"><a href="#section-6" class="pilcrow">&#182;</a></div><p>number</p>
 </td><td class="code"><div class="highlight"><pre>          <span class="nv">i = </span><span class="nx">_index</span>
           <span class="nx">i</span> <span class="o">+=</span> <span class="mi">1</span> <span class="k">while</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">_maxIndex</span> <span class="o">and</span> <span class="nx">isDigit</span><span class="p">(</span><span class="nx">_text</span><span class="p">.</span><span class="nx">charAt</span> <span class="nx">i</span><span class="p">)</span>
 
@@ -676,7 +646,7 @@ how to write them.</p>
             <span class="nv">start: </span><span class="nx">_index</span>
             <span class="nv">end: </span><span class="nx">i</span>
           <span class="nv">_index = </span><span class="nx">i</span><span class="p">;</span>
-        <span class="k">else</span></pre></div></td></tr><tr id="section-6"><td class="docs"><div class="pilwrap"><a href="#section-6" class="pilcrow">&#182;</a></div><p>identifier</p>
+        <span class="k">else</span></pre></div></td></tr><tr id="section-7"><td class="docs"><div class="pilwrap"><a href="#section-7" class="pilcrow">&#182;</a></div><p>identifier</p>
 </td><td class="code"><div class="highlight"><pre>          <span class="nv">i = </span><span class="nx">_index</span>
 
           <span class="k">while</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">_maxIndex</span>
@@ -708,7 +678,7 @@ how to write them.</p>
   <span class="nv">exports.registerSimpleMappingFunction = </span><span class="nf">(name, f, valueType) -&gt;</span>
     <span class="nx">Expression</span><span class="p">.</span><span class="nx">functions</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span> <span class="o">=</span>
       <span class="nv">f: </span><span class="nf">(args) -&gt;</span>
-        <span class="nv">set = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">initSet</span><span class="p">()</span>
+        <span class="nv">set = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
         <span class="nv">evalArg = </span><span class="nf">(arg) -&gt;</span>
           <span class="nx">arg</span><span class="p">.</span><span class="nx">forEachValue</span> <span class="nf">(v) -&gt;</span>
             <span class="nv">v2 = </span><span class="nx">f</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span>
@@ -718,4 +688,4 @@ how to write them.</p>
 
         <span class="nx">Expression</span><span class="p">.</span><span class="nx">initCollection</span> <span class="nx">set</span><span class="p">,</span> <span class="nx">valueType</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Tue May 08 2012 14:37:18 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
+</pre></div></td></tr></tbody></table><div id="generated">generated Tue May 15 2012 08:37:08 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
