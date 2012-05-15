@@ -408,7 +408,7 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
 			if roots[rootName]?
 				root = roots[rootName]
 
-				if root.isSet or root instanceof Array
+				if $.isPlainObject(root) or root instanceof Array
 					collection = Expression.initCollection root, valueType
 				else
 					collection = Expression.initCollection [root], valueType
@@ -443,36 +443,6 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
 				scanner.next()
 				token = scanner.token()
 
-			parseTerm = () ->
-				term = parseFactor()
-
-				while token? and token.type == Scanner.OPERATOR and token.value in [ "*", "/" ]
-					operator = token.value
-					next()
-
-					term = Expression.initOperator operator, [term, parseFactor()]
-				term
-
-			parseSubExpression = () ->
-				subExpression = parseTerm()
-
-				while token? and token.type == Scanner.OPERATOR and token.value in [ "+", "-" ]
-					operator = token.value
-					next()
-
-					subExpression = Expression.initOperator operator, [subExpression, parseTerm()]
-				subExpression
-
-			parseExpression = () ->
-				expression = parseSubExpression()
-
-				while token? and token.type == Scanner.OPERATOR and token.value in [ "=", "<>", "<", ">", "<=", ">=" ]
-					operator = token.value
-					next()
-
-					expression = Expression.initOperator operator, [expression, parseSubExpression()]
-				expression
-
 			parseExpressionList = () ->
 				expressions = [parseExpression()]
 				while token? and token.type == Scanner.DELIMITER and token.value == ","
@@ -496,7 +466,7 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
 						throw new Error "Missing property ID at position " + makePosition()
 				path
 
-			parseFactor = () ->
+			parseExpression = () ->
 				result = null
 				args = []
 
