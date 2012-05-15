@@ -9,8 +9,8 @@
 # If you don't know if the console.log is available, use MITHGrid.debug. If console.log is available, it's the same
 # function. Otherwise, it's a NOP.
 #
-if window?.console?.log?
-	MITHGrid.debug = window.console.log
+if console?.log?
+	MITHGrid.debug = console.log
 else 
 	MITHGrid.debug = () ->
 
@@ -23,6 +23,17 @@ MITHGrid.error = () ->
 	MITHGrid.debug.call {}, arguments
 	{ 'arguments': arguments }
 
+# ## MITHGrid.depracated
+#
+# Produces an augmented function that outputs a warning through MITHGrid.debug 
+# about the call to the function.
+# We need to make it produce a context for the call so we know where to look.
+#
+MITHGrid.deprecated = (fname, cb) ->
+	(args...) ->
+		console.log "Call to deprecated function #{fname}."
+		cb args...
+	
 # ## MITHGrid.namespace
 #
 # Ensures the namespace exists as a property of the MITHGrid global.
@@ -264,17 +275,29 @@ MITHGrid.initSynchronizer = (callbacks) ->
 #
 # * isPreventable - true if a listener can prevent further listeners from receiving the event
 # * isUnicast - true if only one listener receives the event
+# * hasMemory - true if the event firer fires for each value it has been fired for when a new listener is added
 #
 # Returns:
 #
 # The EventFirer object.
 #
-MITHGrid.initEventFirer = (isPreventable, isUnicast) ->
-	that = {}
-	that.isPreventable = isPreventable
-	that.isUnicast = isUnicast
-	listeners = []
+MITHGrid.initEventFirer = (isPreventable, isUnicast, hasMemory) ->
+	that =
+		isPreventable: !!isPreventable
+		isUnicast: !!isUnicast
+		hasMemory: !!hasMemory
 	
+	callbackFlags = []
+	
+	if that.isPreventable
+		callbackFlags.push "stopOnFalse"
+	if that.isUnicast
+		callbackFlags.push "unique"
+	if that.hasMemory
+		callbackFlags.push "memory"
+	
+	callbacks = $.Callbacks(callbackFlags.join(" "))
+
 	# ### #addListener
 	#
 	# Adds a listener to an event.
@@ -282,12 +305,11 @@ MITHGrid.initEventFirer = (isPreventable, isUnicast) ->
 	# Parameters:
 	#
 	# * listener - function to call when event fires
-	# * namespace - optional namespace parameter that can be used to remove listeners
 	#
 	# Returns: Nothing.
 	#
-	that.addListener = (listener, namespace) ->
-		listeners.push [listener, namespace]
+	that.addListener = (listener) -> callbacks.add listener
+
 	
 	# ### #removeListener
 	#
@@ -295,15 +317,11 @@ MITHGrid.initEventFirer = (isPreventable, isUnicast) ->
 	#
 	# Parameters:
 	#
-	# * listener - function or string to remove from list of listeners
+	# * listener - function to remove from list of listeners
 	#
 	# Returns: Nothing.
 	#
-	that.removeListener = (listener) ->
-		if typeof listener == "string"
-			listeners = (l for l in listeners when l[1] != listener)
-		else
-			listeners = (l for l in listeners when l[0] != listener)
+	that.removeListener = (listener) -> callbacks.remove listener
 
 	# ### #fire
 	#
@@ -333,39 +351,7 @@ MITHGrid.initEventFirer = (isPreventable, isUnicast) ->
 	#
 	# If neither unicast nor preventabe, then fire() will return "true" regardless of how many listeners are called.
 	#
-	if isUnicast
-		that.fire = (args...) ->
-			if listeners.length > 0
-				try
-					listeners[0][0](args...)
-				catch e
-					console.log e
-			else
-				true
-	else if isPreventable
-
-		that.fire = (args...) ->
-			r = true
-			for listener in listeners
-				l = listener[0]
-				try
-					r = l(args...)
-				catch e
-					console.log e
-				if r == false
-					return false
-			true
-	else
-
-		that.fire = (args...) ->
-			for listener in listeners
-				try
-					listener[0](args...)
-				catch e
-					console.log listener[0], args, e
-			true
-	
-
+	that.fire = (args...) -> callbacks.fire args...
 	
 	that
 	
@@ -431,7 +417,7 @@ MITHGrid.initInstance = (args...) ->
 					c = [ c ]
 			else
 				c = []
-			that.events[k] = MITHGrid.initEventFirer( ("preventable" in c), ("unicast" in c))
+			that.events[k] = MITHGrid.initEventFirer( ("preventable" in c), ("unicast" in c), ("memory" in c) )
 	
 	# ### #addVariable
 	#

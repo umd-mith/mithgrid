@@ -4,21 +4,11 @@
 # controllers to allow a different manner of user interaction.
 #
 MITHGrid.namespace 'Controller', (Controller) ->
-	# ## Controller.initInstance
+	# ## Controller
 	#
 	# Controllers do not have any display component, so they only need a class name and the configuration object.
 	# Controller objects use the #bind() method to bind a controller to a UI element. The returned object is used to
 	# manage that particular binding.
-	#
-	# Parameters:
-	#
-	# * klass - the controller type name as a string
-	#
-	# * options - object holding configuration options
-	#
-	# Returns:
-	#
-	# An initialized controller object.
 	#
 	# Options:
 	#

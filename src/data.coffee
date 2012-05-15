@@ -6,7 +6,7 @@ MITHGrid.namespace 'Data', (Data) ->
 		# # Data Sets
 		#
 		# Sets track membership of string item IDs.
-		# Sets are basic objects that do not participate in the MITHGrid.initView scheme.
+		# Sets are basic objects that do not participate in the MITHGrid.initInstance scheme.
 		#
 		# ## Set.initInstance
 		#
@@ -26,8 +26,6 @@ MITHGrid.namespace 'Data', (Data) ->
 			count = 0
 			recalc_items = true
 			items_list = []
-
-			that.isSet = true
 
 			# ### #items
 			#
@@ -198,7 +196,7 @@ MITHGrid.namespace 'Data', (Data) ->
 		Store.initInstance = (args...) ->
 			MITHGrid.initInstance "MITHGrid.Data.Store", args..., (that) -> # we don't use container
 				quiesc_events = false
-				set = Data.initSet()
+				set = Data.Set.initInstance()
 				types = {}
 				properties = {}
 				spo = {}
@@ -293,7 +291,7 @@ MITHGrid.namespace 'Data', (Data) ->
 				#
 				getUnion = (index, xSet, y, set, filter) ->
 					if !set?
-						set = Data.initSet()
+						set = Data.Set.initInstance()
 
 					xSet.visit (x) -> indexFillSet index, x, y, set, filter
 					set
@@ -312,7 +310,7 @@ MITHGrid.namespace 'Data', (Data) ->
 				# The property object holding the information.
 				#
 				that.addProperty = (nom, options) ->
-					prop = Data.initProperty nom
+					prop = Data.Property.initInstance nom
 					if options?.valueType?
 						prop.valueType = options.valueType
 						properties[nom] = prop
@@ -330,7 +328,7 @@ MITHGrid.namespace 'Data', (Data) ->
 				#
 				# Object holding the property metadata.
 				#
-				that.getProperty = (nom) -> properties[nom] ? Data.initProperty(nom)
+				that.getProperty = (nom) -> properties[nom] ? Data.Property.initInstance(nom)
 
 				# ### #addType
 				#
@@ -346,7 +344,7 @@ MITHGrid.namespace 'Data', (Data) ->
 				# The type object holding the information.
 				#
 				that.addType = (nom, options) ->
-					type = Data.initType(nom)
+					type = Data.Type.initInstance(nom)
 					types[nom] = type
 					type
 
@@ -362,7 +360,7 @@ MITHGrid.namespace 'Data', (Data) ->
 				#
 				# Object holding the type metadata.
 				#
-				that.getType = (nom) -> types[nom] ? Data.initType(nom)
+				that.getType = (nom) -> types[nom] ? Data.Type.initInstance(nom)
 
 				# ### #getItem
 				#
@@ -694,7 +692,7 @@ MITHGrid.namespace 'Data', (Data) ->
 				# ### #prepare
 				#
 				that.prepare = (expressions) ->
-					parser = MITHGrid.Expression.initParser()
+					parser = MITHGrid.Expression.Basic.initInstance()
 					parsed = (parser.parse(ex) for ex in expressions)
 					valueType = undefined
 					evaluate: (id) ->
@@ -733,7 +731,7 @@ MITHGrid.namespace 'Data', (Data) ->
 		View.initInstance = (args...) ->
 			MITHGrid.initInstance "MITHGrid.Data.View", args..., (that) ->
 	
-				set = Data.initSet()
+				set = Data.Set.initInstance()
 				options = that.options
 	
 				# ### filterItem (private)
@@ -804,9 +802,9 @@ MITHGrid.namespace 'Data', (Data) ->
 				that.size = set.size
 	
 				that.eventFilterChange = () ->
-					current_set = Data.initSet that.items()
+					current_set = Data.Set.initInstance that.items()
 					filterItems () ->
-						changed_set = Data.initSet()
+						changed_set = Data.Set.initInstance()
 						for i in current_set.items()
 							if !that.contains i
 								changed_set.add i
@@ -817,7 +815,7 @@ MITHGrid.namespace 'Data', (Data) ->
 							that.events.onModelChange.fire that, changed_set.items()
 			
 				that.eventModelChange = (model, items) ->
-					changed_set = Data.initSet()
+					changed_set = Data.Set.initInstance()
 			
 					for id in items
 						if model.contains id
@@ -851,7 +849,7 @@ MITHGrid.namespace 'Data', (Data) ->
 
 				if options?.filters?.length > 0
 					((filters) ->
-						parser = MITHGrid.Expression.initParser()
+						parser = MITHGrid.Expression.Basic.initInstance()
 						parsedFilters = (parser.parse(ex) for ex in filters)
 						that.registerFilter
 							eventFilterItem: (model, id) ->
@@ -883,20 +881,20 @@ MITHGrid.namespace 'Data', (Data) ->
 					# The expressions must result in itemIds that are contained in the parent dataStore.
 					expressions = options.dataStore.prepare(options.expressions)
 					prevEventModelChange = that.eventModelChange
-					intermediateDataStore = MITHGrid.Data.initStore({})
-					subjectSet = MITHGrid.Data.initSet()
+					intermediateDataStore = MITHGrid.Data.Store.initInstance({})
+					subjectSet = MITHGrid.Data.Set.initInstance()
 					that.eventModelChange = (model, items) ->
 						itemList = []
 						removedItems = []
-						intermediateSet = MITHGrid.Data.initSet()
+						intermediateSet = MITHGrid.Data.Set.initInstance()
 						intermediateSet = intermediateDataStore.getObjectsUnion subjectSet, "mapsTo", intermediateSet
 						for id in items
 							if intermediateSet.contains(id)
 								itemList.push id
 								if !model.contains(id)
 									# we need to find everything that maps to id
-									idSet = MITHGrid.Data.initSet()
-									intermediateDataStore.getSubjectsUnion MITHGrid.Data.initSet([id]), "mapsTo", idSet
+									idSet = MITHGrid.Data.Set.initInstance()
+									intermediateDataStore.getSubjectsUnion MITHGrid.Data.Set.initInstance([id]), "mapsTo", idSet
 									idSet.visit (x) ->
 										item = intermediateDataStore.getItem x
 										mapsTo = item.mapsTo
@@ -913,7 +911,7 @@ MITHGrid.namespace 'Data', (Data) ->
 												mapsTo: mapsTo
 											]			
 							else if model.contains(id)
-								itemSet = MITHGrid.Data.initSet()
+								itemSet = MITHGrid.Data.Set.initInstance()
 								for v in expressions.evaluate([id])
 									itemSet.add(v)
 								if intermediateDataStore.contains(id)
@@ -934,7 +932,7 @@ MITHGrid.namespace 'Data', (Data) ->
 						if removedItems.length > 0
 							intermediateDataStore.removeItems(removedItems)
 
-						intermediateSet = MITHGrid.Data.initSet()
+						intermediateSet = MITHGrid.Data.Set.initInstance()
 						intermediateDataStore.getObjectsUnion subjectSet, "mapsTo", intermediateSet
 						itemList = (item for item in itemList when item in items)
 						prevEventModelChange intermediateSet, itemList
@@ -993,11 +991,11 @@ MITHGrid.namespace 'Data', (Data) ->
 		# lists of items.
 		#
 		SubSet.initInstance = (args...) ->
-			MITHGrid.initView "MITHGrid.Data.SubSet", args..., (that) ->
+			MITHGrid.initInstance "MITHGrid.Data.SubSet", args..., (that) ->
 				options = that.options
 				key = options.key
 	
-				set = Data.initSet()
+				set = Data.Set.initInstance()
 
 				# ### #items (see Set#items)
 				that.items = set.items
@@ -1023,9 +1021,9 @@ MITHGrid.namespace 'Data', (Data) ->
 				#
 				that.eventModelChange = (model, items) ->
 					if key?
-						newItems = Data.initSet(expressions.evaluate([key]))
+						newItems = Data.Set.initInstance(expressions.evaluate([key]))
 					else
-						newItems = Data.initSet()
+						newItems = Data.Set.initInstance()
 			
 					changed = []
 		
@@ -1081,7 +1079,7 @@ MITHGrid.namespace 'Data', (Data) ->
 		
 				findItemPosition = (itemId) -> itemList.indexOf itemId
 		
-				set = Data.initSet()
+				set = Data.Set.initInstance()
 
 				that.items = set.items
 				that.size = set.size
@@ -1152,8 +1150,8 @@ MITHGrid.namespace 'Data', (Data) ->
 						itemListStop = l
 		
 					oldSet = set
-					changedItems = Data.initSet()
-					set = Data.initSet()
+					changedItems = Data.Set.initInstance()
+					set = Data.Set.initInstance()
 					that.items = set.items
 					that.size = set.size
 					that.contains = set.contains
@@ -1232,7 +1230,7 @@ MITHGrid.namespace 'Data', (Data) ->
 					return -1
 		
 
-				set = Data.initSet()
+				set = Data.Set.initInstance()
 	
 				that.items = set.items
 				that.size = set.size
@@ -1325,10 +1323,10 @@ MITHGrid.namespace 'Data', (Data) ->
 					itemListStart = findLeftPoint leftKey
 					itemListStop  = findRightPoint rightKey
 
-					changedItems = Data.initSet()
+					changedItems = Data.Set.initInstance()
 					oldSet = set
 		
-					set = Data.initSet()
+					set = Data.Set.initInstance()
 					that.items = set.items
 					that.size = set.size
 					that.contains = set.contains
@@ -1366,7 +1364,7 @@ MITHGrid.namespace 'Data', (Data) ->
 					dataStore: options.dataStore
 					expressions: options.rightExpressions
 	
-				set = Data.initSet()
+				set = Data.Set.initInstance()
 				that.items = set.items
 				that.size = set.size
 				that.contains = set.contains

@@ -3,16 +3,16 @@ $(document).ready ->
 
 	test "Check namespace", ->
 		expect 3
-		ok MITHGrid.Expression?, "MITHGrid.Expression exists"
-		ok $.isFunction(MITHGrid.Expression.namespace), "MITHGrid.Expression.namespace is a function"
-		ok $.isFunction(MITHGrid.Expression.debug), "MITHGrid.Expression.debug is a function"
+		ok MITHGrid.Expression?.Basic?, "MITHGrid.Expression.Basic exists"
+		ok $.isFunction(MITHGrid.Expression.Basic.namespace), "MITHGrid.Expression.Basic.namespace is a function"
+		ok $.isFunction(MITHGrid.Expression.Basic.debug), "MITHGrid.Expression.Basic.debug is a function"
 
-	module "Expression.initCollection"
+	module "Expression.Basic.initCollection"
 	
 	test "Check collection constructor", ->		
 		expect 2
-		ok MITHGrid.Expression.initCollection?, "Collection exists"
-		ok $.isFunction(MITHGrid.Expression.initCollection), "initCollection is a function"
+		ok MITHGrid.Expression.Basic.initCollection?, "Collection exists"
+		ok $.isFunction(MITHGrid.Expression.Basic.initCollection), "initCollection is a function"
 	
 	# make sure we run the same tests for each style of collection construction
 	checkCollection = (col) ->
@@ -30,14 +30,14 @@ $(document).ready ->
 		list = []
 
 		expect 3
-		col = MITHGrid.Expression.initCollection ['a', 'bc', 'def', 4]
+		col = MITHGrid.Expression.Basic.initCollection ['a', 'bc', 'def', 4]
 		checkCollection col
 	
 	test "Check collection construction (set)", ->
 		list = []
 		
-		set = MITHGrid.Data.initSet [ 'a', 'bc', 'def', 4 ]
+		set = MITHGrid.Data.Set.initInstance [ 'a', 'bc', 'def', 4 ]
 		
 		expect 3
-		col = MITHGrid.Expression.initCollection set
+		col = MITHGrid.Expression.Basic.initCollection set
 		checkCollection col

@@ -2,7 +2,7 @@
 #
 # Everything here is private except for a few exported objects and functions.
 #
-MITHGrid.namespace "Expression", (exports) ->
+MITHGrid.namespace "Expression.Basic", (exports) ->
 	Expression = {}
 	_operators =
 		"+":
@@ -43,7 +43,7 @@ MITHGrid.namespace "Expression", (exports) ->
 			valueType: "boolean"
 			f: (a, b) -> a >= b
 
-	# ## MITHGrid.Expression.controls
+	# ## MITHGrid.Expression.Basic.controls
 	#
 	# Control functions may be defined for use in expressions. See the existing control functions for examples of
 	# how to write them.
@@ -76,6 +76,8 @@ MITHGrid.namespace "Expression", (exports) ->
 					args[1].evaluate roots, rootValueTypes, defaultRootName, database
 				else
 					args[2].evaluate roots, rootValueTypes, defaultRootName, database
+		# ### foreach
+		#
 		"foreach":
 			f: (args, roots, rootValueTypes, defaultRootName, database) ->
 				collection = args[0].evaluate roots, rootValueTypes, defaultRootName, database
@@ -118,7 +120,7 @@ MITHGrid.namespace "Expression", (exports) ->
 			}
 		
 		that.evaluateOnItem = (itemID, database) ->
-			this.evaluate({
+			that.evaluate({
 				"value": itemID
 			}, {
 				"value": "item"
@@ -172,7 +174,7 @@ MITHGrid.namespace "Expression", (exports) ->
 					if f(v) == true
 						break;
 
-			that.getSet = () -> MITHGrid.Data.initSet values
+			that.getSet = () -> MITHGrid.Data.Set.initInstance values
 
 			that.contains = (v) -> v in values
 
@@ -315,7 +317,7 @@ MITHGrid.namespace "Expression", (exports) ->
 				a
 
 			if filter instanceof Array
-				filter = MITHGrid.Data.initSet filter
+				filter = MITHGrid.Data.Set.initInstance filter
 
 			for i in [ _segments.length-1 .. 0 ]
 				segment = _segments[i];
@@ -372,7 +374,7 @@ MITHGrid.namespace "Expression", (exports) ->
 		that.getSegmentCount = () -> _segments.length
 
 		that.rangeBackward = (from, to, filter, database) ->
-			set = MITHGrid.Data.initSet()
+			set = MITHGrid.Data.Set.initInstance()
 			valueType = "item"
 
 			if _segments.length > 0
@@ -406,7 +408,7 @@ MITHGrid.namespace "Expression", (exports) ->
 			if roots[rootName]?
 				root = roots[rootName]
 
-				if root.isSet or root instanceof Array
+				if $.isPlainObject(root) or root instanceof Array
 					collection = Expression.initCollection root, valueType
 				else
 					collection = Expression.initCollection [root], valueType
@@ -430,7 +432,7 @@ MITHGrid.namespace "Expression", (exports) ->
 
 		that
 
-	Expression.initParser = exports.initParser = () ->
+	Expression.initParser = exports.initInstance = ->
 		that = {}
 	
 		internalParse = (scanner, several) ->
@@ -440,36 +442,6 @@ MITHGrid.namespace "Expression", (exports) ->
 			next = () ->
 				scanner.next()
 				token = scanner.token()
-
-			parseTerm = () ->
-				term = parseFactor()
-
-				while token? and token.type == Scanner.OPERATOR and token.value in [ "*", "/" ]
-					operator = token.value
-					next()
-
-					term = Expression.initOperator operator, [term, parseFactor()]
-				term
-
-			parseSubExpression = () ->
-				subExpression = parseTerm()
-
-				while token? and token.type == Scanner.OPERATOR and token.value in [ "+", "-" ]
-					operator = token.value
-					next()
-
-					subExpression = Expression.initOperator operator, [subExpression, parseTerm()]
-				subExpression
-
-			parseExpression = () ->
-				expression = parseSubExpression()
-
-				while token? and token.type == Scanner.OPERATOR and token.value in [ "=", "<>", "<", ">", "<=", ">=" ]
-					operator = token.value
-					next()
-
-					expression = Expression.initOperator operator, [expression, parseSubExpression()]
-				expression
 
 			parseExpressionList = () ->
 				expressions = [parseExpression()]
@@ -494,7 +466,7 @@ MITHGrid.namespace "Expression", (exports) ->
 						throw new Error "Missing property ID at position " + makePosition()
 				path
 
-			parseFactor = () ->
+			parseExpression = () ->
 				result = null
 				args = []
 
@@ -711,7 +683,7 @@ MITHGrid.namespace "Expression", (exports) ->
 	exports.registerSimpleMappingFunction = (name, f, valueType) ->
 		Expression.functions[name] =
 			f: (args) ->
-				set = MITHGrid.Data.initSet()
+				set = MITHGrid.Data.Set.initInstance()
 				evalArg = (arg) ->
 					arg.forEachValue (v) ->
 						v2 = f(v)
