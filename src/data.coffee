@@ -27,8 +27,6 @@ MITHGrid.namespace 'Data', (Data) ->
 			recalc_items = true
 			items_list = []
 
-			that.isSet = true
-
 			# ### #items
 			#
 			# Returns a list of item IDs in the set.
