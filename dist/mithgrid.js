@@ -2,7 +2,7 @@
 /*
 # mithgrid JavaScript Library v0.0.1
 #
-# Date: Fri May 11 11:17:46 2012 -0400
+# Date: Tue May 15 08:36:57 2012 -0400
 #
 # (c) Copyright University of Maryland 2011-2012.  All rights reserved.
 #
@@ -196,85 +196,29 @@
       }
       return that;
     };
-    MITHGrid.initEventFirer = function(isPreventable, isUnicast) {
-      var listeners, that;
-      that = {};
-      that.isPreventable = isPreventable;
-      that.isUnicast = isUnicast;
-      listeners = [];
-      that.addListener = function(listener, namespace) {
-        return listeners.push([listener, namespace]);
+    MITHGrid.initEventFirer = function(isPreventable, isUnicast, hasMemory) {
+      var callbackFlags, callbacks, that;
+      that = {
+        isPreventable: !!isPreventable,
+        isUnicast: !!isUnicast,
+        hasMemory: !!hasMemory
+      };
+      callbackFlags = [];
+      if (that.isPreventable) callbackFlags.push("stopOnFalse");
+      if (that.isUnicast) callbackFlags.push("unique");
+      if (that.hasMemory) callbackFlags.push("memory");
+      callbacks = $.Callbacks(callbackFlags.join(" "));
+      that.addListener = function(listener) {
+        return callbacks.add(listener);
       };
       that.removeListener = function(listener) {
-        var l;
-        if (typeof listener === "string") {
-          return listeners = (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = listeners.length; _i < _len; _i++) {
-              l = listeners[_i];
-              if (l[1] !== listener) _results.push(l);
-            }
-            return _results;
-          })();
-        } else {
-          return listeners = (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = listeners.length; _i < _len; _i++) {
-              l = listeners[_i];
-              if (l[0] !== listener) _results.push(l);
-            }
-            return _results;
-          })();
-        }
+        return callbacks.remove(listener);
       };
-      if (isUnicast) {
-        that.fire = function() {
-          var args, _ref3;
-          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          if (listeners.length > 0) {
-            try {
-              return (_ref3 = listeners[0])[0].apply(_ref3, args);
-            } catch (e) {
-              return console.log(e);
-            }
-          } else {
-            return true;
-          }
-        };
-      } else if (isPreventable) {
-        that.fire = function() {
-          var args, l, listener, r, _i, _len;
-          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          r = true;
-          for (_i = 0, _len = listeners.length; _i < _len; _i++) {
-            listener = listeners[_i];
-            l = listener[0];
-            try {
-              r = l.apply(null, args);
-            } catch (e) {
-              console.log(e);
-            }
-            if (r === false) return false;
-          }
-          return true;
-        };
-      } else {
-        that.fire = function() {
-          var args, listener, _i, _len;
-          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          for (_i = 0, _len = listeners.length; _i < _len; _i++) {
-            listener = listeners[_i];
-            try {
-              listener[0].apply(listener, args);
-            } catch (e) {
-              console.log(listener[0], args, e);
-            }
-          }
-          return true;
-        };
-      }
+      that.fire = function() {
+        var args;
+        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        return callbacks.fire.apply(callbacks, args);
+      };
       return that;
     };
     initViewCounter = 0;
@@ -321,7 +265,7 @@
           } else {
             c = [];
           }
-          that.events[k] = MITHGrid.initEventFirer((__indexOf.call(c, "preventable") >= 0), (__indexOf.call(c, "unicast") >= 0));
+          that.events[k] = MITHGrid.initEventFirer((__indexOf.call(c, "preventable") >= 0), (__indexOf.call(c, "unicast") >= 0), (__indexOf.call(c, "memory") >= 0));
         }
       }
       that.addVariable = function(varName, config) {
@@ -462,7 +406,6 @@
           count = 0;
           recalc_items = true;
           items_list = [];
-          that.isSet = true;
           that.items = function() {
             var i;
             if (recalc_items) {
@@ -2190,7 +2133,7 @@
           collection = null;
           if (roots[rootName] != null) {
             root = roots[rootName];
-            if (root.isSet || root instanceof Array) {
+            if ($.isPlainObject(root) || root instanceof Array) {
               collection = Expression.initCollection(root, valueType);
             } else {
               collection = Expression.initCollection([root], valueType);
@@ -2220,42 +2163,12 @@
         var internalParse, that;
         that = {};
         internalParse = function(scanner, several) {
-          var Scanner, expressions, makePosition, next, parseExpression, parseExpressionList, parseFactor, parsePath, parseSubExpression, parseTerm, r, roots, token, _i, _len;
+          var Scanner, expressions, makePosition, next, parseExpression, parseExpressionList, parsePath, r, roots, token, _i, _len;
           token = scanner.token();
           Scanner = Expression.initScanner;
           next = function() {
             scanner.next();
             return token = scanner.token();
-          };
-          parseTerm = function() {
-            var operator, term, _ref3;
-            term = parseFactor();
-            while ((token != null) && token.type === Scanner.OPERATOR && ((_ref3 = token.value) === "*" || _ref3 === "/")) {
-              operator = token.value;
-              next();
-              term = Expression.initOperator(operator, [term, parseFactor()]);
-            }
-            return term;
-          };
-          parseSubExpression = function() {
-            var operator, subExpression, _ref3;
-            subExpression = parseTerm();
-            while ((token != null) && token.type === Scanner.OPERATOR && ((_ref3 = token.value) === "+" || _ref3 === "-")) {
-              operator = token.value;
-              next();
-              subExpression = Expression.initOperator(operator, [subExpression, parseTerm()]);
-            }
-            return subExpression;
-          };
-          parseExpression = function() {
-            var expression, operator, _ref3;
-            expression = parseSubExpression();
-            while ((token != null) && token.type === Scanner.OPERATOR && ((_ref3 = token.value) === "=" || _ref3 === "<>" || _ref3 === "<" || _ref3 === ">" || _ref3 === "<=" || _ref3 === ">=")) {
-              operator = token.value;
-              next();
-              expression = Expression.initOperator(operator, [expression, parseSubExpression()]);
-            }
-            return expression;
           };
           parseExpressionList = function() {
             var expressions;
@@ -2288,7 +2201,7 @@
             }
             return path;
           };
-          parseFactor = function() {
+          parseExpression = function() {
             var args, identifier, result;
             result = null;
             args = [];
@@ -3010,7 +2923,7 @@
         var args;
         args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
         return MITHGrid.initInstance.apply(MITHGrid, ["MITHGrid.Application"].concat(__slice.call(args), [function(that, container) {
-          var configureInstance, onReady, options, thatFn;
+          var cName, cconfig, config, fName, fconfig, onReady, options, pName, pconfig, storeName, thatFn, viewConfig, viewName, _i, _len, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9, _results;
           onReady = [];
           thatFn = function() {
             return that;
@@ -3022,62 +2935,21 @@
           that.dataView = {};
           that.controller = {};
           options = that.options;
-          configureInstance = function() {
-            var cName, cconfig, config, fName, fconfig, pName, pconfig, storeName, viewConfig, viewName, _i, _len, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9, _results;
-            if ((options != null ? options.dataStores : void 0) != null) {
-              _ref3 = options.dataStores;
-              for (storeName in _ref3) {
-                config = _ref3[storeName];
-                that.addDataStore(storeName, config);
-              }
-            }
-            if ((options != null ? options.dataViews : void 0) != null) {
-              _ref4 = options.dataViews;
-              for (viewName in _ref4) {
-                viewConfig = _ref4[viewName];
-                that.addDataView(viewName, viewConfig);
-              }
-            }
-            if ((options != null ? options.controllers : void 0) != null) {
-              _ref5 = options.controllers;
-              for (cName in _ref5) {
-                cconfig = _ref5[cName];
-                that.addController(cName, cconfig);
-              }
-            }
-            if ((options != null ? options.facets : void 0) != null) {
-              _ref6 = options.facets;
-              for (fName in _ref6) {
-                fconfig = _ref6[fName];
-                that.addFacet(fName, fconfig);
-              }
-            }
-            if ((options != null ? options.components : void 0) != null) {
-              _ref7 = options.components;
-              for (cName in _ref7) {
-                cconfig = _ref7[cName];
-                that.addComponent(cName, cconfig);
-              }
-            }
-            if ((options != null ? options.presentations : void 0) != null) {
-              _ref8 = options.presentations;
-              for (pName in _ref8) {
-                pconfig = _ref8[pName];
-                that.addPresentation(pName, pconfig);
-              }
-            }
-            if ((options != null ? options.plugins : void 0) != null) {
-              _ref9 = options.plugins;
-              _results = [];
-              for (_i = 0, _len = _ref9.length; _i < _len; _i++) {
-                pconfig = _ref9[_i];
-                _results.push(that.addPlugin(pconfig));
-              }
-              return _results;
-            }
-          };
           that.ready = function(fn) {
             return onReady.push(fn);
+          };
+          that.run = function() {
+            return $(document).ready(function() {
+              var fn, _i, _len;
+              for (_i = 0, _len = onReady.length; _i < _len; _i++) {
+                fn = onReady[_i];
+                fn();
+              }
+              onReady = [];
+              return that.ready = function(fn) {
+                return fn();
+              };
+            });
           };
           that.addDataStore = function(storeName, config) {
             var prop, propOptions, store, type, typeInfo, _ref3, _ref4, _results;
@@ -3085,9 +2957,6 @@
               store = MITHGrid.Data.Store.initInstance();
               that.dataStore[storeName] = store;
               store.addType('Item');
-              store.addProperty('label', {
-                valueType: 'text'
-              });
               store.addProperty('type', {
                 valueType: 'text'
               });
@@ -3282,20 +3151,57 @@
               return _results;
             }
           };
-          configureInstance();
-          return that.run = function() {
-            return $(document).ready(function() {
-              var fn, _i, _len;
-              for (_i = 0, _len = onReady.length; _i < _len; _i++) {
-                fn = onReady[_i];
-                fn();
-              }
-              onReady = [];
-              return that.ready = function(fn) {
-                return fn();
-              };
-            });
-          };
+          if ((options != null ? options.dataStores : void 0) != null) {
+            _ref3 = options.dataStores;
+            for (storeName in _ref3) {
+              config = _ref3[storeName];
+              that.addDataStore(storeName, config);
+            }
+          }
+          if ((options != null ? options.dataViews : void 0) != null) {
+            _ref4 = options.dataViews;
+            for (viewName in _ref4) {
+              viewConfig = _ref4[viewName];
+              that.addDataView(viewName, viewConfig);
+            }
+          }
+          if ((options != null ? options.controllers : void 0) != null) {
+            _ref5 = options.controllers;
+            for (cName in _ref5) {
+              cconfig = _ref5[cName];
+              that.addController(cName, cconfig);
+            }
+          }
+          if ((options != null ? options.facets : void 0) != null) {
+            _ref6 = options.facets;
+            for (fName in _ref6) {
+              fconfig = _ref6[fName];
+              that.addFacet(fName, fconfig);
+            }
+          }
+          if ((options != null ? options.components : void 0) != null) {
+            _ref7 = options.components;
+            for (cName in _ref7) {
+              cconfig = _ref7[cName];
+              that.addComponent(cName, cconfig);
+            }
+          }
+          if ((options != null ? options.presentations : void 0) != null) {
+            _ref8 = options.presentations;
+            for (pName in _ref8) {
+              pconfig = _ref8[pName];
+              that.addPresentation(pName, pconfig);
+            }
+          }
+          if ((options != null ? options.plugins : void 0) != null) {
+            _ref9 = options.plugins;
+            _results = [];
+            for (_i = 0, _len = _ref9.length; _i < _len; _i++) {
+              pconfig = _ref9[_i];
+              _results.push(that.addPlugin(pconfig));
+            }
+            return _results;
+          }
         }]));
       };
     });
