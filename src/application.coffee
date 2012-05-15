@@ -20,73 +20,19 @@ MITHGrid.namespace 'Application', (Application) ->
 			that.controller = {}
 	
 			options = that.options
-		
-			configureInstance = ->
-				# The following configuration options are available:
-				#
-				# ### variables
-				#
-				# See the section on MITHGrid.initInstance#addVariable.
-				#
-
-
-				# ### dataStores
-				#
-				# See the section on #addDataStore.
-				#
-				if options?.dataStores?
-					for storeName, config of options.dataStores
-						that.addDataStore storeName, config
-
-				# ### dataViews
-				#
-				# See the section on #addDataView.
-				#
-				if options?.dataViews?
-					for viewName, viewConfig of options.dataViews
-						that.addDataView viewName, viewConfig
-
-				# ### controllers
-				#
-				# See the section on #addController.
-				#
-				if options?.controllers?
-					for cName, cconfig of options.controllers
-						that.addController cName, cconfig
-	
-				# ### facets
-				#
-				# See the section on #addFacet.
-				#
-				if options?.facets?
-					for fName, fconfig of options.facets
-						that.addFacet fName, fconfig
-				
-				# ### components
-				#
-				# See the section on #addComponent
-				#
-				if options?.components?
-					for cName, cconfig of options.components
-						that.addComponent cName, cconfig
-					
-				# ### presentations
-				#
-				# See the section on #addPresentation.
-				#
-				if options?.presentations?
-					for pName, pconfig of options.presentations
-						that.addPresentation pName, pconfig
-	
-				# ### plugins
-				#
-				# See the section on #addPlugin.
-				#
-				if options?.plugins?
-					for pconfig in options.plugins
-						that.addPlugin pconfig
 			
 			that.ready = (fn) -> onReady.push fn
+			
+			# ### #run
+			#
+			# Finishes configuring the application by running all queued or pending functions registered through
+			# the #ready() method. The #ready() method will be redefined to run functions after the current thread
+			# finishes.
+			that.run = () ->
+				$(document).ready () ->
+					fn() for fn in onReady						
+					onReady = []
+					that.ready = (fn) -> fn()
 			
 			# ### #addDataStore
 			#
@@ -103,14 +49,12 @@ MITHGrid.namespace 'Application', (Application) ->
 
 			that.addDataStore = (storeName, config) ->
 				#
-				# The data store automatically has an "Item" type and the "label", "type", and "id" properties.
+				# The data store automatically has an "Item" type and the "type" and "id" properties.
 				#
 				if !that.dataStore[storeName]?
 					store = MITHGrid.Data.Store.initInstance()
 					that.dataStore[storeName] = store
 					store.addType 'Item'
-					store.addProperty 'label',
-						valueType: 'text'
 					store.addProperty 'type',
 						valueType: 'text'
 					store.addProperty 'id',
@@ -317,9 +261,9 @@ MITHGrid.namespace 'Application', (Application) ->
 				plugin = pconfig.type.initInstance(pconfig)
 				if plugin?
 					if pconfig?.dataView?
-						# hook plugin up with dataView requested by app configuration
+
 						plugin.dataView = that.dataView[pconfig.dataView]
-						# add
+
 						plugin.dataView.addType type for type, typeInfo of plugin.getTypes()
 
 						plugin.dataView.addProperty prop, propOptions for prop, propOptions of plugin.getProperties()
@@ -342,15 +286,64 @@ MITHGrid.namespace 'Application', (Application) ->
 								presentation.selfRender()
 	
 	
-			configureInstance()
 
-			# ### #run
+			# In addition to the configuration options for generic MITHGrid object instances,
+			# the following configuration options are available:
 			#
-			# Finishes configuring the application by running all queued or pending functions registered through
-			# the #ready() method. The #ready() method will be redefined to run functions after the current thread
-			# finishes.
-			that.run = () ->
-				$(document).ready () ->
-					fn() for fn in onReady						
-					onReady = []
-					that.ready = (fn) -> fn()
+
+			# ### dataStores
+			#
+			# See the section on #addDataStore.
+			#
+			if options?.dataStores?
+				for storeName, config of options.dataStores
+					that.addDataStore storeName, config
+
+			# ### dataViews
+			#
+			# See the section on #addDataView.
+			#
+			if options?.dataViews?
+				for viewName, viewConfig of options.dataViews
+					that.addDataView viewName, viewConfig
+
+			# ### controllers
+			#
+			# See the section on #addController.
+			#
+			if options?.controllers?
+				for cName, cconfig of options.controllers
+					that.addController cName, cconfig
+
+			# ### facets
+			#
+			# See the section on #addFacet.
+			#
+			if options?.facets?
+				for fName, fconfig of options.facets
+					that.addFacet fName, fconfig
+			
+			# ### components
+			#
+			# See the section on #addComponent
+			#
+			if options?.components?
+				for cName, cconfig of options.components
+					that.addComponent cName, cconfig
+				
+			# ### presentations
+			#
+			# See the section on #addPresentation.
+			#
+			if options?.presentations?
+				for pName, pconfig of options.presentations
+					that.addPresentation pName, pconfig
+
+			# ### plugins
+			#
+			# See the section on #addPlugin.
+			#
+			if options?.plugins?
+				for pconfig in options.plugins
+					that.addPlugin pconfig
+
