@@ -14,12 +14,13 @@ object by creating the event handler using the `MITHgrid.initEventFirer` functio
 
 ### Creating an Event Manager
 
-`MITHgrid.initEventFirer(isPreventable, isUnicast)`
+`MITHgrid.initEventFirer(isPreventable, isUnicast, hasMemory)`
 
 Parameters:
 
 * isPreventable - true if a listener can prevent further listeners from receiving the event
 * isUnicast - true if only one listener receives the event
+* hasMemory - true if the event manager should keep track of previous values and fire immediately with past values when a new listener is added
 
 Returns: the event management object.
 
@@ -27,7 +28,7 @@ Returns: the event management object.
 
 The following methods are available for any event management object.
 
-#### `#addListener(listener, namespace)`
+#### `#addListener(listener)`
 
 #### `#removeListener(listener)`
 
