@@ -42,7 +42,7 @@ in responsibilities so you don't have to spend as much time wondering where to p
 ## That-ism
 
 Instead of the typical prototype-based object creation used in most JavaScript programming, MITHgrid
-supports [That-ism](http://fluidproject.org/blog/2008/07/21/about-this-and-that/). As a result, you don't use
+uses [That-ism](http://fluidproject.org/blog/2008/07/21/about-this-and-that/). As a result, you don't use
 the `new` keyword in JavaScript to create a new object instance. Instead, you call the `initInstance` method
 of the namespace representing the object type. For example, if you want to create a new
 MITHgrid application, you might use the following CoffeeScript code:
@@ -66,9 +66,9 @@ This pattern is a little more complex in JavaScript but still easy to do once yo
 
 {% highlight js %}
 Foo.initInstance = function() {
-  return MITHGrid.Application.initInstance.apply({}, ["Foo"].concat(arguments).concat(function(that, container) {
+  return MITHGrid.Application.initInstance.apply({}, ["Foo"].concat(arguments).concat([function(that, container) {
     // add methods to the `that` object
-  }));
+  }]));
 };
 {% endhighlight %}
 
