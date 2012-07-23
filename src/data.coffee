@@ -369,13 +369,19 @@ MITHGrid.namespace 'Data', (Data) ->
 				# Parameters:
 				#
 				# * id - item ID
+				# * cb - optional callback to receive the item
 				#
 				# Returns:
 				#
 				# An object containing the triples related to the item ID. If the item ID is not in the data store, then
 				# and empty object is returned.
 				#
-				that.getItem = (id) -> spo[id]?.values ? {}
+				that.getItem = (id, cb) -> 
+					result = spo[id]?.values ? {}
+					if cb
+						cb null, result
+					else
+						result
 
 				# ### #getItems
 				#
@@ -384,14 +390,38 @@ MITHGrid.namespace 'Data', (Data) ->
 				# Parameters:
 				#
 				# * ids - array of item IDs
+				# * cb - optional callback to receive results
 				#
 				# Returns:
 				#
 				# An array of objects containing the triples related to the item IDs.
+				# If you provide a callback function, then the results will be passed to the callback
+				# one at a time, ending with null.
 				#
-				that.getItems = (ids) ->
-					return [that.getItem ids] if !$.isArray ids
-					$.map ids, (id, idx) -> that.getItem id
+				# The callback function has the signature (err, doc):
+				#
+				#     dataStore.getItems([id list...], function(err, item) { ... });
+				#
+				that.getItems = (ids, cb) ->
+					if cb?
+						sync = MITHGrid.initSyncronizer cb
+						if ids.length?
+							for id in ids
+								sync.increment()
+								that.getItem id, (err, res) ->
+									cb err, res
+									sync.decrement()
+						else
+							sync.increment()
+							that.getItem ids, (err, res) ->
+								cb err, res
+								sync.decrement()
+						sync.done()
+					else
+						if ids.length
+							(that.getItem id for id in ids)
+						else
+							[ that.getItem ids ]
 				
 				# ### #removeItems
 				#

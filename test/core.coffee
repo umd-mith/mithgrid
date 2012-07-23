@@ -45,3 +45,46 @@ $(document).ready ->
 			options = that.options
 			equal options.foo, "bar", "foo == bar"
 			equal options.bar, "baz", "bar == baz"
+	
+	test "Check event firers", ->
+		expect 5
+		e = MITHGrid.initEventFirer()
+		ok !e.isPreventable, "Not preventable"
+		ok !e.isUnicase, "Not unicast"
+		ok !e.hasMemory, "Doesn't remember past arguments"
+		
+		foo = null
+		
+		fooHandler = (n) ->
+			start()
+			equal n, foo, "event fired"
+			fooHandler = (n) ->
+				start()
+				equal n, foo, "event fired"
+			stop()
+			foo = "baz"
+			e.fire "baz"
+		
+		e.addListener (n) -> fooHandler n
+			
+		stop()
+		foo = "bar"
+		e.fire "bar"
+	
+	test "Check memory event firers", ->
+		expect 5
+		e = MITHGrid.initEventFirer(false, false, true)
+		ok !e.isPreventable, "Not preventable"
+		ok !e.isUnicase, "Not unicast"
+		ok e.hasMemory, "Does remember past arguments"
+		
+		e.fire("foo")
+		e.fire("Baz")
+		args = []
+		stop()
+		e.addListener (f) ->
+			args.push f
+			if args.length > 1
+				start()
+				equal args.length, 2, "Args right length"
+				deepEqual args, ["foo", "Baz"], "Fired in right order"

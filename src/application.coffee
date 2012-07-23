@@ -30,9 +30,9 @@ MITHGrid.namespace 'Application', (Application) ->
 			# finishes.
 			that.run = () ->
 				$(document).ready () ->
+					that.ready = (fn) -> fn()
 					fn() for fn in onReady						
 					onReady = []
-					that.ready = (fn) -> fn()
 			
 			# ### #addDataStore
 			#

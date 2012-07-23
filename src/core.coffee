@@ -205,12 +205,12 @@ MITHGrid.defaults = (namespace, defaults) ->
 #
 # The synchronizer object.
 #
-MITHGrid.initSynchronizer = (callbacks) ->
+MITHGrid.initSynchronizer = (callback) ->
 	that = {}
 	counter = 1
 	done = false
 	fired = false
-	if !callbacks.done?
+	if !callback?
 		that.increment = () ->
 		that.decrement = that.increment
 		that.done = that.increment
@@ -250,7 +250,7 @@ MITHGrid.initSynchronizer = (callbacks) ->
 			counter -= 1
 			if counter <= 0 and done and !fired
 				fired = true
-				callbacks.done
+				callback()
 			counter
 		# ### #done
 		#
@@ -291,11 +291,7 @@ MITHGrid.initEventFirer = (isPreventable, isUnicast, hasMemory) ->
 	
 	if that.isPreventable
 		callbackFlags.push "stopOnFalse"
-	if that.isUnicast
-		callbackFlags.push "unique"
-	if that.hasMemory
-		callbackFlags.push "memory"
-	
+
 	callbacks = $.Callbacks(callbackFlags.join(" "))
 
 	# ### #addListener
@@ -308,8 +304,7 @@ MITHGrid.initEventFirer = (isPreventable, isUnicast, hasMemory) ->
 	#
 	# Returns: Nothing.
 	#
-	that.addListener = (listener) -> callbacks.add listener
-
+	adder = (listener) -> callbacks.add listener
 	
 	# ### #removeListener
 	#
@@ -321,8 +316,8 @@ MITHGrid.initEventFirer = (isPreventable, isUnicast, hasMemory) ->
 	#
 	# Returns: Nothing.
 	#
-	that.removeListener = (listener) -> callbacks.remove listener
-
+	remover = (listener) -> callbacks.remove listener
+	
 	# ### #fire
 	#
 	# Fire's behavior depends on the type of event that is firing.
@@ -351,7 +346,38 @@ MITHGrid.initEventFirer = (isPreventable, isUnicast, hasMemory) ->
 	#
 	# If neither unicast nor preventabe, then fire() will return "true" regardless of how many listeners are called.
 	#
-	that.fire = (args...) -> callbacks.fire args...
+	firer = (args...) -> callbacks.fire args...
+	
+	if that.isUnicast
+		callbackFns = []
+		adder = (listener) ->
+			callbackFns.push listener
+		remover = (listener) ->
+			callbackFns = (fn for fn in callbackFns when fn != listener)
+
+		callbacks.add (args...) ->
+			if callbackFns.length > 0
+				callbackFns[0](args...)
+	
+	else if that.hasMemory
+		memory = []
+		
+		oldAdder = adder
+		adder = (listener) ->
+			for m in memory
+				listener(m...)
+			oldAdder listener
+		
+		oldFirer = firer
+		firer = (args...) ->
+			memory.push args
+			oldFirer args...
+	
+	that.addListener = adder
+	
+	that.removeListener = remover
+
+	that.fire = firer
 	
 	that
 	

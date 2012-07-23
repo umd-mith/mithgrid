@@ -16,13 +16,12 @@ $(document).ready ->
 			ok $.isFunction(set[prop]), ".#{prop} is a function"
 
 	test "Check set construction", ->
-		expect 13
+		expect 12
 		ok MITHGrid.Data.Set?.initInstance?, "Set exists"
 		ok $.isFunction(MITHGrid.Data.Set.initInstance), "Set.initInstance is a function"
 
 		set = MITHGrid.Data.Set.initInstance ['a', 'bc', 'def', 4]
 		ok set?, "set object is not undefined"
-		equal set.isSet, true, "set object has .isSet as true"
 
 		list = set.items()
 		equals list.length, 4, ".items returns right number of values"
@@ -506,4 +505,37 @@ $(document).ready ->
 		
 		equal dp.dataStore.items().length, 2, "Two items in data store after keyrange change"
 		equal dp.items().length, 2, "Two items in data view after keyrange change"
+	
+	test "Check item deletion", ->
+		expect 6
 		
+		dp = MITHGrid.Data.RangePager.initInstance
+			dataStore: MITHGrid.Data.Store.initInstance()
+			leftExpressions: [ '.start' ]
+			rightExpressions: [ '.end' ]
+
+		dp.setKeyRange 0, 5
+		
+		dp.loadItems [
+			id: "a"
+			type: "Annotation"
+			shapeType: "Rectangle"
+			start: 0
+			end: 5
+		,
+			id: "b"
+			type: "Annotation"
+			shapeType: "Ellipse"
+			start: 1
+			end: 6
+		]
+		
+		equal dp.dataStore.items().length, 2, "Two items"
+		ok dp.contains("a"), "Has 'a'"
+		ok dp.contains("b"), "Has 'b'"
+		
+		dp.removeItems [ "b" ]
+		
+		equal dp.dataStore.items().length, 1, "One item after deletion"
+		ok dp.contains("a"), "Has 'a'"
+		ok !dp.contains("b"), "Doesn't have 'b'"

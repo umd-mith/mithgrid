@@ -269,3 +269,83 @@ MITHGrid.namespace 'Presentation', (Presentation) ->
 	Presentation.namespace "SimpleText", (SimpleText) ->
 		SimpleText.initInstance = (args...) ->
 			MITHGrid.Presentation.initInstance "MITHGrid.Presentation.SimpleText", args..., (that, container) ->
+
+	# ## Table
+	#
+	# A table presentation provides a tabular view of the data. Lenses are not used for item types. Instead,
+	# the data is presented based on the property type.
+	#
+	# Options:
+	# 
+	# * columns: list of columns (in the order to show)
+	# * columnLabels
+	#
+	# **N.B.:** This presentation is a work in progress.
+	#
+	Presentation.namespace "Table", (Table) ->
+		Table.initInstance = (args...) ->
+			MITHGrid.Presentation.initInstance "MITHGrid.Presentation.Table", args..., (that, container) ->
+				options = that.options
+				
+				tableEl = $("<table></table>")
+				headerEl = $("<tr></tr>")
+				tableEl.append(headerEl)
+				
+				for c in options.columns
+					headerEl.append("<th>#{options.columnLabels[c]}</th>")
+				
+				$(container).append(tableEl)
+				
+				that.hasLensFor = -> true
+				
+				stringify_list = (list) ->
+					if list?
+						list = [].concat list
+						if list.length > 1
+							lastV = list.pop()
+							text = list.join(", ")
+							if list.length > 1
+								text = text + ", and " + lastV
+							else
+								text = text " and " + lastV
+						else
+							text = list[0]
+					else
+						text = ""
+					text
+				
+				that.render = (container, model, id) ->
+					columns = {}
+					rendering = {}
+					el = $("<tr></tr>")
+					rendering.el = el
+					item = model.getItem id
+					#
+					# The `isEmpty` variable is a fix for a bug in the data store/view code that allows
+					# an id to report as present even when the id has been deleted. 
+					#
+					isEmpty = true
+					for c in options.columns
+						cel = $("<td></td>")
+						if item[c]?
+							cel.text stringify_list item[c]
+							isEmpty = false
+						
+							columns[c] = cel
+						el.append(cel)
+					if not isEmpty
+						tableEl.append(el)
+					
+						rendering.update = (item) ->
+							for c in options.columns
+								if item[c]?
+									columns[c].text stringify_list item[c]
+					
+						rendering.remove = ->
+							el.hide()
+							el.remove()
+					
+						rendering
+					else
+						el.remove()
+						null
