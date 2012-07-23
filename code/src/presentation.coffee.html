@@ -2,7 +2,7 @@
 layout: docco
 title: mithgrid/code/src/presentation.coffee.html
 ---
-<div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression-alt.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression-alt.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>presentation.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><h1>Presentations</h1>
+<div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>presentation.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><h1>Presentations</h1>
 </td><td class="code"><div class="highlight"><pre><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Presentation&#39;</span><span class="p">,</span> <span class="nf">(Presentation) -&gt;</span></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><h2>Presentation.initInstance</h2>
 
 <p>Initializes a presentation instance.</p>
@@ -248,6 +248,82 @@ its data.</p>
 
   <span class="nx">Presentation</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&quot;SimpleText&quot;</span><span class="p">,</span> <span class="nf">(SimpleText) -&gt;</span>
     <span class="nv">SimpleText.initInstance = </span><span class="nf">(args...) -&gt;</span>
-      <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Presentation</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Presentation.SimpleText&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that, container) -&gt;</span>
+      <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Presentation</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Presentation.SimpleText&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that, container) -&gt;</span></pre></div></td></tr><tr id="section-19"><td class="docs"><div class="pilwrap"><a href="#section-19" class="pilcrow">&#182;</a></div><h2>Table</h2>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Tue May 15 2012 08:37:09 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
+<p>A table presentation provides a tabular view of the data. Lenses are not used for item types. Instead,
+the data is presented based on the property type.</p>
+
+<p>Options:</p>
+
+<ul>
+<li>columns: list of columns (in the order to show)</li>
+<li>columnLabels</li>
+</ul>
+
+<p><strong>N.B.:</strong> This presentation is a work in progress.</p>
+</td><td class="code"><div class="highlight"><pre>  <span class="nx">Presentation</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&quot;Table&quot;</span><span class="p">,</span> <span class="nf">(Table) -&gt;</span>
+    <span class="nv">Table.initInstance = </span><span class="nf">(args...) -&gt;</span>
+      <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Presentation</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Presentation.Table&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that, container) -&gt;</span>
+        <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
+        
+        <span class="nv">tableEl = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;table&gt;&lt;/table&gt;&quot;</span><span class="p">)</span>
+        <span class="nv">headerEl = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;tr&gt;&lt;/tr&gt;&quot;</span><span class="p">)</span>
+        <span class="nx">tableEl</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">headerEl</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="nx">c</span> <span class="k">in</span> <span class="nx">options</span><span class="p">.</span><span class="nx">columns</span>
+          <span class="nx">headerEl</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="s">&quot;&lt;th&gt;</span><span class="si">#{</span><span class="nx">options</span><span class="p">.</span><span class="nx">columnLabels</span><span class="p">[</span><span class="nx">c</span><span class="p">]</span><span class="si">}</span><span class="s">&lt;/th&gt;&quot;</span><span class="p">)</span>
+        
+        <span class="nx">$</span><span class="p">(</span><span class="nx">container</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="nx">tableEl</span><span class="p">)</span>
+        
+        <span class="nv">that.hasLensFor = </span><span class="o">-&gt;</span> <span class="kc">true</span>
+        
+        <span class="nv">stringify_list = </span><span class="nf">(list) -&gt;</span>
+          <span class="k">if</span> <span class="nx">list</span><span class="o">?</span>
+            <span class="nv">list = </span><span class="p">[].</span><span class="nx">concat</span> <span class="nx">list</span>
+            <span class="k">if</span> <span class="nx">list</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">1</span>
+              <span class="nv">lastV = </span><span class="nx">list</span><span class="p">.</span><span class="nx">pop</span><span class="p">()</span>
+              <span class="nv">text = </span><span class="nx">list</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s">&quot;, &quot;</span><span class="p">)</span>
+              <span class="k">if</span> <span class="nx">list</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">1</span>
+                <span class="nv">text = </span><span class="nx">text</span> <span class="o">+</span> <span class="s">&quot;, and &quot;</span> <span class="o">+</span> <span class="nx">lastV</span>
+              <span class="k">else</span>
+                <span class="nv">text = </span><span class="nx">text</span> <span class="s">&quot; and &quot;</span> <span class="o">+</span> <span class="nx">lastV</span>
+            <span class="k">else</span>
+              <span class="nv">text = </span><span class="nx">list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+          <span class="k">else</span>
+            <span class="nv">text = </span><span class="s">&quot;&quot;</span>
+          <span class="nx">text</span>
+        
+        <span class="nv">that.render = </span><span class="nf">(container, model, id) -&gt;</span>
+          <span class="nv">columns = </span><span class="p">{}</span>
+          <span class="nv">rendering = </span><span class="p">{}</span>
+          <span class="nv">el = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;tr&gt;&lt;/tr&gt;&quot;</span><span class="p">)</span>
+          <span class="nv">rendering.el = </span><span class="nx">el</span>
+          <span class="nv">item = </span><span class="nx">model</span><span class="p">.</span><span class="nx">getItem</span> <span class="nx">id</span></pre></div></td></tr><tr id="section-20"><td class="docs"><div class="pilwrap"><a href="#section-20" class="pilcrow">&#182;</a></div><p>The <code>isEmpty</code> variable is a fix for a bug in the data store/view code that allows
+an id to report as present even when the id has been deleted. </p>
+</td><td class="code"><div class="highlight"><pre>          <span class="nv">isEmpty = </span><span class="kc">true</span>
+          <span class="k">for</span> <span class="nx">c</span> <span class="k">in</span> <span class="nx">options</span><span class="p">.</span><span class="nx">columns</span>
+            <span class="nv">cel = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;td&gt;&lt;/td&gt;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nx">item</span><span class="p">[</span><span class="nx">c</span><span class="p">]</span><span class="o">?</span>
+              <span class="nx">cel</span><span class="p">.</span><span class="nx">text</span> <span class="nx">stringify_list</span> <span class="nx">item</span><span class="p">[</span><span class="nx">c</span><span class="p">]</span>
+              <span class="nv">isEmpty = </span><span class="kc">false</span>
+            
+              <span class="nx">columns</span><span class="p">[</span><span class="nx">c</span><span class="p">]</span> <span class="o">=</span> <span class="nx">cel</span>
+            <span class="nx">el</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">cel</span><span class="p">)</span>
+          <span class="k">if</span> <span class="o">not</span> <span class="nx">isEmpty</span>
+            <span class="nx">tableEl</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">el</span><span class="p">)</span>
+          
+            <span class="nv">rendering.update = </span><span class="nf">(item) -&gt;</span>
+              <span class="k">for</span> <span class="nx">c</span> <span class="k">in</span> <span class="nx">options</span><span class="p">.</span><span class="nx">columns</span>
+                <span class="k">if</span> <span class="nx">item</span><span class="p">[</span><span class="nx">c</span><span class="p">]</span><span class="o">?</span>
+                  <span class="nx">columns</span><span class="p">[</span><span class="nx">c</span><span class="p">].</span><span class="nx">text</span> <span class="nx">stringify_list</span> <span class="nx">item</span><span class="p">[</span><span class="nx">c</span><span class="p">]</span>
+          
+            <span class="nv">rendering.remove = </span><span class="o">-&gt;</span>
+              <span class="nx">el</span><span class="p">.</span><span class="nx">hide</span><span class="p">()</span>
+              <span class="nx">el</span><span class="p">.</span><span class="nx">remove</span><span class="p">()</span>
+          
+            <span class="nx">rendering</span>
+          <span class="k">else</span>
+            <span class="nx">el</span><span class="p">.</span><span class="nx">remove</span><span class="p">()</span>
+            <span class="kc">null</span>
+
+</pre></div></td></tr></tbody></table><div id="generated">generated Mon Jul 23 2012 08:51:44 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>

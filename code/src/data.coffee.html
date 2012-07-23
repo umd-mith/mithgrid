@@ -2,7 +2,7 @@
 layout: docco
 title: mithgrid/code/src/data.coffee.html
 ---
-<div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression-alt.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression-alt.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>data.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><p>We place most of the data-centric pieces in the MITHGrid.Data namespace.</p>
+<div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>data.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><p>We place most of the data-centric pieces in the MITHGrid.Data namespace.</p>
 </td><td class="code"><div class="highlight"><pre><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Data&#39;</span><span class="p">,</span> <span class="nf">(Data) -&gt;</span>
   <span class="nx">Data</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Set&#39;</span><span class="p">,</span> <span class="nf">(Set) -&gt;</span></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><h1>Data Sets</h1>
 
@@ -340,13 +340,19 @@ with the additional items added.</p>
 
 <ul>
 <li>id - item ID</li>
+<li>cb - optional callback to receive the item</li>
 </ul>
 
 <p>Returns:</p>
 
 <p>An object containing the triples related to the item ID. If the item ID is not in the data store, then
 and empty object is returned.</p>
-</td><td class="code"><div class="highlight"><pre>        <span class="nv">that.getItem = </span><span class="nf">(id) -&gt;</span> <span class="nx">spo</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="nx">values</span> <span class="o">?</span> <span class="p">{}</span></pre></div></td></tr><tr id="section-26"><td class="docs"><div class="pilwrap"><a href="#section-26" class="pilcrow">&#182;</a></div><h3>#getItems</h3>
+</td><td class="code"><div class="highlight"><pre>        <span class="nv">that.getItem = </span><span class="nf">(id, cb) -&gt;</span> 
+          <span class="nv">result = </span><span class="nx">spo</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="nx">values</span> <span class="o">?</span> <span class="p">{}</span>
+          <span class="k">if</span> <span class="nx">cb</span>
+            <span class="nx">cb</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">result</span>
+          <span class="k">else</span>
+            <span class="nx">result</span></pre></div></td></tr><tr id="section-26"><td class="docs"><div class="pilwrap"><a href="#section-26" class="pilcrow">&#182;</a></div><h3>#getItems</h3>
 
 <p>Returns an array of objects holding the triples associated with an array of item IDs.</p>
 
@@ -354,14 +360,39 @@ and empty object is returned.</p>
 
 <ul>
 <li>ids - array of item IDs</li>
+<li>cb - optional callback to receive results</li>
 </ul>
 
 <p>Returns:</p>
 
-<p>An array of objects containing the triples related to the item IDs.</p>
-</td><td class="code"><div class="highlight"><pre>        <span class="nv">that.getItems = </span><span class="nf">(ids) -&gt;</span>
-          <span class="k">return</span> <span class="p">[</span><span class="nx">that</span><span class="p">.</span><span class="nx">getItem</span> <span class="nx">ids</span><span class="p">]</span> <span class="k">if</span> <span class="o">!</span><span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span> <span class="nx">ids</span>
-          <span class="nx">$</span><span class="p">.</span><span class="nx">map</span> <span class="nx">ids</span><span class="p">,</span> <span class="nf">(id, idx) -&gt;</span> <span class="nx">that</span><span class="p">.</span><span class="nx">getItem</span> <span class="nx">id</span>
+<p>An array of objects containing the triples related to the item IDs.
+If you provide a callback function, then the results will be passed to the callback
+one at a time, ending with null.</p>
+
+<p>The callback function has the signature (err, doc):</p>
+
+<pre><code>dataStore.getItems([id list...], function(err, item) { ... });
+</code></pre>
+</td><td class="code"><div class="highlight"><pre>        <span class="nv">that.getItems = </span><span class="nf">(ids, cb) -&gt;</span>
+          <span class="k">if</span> <span class="nx">cb</span><span class="o">?</span>
+            <span class="nv">sync = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initSyncronizer</span> <span class="nx">cb</span>
+            <span class="k">if</span> <span class="nx">ids</span><span class="p">.</span><span class="nx">length</span><span class="o">?</span>
+              <span class="k">for</span> <span class="nx">id</span> <span class="k">in</span> <span class="nx">ids</span>
+                <span class="nx">sync</span><span class="p">.</span><span class="nx">increment</span><span class="p">()</span>
+                <span class="nx">that</span><span class="p">.</span><span class="nx">getItem</span> <span class="nx">id</span><span class="p">,</span> <span class="nf">(err, res) -&gt;</span>
+                  <span class="nx">cb</span> <span class="nx">err</span><span class="p">,</span> <span class="nx">res</span>
+                  <span class="nx">sync</span><span class="p">.</span><span class="nx">decrement</span><span class="p">()</span>
+            <span class="k">else</span>
+              <span class="nx">sync</span><span class="p">.</span><span class="nx">increment</span><span class="p">()</span>
+              <span class="nx">that</span><span class="p">.</span><span class="nx">getItem</span> <span class="nx">ids</span><span class="p">,</span> <span class="nf">(err, res) -&gt;</span>
+                <span class="nx">cb</span> <span class="nx">err</span><span class="p">,</span> <span class="nx">res</span>
+                <span class="nx">sync</span><span class="p">.</span><span class="nx">decrement</span><span class="p">()</span>
+            <span class="nx">sync</span><span class="p">.</span><span class="nx">done</span><span class="p">()</span>
+          <span class="k">else</span>
+            <span class="k">if</span> <span class="nx">ids</span><span class="p">.</span><span class="nx">length</span>
+              <span class="p">(</span><span class="nx">that</span><span class="p">.</span><span class="nx">getItem</span> <span class="nx">id</span> <span class="k">for</span> <span class="nx">id</span> <span class="k">in</span> <span class="nx">ids</span><span class="p">)</span>
+            <span class="k">else</span>
+              <span class="p">[</span> <span class="nx">that</span><span class="p">.</span><span class="nx">getItem</span> <span class="nx">ids</span> <span class="p">]</span>
         </pre></div></td></tr><tr id="section-27"><td class="docs"><div class="pilwrap"><a href="#section-27" class="pilcrow">&#182;</a></div><h3>#removeItems</h3>
 
 <p>Removes triples associated with the item IDs.</p>
@@ -1280,4 +1311,4 @@ and double check set and changedItems list?</p>
           <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">addListener</span> <span class="nf">(m, i) -&gt;</span> <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">m</span><span class="p">,</span> <span class="nx">i</span>
           <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">that</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Tue May 15 2012 08:37:08 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
+</pre></div></td></tr></tbody></table><div id="generated">generated Mon Jul 23 2012 08:51:43 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
