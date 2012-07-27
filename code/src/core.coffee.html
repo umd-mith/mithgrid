@@ -2,7 +2,7 @@
 layout: docco
 title: mithgrid/code/src/core.coffee.html
 ---
-<div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression-alt.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression-alt.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>core.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><h1>namespace management</h1>
+<div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>core.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><h1>namespace management</h1>
 
 <p>These functions are available as properties of the global MITHGrid object. The debug() and namespace()
 functions are properties of all namespaces created using MITHGrid.</p>
@@ -190,12 +190,12 @@ the done() method has been called.</li>
 <p>Returns:</p>
 
 <p>The synchronizer object.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nv">MITHGrid.initSynchronizer = </span><span class="nf">(callbacks) -&gt;</span>
+</td><td class="code"><div class="highlight"><pre><span class="nv">MITHGrid.initSynchronizer = </span><span class="nf">(callback) -&gt;</span>
   <span class="nv">that = </span><span class="p">{}</span>
   <span class="nv">counter = </span><span class="mi">1</span>
   <span class="nv">done = </span><span class="kc">false</span>
   <span class="nv">fired = </span><span class="kc">false</span>
-  <span class="k">if</span> <span class="o">!</span><span class="nx">callbacks</span><span class="p">.</span><span class="nx">done</span><span class="o">?</span>
+  <span class="k">if</span> <span class="o">!</span><span class="nx">callback</span><span class="o">?</span>
     <span class="nv">that.increment = </span><span class="nf">() -&gt;</span>
     <span class="nv">that.decrement = </span><span class="nx">that</span><span class="p">.</span><span class="nx">increment</span>
     <span class="nv">that.done = </span><span class="nx">that</span><span class="p">.</span><span class="nx">increment</span>
@@ -231,7 +231,7 @@ the done() method has been called.</li>
       <span class="nx">counter</span> <span class="o">-=</span> <span class="mi">1</span>
       <span class="k">if</span> <span class="nx">counter</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">and</span> <span class="nx">done</span> <span class="o">and</span> <span class="o">!</span><span class="nx">fired</span>
         <span class="nv">fired = </span><span class="kc">true</span>
-        <span class="nx">callbacks</span><span class="p">.</span><span class="nx">done</span>
+        <span class="nx">callback</span><span class="p">()</span>
       <span class="nx">counter</span></pre></div></td></tr><tr id="section-18"><td class="docs"><div class="pilwrap"><a href="#section-18" class="pilcrow">&#182;</a></div><h3>#done</h3>
 
 <p>Marks the synchronizer as done. The counter should monotonically decrease after this. Once it is zero, the
@@ -270,11 +270,7 @@ the done() method has been called.</li>
   
   <span class="k">if</span> <span class="nx">that</span><span class="p">.</span><span class="nx">isPreventable</span>
     <span class="nx">callbackFlags</span><span class="p">.</span><span class="nx">push</span> <span class="s">&quot;stopOnFalse&quot;</span>
-  <span class="k">if</span> <span class="nx">that</span><span class="p">.</span><span class="nx">isUnicast</span>
-    <span class="nx">callbackFlags</span><span class="p">.</span><span class="nx">push</span> <span class="s">&quot;unique&quot;</span>
-  <span class="k">if</span> <span class="nx">that</span><span class="p">.</span><span class="nx">hasMemory</span>
-    <span class="nx">callbackFlags</span><span class="p">.</span><span class="nx">push</span> <span class="s">&quot;memory&quot;</span>
-  
+
   <span class="nv">callbacks = </span><span class="nx">$</span><span class="p">.</span><span class="nx">Callbacks</span><span class="p">(</span><span class="nx">callbackFlags</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">))</span></pre></div></td></tr><tr id="section-20"><td class="docs"><div class="pilwrap"><a href="#section-20" class="pilcrow">&#182;</a></div><h3>#addListener</h3>
 
 <p>Adds a listener to an event.</p>
@@ -286,8 +282,7 @@ the done() method has been called.</li>
 </ul>
 
 <p>Returns: Nothing.</p>
-</td><td class="code"><div class="highlight"><pre>  <span class="nv">that.addListener = </span><span class="nf">(listener) -&gt;</span> <span class="nx">callbacks</span><span class="p">.</span><span class="nx">add</span> <span class="nx">listener</span>
-
+</td><td class="code"><div class="highlight"><pre>  <span class="nv">adder = </span><span class="nf">(listener) -&gt;</span> <span class="nx">callbacks</span><span class="p">.</span><span class="nx">add</span> <span class="nx">listener</span>
   </pre></div></td></tr><tr id="section-21"><td class="docs"><div class="pilwrap"><a href="#section-21" class="pilcrow">&#182;</a></div><h3>#removeListener</h3>
 
 <p>Removes a listener (or set of listeners) from an event firer.</p>
@@ -299,7 +294,8 @@ the done() method has been called.</li>
 </ul>
 
 <p>Returns: Nothing.</p>
-</td><td class="code"><div class="highlight"><pre>  <span class="nv">that.removeListener = </span><span class="nf">(listener) -&gt;</span> <span class="nx">callbacks</span><span class="p">.</span><span class="nx">remove</span> <span class="nx">listener</span></pre></div></td></tr><tr id="section-22"><td class="docs"><div class="pilwrap"><a href="#section-22" class="pilcrow">&#182;</a></div><h3>#fire</h3>
+</td><td class="code"><div class="highlight"><pre>  <span class="nv">remover = </span><span class="nf">(listener) -&gt;</span> <span class="nx">callbacks</span><span class="p">.</span><span class="nx">remove</span> <span class="nx">listener</span>
+  </pre></div></td></tr><tr id="section-22"><td class="docs"><div class="pilwrap"><a href="#section-22" class="pilcrow">&#182;</a></div><h3>#fire</h3>
 
 <p>Fire's behavior depends on the type of event that is firing.</p>
 
@@ -328,7 +324,38 @@ the "true" value.</p>
 it will return "true".</p>
 
 <p>If neither unicast nor preventabe, then fire() will return "true" regardless of how many listeners are called.</p>
-</td><td class="code"><div class="highlight"><pre>  <span class="nv">that.fire = </span><span class="nf">(args...) -&gt;</span> <span class="nx">callbacks</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">args</span><span class="p">...</span>
+</td><td class="code"><div class="highlight"><pre>  <span class="nv">firer = </span><span class="nf">(args...) -&gt;</span> <span class="nx">callbacks</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">args</span><span class="p">...</span>
+  
+  <span class="k">if</span> <span class="nx">that</span><span class="p">.</span><span class="nx">isUnicast</span>
+    <span class="nv">callbackFns = </span><span class="p">[]</span>
+    <span class="nv">adder = </span><span class="nf">(listener) -&gt;</span>
+      <span class="nx">callbackFns</span><span class="p">.</span><span class="nx">push</span> <span class="nx">listener</span>
+    <span class="nv">remover = </span><span class="nf">(listener) -&gt;</span>
+      <span class="nv">callbackFns = </span><span class="p">(</span><span class="nx">fn</span> <span class="k">for</span> <span class="nx">fn</span> <span class="k">in</span> <span class="nx">callbackFns</span> <span class="k">when</span> <span class="nx">fn</span> <span class="o">!=</span> <span class="nx">listener</span><span class="p">)</span>
+
+    <span class="nx">callbacks</span><span class="p">.</span><span class="nx">add</span> <span class="nf">(args...) -&gt;</span>
+      <span class="k">if</span> <span class="nx">callbackFns</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="nx">callbackFns</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="nx">args</span><span class="p">...)</span>
+  
+  <span class="k">else</span> <span class="k">if</span> <span class="nx">that</span><span class="p">.</span><span class="nx">hasMemory</span>
+    <span class="nv">memory = </span><span class="p">[]</span>
+    
+    <span class="nv">oldAdder = </span><span class="nx">adder</span>
+    <span class="nv">adder = </span><span class="nf">(listener) -&gt;</span>
+      <span class="k">for</span> <span class="nx">m</span> <span class="k">in</span> <span class="nx">memory</span>
+        <span class="nx">listener</span><span class="p">(</span><span class="nx">m</span><span class="p">...)</span>
+      <span class="nx">oldAdder</span> <span class="nx">listener</span>
+    
+    <span class="nv">oldFirer = </span><span class="nx">firer</span>
+    <span class="nv">firer = </span><span class="nf">(args...) -&gt;</span>
+      <span class="nx">memory</span><span class="p">.</span><span class="nx">push</span> <span class="nx">args</span>
+      <span class="nx">oldFirer</span> <span class="nx">args</span><span class="p">...</span>
+  
+  <span class="nv">that.addListener = </span><span class="nx">adder</span>
+  
+  <span class="nv">that.removeListener = </span><span class="nx">remover</span>
+
+  <span class="nv">that.fire = </span><span class="nx">firer</span>
   
   <span class="nx">that</span>
   </pre></div></td></tr><tr id="section-23"><td class="docs"><div class="pilwrap"><a href="#section-23" class="pilcrow">&#182;</a></div><h1>Object Instances</h1>
@@ -525,4 +552,4 @@ mouseCaptureCallbacks[0].call e, "mousedown"</p>
       <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">unbind</span> <span class="s">&quot;mouseup&quot;</span>
     <span class="nx">oldCB</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Tue May 15 2012 08:37:08 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
+</pre></div></td></tr></tbody></table><div id="generated">generated Mon Jul 23 2012 08:51:43 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>

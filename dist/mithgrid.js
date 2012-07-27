@@ -163,13 +163,13 @@
       MITHGridDefaults[namespace] || (MITHGridDefaults[namespace] = {});
       return MITHGridDefaults[namespace] = $.extend(true, MITHGridDefaults[namespace], defaults);
     };
-    MITHGrid.initSynchronizer = function(callbacks) {
+    MITHGrid.initSynchronizer = function(callback) {
       var counter, done, fired, that;
       that = {};
       counter = 1;
       done = false;
       fired = false;
-      if (!(callbacks.done != null)) {
+      if (!(callback != null)) {
         that.increment = function() {};
         that.decrement = that.increment;
         that.done = that.increment;
@@ -185,7 +185,7 @@
           counter -= 1;
           if (counter <= 0 && done && !fired) {
             fired = true;
-            callbacks.done;
+            callback();
           }
           return counter;
         };
@@ -197,7 +197,7 @@
       return that;
     };
     MITHGrid.initEventFirer = function(isPreventable, isUnicast, hasMemory) {
-      var callbackFlags, callbacks, that;
+      var adder, callbackFlags, callbackFns, callbacks, firer, memory, oldAdder, oldFirer, remover, that;
       that = {
         isPreventable: !!isPreventable,
         isUnicast: !!isUnicast,
@@ -205,20 +205,64 @@
       };
       callbackFlags = [];
       if (that.isPreventable) callbackFlags.push("stopOnFalse");
-      if (that.isUnicast) callbackFlags.push("unique");
-      if (that.hasMemory) callbackFlags.push("memory");
       callbacks = $.Callbacks(callbackFlags.join(" "));
-      that.addListener = function(listener) {
+      adder = function(listener) {
         return callbacks.add(listener);
       };
-      that.removeListener = function(listener) {
+      remover = function(listener) {
         return callbacks.remove(listener);
       };
-      that.fire = function() {
+      firer = function() {
         var args;
         args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
         return callbacks.fire.apply(callbacks, args);
       };
+      if (that.isUnicast) {
+        callbackFns = [];
+        adder = function(listener) {
+          return callbackFns.push(listener);
+        };
+        remover = function(listener) {
+          var fn;
+          return callbackFns = (function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = callbackFns.length; _i < _len; _i++) {
+              fn = callbackFns[_i];
+              if (fn !== listener) _results.push(fn);
+            }
+            return _results;
+          })();
+        };
+        callbacks.add(function() {
+          var args;
+          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+          if (callbackFns.length > 0) {
+            return callbackFns[0].apply(callbackFns, args);
+          }
+        });
+      } else if (that.hasMemory) {
+        memory = [];
+        oldAdder = adder;
+        adder = function(listener) {
+          var m, _i, _len;
+          for (_i = 0, _len = memory.length; _i < _len; _i++) {
+            m = memory[_i];
+            listener.apply(null, m);
+          }
+          return oldAdder(listener);
+        };
+        oldFirer = firer;
+        firer = function() {
+          var args;
+          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+          memory.push(args);
+          return oldFirer.apply(null, args);
+        };
+      }
+      that.addListener = adder;
+      that.removeListener = remover;
+      that.fire = firer;
       return that;
     };
     initViewCounter = 0;
@@ -590,15 +634,48 @@
               var _ref3;
               return (_ref3 = types[nom]) != null ? _ref3 : Data.Type.initInstance(nom);
             };
-            that.getItem = function(id) {
-              var _ref3, _ref4;
-              return (_ref3 = (_ref4 = spo[id]) != null ? _ref4.values : void 0) != null ? _ref3 : {};
+            that.getItem = function(id, cb) {
+              var result, _ref3, _ref4;
+              result = (_ref3 = (_ref4 = spo[id]) != null ? _ref4.values : void 0) != null ? _ref3 : {};
+              if (cb) {
+                return cb(null, result);
+              } else {
+                return result;
+              }
             };
-            that.getItems = function(ids) {
-              if (!$.isArray(ids)) return [that.getItem(ids)];
-              return $.map(ids, function(id, idx) {
-                return that.getItem(id);
-              });
+            that.getItems = function(ids, cb) {
+              var id, sync, _i, _j, _len, _len2, _results;
+              if (cb != null) {
+                sync = MITHGrid.initSyncronizer(cb);
+                if (ids.length != null) {
+                  for (_i = 0, _len = ids.length; _i < _len; _i++) {
+                    id = ids[_i];
+                    sync.increment();
+                    that.getItem(id, function(err, res) {
+                      cb(err, res);
+                      return sync.decrement();
+                    });
+                  }
+                } else {
+                  sync.increment();
+                  that.getItem(ids, function(err, res) {
+                    cb(err, res);
+                    return sync.decrement();
+                  });
+                }
+                return sync.done();
+              } else {
+                if (ids.length) {
+                  _results = [];
+                  for (_j = 0, _len2 = ids.length; _j < _len2; _j++) {
+                    id = ids[_j];
+                    _results.push(that.getItem(id));
+                  }
+                  return _results;
+                } else {
+                  return [that.getItem(ids)];
+                }
+              }
             };
             that.removeItems = function(ids, fn) {
               var id, id_list, indexRemove, indexRemoveFn, removeItem, removeValues, _i, _len;
@@ -2602,11 +2679,98 @@
           return that.dataView.registerPresentation(that);
         }]));
       };
-      return Presentation.namespace("SimpleText", function(SimpleText) {
+      Presentation.namespace("SimpleText", function(SimpleText) {
         return SimpleText.initInstance = function() {
           var args, _ref3;
           args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
           return (_ref3 = MITHGrid.Presentation).initInstance.apply(_ref3, ["MITHGrid.Presentation.SimpleText"].concat(__slice.call(args), [function(that, container) {}]));
+        };
+      });
+      return Presentation.namespace("Table", function(Table) {
+        return Table.initInstance = function() {
+          var args, _ref3;
+          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+          return (_ref3 = MITHGrid.Presentation).initInstance.apply(_ref3, ["MITHGrid.Presentation.Table"].concat(__slice.call(args), [function(that, container) {
+            var c, headerEl, options, stringify_list, tableEl, _i, _len, _ref3;
+            options = that.options;
+            tableEl = $("<table></table>");
+            headerEl = $("<tr></tr>");
+            tableEl.append(headerEl);
+            _ref3 = options.columns;
+            for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+              c = _ref3[_i];
+              headerEl.append("<th>" + options.columnLabels[c] + "</th>");
+            }
+            $(container).append(tableEl);
+            that.hasLensFor = function() {
+              return true;
+            };
+            stringify_list = function(list) {
+              var lastV, text;
+              if (list != null) {
+                list = [].concat(list);
+                if (list.length > 1) {
+                  lastV = list.pop();
+                  text = list.join(", ");
+                  if (list.length > 1) {
+                    text = text + ", and " + lastV;
+                  } else {
+                    text = text(" and " + lastV);
+                  }
+                } else {
+                  text = list[0];
+                }
+              } else {
+                text = "";
+              }
+              return text;
+            };
+            return that.render = function(container, model, id) {
+              var c, cel, columns, el, isEmpty, item, rendering, _j, _len2, _ref4;
+              columns = {};
+              rendering = {};
+              el = $("<tr></tr>");
+              rendering.el = el;
+              item = model.getItem(id);
+              isEmpty = true;
+              _ref4 = options.columns;
+              for (_j = 0, _len2 = _ref4.length; _j < _len2; _j++) {
+                c = _ref4[_j];
+                cel = $("<td></td>");
+                if (item[c] != null) {
+                  cel.text(stringify_list(item[c]));
+                  isEmpty = false;
+                  columns[c] = cel;
+                }
+                el.append(cel);
+              }
+              if (!isEmpty) {
+                tableEl.append(el);
+                rendering.update = function(item) {
+                  var c, _k, _len3, _ref5, _results;
+                  _ref5 = options.columns;
+                  _results = [];
+                  for (_k = 0, _len3 = _ref5.length; _k < _len3; _k++) {
+                    c = _ref5[_k];
+                    if (item[c] != null) {
+                      _results.push(columns[c].text(stringify_list(item[c])));
+                    } else {
+                      _results.push(void 0);
+                    }
+                  }
+                  return _results;
+                };
+                rendering.remove = function() {
+                  el.hide();
+                  return el.remove();
+                };
+                return rendering;
+              } else {
+                el.remove();
+                return null;
+              }
+            };
+          }]));
         };
       });
     });
@@ -2941,14 +3105,14 @@
           that.run = function() {
             return $(document).ready(function() {
               var fn, _i, _len;
+              that.ready = function(fn) {
+                return fn();
+              };
               for (_i = 0, _len = onReady.length; _i < _len; _i++) {
                 fn = onReady[_i];
                 fn();
               }
-              onReady = [];
-              return that.ready = function(fn) {
-                return fn();
-              };
+              return onReady = [];
             });
           };
           that.addDataStore = function(storeName, config) {
