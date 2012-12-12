@@ -68,7 +68,7 @@ ${MG_C}: ${MODULES} ${DIST_DIR}
 	
 	@@rm -f ${MG_C}.tmp
 	@@for i in ${BASE_FILES}; do \
-		cat $$i | sed 's/^/	/' >> ${MG_C}.tmp; \
+		cat $$i | sed 's/^/  /' >> ${MG_C}.tmp; \
 		echo >> ${MG_C}.tmp; \
 		done
 	
