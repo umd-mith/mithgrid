@@ -176,7 +176,7 @@ MITHGrid.namespace 'Presentation', (Presentation) ->
 							f(end)
 						, 0
 					else
-						that.finishDisplayUpdate()
+						that.finishDisplayUpdate() if that.finishDisplayUpdate?
 			
 				that.startDisplayUpdate()
 				f 0

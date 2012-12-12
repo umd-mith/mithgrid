@@ -2,6 +2,36 @@
 #
 # Everything here is private except for a few exported objects and functions.
 #
+#
+# ## Expressions
+#
+# Expressions describe a path through the data graph held in a data store.
+#
+# Expressions hop from node to node in one of two directions: forward or backward. Forward goes from an item ID through a property
+# to arrive at a new value. Backward goes from a value through a property to arrive at a new item ID.
+#
+# For example, if we have a data store with items holding information about books, such as the following:
+#
+#     [{
+#        id: "book1",
+#        author: "author1",
+#        title: "A Tale of Two Cities",
+#        pages: 254
+#      }, {
+#        id: "author1",
+#        name: "Charles Dickens"
+#      }]
+#
+# Then .name would return "Charles Dickens" if we started with the item ID "author1". But .author.name would return the same
+# value if we started with the item ID "book1".
+#
+# If we start with "Charles Dickens" (the value), we can find the number of pages in the books with the following expression:
+# !name!author.pages (or <-name<-author->pages using the longer notation).
+#
+# . and -> use a forward index and must have an item ID on the left side
+#
+# ! and <- use a reverse index and will result in an item ID on the right side
+#
 MITHGrid.namespace "Expression.Basic", (exports) ->
 	Expression = {}
 	_operators =
@@ -574,6 +604,7 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
 			if _index < _maxIndex
 				c1 = _text.charAt _index
 				c2 = _text.charAt _index + 1
+				c3 = _text.charAt _index + 2
 
 				if ".!".indexOf(c1) >= 0
 					if c2 == "@"
@@ -590,6 +621,36 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
 							start: _index
 							end: _index + 1
 						_index += 1
+				else if c1 == "<" and c2 == "-"
+					if c3 == "@"
+						_token =
+							type: Expression.initScanner.PATH_OPERATOR
+							value: "!@"
+							start: _index
+							end: _index + 3
+						_index += 3
+					else
+						_token =
+							type: Expression.initScanner.PATH_OPERATOR
+							value: "!"
+							start: _index
+							end: _index + 2
+						_index += 2
+				else if c1 == "-" and c2 == ">"
+					if c3 == "@"
+						_token =
+							type: Expression.initScanner.PATH_OPERATOR
+							value: ".@"
+							start: _index
+							end: _index + 3
+						_index += 3
+					else
+						_token =
+							type: Expression.initScanner.PATH_OPERATOR
+							value: "."
+							start: _index
+							end: _index + 2
+						_index += 2
 				else if "<>".indexOf(c1) >= 0
 					if (c2 == "=") or ("<>".indexOf(c2) >= 0 and c1 != c2)
 						_token =

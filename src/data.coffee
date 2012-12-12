@@ -95,7 +95,7 @@ MITHGrid.namespace 'Data', (Data) ->
 				count = 0
 				recalc_items = false
 				items_list = []
-				undefined
+				false
 
 			# ### #visit
 			#
@@ -113,6 +113,7 @@ MITHGrid.namespace 'Data', (Data) ->
 			that.visit = (fn) ->
 				for o of items
 					break if fn(o) == true
+				false
 
 			# ### #contains
 			#
@@ -235,21 +236,23 @@ MITHGrid.namespace 'Data', (Data) ->
 							values: {}
 							counts: {}
 						index[x] = hash
+						hash.values[y] = [ z ]
+						hash.counts[y] = { }
+						hash.counts[y][z] = 1
+					else
+						values = hash.values
+						counts = hash.counts
 
-					array = hash.values[y]
-					counts = hash.counts[y]
-
-					if !array?
-						array = []
-						hash.values[y] = array
-					if !counts?
-						counts = {}
-						hash.counts[y] = counts
-					else if z in array
-						counts[z] += 1
-						return
-					array.push z
-					counts[z] = 1
+						if !values[y]?
+							values[y] = [ z ]
+							counts[y] = {}
+							counts[y][z] = 1
+						else 
+							if counts[y][z]?
+								counts[y][z] += 1
+							else
+								values[y].push z
+								counts[y][z] = 1
 
 				# ### indexFillSet (private)
 				#
@@ -273,6 +276,7 @@ MITHGrid.namespace 'Data', (Data) ->
 									set.add z if filter.contains z
 							else
 								set.add z for z in array
+					false
 
 				# ### getUnion (private)
 				#
@@ -481,6 +485,7 @@ MITHGrid.namespace 'Data', (Data) ->
 								sum += v
 							if sum == 0
 								delete index[x]
+						false
 
 					# #### indexRemoveFn (private to #removeItems)
 					#
@@ -524,14 +529,12 @@ MITHGrid.namespace 'Data', (Data) ->
 					# 
 					removeItem = (id) ->
 						entry = that.getItem id
-						type = entry.type
-						type = type[0] if $.isArray(type)
 			
 						for p, items of entry
-							continue if typeof(p) != "string" or p in ["id", "type"]
+							continue if typeof(p) != "string" or p in ["id"]
 							removeValues id, p, items
 			
-						removeValues id, 'type', [ type ]
+						removeValues id, 'id', [ id ]
 			
 				
 					for id in ids
@@ -590,7 +593,6 @@ MITHGrid.namespace 'Data', (Data) ->
 						# if anything is changed, we return true
 						#	otherwise, we return false
 						id = entry.id
-						type = entry.type
 						changed = false
 
 						itemListIdentical = (to, from) ->
@@ -605,12 +607,11 @@ MITHGrid.namespace 'Data', (Data) ->
 						putValues = (id, p, list) -> indexPutFn(id, p, o) for o in list
 			
 						id = id[0] if $.isArray(id)
-						type = type[0] if $.isArray(type)
 
 						old_item = that.getItem id
 
 						for p, items of entry
-							continue if typeof(p) != "string" or p in ["id", "type"]
+							continue if typeof(p) != "string" or p in ["id"]
 
 							# if entry[p] and old_item[p] have the same members in the same order, then
 							# we do nothing
@@ -671,22 +672,19 @@ MITHGrid.namespace 'Data', (Data) ->
 							throw MITHGrid.error "Item entry has no type: ", item
 
 						id = item.id
-						type = item.type
 
 						id = id[0] if $.isArray id
-						type = type[0] if $.isArray type
 
 						set.add id
 						id_list.push id
 
-						indexFn id, "type", type
 						indexFn id, "id", id
 			
 						for p, v of item
 							if typeof(p) != "string"
 								continue
 					
-							if p not in ["id", "type"]
+							if p not in ["id"]
 								if $.isArray(v)
 									indexFn id, p, vv for vv in v
 								else if v?
@@ -747,7 +745,7 @@ MITHGrid.namespace 'Data', (Data) ->
 				# ### #registerPresentation
 				#
 				that.registerPresentation = (ob) ->
-					that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
+					ob.onDestroy that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
 					ob.eventModelChange that, that.items()
 
 	# # Data View
@@ -815,8 +813,8 @@ MITHGrid.namespace 'Data', (Data) ->
 				# ### #registerPresentation
 				#
 				that.registerPresentation = (ob) ->
-					that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
-					filterItems () -> ob.eventModelChange that, that.items()
+					ob.onDestroy that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
+					filterItems -> ob.eventModelChange that, that.items()
 
 			
 				# ### #items (see Set#items)
@@ -1043,7 +1041,22 @@ MITHGrid.namespace 'Data', (Data) ->
 				#
 				that.setKey = (k) ->
 					key = k
-					that.eventModelChange options.dataStore, options.dataStore.items()
+
+					newItems = Data.Set.initInstance(expressions.evaluate([key]))
+					changed = []
+					
+					set.visit (i) ->
+						if !newItems.contains i
+							set.remove i
+							changed.push i
+							
+					newItems.visit (i) ->
+						if !set.contains i
+							set.add i
+							changed.push i
+
+					if changed.length > 0
+						that.events.onModelChange.fire that, changed
 
 				expressions = options.dataStore.prepare(options.expressions)
 			
@@ -1090,7 +1103,7 @@ MITHGrid.namespace 'Data', (Data) ->
 				that.eventModelChange that.dataStore, that.dataStore.items()
 	
 				that.registerPresentation = (ob) ->
-					that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
+					ob.onDestroy that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
 					ob.eventModelChange that, that.items()
 		
 	# # Data List Pager
@@ -1203,7 +1216,7 @@ MITHGrid.namespace 'Data', (Data) ->
 				that.dataStore.registerPresentation that
 
 				that.registerPresentation = (ob) ->
-					that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
+					ob.onDestroy that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
 					ob.eventModelChange that, that.items()
 
 	# # Data Pager
@@ -1377,7 +1390,7 @@ MITHGrid.namespace 'Data', (Data) ->
 				that.dataStore.registerPresentation that
 
 				that.registerPresentation = (ob) ->
-					that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
+					ob.onDestroy that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
 					ob.eventModelChange that, that.items()
 
 	# # Data Range Pager
@@ -1440,5 +1453,5 @@ MITHGrid.namespace 'Data', (Data) ->
 				that.setKeyRange undefined, undefined
 				
 				that.registerPresentation = (ob) ->
-					that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
+					ob.onDestroy that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
 					ob.eventModelChange that, that.items()

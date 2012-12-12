@@ -210,60 +210,72 @@ MITHGrid.initSynchronizer = (callback) ->
 	counter = 1
 	done = false
 	fired = false
-	if !callback?
-		that.increment = () ->
-		that.decrement = that.increment
-		that.done = that.increment
-		that.add = (v) ->
-	else
-		# ### #increment
-		#
-		# Increments the synchronizer counter by one.
-		#
-		# Returns:
-		#
-		# The new value of the synchronizer counter.
-		#
-		that.increment = () -> counter += 1
-		# ### #add
-		#
-		# Adds the indicated number to the synchronizer.
-		#
-		# Parameters:
-		#
-		# * n - how much to add to the synchronizer counter
-		#
-		# Returns:
-		#
-		# The new value of the synchronizer counter.
-		#
-		that.add = (n) -> counter += n
-		# ### #decrement
-		#
-		# Decrements the synchronizer counter by one.
-		#
-		# Returns:
-		#
-		# The new value of the synchronizer counter.
-		#
-		that.decrement = () ->
-			counter -= 1
-			if counter <= 0 and done and !fired
-				fired = true
-				callback()
-			counter
-		# ### #done
-		#
-		# Marks the synchronizer as done. The counter should monotonically decrease after this. Once it is zero, the
-		# "done" callback will run.
-		#
-		# Returns:
-		#
-		# The new value of the synchronizer counter. If it is zero, then the "done" callback should be scheduled to run.
-		#
-		that.done = () ->
-			done = true
-			that.decrement()
+	# ### #increment
+	#
+	# Increments the synchronizer counter by one.
+	#
+	# Returns:
+	#
+	# The new value of the synchronizer counter.
+	#
+	that.increment = () -> counter += 1
+	# ### #add
+	#
+	# Adds the indicated number to the synchronizer.
+	#
+	# Parameters:
+	#
+	# * n - how much to add to the synchronizer counter
+	#
+	# Returns:
+	#
+	# The new value of the synchronizer counter.
+	#
+	that.add = (n) -> counter += n
+	# ### #decrement
+	#
+	# Decrements the synchronizer counter by one.
+	#
+	# Returns:
+	#
+	# The new value of the synchronizer counter.
+	#
+	that.decrement = () ->
+		counter -= 1
+		if counter <= 0 and done and !fired
+			fired = true
+			callback() if callback?
+		counter
+	# ### #done
+	#
+	# Marks the synchronizer as done. The counter should monotonically decrease after this. Once it is zero, the
+	# "done" callback will run.
+	#
+	# Returns:
+	#
+	# The new value of the synchronizer counter. If it is zero, then the "done" callback should be scheduled to run.
+	#
+	that.done = (cb) ->
+		done = true
+		callback = cb if cb?
+		that.decrement()
+
+	that.process = (items, cb) ->
+		n = items.length
+		that.add n
+		processItems = (start) ->
+			end = start + 100
+			end = n if end > n
+			for i in [start ... end]
+				cb(items[i])
+				that.decrement()
+			if end < n
+				setTimeout ->
+					processItems end
+				, 0
+		setTimeout ->
+			processItems 0
+		, 0
 
 	that
        
@@ -293,19 +305,10 @@ MITHGrid.initEventFirer = (isPreventable, isUnicast, hasMemory) ->
 		callbackFlags.push "stopOnFalse"
 
 	callbacks = $.Callbacks(callbackFlags.join(" "))
-
-	# ### #addListener
-	#
-	# Adds a listener to an event.
-	#
-	# Parameters:
-	#
-	# * listener - function to call when event fires
-	#
-	# Returns: Nothing.
-	#
-	adder = (listener) -> callbacks.add listener
 	
+	destroyer = ->
+		callbacks.empty()
+
 	# ### #removeListener
 	#
 	# Removes a listener (or set of listeners) from an event firer.
@@ -317,6 +320,20 @@ MITHGrid.initEventFirer = (isPreventable, isUnicast, hasMemory) ->
 	# Returns: Nothing.
 	#
 	remover = (listener) -> callbacks.remove listener
+	
+	# ### #addListener
+	#
+	# Adds a listener to an event.
+	#
+	# Parameters:
+	#
+	# * listener - function to call when event fires
+	#
+	# Returns: Callback to remove listener.
+	#
+	adder = (listener) -> 
+		callbacks.add listener
+		-> remover listener
 	
 	# ### #fire
 	#
@@ -350,14 +367,20 @@ MITHGrid.initEventFirer = (isPreventable, isUnicast, hasMemory) ->
 	
 	if that.isUnicast
 		callbackFns = []
-		adder = (listener) ->
-			callbackFns.push listener
+		
 		remover = (listener) ->
 			callbackFns = (fn for fn in callbackFns when fn != listener)
-
+		adder = (listener) ->
+			callbackFns.push listener
+			-> remover listener
+		
 		callbacks.add (args...) ->
 			if callbackFns.length > 0
 				callbackFns[0](args...)
+				
+		destroyer = ->
+			callbackFns = []
+			callbacks.empty()
 	
 	else if that.hasMemory
 		memory = []
@@ -372,12 +395,18 @@ MITHGrid.initEventFirer = (isPreventable, isUnicast, hasMemory) ->
 		firer = (args...) ->
 			memory.push args
 			oldFirer args...
+		
+		destroyer = ->
+			memory = []
+			callbacks.empty()
 	
 	that.addListener = adder
 	
 	that.removeListener = remover
 
 	that.fire = firer
+	
+	that._destroy = destroyer
 	
 	that
 	
@@ -408,6 +437,19 @@ MITHGrid.initInstance = (args...) ->
 	that =
 		_mithgrid_type: "MITHGrid"
 	
+	onDestroyFns = []
+	that.onDestroy = (cb) ->
+		onDestroyFns.push cb
+			
+	that._destroy = ->
+		for cb in onDestroyFns.reverse()
+			cb()
+		onDestroyFns = []
+		for e, obj of that.events
+			obj._destroy()
+		for k, v of that
+			delete that[k]
+
 	optionsArray = [ ]
 	if namespace? 
 		if typeof namespace == "string"
@@ -464,12 +506,18 @@ MITHGrid.initInstance = (args...) ->
 	# 	* 'r' for read-only
 	# 	* 'w' for write-only.
 	#
+	# * **isa** - the type of the variable is one of the following:
+	#	* 'numeric' for numeric data
+	#	* 'text' for non-numeric data
+	#
 	# * **event** - the name of the event associated with this variable. This event will fire when the value of the variable changes.
 	#           This defaults to 'on' + varName + 'Change'.
 	#
 	# * **setter** - the name of the method that will be used to set the variable. This defaults to 'set' + varName.
 	#
 	# * **getter** - the name of the method that will be used to retrieve the variable. This defaults to 'get' + varName.
+	#
+	# * **adder** - the name of the method that will be used to add a numeric value to the current value. This defaults to 'add' + varName and is only available for numeric variables.
 	#
 	# * **validate** - a function that will be called to validate the value the variable is being set to. This function
 	#              should expect the new value and return "true" or "false".
@@ -486,6 +534,7 @@ MITHGrid.initInstance = (args...) ->
 			validate = config.validate
 			eventName = config.event || ('on' + varName + 'Change')
 			setName = config.setter || ('set' + varName)
+			adderName = config.adder || ('add' + varName)
 			lockName = config.locker || ('lock' + varName)
 			unlockName = config.unlocker || ('unlock' + varName)
 			that.events[eventName] = MITHGrid.initEventFirer()
@@ -523,6 +572,10 @@ MITHGrid.initInstance = (args...) ->
 					if locked == 0
 						oldSetter(v)
 			that[setName] = setter
+
+			if config.isa == "numeric"
+				that[adderName] = (n) -> setter(n + value)
+
 		if 'r' in config.is
 			getName = config.getter || ('get' + varName)
 			that[getName] = () -> value
@@ -572,9 +625,6 @@ MITHGrid.namespace 'mouse', (mouse) ->
 		mouseCaptureCallbacks.unshift cb
 		if mouseCaptureCallbacks.length == 1
 			# it was zero before, so no bindings
-			#$(document).mousedown (e) ->
-			#	e.preventDefault()
-			#	mouseCaptureCallbacks[0].call e, "mousedown"
 			$(document).mousemove (e) ->
 				e.preventDefault()
 				mouseCaptureCallbacks[0].call e, "mousemove"
@@ -586,7 +636,6 @@ MITHGrid.namespace 'mouse', (mouse) ->
 	mouse.uncapture = ->
 		oldCB = mouseCaptureCallbacks.shift()
 		if mouseCaptureCallbacks.length == 0
-			#$(document).unbind "mousedown"
 			$(document).unbind "mousemove"
 			$(document).unbind "mouseup"
 		oldCB
