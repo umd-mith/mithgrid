@@ -364,8 +364,8 @@ MITHGrid.initEventFirer = (isPreventable, isUnicast, hasMemory) ->
   # If neither unicast nor preventabe, then fire() will return "true" regardless of how many listeners are called.
   #
   firer = (args...) -> callbacks.fire args...
-  
-  if that.isUnicast
+      
+  if that.isUnicast or that.isPreventable
     callbackFns = []
     
     remover = (listener) ->
@@ -374,9 +374,18 @@ MITHGrid.initEventFirer = (isPreventable, isUnicast, hasMemory) ->
       callbackFns.push listener
       -> remover listener
     
-    callbacks.add (args...) ->
-      if callbackFns.length > 0
-        callbackFns[0](args...)
+    if that.isUnicast
+      callbacks.add (args...) ->
+        if callbackFns.length > 0
+          callbackFns[0](args...)
+
+    if that.isPreventable
+      firer = (args...) ->
+        for fn in callbackFns
+          r = fn(args...)
+          if r == false
+            return false
+        return true
         
     destroyer = ->
       callbackFns = []
