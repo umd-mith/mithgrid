@@ -8,7 +8,7 @@
 #
 # Date: @DATE
 #
-# (c) Copyright University of Maryland 2011-2012.  All rights reserved.
+# (c) Copyright University of Maryland 2011-2013.  All rights reserved.
 #
 # (c) Copyright Texas A&M University 2010.  All rights reserved.
 #
