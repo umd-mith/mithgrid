@@ -88,7 +88,7 @@ Any namespace created will have the debug() and namespace() functions available.
     <span class="nx">fn</span> <span class="nx">globals</span><span class="p">[</span><span class="nx">nom</span><span class="p">]</span>
   <span class="nx">globals</span><span class="p">[</span><span class="nx">nom</span><span class="p">]</span></pre></div></td></tr><tr id="section-9"><td class="docs"><div class="pilwrap"><a href="#section-9" class="pilcrow">&#182;</a></div><h1>that-ism helper functions</h1>
 
-<p>These functions are available as properties of the global MITHGrid object.    </p>
+<p>These functions are available as properties of the global MITHGrid object.  </p>
 </td><td class="code"><div class="highlight"><pre></pre></div></td></tr><tr id="section-10"><td class="docs"><div class="pilwrap"><a href="#section-10" class="pilcrow">&#182;</a></div><h2>MITHGrid.normalizeArgs</h2>
 
 <p>Accepts the arguments passed in from the constructor and sorts out the various pieces.</p>
@@ -194,20 +194,14 @@ the done() method has been called.</li>
   <span class="nv">that = </span><span class="p">{}</span>
   <span class="nv">counter = </span><span class="mi">1</span>
   <span class="nv">done = </span><span class="kc">false</span>
-  <span class="nv">fired = </span><span class="kc">false</span>
-  <span class="k">if</span> <span class="o">!</span><span class="nx">callback</span><span class="o">?</span>
-    <span class="nv">that.increment = </span><span class="nf">() -&gt;</span>
-    <span class="nv">that.decrement = </span><span class="nx">that</span><span class="p">.</span><span class="nx">increment</span>
-    <span class="nv">that.done = </span><span class="nx">that</span><span class="p">.</span><span class="nx">increment</span>
-    <span class="nv">that.add = </span><span class="nf">(v) -&gt;</span>
-  <span class="k">else</span></pre></div></td></tr><tr id="section-15"><td class="docs"><div class="pilwrap"><a href="#section-15" class="pilcrow">&#182;</a></div><h3>#increment</h3>
+  <span class="nv">fired = </span><span class="kc">false</span></pre></div></td></tr><tr id="section-15"><td class="docs"><div class="pilwrap"><a href="#section-15" class="pilcrow">&#182;</a></div><h3>#increment</h3>
 
 <p>Increments the synchronizer counter by one.</p>
 
 <p>Returns:</p>
 
 <p>The new value of the synchronizer counter.</p>
-</td><td class="code"><div class="highlight"><pre>    <span class="nv">that.increment = </span><span class="nf">() -&gt;</span> <span class="nx">counter</span> <span class="o">+=</span> <span class="mi">1</span></pre></div></td></tr><tr id="section-16"><td class="docs"><div class="pilwrap"><a href="#section-16" class="pilcrow">&#182;</a></div><h3>#add</h3>
+</td><td class="code"><div class="highlight"><pre>  <span class="nv">that.increment = </span><span class="nf">() -&gt;</span> <span class="nx">counter</span> <span class="o">+=</span> <span class="mi">1</span></pre></div></td></tr><tr id="section-16"><td class="docs"><div class="pilwrap"><a href="#section-16" class="pilcrow">&#182;</a></div><h3>#add</h3>
 
 <p>Adds the indicated number to the synchronizer.</p>
 
@@ -220,19 +214,19 @@ the done() method has been called.</li>
 <p>Returns:</p>
 
 <p>The new value of the synchronizer counter.</p>
-</td><td class="code"><div class="highlight"><pre>    <span class="nv">that.add = </span><span class="nf">(n) -&gt;</span> <span class="nx">counter</span> <span class="o">+=</span> <span class="nx">n</span></pre></div></td></tr><tr id="section-17"><td class="docs"><div class="pilwrap"><a href="#section-17" class="pilcrow">&#182;</a></div><h3>#decrement</h3>
+</td><td class="code"><div class="highlight"><pre>  <span class="nv">that.add = </span><span class="nf">(n) -&gt;</span> <span class="nx">counter</span> <span class="o">+=</span> <span class="nx">n</span></pre></div></td></tr><tr id="section-17"><td class="docs"><div class="pilwrap"><a href="#section-17" class="pilcrow">&#182;</a></div><h3>#decrement</h3>
 
 <p>Decrements the synchronizer counter by one.</p>
 
 <p>Returns:</p>
 
 <p>The new value of the synchronizer counter.</p>
-</td><td class="code"><div class="highlight"><pre>    <span class="nv">that.decrement = </span><span class="nf">() -&gt;</span>
-      <span class="nx">counter</span> <span class="o">-=</span> <span class="mi">1</span>
-      <span class="k">if</span> <span class="nx">counter</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">and</span> <span class="nx">done</span> <span class="o">and</span> <span class="o">!</span><span class="nx">fired</span>
-        <span class="nv">fired = </span><span class="kc">true</span>
-        <span class="nx">callback</span><span class="p">()</span>
-      <span class="nx">counter</span></pre></div></td></tr><tr id="section-18"><td class="docs"><div class="pilwrap"><a href="#section-18" class="pilcrow">&#182;</a></div><h3>#done</h3>
+</td><td class="code"><div class="highlight"><pre>  <span class="nv">that.decrement = </span><span class="nf">() -&gt;</span>
+    <span class="nx">counter</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="nx">counter</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">and</span> <span class="nx">done</span> <span class="o">and</span> <span class="o">!</span><span class="nx">fired</span>
+      <span class="nv">fired = </span><span class="kc">true</span>
+      <span class="nx">callback</span><span class="p">()</span> <span class="k">if</span> <span class="nx">callback</span><span class="o">?</span>
+    <span class="nx">counter</span></pre></div></td></tr><tr id="section-18"><td class="docs"><div class="pilwrap"><a href="#section-18" class="pilcrow">&#182;</a></div><h3>#done</h3>
 
 <p>Marks the synchronizer as done. The counter should monotonically decrease after this. Once it is zero, the
 "done" callback will run.</p>
@@ -240,9 +234,27 @@ the done() method has been called.</li>
 <p>Returns:</p>
 
 <p>The new value of the synchronizer counter. If it is zero, then the "done" callback should be scheduled to run.</p>
-</td><td class="code"><div class="highlight"><pre>    <span class="nv">that.done = </span><span class="nf">() -&gt;</span>
-      <span class="nv">done = </span><span class="kc">true</span>
-      <span class="nx">that</span><span class="p">.</span><span class="nx">decrement</span><span class="p">()</span>
+</td><td class="code"><div class="highlight"><pre>  <span class="nv">that.done = </span><span class="nf">(cb) -&gt;</span>
+    <span class="nv">done = </span><span class="kc">true</span>
+    <span class="nv">callback = </span><span class="nx">cb</span> <span class="k">if</span> <span class="nx">cb</span><span class="o">?</span>
+    <span class="nx">that</span><span class="p">.</span><span class="nx">decrement</span><span class="p">()</span>
+
+  <span class="nv">that.process = </span><span class="nf">(items, cb) -&gt;</span>
+    <span class="nv">n = </span><span class="nx">items</span><span class="p">.</span><span class="nx">length</span>
+    <span class="nx">that</span><span class="p">.</span><span class="nx">add</span> <span class="nx">n</span>
+    <span class="nv">processItems = </span><span class="nf">(start) -&gt;</span>
+      <span class="nv">end = </span><span class="nx">start</span> <span class="o">+</span> <span class="mi">100</span>
+      <span class="nv">end = </span><span class="nx">n</span> <span class="k">if</span> <span class="nx">end</span> <span class="o">&gt;</span> <span class="nx">n</span>
+      <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span><span class="nx">start</span> <span class="p">...</span> <span class="nx">end</span><span class="p">]</span>
+        <span class="nx">cb</span><span class="p">(</span><span class="nx">items</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span>
+        <span class="nx">that</span><span class="p">.</span><span class="nx">decrement</span><span class="p">()</span>
+      <span class="k">if</span> <span class="nx">end</span> <span class="o">&lt;</span> <span class="nx">n</span>
+        <span class="nx">setTimeout</span> <span class="o">-&gt;</span>
+          <span class="nx">processItems</span> <span class="nx">end</span>
+        <span class="p">,</span> <span class="mi">0</span>
+    <span class="nx">setTimeout</span> <span class="o">-&gt;</span>
+      <span class="nx">processItems</span> <span class="mi">0</span>
+    <span class="p">,</span> <span class="mi">0</span>
 
   <span class="nx">that</span>
        </pre></div></td></tr><tr id="section-19"><td class="docs"><div class="pilwrap"><a href="#section-19" class="pilcrow">&#182;</a></div><h1>EventFirer</h1>
@@ -271,19 +283,10 @@ the done() method has been called.</li>
   <span class="k">if</span> <span class="nx">that</span><span class="p">.</span><span class="nx">isPreventable</span>
     <span class="nx">callbackFlags</span><span class="p">.</span><span class="nx">push</span> <span class="s">&quot;stopOnFalse&quot;</span>
 
-  <span class="nv">callbacks = </span><span class="nx">$</span><span class="p">.</span><span class="nx">Callbacks</span><span class="p">(</span><span class="nx">callbackFlags</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">))</span></pre></div></td></tr><tr id="section-20"><td class="docs"><div class="pilwrap"><a href="#section-20" class="pilcrow">&#182;</a></div><h3>#addListener</h3>
-
-<p>Adds a listener to an event.</p>
-
-<p>Parameters:</p>
-
-<ul>
-<li>listener - function to call when event fires</li>
-</ul>
-
-<p>Returns: Nothing.</p>
-</td><td class="code"><div class="highlight"><pre>  <span class="nv">adder = </span><span class="nf">(listener) -&gt;</span> <span class="nx">callbacks</span><span class="p">.</span><span class="nx">add</span> <span class="nx">listener</span>
-  </pre></div></td></tr><tr id="section-21"><td class="docs"><div class="pilwrap"><a href="#section-21" class="pilcrow">&#182;</a></div><h3>#removeListener</h3>
+  <span class="nv">callbacks = </span><span class="nx">$</span><span class="p">.</span><span class="nx">Callbacks</span><span class="p">(</span><span class="nx">callbackFlags</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">))</span>
+  
+  <span class="nv">destroyer = </span><span class="o">-&gt;</span>
+    <span class="nx">callbacks</span><span class="p">.</span><span class="nx">empty</span><span class="p">()</span></pre></div></td></tr><tr id="section-20"><td class="docs"><div class="pilwrap"><a href="#section-20" class="pilcrow">&#182;</a></div><h3>#removeListener</h3>
 
 <p>Removes a listener (or set of listeners) from an event firer.</p>
 
@@ -295,6 +298,20 @@ the done() method has been called.</li>
 
 <p>Returns: Nothing.</p>
 </td><td class="code"><div class="highlight"><pre>  <span class="nv">remover = </span><span class="nf">(listener) -&gt;</span> <span class="nx">callbacks</span><span class="p">.</span><span class="nx">remove</span> <span class="nx">listener</span>
+  </pre></div></td></tr><tr id="section-21"><td class="docs"><div class="pilwrap"><a href="#section-21" class="pilcrow">&#182;</a></div><h3>#addListener</h3>
+
+<p>Adds a listener to an event.</p>
+
+<p>Parameters:</p>
+
+<ul>
+<li>listener - function to call when event fires</li>
+</ul>
+
+<p>Returns: Callback to remove listener.</p>
+</td><td class="code"><div class="highlight"><pre>  <span class="nv">adder = </span><span class="nf">(listener) -&gt;</span> 
+    <span class="nx">callbacks</span><span class="p">.</span><span class="nx">add</span> <span class="nx">listener</span>
+    <span class="o">-&gt;</span> <span class="nx">remover</span> <span class="nx">listener</span>
   </pre></div></td></tr><tr id="section-22"><td class="docs"><div class="pilwrap"><a href="#section-22" class="pilcrow">&#182;</a></div><h3>#fire</h3>
 
 <p>Fire's behavior depends on the type of event that is firing.</p>
@@ -325,17 +342,32 @@ it will return "true".</p>
 
 <p>If neither unicast nor preventabe, then fire() will return "true" regardless of how many listeners are called.</p>
 </td><td class="code"><div class="highlight"><pre>  <span class="nv">firer = </span><span class="nf">(args...) -&gt;</span> <span class="nx">callbacks</span><span class="p">.</span><span class="nx">fire</span> <span class="nx">args</span><span class="p">...</span>
-  
-  <span class="k">if</span> <span class="nx">that</span><span class="p">.</span><span class="nx">isUnicast</span>
+      
+  <span class="k">if</span> <span class="nx">that</span><span class="p">.</span><span class="nx">isUnicast</span> <span class="o">or</span> <span class="nx">that</span><span class="p">.</span><span class="nx">isPreventable</span>
     <span class="nv">callbackFns = </span><span class="p">[]</span>
-    <span class="nv">adder = </span><span class="nf">(listener) -&gt;</span>
-      <span class="nx">callbackFns</span><span class="p">.</span><span class="nx">push</span> <span class="nx">listener</span>
+    
     <span class="nv">remover = </span><span class="nf">(listener) -&gt;</span>
       <span class="nv">callbackFns = </span><span class="p">(</span><span class="nx">fn</span> <span class="k">for</span> <span class="nx">fn</span> <span class="k">in</span> <span class="nx">callbackFns</span> <span class="k">when</span> <span class="nx">fn</span> <span class="o">!=</span> <span class="nx">listener</span><span class="p">)</span>
+    <span class="nv">adder = </span><span class="nf">(listener) -&gt;</span>
+      <span class="nx">callbackFns</span><span class="p">.</span><span class="nx">push</span> <span class="nx">listener</span>
+      <span class="o">-&gt;</span> <span class="nx">remover</span> <span class="nx">listener</span>
+    
+    <span class="k">if</span> <span class="nx">that</span><span class="p">.</span><span class="nx">isUnicast</span>
+      <span class="nx">callbacks</span><span class="p">.</span><span class="nx">add</span> <span class="nf">(args...) -&gt;</span>
+        <span class="k">if</span> <span class="nx">callbackFns</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+          <span class="nx">callbackFns</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="nx">args</span><span class="p">...)</span>
 
-    <span class="nx">callbacks</span><span class="p">.</span><span class="nx">add</span> <span class="nf">(args...) -&gt;</span>
-      <span class="k">if</span> <span class="nx">callbackFns</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
-        <span class="nx">callbackFns</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="nx">args</span><span class="p">...)</span>
+    <span class="k">if</span> <span class="nx">that</span><span class="p">.</span><span class="nx">isPreventable</span>
+      <span class="nv">firer = </span><span class="nf">(args...) -&gt;</span>
+        <span class="k">for</span> <span class="nx">fn</span> <span class="k">in</span> <span class="nx">callbackFns</span>
+          <span class="nv">r = </span><span class="nx">fn</span><span class="p">(</span><span class="nx">args</span><span class="p">...)</span>
+          <span class="k">if</span> <span class="nx">r</span> <span class="o">==</span> <span class="kc">false</span>
+            <span class="k">return</span> <span class="kc">false</span>
+        <span class="k">return</span> <span class="kc">true</span>
+        
+    <span class="nv">destroyer = </span><span class="o">-&gt;</span>
+      <span class="nv">callbackFns = </span><span class="p">[]</span>
+      <span class="nx">callbacks</span><span class="p">.</span><span class="nx">empty</span><span class="p">()</span>
   
   <span class="k">else</span> <span class="k">if</span> <span class="nx">that</span><span class="p">.</span><span class="nx">hasMemory</span>
     <span class="nv">memory = </span><span class="p">[]</span>
@@ -350,12 +382,18 @@ it will return "true".</p>
     <span class="nv">firer = </span><span class="nf">(args...) -&gt;</span>
       <span class="nx">memory</span><span class="p">.</span><span class="nx">push</span> <span class="nx">args</span>
       <span class="nx">oldFirer</span> <span class="nx">args</span><span class="p">...</span>
+    
+    <span class="nv">destroyer = </span><span class="o">-&gt;</span>
+      <span class="nv">memory = </span><span class="p">[]</span>
+      <span class="nx">callbacks</span><span class="p">.</span><span class="nx">empty</span><span class="p">()</span>
   
   <span class="nv">that.addListener = </span><span class="nx">adder</span>
   
   <span class="nv">that.removeListener = </span><span class="nx">remover</span>
 
   <span class="nv">that.fire = </span><span class="nx">firer</span>
+  
+  <span class="nv">that._destroy = </span><span class="nx">destroyer</span>
   
   <span class="nx">that</span>
   </pre></div></td></tr><tr id="section-23"><td class="docs"><div class="pilwrap"><a href="#section-23" class="pilcrow">&#182;</a></div><h1>Object Instances</h1>
@@ -382,6 +420,19 @@ to each. This is useful when debugging to see if you are creating the right numb
   <span class="nv">that =</span>
     <span class="nv">_mithgrid_type: </span><span class="s">&quot;MITHGrid&quot;</span>
   
+  <span class="nv">onDestroyFns = </span><span class="p">[]</span>
+  <span class="nv">that.onDestroy = </span><span class="nf">(cb) -&gt;</span>
+    <span class="nx">onDestroyFns</span><span class="p">.</span><span class="nx">push</span> <span class="nx">cb</span>
+      
+  <span class="nv">that._destroy = </span><span class="o">-&gt;</span>
+    <span class="k">for</span> <span class="nx">cb</span> <span class="k">in</span> <span class="nx">onDestroyFns</span><span class="p">.</span><span class="nx">reverse</span><span class="p">()</span>
+      <span class="nx">cb</span><span class="p">()</span>
+    <span class="nv">onDestroyFns = </span><span class="p">[]</span>
+    <span class="k">for</span> <span class="nx">e</span><span class="p">,</span> <span class="nx">obj</span> <span class="k">of</span> <span class="nx">that</span><span class="p">.</span><span class="nx">events</span>
+      <span class="nx">obj</span><span class="p">.</span><span class="nx">_destroy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="nx">k</span><span class="p">,</span> <span class="nx">v</span> <span class="k">of</span> <span class="nx">that</span>
+      <span class="k">delete</span> <span class="nx">that</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span>
+
   <span class="nv">optionsArray = </span><span class="p">[</span> <span class="p">]</span>
   <span class="k">if</span> <span class="nx">namespace</span><span class="o">?</span> 
     <span class="k">if</span> <span class="k">typeof</span> <span class="nx">namespace</span> <span class="o">==</span> <span class="s">&quot;string&quot;</span>
@@ -439,10 +490,14 @@ to each. This is useful when debugging to see if you are creating the right numb
 <ul><li>'rw' for read-write</li>
 <li>'r' for read-only</li>
 <li>'w' for write-only.</li></ul></li>
+<li><p><strong>isa</strong> - the type of the variable is one of the following:</p></li>
+<li>'numeric' for numeric data</li>
+<li><p>'text' for non-numeric data</p></li>
 <li><p><strong>event</strong> - the name of the event associated with this variable. This event will fire when the value of the variable changes.
       This defaults to 'on' + varName + 'Change'.</p></li>
 <li><p><strong>setter</strong> - the name of the method that will be used to set the variable. This defaults to 'set' + varName.</p></li>
 <li><p><strong>getter</strong> - the name of the method that will be used to retrieve the variable. This defaults to 'get' + varName.</p></li>
+<li><p><strong>adder</strong> - the name of the method that will be used to add a numeric value to the current value. This defaults to 'add' + varName and is only available for numeric variables.</p></li>
 <li><p><strong>validate</strong> - a function that will be called to validate the value the variable is being set to. This function
          should expect the new value and return "true" or "false".</p></li>
 <li><p><strong>filter</strong> - a function that will be called to filter the value the variable is being set to. This function
@@ -457,34 +512,35 @@ to each. This is useful when debugging to see if you are creating the right numb
       <span class="nv">validate = </span><span class="nx">config</span><span class="p">.</span><span class="nx">validate</span>
       <span class="nv">eventName = </span><span class="nx">config</span><span class="p">.</span><span class="nx">event</span> <span class="o">||</span> <span class="p">(</span><span class="s">&#39;on&#39;</span> <span class="o">+</span> <span class="nx">varName</span> <span class="o">+</span> <span class="s">&#39;Change&#39;</span><span class="p">)</span>
       <span class="nv">setName = </span><span class="nx">config</span><span class="p">.</span><span class="nx">setter</span> <span class="o">||</span> <span class="p">(</span><span class="s">&#39;set&#39;</span> <span class="o">+</span> <span class="nx">varName</span><span class="p">)</span>
+      <span class="nv">adderName = </span><span class="nx">config</span><span class="p">.</span><span class="nx">adder</span> <span class="o">||</span> <span class="p">(</span><span class="s">&#39;add&#39;</span> <span class="o">+</span> <span class="nx">varName</span><span class="p">)</span>
       <span class="nv">lockName = </span><span class="nx">config</span><span class="p">.</span><span class="nx">locker</span> <span class="o">||</span> <span class="p">(</span><span class="s">&#39;lock&#39;</span> <span class="o">+</span> <span class="nx">varName</span><span class="p">)</span>
       <span class="nv">unlockName = </span><span class="nx">config</span><span class="p">.</span><span class="nx">unlocker</span> <span class="o">||</span> <span class="p">(</span><span class="s">&#39;unlock&#39;</span> <span class="o">+</span> <span class="nx">varName</span><span class="p">)</span>
-      <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">[</span><span class="nx">eventName</span><span class="p">]</span> <span class="o">=</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initEventFirer</span><span class="p">()</span>
+      <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">[</span><span class="nx">eventName</span><span class="p">]</span> <span class="o">=</span> <span class="nv">event = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initEventFirer</span><span class="p">()</span>
       <span class="k">if</span> <span class="nx">filter</span><span class="o">?</span>
         <span class="k">if</span> <span class="nx">validate</span><span class="o">?</span>
           <span class="nv">setter = </span><span class="nf">(v) -&gt;</span>
             <span class="nv">v = </span><span class="nx">validate</span> <span class="nx">filter</span> <span class="nx">v</span>
             <span class="k">if</span> <span class="nx">value</span> <span class="o">!=</span> <span class="nx">v</span>
               <span class="nv">value = </span><span class="nx">v</span>
-              <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">[</span><span class="nx">eventName</span><span class="p">].</span><span class="nx">fire</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span>
+              <span class="nx">event</span><span class="p">.</span><span class="nx">fire</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span>
         <span class="k">else</span>
           <span class="nv">setter = </span><span class="nf">(v) -&gt;</span>
             <span class="nv">v = </span><span class="nx">filter</span> <span class="nx">v</span>
             <span class="k">if</span> <span class="nx">value</span> <span class="o">!=</span> <span class="nx">v</span>
               <span class="nv">value = </span><span class="nx">v</span>
-              <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">[</span><span class="nx">eventName</span><span class="p">].</span><span class="nx">fire</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span>
+              <span class="nx">event</span><span class="p">.</span><span class="nx">fire</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span>
       <span class="k">else</span>
         <span class="k">if</span> <span class="nx">validate</span><span class="o">?</span>
           <span class="nv">setter = </span><span class="nf">(v) -&gt;</span>
             <span class="nv">v = </span><span class="nx">validate</span> <span class="nx">v</span>
             <span class="k">if</span> <span class="nx">value</span> <span class="o">!=</span> <span class="nx">v</span>
               <span class="nv">value = </span><span class="nx">v</span>
-              <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">[</span><span class="nx">eventName</span><span class="p">].</span><span class="nx">fire</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span>
+              <span class="nx">event</span><span class="p">.</span><span class="nx">fire</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span>
         <span class="k">else</span>
           <span class="nv">setter = </span><span class="nf">(v) -&gt;</span>
             <span class="k">if</span> <span class="nx">value</span> <span class="o">!=</span> <span class="nx">v</span>
               <span class="nv">value = </span><span class="nx">v</span>
-              <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">[</span><span class="nx">eventName</span><span class="p">].</span><span class="nx">fire</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span>
+              <span class="nx">event</span><span class="p">.</span><span class="nx">fire</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span>
       <span class="k">if</span> <span class="s">&#39;l&#39;</span> <span class="k">in</span> <span class="nx">config</span><span class="p">.</span><span class="o">is</span> 
         <span class="nv">locked = </span><span class="mi">0</span>
         <span class="nx">that</span><span class="p">[</span><span class="nx">lockName</span><span class="p">]</span> <span class="o">=</span> <span class="o">-&gt;</span> <span class="nx">locked</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -494,6 +550,10 @@ to each. This is useful when debugging to see if you are creating the right numb
           <span class="k">if</span> <span class="nx">locked</span> <span class="o">==</span> <span class="mi">0</span>
             <span class="nx">oldSetter</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span>
       <span class="nx">that</span><span class="p">[</span><span class="nx">setName</span><span class="p">]</span> <span class="o">=</span> <span class="nx">setter</span>
+
+      <span class="k">if</span> <span class="nx">config</span><span class="p">.</span><span class="nx">isa</span> <span class="o">==</span> <span class="s">&quot;numeric&quot;</span>
+        <span class="nx">that</span><span class="p">[</span><span class="nx">adderName</span><span class="p">]</span> <span class="o">=</span> <span class="nf">(n) -&gt;</span> <span class="nx">setter</span><span class="p">(</span><span class="nx">n</span> <span class="o">+</span> <span class="nx">value</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="s">&#39;r&#39;</span> <span class="k">in</span> <span class="nx">config</span><span class="p">.</span><span class="o">is</span>
       <span class="nv">getName = </span><span class="nx">config</span><span class="p">.</span><span class="nx">getter</span> <span class="o">||</span> <span class="p">(</span><span class="s">&#39;get&#39;</span> <span class="o">+</span> <span class="nx">varName</span><span class="p">)</span>
       <span class="nx">that</span><span class="p">[</span><span class="nx">getName</span><span class="p">]</span> <span class="o">=</span> <span class="nf">() -&gt;</span> <span class="nx">value</span>
@@ -533,10 +593,7 @@ register appropriate functions.</p>
   <span class="nv">mouse.capture = </span><span class="nf">(cb) -&gt;</span>
     <span class="nv">oldCB = </span><span class="nx">mouseCaptureCallbacks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="nx">mouseCaptureCallbacks</span><span class="p">.</span><span class="nx">unshift</span> <span class="nx">cb</span>
-    <span class="k">if</span> <span class="nx">mouseCaptureCallbacks</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">1</span></pre></div></td></tr><tr id="section-29"><td class="docs"><div class="pilwrap"><a href="#section-29" class="pilcrow">&#182;</a></div><p>it was zero before, so no bindings
-$(document).mousedown (e) ->
-e.preventDefault()
-mouseCaptureCallbacks[0].call e, "mousedown"</p>
+    <span class="k">if</span> <span class="nx">mouseCaptureCallbacks</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">1</span></pre></div></td></tr><tr id="section-29"><td class="docs"><div class="pilwrap"><a href="#section-29" class="pilcrow">&#182;</a></div><p>it was zero before, so no bindings</p>
 </td><td class="code"><div class="highlight"><pre>      <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">mousemove</span> <span class="nf">(e) -&gt;</span>
         <span class="nx">e</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">()</span>
         <span class="nx">mouseCaptureCallbacks</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">call</span> <span class="nx">e</span><span class="p">,</span> <span class="s">&quot;mousemove&quot;</span>
@@ -547,9 +604,9 @@ mouseCaptureCallbacks[0].call e, "mousedown"</p>
   
   <span class="nv">mouse.uncapture = </span><span class="o">-&gt;</span>
     <span class="nv">oldCB = </span><span class="nx">mouseCaptureCallbacks</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nx">mouseCaptureCallbacks</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">0</span></pre></div></td></tr><tr id="section-30"><td class="docs"><div class="pilwrap"><a href="#section-30" class="pilcrow">&#182;</a></div><p>$(document).unbind "mousedown"</p>
-</td><td class="code"><div class="highlight"><pre>      <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">unbind</span> <span class="s">&quot;mousemove&quot;</span>
+    <span class="k">if</span> <span class="nx">mouseCaptureCallbacks</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">0</span>
+      <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">unbind</span> <span class="s">&quot;mousemove&quot;</span>
       <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">unbind</span> <span class="s">&quot;mouseup&quot;</span>
     <span class="nx">oldCB</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Mon Jul 23 2012 08:51:43 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
+</pre></div></td></tr></tbody></table><div id="generated">generated Tue Jan 08 2013 13:10:49 GMT-0500 (EST)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
