@@ -35,6 +35,13 @@ MG_C = ${DIST_DIR}/mithgrid.coffee
 MG_VER = $(shell cat version.txt)
 VER = sed "s/@VERSION/${MG_VER}/"
 
+MG_MAJOR = $(shell cat version.txt)
+MG_MINOR = $(shell date +%y%j)
+N ?= 0
+
+VER = sed "s/@VERSION/${MG_MAJOR}.${MG_MINOR}${N}/"
+
+
 DATE=$(shell git log --pretty=format:%ad | head -1)
 
 all: core docs

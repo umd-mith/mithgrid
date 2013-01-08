@@ -546,32 +546,32 @@ MITHGrid.initInstance = (args...) ->
       adderName = config.adder || ('add' + varName)
       lockName = config.locker || ('lock' + varName)
       unlockName = config.unlocker || ('unlock' + varName)
-      that.events[eventName] = MITHGrid.initEventFirer()
+      that.events[eventName] = event = MITHGrid.initEventFirer()
       if filter?
         if validate?
           setter = (v) ->
             v = validate filter v
             if value != v
               value = v
-              that.events[eventName].fire(value)
+              event.fire(value)
         else
           setter = (v) ->
             v = filter v
             if value != v
               value = v
-              that.events[eventName].fire(value)
+              event.fire(value)
       else
         if validate?
           setter = (v) ->
             v = validate v
             if value != v
               value = v
-              that.events[eventName].fire(value)
+              event.fire(value)
         else
           setter = (v) ->
             if value != v
               value = v
-              that.events[eventName].fire(value)
+              event.fire(value)
       if 'l' in config.is 
         locked = 0
         that[lockName] = -> locked += 1
