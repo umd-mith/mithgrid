@@ -5,6 +5,36 @@ title: mithgrid/code/src/expression.coffee.html
 <div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>expression.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><h1>Expression Parser</h1>
 
 <p>Everything here is private except for a few exported objects and functions.</p>
+
+<h2>Expressions</h2>
+
+<p>Expressions describe a path through the data graph held in a data store.</p>
+
+<p>Expressions hop from node to node in one of two directions: forward or backward. Forward goes from an item ID through a property
+to arrive at a new value. Backward goes from a value through a property to arrive at a new item ID.</p>
+
+<p>For example, if we have a data store with items holding information about books, such as the following:</p>
+
+<pre><code>[{
+   id: "book1",
+   author: "author1",
+   title: "A Tale of Two Cities",
+   pages: 254
+ }, {
+   id: "author1",
+   name: "Charles Dickens"
+ }]
+</code></pre>
+
+<p>Then .name would return "Charles Dickens" if we started with the item ID "author1". But .author.name would return the same
+value if we started with the item ID "book1".</p>
+
+<p>If we start with "Charles Dickens" (the value), we can find the number of pages in the books with the following expression:
+!name!author.pages (or &lt;-name&lt;-author->pages using the longer notation).</p>
+
+<p>. and -> use a forward index and must have an item ID on the left side</p>
+
+<p>! and &lt;- use a reverse index and will result in an item ID on the right side</p>
 </td><td class="code"><div class="highlight"><pre><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&quot;Expression.Basic&quot;</span><span class="p">,</span> <span class="nf">(exports) -&gt;</span>
   <span class="nv">Expression = </span><span class="p">{}</span>
   <span class="nv">_operators =</span>
@@ -572,6 +602,7 @@ how to write them.</p>
       <span class="k">if</span> <span class="nx">_index</span> <span class="o">&lt;</span> <span class="nx">_maxIndex</span>
         <span class="nv">c1 = </span><span class="nx">_text</span><span class="p">.</span><span class="nx">charAt</span> <span class="nx">_index</span>
         <span class="nv">c2 = </span><span class="nx">_text</span><span class="p">.</span><span class="nx">charAt</span> <span class="nx">_index</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="nv">c3 = </span><span class="nx">_text</span><span class="p">.</span><span class="nx">charAt</span> <span class="nx">_index</span> <span class="o">+</span> <span class="mi">2</span>
 
         <span class="k">if</span> <span class="s">&quot;.!&quot;</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">c1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span>
           <span class="k">if</span> <span class="nx">c2</span> <span class="o">==</span> <span class="s">&quot;@&quot;</span>
@@ -588,6 +619,36 @@ how to write them.</p>
               <span class="nv">start: </span><span class="nx">_index</span>
               <span class="nv">end: </span><span class="nx">_index</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="nx">_index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="nx">c1</span> <span class="o">==</span> <span class="s">&quot;&lt;&quot;</span> <span class="o">and</span> <span class="nx">c2</span> <span class="o">==</span> <span class="s">&quot;-&quot;</span>
+          <span class="k">if</span> <span class="nx">c3</span> <span class="o">==</span> <span class="s">&quot;@&quot;</span>
+            <span class="nv">_token =</span>
+              <span class="nv">type: </span><span class="nx">Expression</span><span class="p">.</span><span class="nx">initScanner</span><span class="p">.</span><span class="nx">PATH_OPERATOR</span>
+              <span class="nv">value: </span><span class="s">&quot;!@&quot;</span>
+              <span class="nv">start: </span><span class="nx">_index</span>
+              <span class="nv">end: </span><span class="nx">_index</span> <span class="o">+</span> <span class="mi">3</span>
+            <span class="nx">_index</span> <span class="o">+=</span> <span class="mi">3</span>
+          <span class="k">else</span>
+            <span class="nv">_token =</span>
+              <span class="nv">type: </span><span class="nx">Expression</span><span class="p">.</span><span class="nx">initScanner</span><span class="p">.</span><span class="nx">PATH_OPERATOR</span>
+              <span class="nv">value: </span><span class="s">&quot;!&quot;</span>
+              <span class="nv">start: </span><span class="nx">_index</span>
+              <span class="nv">end: </span><span class="nx">_index</span> <span class="o">+</span> <span class="mi">2</span>
+            <span class="nx">_index</span> <span class="o">+=</span> <span class="mi">2</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="nx">c1</span> <span class="o">==</span> <span class="s">&quot;-&quot;</span> <span class="o">and</span> <span class="nx">c2</span> <span class="o">==</span> <span class="s">&quot;&gt;&quot;</span>
+          <span class="k">if</span> <span class="nx">c3</span> <span class="o">==</span> <span class="s">&quot;@&quot;</span>
+            <span class="nv">_token =</span>
+              <span class="nv">type: </span><span class="nx">Expression</span><span class="p">.</span><span class="nx">initScanner</span><span class="p">.</span><span class="nx">PATH_OPERATOR</span>
+              <span class="nv">value: </span><span class="s">&quot;.@&quot;</span>
+              <span class="nv">start: </span><span class="nx">_index</span>
+              <span class="nv">end: </span><span class="nx">_index</span> <span class="o">+</span> <span class="mi">3</span>
+            <span class="nx">_index</span> <span class="o">+=</span> <span class="mi">3</span>
+          <span class="k">else</span>
+            <span class="nv">_token =</span>
+              <span class="nv">type: </span><span class="nx">Expression</span><span class="p">.</span><span class="nx">initScanner</span><span class="p">.</span><span class="nx">PATH_OPERATOR</span>
+              <span class="nv">value: </span><span class="s">&quot;.&quot;</span>
+              <span class="nv">start: </span><span class="nx">_index</span>
+              <span class="nv">end: </span><span class="nx">_index</span> <span class="o">+</span> <span class="mi">2</span>
+            <span class="nx">_index</span> <span class="o">+=</span> <span class="mi">2</span>
         <span class="k">else</span> <span class="k">if</span> <span class="s">&quot;&lt;&gt;&quot;</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">c1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span>
           <span class="k">if</span> <span class="p">(</span><span class="nx">c2</span> <span class="o">==</span> <span class="s">&quot;=&quot;</span><span class="p">)</span> <span class="o">or</span> <span class="p">(</span><span class="s">&quot;&lt;&gt;&quot;</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">c2</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">and</span> <span class="nx">c1</span> <span class="o">!=</span> <span class="nx">c2</span><span class="p">)</span>
             <span class="nv">_token =</span>
@@ -688,4 +749,4 @@ how to write them.</p>
 
         <span class="nx">Expression</span><span class="p">.</span><span class="nx">initCollection</span> <span class="nx">set</span><span class="p">,</span> <span class="nx">valueType</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Mon Jul 23 2012 08:51:43 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
+</pre></div></td></tr></tbody></table><div id="generated">generated Tue Jan 08 2013 13:10:49 GMT-0500 (EST)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
