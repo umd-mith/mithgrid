@@ -4,33 +4,33 @@ title: mithgrid/code/src/core.coffee.html
 ---
 <div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>core.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><h1>namespace management</h1>
 
-<p>These functions are available as properties of the global MITHGrid object. The debug() and namespace()
-functions are properties of all namespaces created using MITHGrid.</p>
-</td><td class="code"><div class="highlight"><pre></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><h2>MITHGrid.debug</h2>
+<p>These functions are available as properties of the global MITHgrid object. The debug() and namespace()
+functions are properties of all namespaces created using MITHgrid.</p>
+</td><td class="code"><div class="highlight"><pre></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><h2>MITHgrid.debug</h2>
 
-<p>If you don't know if the console.log is available, use MITHGrid.debug. If console.log is available, it's the same
+<p>If you don't know if the console.log is available, use MITHgrid.debug. If console.log is available, it's the same
 function. Otherwise, it's a NOP.</p>
 </td><td class="code"><div class="highlight"><pre><span class="k">if</span> <span class="nx">console</span><span class="o">?</span><span class="p">.</span><span class="nx">log</span><span class="o">?</span>
-  <span class="nv">MITHGrid.debug = </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span>
+  <span class="nv">MITHgrid.debug = </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span>
 <span class="k">else</span> 
-  <span class="nv">MITHGrid.debug = </span><span class="nf">() -&gt;</span></pre></div></td></tr><tr id="section-3"><td class="docs"><div class="pilwrap"><a href="#section-3" class="pilcrow">&#182;</a></div><h2>MITHGrid.error</h2>
+  <span class="nv">MITHgrid.debug = </span><span class="nf">() -&gt;</span></pre></div></td></tr><tr id="section-3"><td class="docs"><div class="pilwrap"><a href="#section-3" class="pilcrow">&#182;</a></div><h2>MITHgrid.error</h2>
 
-<p>MITHGrid.error will be like MITHGrid.debug except that it will return the arguments in an object that can be thrown as
+<p>MITHgrid.error will be like MITHgrid.debug except that it will return the arguments in an object that can be thrown as
 an error. It is used in the data store loadItems() function.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nv">MITHGrid.error = </span><span class="nf">() -&gt;</span>
-  <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">debug</span><span class="p">.</span><span class="nx">call</span> <span class="p">{},</span> <span class="nx">arguments</span>
-  <span class="p">{</span> <span class="s">&#39;arguments&#39;</span><span class="o">:</span> <span class="nx">arguments</span> <span class="p">}</span></pre></div></td></tr><tr id="section-4"><td class="docs"><div class="pilwrap"><a href="#section-4" class="pilcrow">&#182;</a></div><h2>MITHGrid.depracated</h2>
+</td><td class="code"><div class="highlight"><pre><span class="nv">MITHgrid.error = </span><span class="nf">() -&gt;</span>
+  <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">debug</span><span class="p">.</span><span class="nx">call</span> <span class="p">{},</span> <span class="nx">arguments</span>
+  <span class="p">{</span> <span class="s">&#39;arguments&#39;</span><span class="o">:</span> <span class="nx">arguments</span> <span class="p">}</span></pre></div></td></tr><tr id="section-4"><td class="docs"><div class="pilwrap"><a href="#section-4" class="pilcrow">&#182;</a></div><h2>MITHgrid.depracated</h2>
 
-<p>Produces an augmented function that outputs a warning through MITHGrid.debug 
+<p>Produces an augmented function that outputs a warning through MITHgrid.debug 
 about the call to the function.
 We need to make it produce a context for the call so we know where to look.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nv">MITHGrid.deprecated = </span><span class="nf">(fname, cb) -&gt;</span>
+</td><td class="code"><div class="highlight"><pre><span class="nv">MITHgrid.deprecated = </span><span class="nf">(fname, cb) -&gt;</span>
   <span class="nf">(args...) -&gt;</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;Call to deprecated function </span><span class="si">#{</span><span class="nx">fname</span><span class="si">}</span><span class="s">.&quot;</span>
     <span class="nx">cb</span> <span class="nx">args</span><span class="p">...</span>
-  </pre></div></td></tr><tr id="section-5"><td class="docs"><div class="pilwrap"><a href="#section-5" class="pilcrow">&#182;</a></div><h2>MITHGrid.namespace</h2>
+  </pre></div></td></tr><tr id="section-5"><td class="docs"><div class="pilwrap"><a href="#section-5" class="pilcrow">&#182;</a></div><h2>MITHgrid.namespace</h2>
 
-<p>Ensures the namespace exists as a property of the MITHGrid global.
+<p>Ensures the namespace exists as a property of the MITHgrid global.
 Any namespace created will have the debug() and namespace()
 functions available.</p>
 
@@ -44,8 +44,8 @@ functions available.</p>
 <p>Returns:</p>
 
 <p>The object corresponding to the namespace.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nv">MITHGrid.namespace = </span><span class="nf">(nom, fn) -&gt;</span>
-  <span class="nx">genericNamespacer</span> <span class="nx">MITHGrid</span><span class="p">,</span> <span class="nx">nom</span><span class="p">,</span> <span class="nx">fn</span>
+</td><td class="code"><div class="highlight"><pre><span class="nv">MITHgrid.namespace = </span><span class="nf">(nom, fn) -&gt;</span>
+  <span class="nx">genericNamespacer</span> <span class="nx">MITHgrid</span><span class="p">,</span> <span class="nx">nom</span><span class="p">,</span> <span class="nx">fn</span>
   </pre></div></td></tr><tr id="section-6"><td class="docs"><div class="pilwrap"><a href="#section-6" class="pilcrow">&#182;</a></div><p>We need a general way to handle namespace creation. We do this so we can use closures when creating the
 namespace.</p>
 </td><td class="code"><div class="highlight"><pre><span class="nv">genericNamespacer = </span><span class="nf">(base, nom, fn) -&gt;</span></pre></div></td></tr><tr id="section-7"><td class="docs"><div class="pilwrap"><a href="#section-7" class="pilcrow">&#182;</a></div><p>TODO: check for '.' in nom</p>
@@ -58,11 +58,11 @@ namespace.</p>
     <span class="nv">newbase =</span>
       <span class="nv">namespace: </span><span class="nf">(nom2, fn2) -&gt;</span>
         <span class="nx">genericNamespacer</span> <span class="nx">newbase</span><span class="p">,</span> <span class="nx">nom2</span><span class="p">,</span> <span class="nx">fn2</span>
-      <span class="nv">debug: </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">debug</span>
+      <span class="nv">debug: </span><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">debug</span>
     <span class="nx">base</span><span class="p">[</span><span class="nx">bits</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="nx">newbase</span>
   <span class="k">if</span> <span class="nx">fn</span><span class="o">?</span>
     <span class="nx">fn</span> <span class="nx">base</span><span class="p">[</span><span class="nx">bits</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-  <span class="nx">base</span><span class="p">[</span><span class="nx">bits</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span></pre></div></td></tr><tr id="section-8"><td class="docs"><div class="pilwrap"><a href="#section-8" class="pilcrow">&#182;</a></div><h2>MITHGrid.globalNamespace</h2>
+  <span class="nx">base</span><span class="p">[</span><span class="nx">bits</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span></pre></div></td></tr><tr id="section-8"><td class="docs"><div class="pilwrap"><a href="#section-8" class="pilcrow">&#182;</a></div><h2>MITHgrid.globalNamespace</h2>
 
 <p>Ensures the namespace exists in the global space.
 Any namespace created will have the debug() and namespace() functions available.</p>
@@ -77,19 +77,19 @@ Any namespace created will have the debug() and namespace() functions available.
 <p>Returns:</p>
 
 <p>The object corresponding to the namespace.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nv">MITHGrid.globalNamespace = </span><span class="nf">(nom, fn) -&gt;</span>
+</td><td class="code"><div class="highlight"><pre><span class="nv">MITHgrid.globalNamespace = </span><span class="nf">(nom, fn) -&gt;</span>
   <span class="nv">globals = </span><span class="nb">window</span>
   <span class="nx">globals</span><span class="p">[</span><span class="nx">nom</span><span class="p">]</span> <span class="o">or=</span> <span class="p">{}</span>
   
-  <span class="nx">globals</span><span class="p">[</span><span class="nx">nom</span><span class="p">][</span><span class="s">&quot;debug&quot;</span><span class="p">]</span> <span class="o">or=</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">debug</span>
+  <span class="nx">globals</span><span class="p">[</span><span class="nx">nom</span><span class="p">][</span><span class="s">&quot;debug&quot;</span><span class="p">]</span> <span class="o">or=</span> <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">debug</span>
   <span class="nx">globals</span><span class="p">[</span><span class="nx">nom</span><span class="p">][</span><span class="s">&quot;namespace&quot;</span><span class="p">]</span> <span class="o">or=</span> <span class="nf">(n, f) -&gt;</span>
     <span class="nx">genericNamespacer</span> <span class="nx">globals</span><span class="p">[</span><span class="nx">nom</span><span class="p">],</span> <span class="nx">n</span><span class="p">,</span> <span class="nx">f</span>
   <span class="k">if</span> <span class="nx">fn</span><span class="o">?</span>
     <span class="nx">fn</span> <span class="nx">globals</span><span class="p">[</span><span class="nx">nom</span><span class="p">]</span>
   <span class="nx">globals</span><span class="p">[</span><span class="nx">nom</span><span class="p">]</span></pre></div></td></tr><tr id="section-9"><td class="docs"><div class="pilwrap"><a href="#section-9" class="pilcrow">&#182;</a></div><h1>that-ism helper functions</h1>
 
-<p>These functions are available as properties of the global MITHGrid object.  </p>
-</td><td class="code"><div class="highlight"><pre></pre></div></td></tr><tr id="section-10"><td class="docs"><div class="pilwrap"><a href="#section-10" class="pilcrow">&#182;</a></div><h2>MITHGrid.normalizeArgs</h2>
+<p>These functions are available as properties of the global MITHgrid object.  </p>
+</td><td class="code"><div class="highlight"><pre></pre></div></td></tr><tr id="section-10"><td class="docs"><div class="pilwrap"><a href="#section-10" class="pilcrow">&#182;</a></div><h2>MITHgrid.normalizeArgs</h2>
 
 <p>Accepts the arguments passed in from the constructor and sorts out the various pieces.</p>
 
@@ -105,7 +105,7 @@ Any namespace created will have the debug() and namespace() functions available.
 <p>Returns:</p>
 
 <p>An array of three elements: a list of namespaces, the DOM container, and the options object.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nv">MITHGrid.normalizeArgs = </span><span class="nf">(args...) -&gt;</span></pre></div></td></tr><tr id="section-11"><td class="docs"><div class="pilwrap"><a href="#section-11" class="pilcrow">&#182;</a></div><p>String
+</td><td class="code"><div class="highlight"><pre><span class="nv">MITHgrid.normalizeArgs = </span><span class="nf">(args...) -&gt;</span></pre></div></td></tr><tr id="section-11"><td class="docs"><div class="pilwrap"><a href="#section-11" class="pilcrow">&#182;</a></div><p>String
 optional String/Array
 optional DOM/String
 optional Object
@@ -161,7 +161,7 @@ optional Function</p>
   <span class="p">[</span> <span class="nx">types</span><span class="p">,</span> <span class="nx">container</span><span class="p">,</span> <span class="nx">opts</span><span class="p">,</span> <span class="nx">cb</span> <span class="p">]</span>
   
 
-<span class="nv">MITHGridDefaults = </span><span class="p">{}</span></pre></div></td></tr><tr id="section-13"><td class="docs"><div class="pilwrap"><a href="#section-13" class="pilcrow">&#182;</a></div><h2>MITHGrid.defaults</h2>
+<span class="nv">MITHgridDefaults = </span><span class="p">{}</span></pre></div></td></tr><tr id="section-13"><td class="docs"><div class="pilwrap"><a href="#section-13" class="pilcrow">&#182;</a></div><h2>MITHgrid.defaults</h2>
 
 <p>Allows default configuration values to be set for a given namespace.</p>
 
@@ -173,12 +173,12 @@ optional Function</p>
 </ul>
 
 <p>Returns: Nothing.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nv">MITHGrid.defaults = </span><span class="nf">(namespace, defaults) -&gt;</span>
-  <span class="nx">MITHGridDefaults</span><span class="p">[</span><span class="nx">namespace</span><span class="p">]</span> <span class="o">or=</span> <span class="p">{}</span>
-  <span class="nx">MITHGridDefaults</span><span class="p">[</span><span class="nx">namespace</span><span class="p">]</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="nx">MITHGridDefaults</span><span class="p">[</span><span class="nx">namespace</span><span class="p">],</span> <span class="nx">defaults</span><span class="p">)</span>
+</td><td class="code"><div class="highlight"><pre><span class="nv">MITHgrid.defaults = </span><span class="nf">(namespace, defaults) -&gt;</span>
+  <span class="nx">MITHgridDefaults</span><span class="p">[</span><span class="nx">namespace</span><span class="p">]</span> <span class="o">or=</span> <span class="p">{}</span>
+  <span class="nx">MITHgridDefaults</span><span class="p">[</span><span class="nx">namespace</span><span class="p">]</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="nx">MITHgridDefaults</span><span class="p">[</span><span class="nx">namespace</span><span class="p">],</span> <span class="nx">defaults</span><span class="p">)</span>
   </pre></div></td></tr><tr id="section-14"><td class="docs"><div class="pilwrap"><a href="#section-14" class="pilcrow">&#182;</a></div><h1>Synchonizer</h1>
 
-<h2>MITHGrid.initSynchronizer</h2>
+<h2>MITHgrid.initSynchronizer</h2>
 
 <p>Parameters:</p>
 
@@ -190,7 +190,7 @@ the done() method has been called.</li>
 <p>Returns:</p>
 
 <p>The synchronizer object.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nv">MITHGrid.initSynchronizer = </span><span class="nf">(callback) -&gt;</span>
+</td><td class="code"><div class="highlight"><pre><span class="nv">MITHgrid.initSynchronizer = </span><span class="nf">(callback) -&gt;</span>
   <span class="nv">that = </span><span class="p">{}</span>
   <span class="nv">counter = </span><span class="mi">1</span>
   <span class="nv">done = </span><span class="kc">false</span>
@@ -259,7 +259,7 @@ the done() method has been called.</li>
   <span class="nx">that</span>
        </pre></div></td></tr><tr id="section-19"><td class="docs"><div class="pilwrap"><a href="#section-19" class="pilcrow">&#182;</a></div><h1>EventFirer</h1>
 
-<h2>MITHGrid.initEventFirer</h2>
+<h2>MITHgrid.initEventFirer</h2>
 
 <p>Parameters:</p>
 
@@ -272,7 +272,7 @@ the done() method has been called.</li>
 <p>Returns:</p>
 
 <p>The EventFirer object.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nv">MITHGrid.initEventFirer = </span><span class="nf">(isPreventable, isUnicast, hasMemory) -&gt;</span>
+</td><td class="code"><div class="highlight"><pre><span class="nv">MITHgrid.initEventFirer = </span><span class="nf">(isPreventable, isUnicast, hasMemory) -&gt;</span>
   <span class="nv">that =</span>
     <span class="nv">isPreventable: </span><span class="o">!!</span><span class="nx">isPreventable</span>
     <span class="nv">isUnicast: </span><span class="o">!!</span><span class="nx">isUnicast</span>
@@ -400,7 +400,7 @@ it will return "true".</p>
 
 <p>We use a local global to track how many objects we've initialized so we can assign a unique number
 to each. This is useful when debugging to see if you are creating the right number of objects or too many.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nv">initViewCounter = </span><span class="mi">0</span></pre></div></td></tr><tr id="section-24"><td class="docs"><div class="pilwrap"><a href="#section-24" class="pilcrow">&#182;</a></div><h2>MITHGrid.initInstance</h2>
+</td><td class="code"><div class="highlight"><pre><span class="nv">initViewCounter = </span><span class="mi">0</span></pre></div></td></tr><tr id="section-24"><td class="docs"><div class="pilwrap"><a href="#section-24" class="pilcrow">&#182;</a></div><h2>MITHgrid.initInstance</h2>
 
 <p>Initialize an object based on that-ism principles.</p>
 
@@ -415,10 +415,10 @@ to each. This is useful when debugging to see if you are creating the right numb
 <p>Returns:</p>
 
 <p>The instantiated and initialized object.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nv">MITHGrid.initInstance = </span><span class="nf">(args...) -&gt;</span>
-  <span class="p">[</span><span class="nx">namespace</span><span class="p">,</span> <span class="nx">container</span><span class="p">,</span> <span class="nx">config</span><span class="p">,</span> <span class="nx">cb</span><span class="p">]</span> <span class="o">=</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">normalizeArgs</span> <span class="nx">args</span><span class="p">...</span>
+</td><td class="code"><div class="highlight"><pre><span class="nv">MITHgrid.initInstance = </span><span class="nf">(args...) -&gt;</span>
+  <span class="p">[</span><span class="nx">namespace</span><span class="p">,</span> <span class="nx">container</span><span class="p">,</span> <span class="nx">config</span><span class="p">,</span> <span class="nx">cb</span><span class="p">]</span> <span class="o">=</span> <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">normalizeArgs</span> <span class="nx">args</span><span class="p">...</span>
   <span class="nv">that =</span>
-    <span class="nv">_mithgrid_type: </span><span class="s">&quot;MITHGrid&quot;</span>
+    <span class="nv">_mithgrid_type: </span><span class="s">&quot;MITHgrid&quot;</span>
   
   <span class="nv">onDestroyFns = </span><span class="p">[]</span>
   <span class="nv">that.onDestroy = </span><span class="nf">(cb) -&gt;</span>
@@ -444,12 +444,12 @@ to each. This is useful when debugging to see if you are creating the right numb
     <span class="k">for</span> <span class="nx">ns</span> <span class="k">in</span> <span class="nx">namespace</span>
       <span class="nv">bits = </span><span class="nx">ns</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
       <span class="nv">ns = </span><span class="nx">bits</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span>
-      <span class="k">if</span> <span class="nx">MITHGridDefaults</span><span class="p">[</span><span class="nx">ns</span><span class="p">]</span><span class="o">?</span>
-        <span class="nx">optionsArray</span><span class="p">.</span><span class="nx">push</span> <span class="nx">MITHGridDefaults</span><span class="p">[</span><span class="nx">ns</span><span class="p">]</span>
+      <span class="k">if</span> <span class="nx">MITHgridDefaults</span><span class="p">[</span><span class="nx">ns</span><span class="p">]</span><span class="o">?</span>
+        <span class="nx">optionsArray</span><span class="p">.</span><span class="nx">push</span> <span class="nx">MITHgridDefaults</span><span class="p">[</span><span class="nx">ns</span><span class="p">]</span>
       <span class="k">while</span> <span class="nx">bits</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="nv">ns = </span><span class="nx">ns</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span> <span class="o">+</span> <span class="nx">bits</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nx">MITHGridDefaults</span><span class="p">[</span><span class="nx">ns</span><span class="p">]</span><span class="o">?</span>
-          <span class="nx">optionsArray</span><span class="p">.</span><span class="nx">push</span> <span class="nx">MITHGridDefaults</span><span class="p">[</span><span class="nx">ns</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nx">MITHgridDefaults</span><span class="p">[</span><span class="nx">ns</span><span class="p">]</span><span class="o">?</span>
+          <span class="nx">optionsArray</span><span class="p">.</span><span class="nx">push</span> <span class="nx">MITHgridDefaults</span><span class="p">[</span><span class="nx">ns</span><span class="p">]</span>
   <span class="k">if</span> <span class="nx">config</span><span class="o">?</span>
     <span class="nx">optionsArray</span><span class="p">.</span><span class="nx">push</span> <span class="nx">config</span>
 
@@ -468,7 +468,7 @@ to each. This is useful when debugging to see if you are creating the right numb
           <span class="nv">c = </span><span class="p">[</span> <span class="nx">c</span> <span class="p">]</span>
       <span class="k">else</span>
         <span class="nv">c = </span><span class="p">[]</span>
-      <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span> <span class="o">=</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initEventFirer</span><span class="p">(</span> <span class="p">(</span><span class="s">&quot;preventable&quot;</span> <span class="k">in</span> <span class="nx">c</span><span class="p">),</span> <span class="p">(</span><span class="s">&quot;unicast&quot;</span> <span class="k">in</span> <span class="nx">c</span><span class="p">),</span> <span class="p">(</span><span class="s">&quot;memory&quot;</span> <span class="k">in</span> <span class="nx">c</span><span class="p">)</span> <span class="p">)</span>
+      <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span> <span class="o">=</span> <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">initEventFirer</span><span class="p">(</span> <span class="p">(</span><span class="s">&quot;preventable&quot;</span> <span class="k">in</span> <span class="nx">c</span><span class="p">),</span> <span class="p">(</span><span class="s">&quot;unicast&quot;</span> <span class="k">in</span> <span class="nx">c</span><span class="p">),</span> <span class="p">(</span><span class="s">&quot;memory&quot;</span> <span class="k">in</span> <span class="nx">c</span><span class="p">)</span> <span class="p">)</span>
   </pre></div></td></tr><tr id="section-25"><td class="docs"><div class="pilwrap"><a href="#section-25" class="pilcrow">&#182;</a></div><h3>#addVariable</h3>
 
 <p>Adds a managed variable to the instance object.</p>
@@ -515,7 +515,7 @@ to each. This is useful when debugging to see if you are creating the right numb
       <span class="nv">adderName = </span><span class="nx">config</span><span class="p">.</span><span class="nx">adder</span> <span class="o">||</span> <span class="p">(</span><span class="s">&#39;add&#39;</span> <span class="o">+</span> <span class="nx">varName</span><span class="p">)</span>
       <span class="nv">lockName = </span><span class="nx">config</span><span class="p">.</span><span class="nx">locker</span> <span class="o">||</span> <span class="p">(</span><span class="s">&#39;lock&#39;</span> <span class="o">+</span> <span class="nx">varName</span><span class="p">)</span>
       <span class="nv">unlockName = </span><span class="nx">config</span><span class="p">.</span><span class="nx">unlocker</span> <span class="o">||</span> <span class="p">(</span><span class="s">&#39;unlock&#39;</span> <span class="o">+</span> <span class="nx">varName</span><span class="p">)</span>
-      <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">[</span><span class="nx">eventName</span><span class="p">]</span> <span class="o">=</span> <span class="nv">event = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initEventFirer</span><span class="p">()</span>
+      <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">[</span><span class="nx">eventName</span><span class="p">]</span> <span class="o">=</span> <span class="nv">event = </span><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">initEventFirer</span><span class="p">()</span>
       <span class="k">if</span> <span class="nx">filter</span><span class="o">?</span>
         <span class="k">if</span> <span class="nx">validate</span><span class="o">?</span>
           <span class="nv">setter = </span><span class="nf">(v) -&gt;</span>
@@ -577,17 +577,17 @@ or plugin.</p>
 
 <h2>Window Resize Handler</h2>
 
-<p>Use MITHGrid.events.onWindowResize.addListener( fn() { } ) to receive notifications when the browser window is resized.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;events&#39;</span><span class="p">,</span> <span class="nf">(events) -&gt;</span>
-  <span class="nv">events.onWindowResize = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initEventFirer</span><span class="p">(</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">false</span> <span class="p">)</span>
+<p>Use MITHgrid.events.onWindowResize.addListener( fn() { } ) to receive notifications when the browser window is resized.</p>
+</td><td class="code"><div class="highlight"><pre><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;events&#39;</span><span class="p">,</span> <span class="nf">(events) -&gt;</span>
+  <span class="nv">events.onWindowResize = </span><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">initEventFirer</span><span class="p">(</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">false</span> <span class="p">)</span>
   
   <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ready</span> <span class="o">-&gt;</span>
     <span class="nx">$</span><span class="p">(</span><span class="nb">window</span><span class="p">).</span><span class="nx">resize</span> <span class="o">-&gt;</span>
-      <span class="nx">setTimeout</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onWindowResize</span><span class="p">.</span><span class="nx">fire</span><span class="p">,</span> <span class="mi">0</span></pre></div></td></tr><tr id="section-28"><td class="docs"><div class="pilwrap"><a href="#section-28" class="pilcrow">&#182;</a></div><h2>Mouse capture</h2>
+      <span class="nx">setTimeout</span> <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onWindowResize</span><span class="p">.</span><span class="nx">fire</span><span class="p">,</span> <span class="mi">0</span></pre></div></td></tr><tr id="section-28"><td class="docs"><div class="pilwrap"><a href="#section-28" class="pilcrow">&#182;</a></div><h2>Mouse capture</h2>
 
 <p>To receive notices of mouse movement and mouse button up events regardless of where they are in the document,
 register appropriate functions.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;mouse&#39;</span><span class="p">,</span> <span class="nf">(mouse) -&gt;</span>
+</td><td class="code"><div class="highlight"><pre><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;mouse&#39;</span><span class="p">,</span> <span class="nf">(mouse) -&gt;</span>
   <span class="nv">mouseCaptureCallbacks = </span><span class="p">[]</span>
     
   <span class="nv">mouse.capture = </span><span class="nf">(cb) -&gt;</span>

@@ -3,7 +3,7 @@ layout: docco
 title: mithgrid/code/src/presentation.coffee.html
 ---
 <div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>presentation.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><h1>Presentations</h1>
-</td><td class="code"><div class="highlight"><pre><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Presentation&#39;</span><span class="p">,</span> <span class="nf">(Presentation) -&gt;</span></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><h2>Presentation.initInstance</h2>
+</td><td class="code"><div class="highlight"><pre><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Presentation&#39;</span><span class="p">,</span> <span class="nf">(Presentation) -&gt;</span></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><h2>Presentation.initInstance</h2>
 
 <p>Initializes a presentation instance.</p>
 
@@ -15,7 +15,7 @@ title: mithgrid/code/src/presentation.coffee.html
 <li><p>options -</p></li>
 </ul>
 </td><td class="code"><div class="highlight"><pre>  <span class="nv">Presentation.initInstance = </span><span class="nf">(args...) -&gt;</span>
-    <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Presentation&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that, container) -&gt;</span>
+    <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHgrid.Presentation&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that, container) -&gt;</span>
       <span class="nv">activeRenderingId = </span><span class="kc">null</span>        
       <span class="nv">renderings = </span><span class="p">{}</span>
       <span class="nv">lenses = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">lenses</span> <span class="o">||</span> <span class="p">{}</span>
@@ -248,7 +248,7 @@ its data.</p>
 
   <span class="nx">Presentation</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&quot;SimpleText&quot;</span><span class="p">,</span> <span class="nf">(SimpleText) -&gt;</span>
     <span class="nv">SimpleText.initInstance = </span><span class="nf">(args...) -&gt;</span>
-      <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Presentation</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Presentation.SimpleText&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that, container) -&gt;</span></pre></div></td></tr><tr id="section-19"><td class="docs"><div class="pilwrap"><a href="#section-19" class="pilcrow">&#182;</a></div><h2>Table</h2>
+      <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">Presentation</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHgrid.Presentation.SimpleText&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that, container) -&gt;</span></pre></div></td></tr><tr id="section-19"><td class="docs"><div class="pilwrap"><a href="#section-19" class="pilcrow">&#182;</a></div><h2>Table</h2>
 
 <p>A table presentation provides a tabular view of the data. Lenses are not used for item types. Instead,
 the data is presented based on the property type.</p>
@@ -263,7 +263,7 @@ the data is presented based on the property type.</p>
 <p><strong>N.B.:</strong> This presentation is a work in progress.</p>
 </td><td class="code"><div class="highlight"><pre>  <span class="nx">Presentation</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&quot;Table&quot;</span><span class="p">,</span> <span class="nf">(Table) -&gt;</span>
     <span class="nv">Table.initInstance = </span><span class="nf">(args...) -&gt;</span>
-      <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Presentation</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Presentation.Table&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that, container) -&gt;</span>
+      <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">Presentation</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHgrid.Presentation.Table&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that, container) -&gt;</span>
         <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
         
         <span class="nv">tableEl = </span><span class="nx">$</span><span class="p">(</span><span class="s">&quot;&lt;table&gt;&lt;/table&gt;&quot;</span><span class="p">)</span>

@@ -35,7 +35,7 @@ value if we started with the item ID "book1".</p>
 <p>. and -> use a forward index and must have an item ID on the left side</p>
 
 <p>! and &lt;- use a reverse index and will result in an item ID on the right side</p>
-</td><td class="code"><div class="highlight"><pre><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&quot;Expression.Basic&quot;</span><span class="p">,</span> <span class="nf">(exports) -&gt;</span>
+</td><td class="code"><div class="highlight"><pre><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&quot;Expression.Basic&quot;</span><span class="p">,</span> <span class="nf">(exports) -&gt;</span>
   <span class="nv">Expression = </span><span class="p">{}</span>
   <span class="nv">_operators =</span>
     <span class="s">&quot;+&quot;</span><span class="o">:</span>
@@ -74,7 +74,7 @@ value if we started with the item ID "book1".</p>
       <span class="nv">f: </span><span class="nf">(a, b) -&gt;</span> <span class="nx">a</span> <span class="o">&lt;=</span> <span class="nx">b</span>
     <span class="s">&quot;&gt;=&quot;</span><span class="o">:</span>
       <span class="nv">valueType: </span><span class="s">&quot;boolean&quot;</span>
-      <span class="nv">f: </span><span class="nf">(a, b) -&gt;</span> <span class="nx">a</span> <span class="o">&gt;=</span> <span class="nx">b</span></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><h2>MITHGrid.Expression.Basic.controls</h2>
+      <span class="nv">f: </span><span class="nf">(a, b) -&gt;</span> <span class="nx">a</span> <span class="o">&gt;=</span> <span class="nx">b</span></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><h2>MITHgrid.Expression.Basic.controls</h2>
 
 <p>Control functions may be defined for use in expressions. See the existing control functions for examples of
 how to write them.</p>
@@ -89,7 +89,7 @@ how to write them.</p>
 <li>database</li>
 </ul>
 
-<p>All control functions should return a collection of items (using MITHGrid.Expression.initCollection collections)</p>
+<p>All control functions should return a collection of items (using MITHgrid.Expression.initCollection collections)</p>
 </td><td class="code"><div class="highlight"><pre>  <span class="nv">Expression.controls = exports.controls =</span></pre></div></td></tr><tr id="section-3"><td class="docs"><div class="pilwrap"><a href="#section-3" class="pilcrow">&#182;</a></div><h3>if</h3>
 </td><td class="code"><div class="highlight"><pre>    <span class="s">&quot;if&quot;</span><span class="o">:</span>
       <span class="nv">f: </span><span class="nf">(args, roots, rootValueTypes, defaultRootName, database) -&gt;</span>
@@ -202,7 +202,7 @@ how to write them.</p>
           <span class="k">if</span> <span class="nx">f</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="o">==</span> <span class="kc">true</span>
             <span class="k">break</span><span class="p">;</span>
 
-      <span class="nv">that.getSet = </span><span class="nf">() -&gt;</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span> <span class="nx">values</span>
+      <span class="nv">that.getSet = </span><span class="nf">() -&gt;</span> <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span> <span class="nx">values</span>
 
       <span class="nv">that.contains = </span><span class="nf">(v) -&gt;</span> <span class="nx">v</span> <span class="k">in</span> <span class="nx">values</span>
 
@@ -345,7 +345,7 @@ how to write them.</p>
         <span class="nx">a</span>
 
       <span class="k">if</span> <span class="nx">filter</span> <span class="k">instanceof</span> <span class="nb">Array</span>
-        <span class="nv">filter = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span> <span class="nx">filter</span>
+        <span class="nv">filter = </span><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span> <span class="nx">filter</span>
 
       <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span> <span class="nx">_segments</span><span class="p">.</span><span class="nx">length</span><span class="o">-</span><span class="mi">1</span> <span class="p">..</span> <span class="mi">0</span> <span class="p">]</span>
         <span class="nv">segment = </span><span class="nx">_segments</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
@@ -402,7 +402,7 @@ how to write them.</p>
     <span class="nv">that.getSegmentCount = </span><span class="nf">() -&gt;</span> <span class="nx">_segments</span><span class="p">.</span><span class="nx">length</span>
 
     <span class="nv">that.rangeBackward = </span><span class="nf">(from, to, filter, database) -&gt;</span>
-      <span class="nv">set = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
+      <span class="nv">set = </span><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
       <span class="nv">valueType = </span><span class="s">&quot;item&quot;</span>
 
       <span class="k">if</span> <span class="nx">_segments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
@@ -739,7 +739,7 @@ how to write them.</p>
   <span class="nv">exports.registerSimpleMappingFunction = </span><span class="nf">(name, f, valueType) -&gt;</span>
     <span class="nx">Expression</span><span class="p">.</span><span class="nx">functions</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span> <span class="o">=</span>
       <span class="nv">f: </span><span class="nf">(args) -&gt;</span>
-        <span class="nv">set = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
+        <span class="nv">set = </span><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
         <span class="nv">evalArg = </span><span class="nf">(arg) -&gt;</span>
           <span class="nx">arg</span><span class="p">.</span><span class="nx">forEachValue</span> <span class="nf">(v) -&gt;</span>
             <span class="nv">v2 = </span><span class="nx">f</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span>

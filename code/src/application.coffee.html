@@ -4,12 +4,12 @@ title: mithgrid/code/src/application.coffee.html
 ---
 <div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>application.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><h1>Applications</h1>
 
-<h2>MITHGrid.Application</h2>
+<h2>MITHgrid.Application</h2>
 
 <p>Initializes an application instance.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Application&#39;</span><span class="p">,</span> <span class="nf">(Application) -&gt;</span>
+</td><td class="code"><div class="highlight"><pre><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Application&#39;</span><span class="p">,</span> <span class="nf">(Application) -&gt;</span>
   <span class="nv">Application.initInstance = </span><span class="nf">(args...) -&gt;</span>   
-    <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Application&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that, container) -&gt;</span>
+    <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHgrid.Application&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that, container) -&gt;</span>
       <span class="nv">onReady = </span><span class="p">[]</span>
       
       <span class="nv">thatFn = </span><span class="o">-&gt;</span> <span class="nx">that</span>
@@ -48,7 +48,7 @@ finishes.</p>
 <p>Returns: Nothing.</p>
 </td><td class="code"><div class="highlight"><pre>      <span class="nv">that.addDataStore = </span><span class="nf">(storeName, config) -&gt;</span></pre></div></td></tr><tr id="section-4"><td class="docs"><div class="pilwrap"><a href="#section-4" class="pilcrow">&#182;</a></div><p>The data store automatically has an "Item" type and the "type" and "id" properties.</p>
 </td><td class="code"><div class="highlight"><pre>        <span class="k">if</span> <span class="o">!</span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">[</span><span class="nx">storeName</span><span class="p">]</span><span class="o">?</span>
-          <span class="nv">store = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Store</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
+          <span class="nv">store = </span><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Store</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
           <span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">[</span><span class="nx">storeName</span><span class="p">]</span> <span class="o">=</span> <span class="nx">store</span>
           <span class="nx">store</span><span class="p">.</span><span class="nx">addType</span> <span class="s">&#39;Item&#39;</span>
           <span class="nx">store</span><span class="p">.</span><span class="nx">addProperty</span> <span class="s">&#39;type&#39;</span><span class="p">,</span>
@@ -89,7 +89,7 @@ finishes.</p>
 
 <ul>
 <li><p>type - the namespace holding the #initInstance function for the particular data view type for this data view.
-     Defaults to MITHGrid.Data.View.</p></li>
+     Defaults to MITHgrid.Data.View.</p></li>
 <li><p>dataStore - the name of the already configured data store.</p></li>
 </ul>
 
@@ -98,7 +98,7 @@ finishes.</p>
         <span class="k">if</span> <span class="nx">viewConfig</span><span class="p">.</span><span class="nx">type</span><span class="o">?</span> <span class="o">and</span> <span class="nx">viewConfig</span><span class="p">.</span><span class="nx">type</span><span class="p">.</span><span class="nx">initInstance</span><span class="o">?</span>
           <span class="nv">initFn = </span><span class="nx">viewConfig</span><span class="p">.</span><span class="nx">type</span><span class="p">.</span><span class="nx">initInstance</span>
         <span class="k">else</span>
-          <span class="nv">initFn = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">View</span><span class="p">.</span><span class="nx">initInstance</span>
+          <span class="nv">initFn = </span><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">View</span><span class="p">.</span><span class="nx">initInstance</span>
         <span class="nv">viewOptions =</span>
           <span class="nv">dataStore: </span><span class="nx">that</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">[</span><span class="nx">viewConfig</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">]</span> <span class="o">||</span> <span class="nx">that</span><span class="p">.</span><span class="nx">dataView</span><span class="p">[</span><span class="nx">viewConfig</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">]</span>
   
@@ -274,7 +274,7 @@ or other UI elements that might be considered chrome.</p>
                 <span class="nx">plugin</span><span class="p">.</span><span class="nx">presentation</span><span class="p">[</span><span class="nx">pname</span><span class="p">]</span> <span class="o">=</span> <span class="nx">presentation</span>
                 <span class="nx">presentation</span><span class="p">.</span><span class="nx">selfRender</span><span class="p">()</span>
   
-  </pre></div></td></tr><tr id="section-14"><td class="docs"><div class="pilwrap"><a href="#section-14" class="pilcrow">&#182;</a></div><p>In addition to the configuration options for generic MITHGrid object instances,
+  </pre></div></td></tr><tr id="section-14"><td class="docs"><div class="pilwrap"><a href="#section-14" class="pilcrow">&#182;</a></div><p>In addition to the configuration options for generic MITHgrid object instances,
 the following configuration options are available:</p>
 </td><td class="code"><div class="highlight"><pre></pre></div></td></tr><tr id="section-15"><td class="docs"><div class="pilwrap"><a href="#section-15" class="pilcrow">&#182;</a></div><h3>dataStores</h3>
 
