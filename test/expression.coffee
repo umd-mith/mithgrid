@@ -42,3 +42,54 @@ $(document).ready ->
     col = MITHgrid.Expression.Basic.initCollection set
     checkCollection col
 
+  test "Compile path alternations", ->
+    expect 1
+    parser = MITHgrid.Expression.Basic.initInstance()
+    ex = parser.parse("!ptr(!ptr)*")
+    ok ex, "We have a parse"
+
+  test "Check expression path alternations", ->
+    list = []
+
+    db = MITHgrid.Data.Store.initInstance()
+    db.addProperty 'ptr',
+      valueType: 'item'
+
+    db.loadItems [ {
+      id: "foo"
+      type: "Item"
+      ptr: "bar"
+    }, {
+      id: "bar"
+      type: "Item"
+      ptr: "baz"
+    }, {
+      id: "baz"
+      type: "Item"
+      ptr: "foo"
+    } ]
+
+    expect 15
+    equals 3, db.size(), "Three items in the test database"
+
+    ex = db.prepare(['.ptr(.ptr)*'])
+    ok ex, "We have something back from prepare"
+    ok ex.evaluate, "We have an evaluate property for the prepared statement"
+    ok $.isFunction(ex.evaluate), "Evaluate property is a function"
+
+    result = ex.evaluate(["foo"])
+    ok 3, result.length, "We have three items in the result"
+    ok ("foo" in result), "Foo is in result"
+    ok ("bar" in result), "Bar is in result"
+    ok ("baz" in result), "Baz is in result"
+
+    ex = db.prepare(['!ptr(!ptr)*'])
+    ok ex, "We have something back from prepare"
+    ok ex.evaluate, "We have an evaluate property for the prepared statement"
+    ok $.isFunction(ex.evaluate), "Evaluate property is a function"
+
+    result = ex.evaluate(["foo"])
+    ok 3, result.length, "We have three items in the result"
+    ok ("foo" in result), "Foo is in result"
+    ok ("bar" in result), "Bar is in result"
+    ok ("baz" in result), "Baz is in result"

@@ -1,19 +1,19 @@
 
   # Here, we have our deprecated ways of referring to initializers
   # **These aliases will be removed in the first public release.**
-  MITHGrid.initView = MITHGrid.deprecated "MITHGrid.initView", MITHGrid.initInstance
-  MITHGrid.Data.initSet = MITHGrid.deprecated "MITHGrid.Data.initSet", MITHGrid.Data.Set.initInstance
-  MITHGrid.Data.initType = MITHGrid.deprecated "MITHGrid.Data.initType", MITHGrid.Data.Type.initInstance
-  MITHGrid.Data.initProperty = MITHGrid.deprecated "MITHGrid.Data.initProperty", MITHGrid.Data.Property.initInstance
-  MITHGrid.Data.initStore = MITHGrid.deprecated "MITHGrid.Data.initStore", MITHGrid.Data.Store.initInstance
-  MITHGrid.Data.initView = MITHGrid.deprecated "MITHGrid.Data.initView", MITHGrid.Data.View.initInstance
-  MITHGrid.Presentation.initPresentation = MITHGrid.deprecated "MITHGrid.Presentation.initPresentation", MITHGrid.Presentation.initInstance
-  MITHGrid.Presentation.SimpleText.initPresentation = MITHGrid.deprecated "MITHGrid.Presentation.SimpleText.initPresentation", MITHGrid.Presentation.SimpleText.initInstance
-  MITHGrid.Application.initApp = MITHGrid.deprecated "MITHGrid.Application.initApp", MITHGrid.Application.initInstance
+  MITHgrid.initView = MITHgrid.deprecated "MITHgrid.initView", MITHgrid.initInstance
+  MITHgrid.Data.initSet = MITHgrid.deprecated "MITHgrid.Data.initSet", MITHgrid.Data.Set.initInstance
+  MITHgrid.Data.initType = MITHgrid.deprecated "MITHgrid.Data.initType", MITHgrid.Data.Type.initInstance
+  MITHgrid.Data.initProperty = MITHgrid.deprecated "MITHgrid.Data.initProperty", MITHgrid.Data.Property.initInstance
+  MITHgrid.Data.initStore = MITHgrid.deprecated "MITHgrid.Data.initStore", MITHgrid.Data.Store.initInstance
+  MITHgrid.Data.initView = MITHgrid.deprecated "MITHgrid.Data.initView", MITHgrid.Data.View.initInstance
+  MITHgrid.Presentation.initPresentation = MITHgrid.deprecated "MITHgrid.Presentation.initPresentation", MITHgrid.Presentation.initInstance
+  MITHgrid.Presentation.SimpleText.initPresentation = MITHgrid.deprecated "MITHgrid.Presentation.SimpleText.initPresentation", MITHgrid.Presentation.SimpleText.initInstance
+  MITHgrid.Application.initApp = MITHgrid.deprecated "MITHgrid.Application.initApp", MITHgrid.Application.initInstance
   
-)(jQuery, MITHGrid)
+)(jQuery, MITHgrid)
 
-MITHGrid.defaults "MITHGrid.Data.Store",
+MITHgrid.defaults "MITHgrid.Data.Store",
     events:
         onModelChange: null
         onBeforeLoading: null
@@ -21,31 +21,31 @@ MITHGrid.defaults "MITHGrid.Data.Store",
         onBeforeUpdating: null
         onAfterUpdating: null
 
-MITHGrid.defaults "MITHGrid.Data.View",
+MITHgrid.defaults "MITHgrid.Data.View",
     events:
         onModelChange: null
         onFilterItem: "preventable"
 
-MITHGrid.defaults "MITHGrid.Data.SubSet",
+MITHgrid.defaults "MITHgrid.Data.SubSet",
     events:
         onModelChange: null
 
-MITHGrid.defaults "MITHGrid.Data.Pager",
+MITHgrid.defaults "MITHgrid.Data.Pager",
     events:
         onModelChange: null
 
-MITHGrid.defaults "MITHGrid.Data.RangePager",
+MITHgrid.defaults "MITHgrid.Data.RangePager",
     events:
         onModelChange: null
 
-MITHGrid.defaults "MITHGrid.Data.ListPager",
+MITHgrid.defaults "MITHgrid.Data.ListPager",
     events:
         onModelChange: null
 
-MITHGrid.defaults "MITHGrid.Facet",
+MITHgrid.defaults "MITHgrid.Facet",
   events:
     onFilterChange: null
 
-MITHGrid.defaults "MITHGrid.Facet.TextSearch",
+MITHgrid.defaults "MITHgrid.Facet.TextSearch",
   facetLabel: "Search"
   expressions: [ ".label" ]

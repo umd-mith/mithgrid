@@ -1,42 +1,42 @@
 # # namespace management
 #
-# These functions are available as properties of the global MITHGrid object. The debug() and namespace()
-# functions are properties of all namespaces created using MITHGrid.
+# These functions are available as properties of the global MITHgrid object. The debug() and namespace()
+# functions are properties of all namespaces created using MITHgrid.
 #
 
-# ## MITHGrid.debug
+# ## MITHgrid.debug
 #
-# If you don't know if the console.log is available, use MITHGrid.debug. If console.log is available, it's the same
+# If you don't know if the console.log is available, use MITHgrid.debug. If console.log is available, it's the same
 # function. Otherwise, it's a NOP.
 #
 if console?.log?
-  MITHGrid.debug = console.log
+  MITHgrid.debug = console.log
 else 
-  MITHGrid.debug = () ->
+  MITHgrid.debug = () ->
 
-# ## MITHGrid.error
+# ## MITHgrid.error
 #
-# MITHGrid.error will be like MITHGrid.debug except that it will return the arguments in an object that can be thrown as
+# MITHgrid.error will be like MITHgrid.debug except that it will return the arguments in an object that can be thrown as
 # an error. It is used in the data store loadItems() function.
 #
-MITHGrid.error = () ->
-  MITHGrid.debug.call {}, arguments
+MITHgrid.error = () ->
+  MITHgrid.debug.call {}, arguments
   { 'arguments': arguments }
 
-# ## MITHGrid.depracated
+# ## MITHgrid.depracated
 #
-# Produces an augmented function that outputs a warning through MITHGrid.debug 
+# Produces an augmented function that outputs a warning through MITHgrid.debug 
 # about the call to the function.
 # We need to make it produce a context for the call so we know where to look.
 #
-MITHGrid.deprecated = (fname, cb) ->
+MITHgrid.deprecated = (fname, cb) ->
   (args...) ->
     console.log "Call to deprecated function #{fname}."
     cb args...
   
-# ## MITHGrid.namespace
+# ## MITHgrid.namespace
 #
-# Ensures the namespace exists as a property of the MITHGrid global.
+# Ensures the namespace exists as a property of the MITHgrid global.
 # Any namespace created will have the debug() and namespace()
 # functions available.
 #
@@ -50,8 +50,8 @@ MITHGrid.deprecated = (fname, cb) ->
 # The object corresponding to the namespace.
 #
 
-MITHGrid.namespace = (nom, fn) ->
-  genericNamespacer MITHGrid, nom, fn
+MITHgrid.namespace = (nom, fn) ->
+  genericNamespacer MITHgrid, nom, fn
   
 #
 # We need a general way to handle namespace creation. We do this so we can use closures when creating the
@@ -67,13 +67,13 @@ genericNamespacer = (base, nom, fn) ->
     newbase =
       namespace: (nom2, fn2) ->
         genericNamespacer newbase, nom2, fn2
-      debug: MITHGrid.debug
+      debug: MITHgrid.debug
     base[bits[0]] = newbase
   if fn?
     fn base[bits[0]]
   base[bits[0]]
 
-# ## MITHGrid.globalNamespace
+# ## MITHgrid.globalNamespace
 #
 # Ensures the namespace exists in the global space.
 # Any namespace created will have the debug() and namespace() functions available.
@@ -87,11 +87,11 @@ genericNamespacer = (base, nom, fn) ->
 #
 # The object corresponding to the namespace.
 #
-MITHGrid.globalNamespace = (nom, fn) ->
+MITHgrid.globalNamespace = (nom, fn) ->
   globals = window
   globals[nom] or= {}
   
-  globals[nom]["debug"] or= MITHGrid.debug
+  globals[nom]["debug"] or= MITHgrid.debug
   globals[nom]["namespace"] or= (n, f) ->
     genericNamespacer globals[nom], n, f
   if fn?
@@ -100,9 +100,9 @@ MITHGrid.globalNamespace = (nom, fn) ->
 
 # # that-ism helper functions
 #
-# These functions are available as properties of the global MITHGrid object.  
+# These functions are available as properties of the global MITHgrid object.  
 
-# ## MITHGrid.normalizeArgs
+# ## MITHgrid.normalizeArgs
 #
 # Accepts the arguments passed in from the constructor and sorts out the various pieces.
 #
@@ -117,7 +117,7 @@ MITHGrid.globalNamespace = (nom, fn) ->
 #
 # An array of three elements: a list of namespaces, the DOM container, and the options object.
 #
-MITHGrid.normalizeArgs = (args...) ->
+MITHgrid.normalizeArgs = (args...) ->
   # String
   # optional String/Array
   # optional DOM/String
@@ -175,9 +175,9 @@ MITHGrid.normalizeArgs = (args...) ->
   [ types, container, opts, cb ]
   
 
-MITHGridDefaults = {}
+MITHgridDefaults = {}
 
-# ## MITHGrid.defaults
+# ## MITHgrid.defaults
 #
 # Allows default configuration values to be set for a given namespace.
 #
@@ -188,13 +188,13 @@ MITHGridDefaults = {}
 #
 # Returns: Nothing.
 #
-MITHGrid.defaults = (namespace, defaults) ->
-  MITHGridDefaults[namespace] or= {}
-  MITHGridDefaults[namespace] = $.extend(true, MITHGridDefaults[namespace], defaults)
+MITHgrid.defaults = (namespace, defaults) ->
+  MITHgridDefaults[namespace] or= {}
+  MITHgridDefaults[namespace] = $.extend(true, MITHgridDefaults[namespace], defaults)
   
 # # Synchonizer
 #
-# ## MITHGrid.initSynchronizer
+# ## MITHgrid.initSynchronizer
 #
 # Parameters:
 #
@@ -205,7 +205,7 @@ MITHGrid.defaults = (namespace, defaults) ->
 #
 # The synchronizer object.
 #
-MITHGrid.initSynchronizer = (callback) ->
+MITHgrid.initSynchronizer = (callback) ->
   that = {}
   counter = 1
   done = false
@@ -281,7 +281,7 @@ MITHGrid.initSynchronizer = (callback) ->
        
 # # EventFirer
 #
-# ## MITHGrid.initEventFirer
+# ## MITHgrid.initEventFirer
 #
 # Parameters:
 #
@@ -293,7 +293,7 @@ MITHGrid.initSynchronizer = (callback) ->
 #
 # The EventFirer object.
 #
-MITHGrid.initEventFirer = (isPreventable, isUnicast, hasMemory) ->
+MITHgrid.initEventFirer = (isPreventable, isUnicast, hasMemory) ->
   that =
     isPreventable: !!isPreventable
     isUnicast: !!isUnicast
@@ -427,7 +427,7 @@ MITHGrid.initEventFirer = (isPreventable, isUnicast, hasMemory) ->
 #
 initViewCounter = 0
 
-# ## MITHGrid.initInstance
+# ## MITHgrid.initInstance
 #
 # Initialize an object based on that-ism principles.
 #
@@ -441,10 +441,10 @@ initViewCounter = 0
 #
 # The instantiated and initialized object.
 #
-MITHGrid.initInstance = (args...) ->
-  [namespace, container, config, cb] = MITHGrid.normalizeArgs args...
+MITHgrid.initInstance = (args...) ->
+  [namespace, container, config, cb] = MITHgrid.normalizeArgs args...
   that =
-    _mithgrid_type: "MITHGrid"
+    _mithgrid_type: "MITHgrid"
   
   onDestroyFns = []
   that.onDestroy = (cb) ->
@@ -470,12 +470,12 @@ MITHGrid.initInstance = (args...) ->
     for ns in namespace
       bits = ns.split('.')
       ns = bits.shift()
-      if MITHGridDefaults[ns]?
-        optionsArray.push MITHGridDefaults[ns]
+      if MITHgridDefaults[ns]?
+        optionsArray.push MITHgridDefaults[ns]
       while bits.length > 0
         ns = ns + "." + bits.shift()
-        if MITHGridDefaults[ns]?
-          optionsArray.push MITHGridDefaults[ns]
+        if MITHgridDefaults[ns]?
+          optionsArray.push MITHgridDefaults[ns]
   if config?
     optionsArray.push config
 
@@ -494,7 +494,7 @@ MITHGrid.initInstance = (args...) ->
           c = [ c ]
       else
         c = []
-      that.events[k] = MITHGrid.initEventFirer( ("preventable" in c), ("unicast" in c), ("memory" in c) )
+      that.events[k] = MITHgrid.initEventFirer( ("preventable" in c), ("unicast" in c), ("memory" in c) )
   
   # ### #addVariable
   #
@@ -546,7 +546,7 @@ MITHGrid.initInstance = (args...) ->
       adderName = config.adder || ('add' + varName)
       lockName = config.locker || ('lock' + varName)
       unlockName = config.unlocker || ('unlock' + varName)
-      that.events[eventName] = event = MITHGrid.initEventFirer()
+      that.events[eventName] = event = MITHgrid.initEventFirer()
       if filter?
         if validate?
           setter = (v) ->
@@ -612,21 +612,21 @@ MITHGrid.initInstance = (args...) ->
 #
 # ## Window Resize Handler
 #
-# Use MITHGrid.events.onWindowResize.addListener( fn() { } ) to receive notifications when the browser window is resized.
+# Use MITHgrid.events.onWindowResize.addListener( fn() { } ) to receive notifications when the browser window is resized.
 #
-MITHGrid.namespace 'events', (events) ->
-  events.onWindowResize = MITHGrid.initEventFirer( false, false )
+MITHgrid.namespace 'events', (events) ->
+  events.onWindowResize = MITHgrid.initEventFirer( false, false )
   
   $(document).ready ->
     $(window).resize ->
-      setTimeout MITHGrid.events.onWindowResize.fire, 0
+      setTimeout MITHgrid.events.onWindowResize.fire, 0
 
 # ## Mouse capture
 #
 # To receive notices of mouse movement and mouse button up events regardless of where they are in the document,
 # register appropriate functions.
 #
-MITHGrid.namespace 'mouse', (mouse) ->
+MITHgrid.namespace 'mouse', (mouse) ->
   mouseCaptureCallbacks = []
     
   mouse.capture = (cb) ->

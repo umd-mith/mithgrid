@@ -1,16 +1,16 @@
 # # Plugins
 #
-MITHGrid.namespace "Plugin", (exports) ->
+MITHgrid.namespace "Plugin", (exports) ->
   #
   # This is the base of a plugin, which can package together various things that augment
   # an application.
   #
     #
-    #  MITHGrid.Plugin.MyPlugin.initInstance = function(options) {
-    #    var that = MITHGrid.Plugin.initInstance('MyPlugin', options, { ... })
+    #  MITHgrid.Plugin.MyPlugin.initInstance = function(options) {
+    #    var that = MITHgrid.Plugin.initInstance('MyPlugin', options, { ... })
     #  };
     #
-    #  var myApp = MITHGrid.Application({
+    #  var myApp = MITHgrid.Application({
     #    plugins: [ { name: 'MyPlugin', ... } ]
     #  });
   #
