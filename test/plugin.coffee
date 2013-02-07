@@ -1,9 +1,9 @@
 $(document).ready ->
-	module "Plugin"
+  module "Plugin"
 
-	test "Check namespace", ->
-		expect 4
-		ok  MITHGrid.Plugin?, "MITHGrid.Plugin exists"
-		ok $.isFunction(MITHGrid.Plugin.namespace), "MITHGrid.Plugin.namespace is a function"
-		ok $.isFunction(MITHGrid.Plugin.debug), "MITHGrid.Plugin.debug is a function"
-		ok $.isFunction(MITHGrid.Plugin.initInstance), "MITHGrid.Plugin.initPlugin is a function"
+  test "Check namespace", ->
+    expect 4
+    ok  MITHgrid.Plugin?, "MITHgrid.Plugin exists"
+    ok $.isFunction(MITHgrid.Plugin.namespace), "MITHgrid.Plugin.namespace is a function"
+    ok $.isFunction(MITHgrid.Plugin.debug), "MITHgrid.Plugin.debug is a function"
+    ok $.isFunction(MITHgrid.Plugin.initInstance), "MITHgrid.Plugin.initPlugin is a function"
