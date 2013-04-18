@@ -1,13 +1,13 @@
 # # Applications
 #
-# ## MITHGrid.Application
+# ## MITHgrid.Application
 #
 # Initializes an application instance.
 #
 # 
-MITHGrid.namespace 'Application', (Application) ->
+MITHgrid.namespace 'Application', (Application) ->
   Application.initInstance = (args...) ->   
-    MITHGrid.initInstance "MITHGrid.Application", args..., (that, container) ->
+    MITHgrid.initInstance "MITHgrid.Application", args..., (that, container) ->
       onReady = []
       
       thatFn = -> that
@@ -52,7 +52,7 @@ MITHGrid.namespace 'Application', (Application) ->
         # The data store automatically has an "Item" type and the "type" and "id" properties.
         #
         if !that.dataStore[storeName]?
-          store = MITHGrid.Data.Store.initInstance()
+          store = MITHgrid.Data.Store.initInstance()
           that.dataStore[storeName] = store
           store.addType 'Item'
           store.addProperty 'type',
@@ -95,7 +95,7 @@ MITHGrid.namespace 'Application', (Application) ->
       # Configuration:
       #
       # * type - the namespace holding the #initInstance function for the particular data view type for this data view.
-      #          Defaults to MITHGrid.Data.View.
+      #          Defaults to MITHgrid.Data.View.
       #
       # * dataStore - the name of the already configured data store.
       #
@@ -105,7 +105,7 @@ MITHGrid.namespace 'Application', (Application) ->
         if viewConfig.type? and viewConfig.type.initInstance?
           initFn = viewConfig.type.initInstance
         else
-          initFn = MITHGrid.Data.View.initInstance
+          initFn = MITHgrid.Data.View.initInstance
         viewOptions =
           dataStore: that.dataStore[viewConfig.dataStore] || that.dataView[viewConfig.dataStore]
   
@@ -287,7 +287,7 @@ MITHGrid.namespace 'Application', (Application) ->
   
   
 
-      # In addition to the configuration options for generic MITHGrid object instances,
+      # In addition to the configuration options for generic MITHgrid object instances,
       # the following configuration options are available:
       #
 

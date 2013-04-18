@@ -1,9 +1,9 @@
-# # MITHGrid Controllers
+# # MITHgrid Controllers
 #
-# Controllers translate UI events into MITHGrid events. The goal is to create programs that only need a different set of
+# Controllers translate UI events into MITHgrid events. The goal is to create programs that only need a different set of
 # controllers to allow a different manner of user interaction.
 #
-MITHGrid.namespace 'Controller', (Controller) ->
+MITHgrid.namespace 'Controller', (Controller) ->
   # ## Controller
   #
   # Controllers do not have any display component, so they only need a class name and the configuration object.
@@ -17,7 +17,7 @@ MITHGrid.namespace 'Controller', (Controller) ->
   # * **selectors** - a map of strings to CSS selectors for finding children of a UI element when binding
   #
   Controller.initInstance = (args...) ->
-    MITHGrid.initInstance "MITHGrid.Controller", args..., (that) ->
+    MITHgrid.initInstance "MITHgrid.Controller", args..., (that) ->
       options = that.options
       options.selectors ?= {}
       options.selectors[''] ?= ''
@@ -34,7 +34,7 @@ MITHGrid.namespace 'Controller', (Controller) ->
       # a Raphaël node.
       #
       # FIXME: This overloading should be two different classes. We should move the Raphaël code out of here
-      # since this is the only piece of MITHGrid that understands anything about Raphaël. It's reasonable that
+      # since this is the only piece of MITHgrid that understands anything about Raphaël. It's reasonable that
       # a developer know if they're dealing with a regular DOM element or a Raphaël node.
       #
       # Parameters:
@@ -46,7 +46,7 @@ MITHGrid.namespace 'Controller', (Controller) ->
       # The initialized binding object.
       #
       that.initBind = (element) ->
-        MITHGrid.initInstance options.bind, (binding) ->
+        MITHgrid.initInstance options.bind, (binding) ->
           bindingsCache = { '': $(element) }
     
           binding.locate = (internalSelector) ->
@@ -140,7 +140,7 @@ MITHGrid.namespace 'Controller', (Controller) ->
 
   Controller.namespace "Raphael", (Raphael) ->
     Raphael.initInstance = (args...) ->
-      MITHGrid.Controller.initInstance "MITHGrid.Controller.Raphael", args..., (that) ->
+      MITHgrid.Controller.initInstance "MITHgrid.Controller.Raphael", args..., (that) ->
         initDOMBinding = that.initBind
         that.initBind = (raphaelDrawing) ->
           binding = initDOMBinding raphaelDrawing.node

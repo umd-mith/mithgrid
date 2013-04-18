@@ -1,6 +1,6 @@
 # # Presentations
 #
-MITHGrid.namespace 'Presentation', (Presentation) ->
+MITHgrid.namespace 'Presentation', (Presentation) ->
   # ## Presentation.initInstance
   #
   # Initializes a presentation instance.
@@ -14,7 +14,7 @@ MITHGrid.namespace 'Presentation', (Presentation) ->
   # * options -
   #
   Presentation.initInstance = (args...) ->
-    MITHGrid.initInstance "MITHGrid.Presentation", args..., (that, container) ->
+    MITHgrid.initInstance "MITHgrid.Presentation", args..., (that, container) ->
       activeRenderingId = null        
       renderings = {}
       lenses = that.options.lenses || {}
@@ -268,7 +268,7 @@ MITHGrid.namespace 'Presentation', (Presentation) ->
 
   Presentation.namespace "SimpleText", (SimpleText) ->
     SimpleText.initInstance = (args...) ->
-      MITHGrid.Presentation.initInstance "MITHGrid.Presentation.SimpleText", args..., (that, container) ->
+      MITHgrid.Presentation.initInstance "MITHgrid.Presentation.SimpleText", args..., (that, container) ->
 
   # ## Table
   #
@@ -284,7 +284,7 @@ MITHGrid.namespace 'Presentation', (Presentation) ->
   #
   Presentation.namespace "Table", (Table) ->
     Table.initInstance = (args...) ->
-      MITHGrid.Presentation.initInstance "MITHGrid.Presentation.Table", args..., (that, container) ->
+      MITHgrid.Presentation.initInstance "MITHgrid.Presentation.Table", args..., (that, container) ->
         options = that.options
         
         tableEl = $("<table></table>")

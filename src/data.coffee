@@ -1,12 +1,12 @@
 #
-# We place most of the data-centric pieces in the MITHGrid.Data namespace.
+# We place most of the data-centric pieces in the MITHgrid.Data namespace.
 #
-MITHGrid.namespace 'Data', (Data) ->
+MITHgrid.namespace 'Data', (Data) ->
   Data.namespace 'Set', (Set) ->
     # # Data Sets
     #
     # Sets track membership of string item IDs.
-    # Sets are basic objects that do not participate in the MITHGrid.initInstance scheme.
+    # Sets are basic objects that do not participate in the MITHgrid.initInstance scheme.
     #
     # ## Set.initInstance
     #
@@ -178,8 +178,9 @@ MITHGrid.namespace 'Data', (Data) ->
   
   # # Data Store
   #
-  # MITHGrid.Data.Store is a basic triple store that allows updating and deletion of triples.
+  # MITHgrid.Data.Store is a basic triple store that allows updating and deletion of triples.
   # Data stores are usually used as sources for data views.
+  # The data store supports export and import of JSON-LD data.
   #
   Data.namespace 'Store', (Store) ->
     # ## Store.initInstance
@@ -195,7 +196,7 @@ MITHGrid.namespace 'Data', (Data) ->
     # The configured data store instance.
     #
     Store.initInstance = (args...) ->
-      MITHGrid.initInstance "MITHGrid.Data.Store", args..., (that) -> # we don't use container
+      MITHgrid.initInstance "MITHgrid.Data.Store", args..., (that) -> # we don't use container
         quiesc_events = false
         set = Data.Set.initInstance()
         types = {}
@@ -408,7 +409,7 @@ MITHGrid.namespace 'Data', (Data) ->
         #
         that.getItems = (ids, cb) ->
           if cb?
-            sync = MITHGrid.initSyncronizer cb
+            sync = MITHgrid.initSyncronizer cb
             if ids.length?
               for id in ids
                 sync.increment()
@@ -667,9 +668,9 @@ MITHGrid.namespace 'Data', (Data) ->
           # #### loadItem (private to #loadItems)
           loadItem = (item) ->
             if !item.id?
-              throw MITHGrid.error "Item entry has no id: ", item
+              throw MITHgrid.error "Item entry has no id: ", item
             if !item.type?
-              throw MITHGrid.error "Item entry has no type: ", item
+              throw MITHgrid.error "Item entry has no type: ", item
 
             id = item.id
 
@@ -720,7 +721,7 @@ MITHGrid.namespace 'Data', (Data) ->
         # ### #prepare
         #
         that.prepare = (expressions) ->
-          parser = MITHGrid.Expression.Basic.initInstance()
+          parser = MITHgrid.Expression.Basic.initInstance()
           parsed = (parser.parse(ex) for ex in expressions)
           valueType = undefined
           evaluate: (id) ->
@@ -757,7 +758,7 @@ MITHGrid.namespace 'Data', (Data) ->
     # ## View.initInstance
     #
     View.initInstance = (args...) ->
-      MITHGrid.initInstance "MITHGrid.Data.View", args..., (that) ->
+      MITHgrid.initInstance "MITHgrid.Data.View", args..., (that) ->
   
         set = Data.Set.initInstance()
         options = that.options
@@ -877,7 +878,7 @@ MITHGrid.namespace 'Data', (Data) ->
 
         if options?.filters?.length > 0
           ((filters) ->
-            parser = MITHGrid.Expression.Basic.initInstance()
+            parser = MITHgrid.Expression.Basic.initInstance()
             parsedFilters = (parser.parse(ex) for ex in filters)
             that.registerFilter
               eventFilterItem: (model, id) ->
@@ -909,20 +910,20 @@ MITHGrid.namespace 'Data', (Data) ->
           # The expressions must result in itemIds that are contained in the parent dataStore.
           expressions = options.dataStore.prepare(options.expressions)
           prevEventModelChange = that.eventModelChange
-          intermediateDataStore = MITHGrid.Data.Store.initInstance({})
-          subjectSet = MITHGrid.Data.Set.initInstance()
+          intermediateDataStore = MITHgrid.Data.Store.initInstance({})
+          subjectSet = MITHgrid.Data.Set.initInstance()
           that.eventModelChange = (model, items) ->
             itemList = []
             removedItems = []
-            intermediateSet = MITHGrid.Data.Set.initInstance()
+            intermediateSet = MITHgrid.Data.Set.initInstance()
             intermediateSet = intermediateDataStore.getObjectsUnion subjectSet, "mapsTo", intermediateSet
             for id in items
               if intermediateSet.contains(id)
                 itemList.push id
                 if !model.contains(id)
                   # we need to find everything that maps to id
-                  idSet = MITHGrid.Data.Set.initInstance()
-                  intermediateDataStore.getSubjectsUnion MITHGrid.Data.Set.initInstance([id]), "mapsTo", idSet
+                  idSet = MITHgrid.Data.Set.initInstance()
+                  intermediateDataStore.getSubjectsUnion MITHgrid.Data.Set.initInstance([id]), "mapsTo", idSet
                   idSet.visit (x) ->
                     item = intermediateDataStore.getItem x
                     mapsTo = item.mapsTo
@@ -939,7 +940,7 @@ MITHGrid.namespace 'Data', (Data) ->
                         mapsTo: mapsTo
                       ]     
               else if model.contains(id)
-                itemSet = MITHGrid.Data.Set.initInstance()
+                itemSet = MITHgrid.Data.Set.initInstance()
                 for v in expressions.evaluate([id])
                   itemSet.add(v)
                 if intermediateDataStore.contains(id)
@@ -960,7 +961,7 @@ MITHGrid.namespace 'Data', (Data) ->
             if removedItems.length > 0
               intermediateDataStore.removeItems(removedItems)
 
-            intermediateSet = MITHGrid.Data.Set.initInstance()
+            intermediateSet = MITHgrid.Data.Set.initInstance()
             intermediateDataStore.getObjectsUnion subjectSet, "mapsTo", intermediateSet
             itemList = (item for item in itemList when item in items)
             prevEventModelChange intermediateSet, itemList
@@ -1019,7 +1020,7 @@ MITHGrid.namespace 'Data', (Data) ->
     # lists of items.
     #
     SubSet.initInstance = (args...) ->
-      MITHGrid.initInstance "MITHGrid.Data.SubSet", args..., (that) ->
+      MITHgrid.initInstance "MITHgrid.Data.SubSet", args..., (that) ->
         options = that.options
         key = options.key
   
@@ -1111,7 +1112,7 @@ MITHGrid.namespace 'Data', (Data) ->
   # 
   Data.namespace 'ListPager', (ListPager) ->
     ListPager.initInstance = (args...) ->
-      MITHGrid.initInstance "MITHGrid.Data.ListPager", args..., (that) ->
+      MITHgrid.initInstance "MITHgrid.Data.ListPager", args..., (that) ->
         options = that.options
 
         itemList = []
@@ -1223,7 +1224,7 @@ MITHGrid.namespace 'Data', (Data) ->
   #
   Data.namespace 'Pager', (Pager) ->
     Pager.initInstance = (args...) ->
-      MITHGrid.initInstance "MITHGrid.Data.Pager", args..., (that) ->
+      MITHgrid.initInstance "MITHgrid.Data.Pager", args..., (that) ->
         options = that.options
 
         itemList = []
@@ -1397,7 +1398,7 @@ MITHGrid.namespace 'Data', (Data) ->
   #
   Data.namespace 'RangePager', (RangePager) ->
     RangePager.initInstance = (args...) ->
-      MITHGrid.initInstance "MITHGrid.Data.RangePager", args..., (that) ->
+      MITHgrid.initInstance "MITHgrid.Data.RangePager", args..., (that) ->
         options = that.options
 
         leftPager = Data.Pager.initInstance
