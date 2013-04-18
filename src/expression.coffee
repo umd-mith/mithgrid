@@ -32,7 +32,13 @@
 #
 # ! and <- use a reverse index and will result in an item ID on the right side
 #
-MITHGrid.namespace "Expression.Basic", (exports) ->
+# .foo* means to follow the foo property until you can't any more, returning
+# the ids along the way
+# !foo* means to follow the foo property backward until you can't any more,
+# returning the ids along the way
+# (...)* means to apply the subgraph-traversal as many times as possible
+#
+MITHgrid.namespace "Expression.Basic", (exports) ->
   Expression = {}
   _operators =
     "+":
@@ -73,7 +79,7 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
       valueType: "boolean"
       f: (a, b) -> a >= b
 
-  # ## MITHGrid.Expression.Basic.controls
+  # ## MITHgrid.Expression.Basic.controls
   #
   # Control functions may be defined for use in expressions. See the existing control functions for examples of
   # how to write them.
@@ -86,7 +92,7 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
   # * defaultRootName
   # * database
   #
-  # All control functions should return a collection of items (using MITHGrid.Expression.initCollection collections)
+  # All control functions should return a collection of items (using MITHgrid.Expression.initCollection collections)
   #
   Expression.controls = exports.controls =
     # ### if
@@ -204,7 +210,7 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
           if f(v) == true
             break;
 
-      that.getSet = () -> MITHGrid.Data.Set.initInstance values
+      that.getSet = () -> MITHgrid.Data.Set.initInstance values
 
       that.contains = (v) -> v in values
 
@@ -294,6 +300,11 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
     _rootName = null
     _segments = []
   
+    #
+    # If isMultiple == true (.@ or !@ instead of . or !), then we
+    # collect all matching values regardless of multiplicity. Otherwise,
+    # we only return one instance of each matching value.
+    #
     walkForward = (collection, database) ->
       forwardArraySegmentFn = (segment) ->
         a = []
@@ -309,7 +320,13 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
 
       for i in [ 0 ... _segments.length ]
         segment = _segments[i]
-        if segment.isMultiple
+        if segment.expression?
+          if segment.forward
+            # simply evaluate the expressions and report the results
+            collection = segment.expression.evaluateOnItem(collection.getSet().items(), database)
+          else
+            # walk backward
+        else if segment.isMultiple
           a = []
           if segment.forward
             a = forwardArraySegmentFn segment
@@ -347,7 +364,7 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
         a
 
       if filter instanceof Array
-        filter = MITHGrid.Data.Set.initInstance filter
+        filter = MITHgrid.Data.Set.initInstance filter
 
       for i in [ _segments.length-1 .. 0 ]
         segment = _segments[i];
@@ -399,12 +416,18 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
       else
         return null
 
+    that.appendSubPath = (expression) ->
+      _segments.push
+        expression: expression
+        forward: true
+        isMultiple: true
+
     that.getLastSegment = () -> that.getSegment _segments.length - 1
 
     that.getSegmentCount = () -> _segments.length
 
     that.rangeBackward = (from, to, filter, database) ->
-      set = MITHGrid.Data.Set.initInstance()
+      set = MITHgrid.Data.Set.initInstance()
       valueType = "item"
 
       if _segments.length > 0
@@ -462,6 +485,61 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
 
     that
 
+  # This allows us to do the following:
+  # .foo(.bar.baz)*.bat and follow any number of .bar.baz segments
+  # .foo(.bar,.baz)*.bat follows any number of .bar or .baz segments
+  Expression.initClosure = (expressions) ->
+    that = {}
+    that.isPath = false
+
+    expressions = [ expressions ] unless $.isArray expressions
+
+    that.evaluateOnItem = (roots, database) ->
+      finalSet = MITHGrid.Data.Set.initInstance()
+      valueType = null
+      for ex in expressions
+        set = ex.evaluate({ "value": roots }, { "value": "item" }, "value", database)
+        set.getSet().visit finalSet.add
+        valueType ?= set.valueType
+      nextRoots = finalSet.items()
+      while nextRoots.length > 0
+        nextSet = MITHGrid.Data.Set.initInstance()
+        for ex in expressions
+          set = ex.evaluate({ "value": nextRoots }, { "value": "item" }, "value", database)
+          set.getSet().visit (v) ->
+            if !finalSet.contains(v)
+              nextSet.add(v)
+              finalSet.add(v)
+        nextRoots = nextSet.items()
+
+      return {
+        values: finalSet
+        getSet: -> finalSet
+        valueType: valueType || "text"
+        size: finalSet.size()
+      }
+    that
+
+  Expression.initExpressionSet = (expressions) ->
+    that = {}
+    that.isPath = false
+
+    expressions = [ expressions ] unless $.isArray expressions
+
+    that.evaluateOnItem = (root, database) ->
+      finaleSet = MITHGrid.Data.Set.initInstance()
+      valueType = null
+      for ex in expressions
+        set = ex.evaluate({ "value": roots }, { "value": "item" }, "value", database)
+        set.getSet().visit finalSet.add
+        valueType ?= set.valueType
+      return {
+        values: finalSet
+        getSet: -> finalSet
+        valueType: valueType || "text"
+        size: finalSet.size()
+      }
+
   Expression.initParser = exports.initInstance = ->
     that = {}
   
@@ -485,15 +563,31 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
       parsePath = () ->
         path = Expression.initPath()
 
-        while token? and token.type == Scanner.PATH_OPERATOR
-          hopOperator = token.value
-          next()
-        
-          if token? and token.type == Scanner.IDENTIFIER
-            path.appendSegment token.value, hopOperator
+        while token? && !(token.type == Scanner.DELIMITER && token.value == ')')
+          if token.type == Scanner.PATH_OPERATOR
+            hopOperator = token.value
             next()
-          else
-            throw new Error "Missing property ID at position " + makePosition()
+        
+            if token? and token.type == Scanner.IDENTIFIER
+              path.appendSegment token.value, hopOperator
+              next()
+            else
+              throw new Error "Missing property ID at position " + makePosition()
+          else if token.type == Scanner.DELIMITER and token.value == '('
+            next()
+            expressions = parseExpressionList()
+            if token && token.type == Scanner.DELIMITER
+              if token.value == ')'
+                next()
+                if token && token.type == Scanner.OPERATOR and token.value == '*'
+                  next()
+                  path.appendSubPath Expression.initClosure expressions
+                else
+                  path.appendSubPath Expression.initExpressionSet expressions
+              else
+                throw new Error "Mismatched ')' at position " + makePosition()
+            else
+              throw new Error "Mismatched ')' at position " + makePosition()
         path
 
       parseExpression = () ->
@@ -744,7 +838,7 @@ MITHGrid.namespace "Expression.Basic", (exports) ->
   exports.registerSimpleMappingFunction = (name, f, valueType) ->
     Expression.functions[name] =
       f: (args) ->
-        set = MITHGrid.Data.Set.initInstance()
+        set = MITHgrid.Data.Set.initInstance()
         evalArg = (arg) ->
           arg.forEachValue (v) ->
             v2 = f(v)

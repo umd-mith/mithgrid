@@ -1,10 +1,10 @@
 # # Facets
 #
-MITHGrid.namespace 'Facet', (Facet) ->
+MITHgrid.namespace 'Facet', (Facet) ->
   # ## Facet.initInstance
   #
   Facet.initInstance = (args...) ->
-    MITHGrid.initInstance "MITHGrid.Facet", args..., (that, container) ->
+    MITHgrid.initInstance "MITHgrid.Facet", args..., (that, container) ->
   
       options = that.options
   
@@ -105,14 +105,14 @@ MITHGrid.namespace 'Facet', (Facet) ->
     #
     # 
     TextSearch.initInstance = (args...) ->
-      Facet.initInstance "MITHGrid.Facet.TextSearch", args..., (that) ->
+      Facet.initInstance "MITHgrid.Facet.TextSearch", args..., (that) ->
   
         options = that.options
   
         if options.expressions?
           if !$.isArray(options.expressions)
             options.expressions = [ options.expressions ]
-          parser = MITHGrid.Expression.Basic.initInstance()
+          parser = MITHgrid.Expression.Basic.initInstance()
           parsed = (parser.parse(ex) for ex in options.expressions)
   
         that.eventFilterItem = (dataSource, id) ->
@@ -139,7 +139,7 @@ MITHGrid.namespace 'Facet', (Facet) ->
   
   Facet.namespace 'List', (List) ->
     List.initInstance = (args...) ->
-      Facet.initInstance "MITHGrid.Facet.List", args..., (that) ->
+      Facet.initInstance "MITHgrid.Facet.List", args..., (that) ->
   
         options = that.options
   
@@ -148,7 +148,7 @@ MITHGrid.namespace 'Facet', (Facet) ->
         if options.expressions?
           if !$.isArray(options.expressions)
             options.expressions = [ options.expressions ]
-          parser = MITHGrid.Expression.Basic.initInstance()
+          parser = MITHgrid.Expression.Basic.initInstance()
           parsed = (parser.parse(ex) for ex in options.expressions)
   
         that.eventFilterItem = (dataSource, id) ->
@@ -166,7 +166,7 @@ MITHGrid.namespace 'Facet', (Facet) ->
   
   Facet.namespace 'Range', (Range) ->
     Range.initInstance = (args...) ->
-      Facet.initInstance "MITHGrid.Facet.Range", args..., (that) ->
+      Facet.initInstance "MITHgrid.Facet.Range", args..., (that) ->
   
         options = that.options
         options.min ?= 0

@@ -67,6 +67,8 @@ test: mithgrid
 		echo "You must have grunt installed in order to test mithgrid."; \
 	fi
 
+package.json: package.json.in
+	@@cat package.json.in | ${VER} > package.json
 
 mithgrid: ${MG}
 

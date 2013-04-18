@@ -1,5 +1,5 @@
 #
-# **MITHGrid** is a data-centric JavaScript library that provides event-driven application building blocks.
+# **MITHgrid** is a data-centric JavaScript library that provides event-driven application building blocks.
 # The library is based loosely on the MIT Simile Exhibit library and the Fluid Infusion project.
 #
 
@@ -41,7 +41,9 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###
 
-MITHGrid = this.MITHGrid ?= {}
+MITHgrid = this.MITHgrid ?= {}
+MITHGrid = MITHgrid
+mithgrid = MITHgrid
 jQuery = this.jQuery ?= {}
 
-(($, MITHGrid) ->
+(($, MITHgrid) ->
