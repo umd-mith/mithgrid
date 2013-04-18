@@ -24,17 +24,17 @@ $(document).ready ->
     ok set?, "set object is not undefined"
 
     list = set.items()
-    equals list.length, 4, ".items returns right number of values"
-    equals set.size(), 4, ".size returns the right number of values"
+    equal list.length, 4, ".items returns right number of values"
+    equal set.size(), 4, ".size returns the right number of values"
 
     set.add 'foo'
-    equals set.size(), 5, ".add adds a value"
+    equal set.size(), 5, ".add adds a value"
 
     set.add 'foo'
-    equals set.size(), 5, ".add adds a value only if unique"
+    equal set.size(), 5, ".add adds a value only if unique"
 
     set.remove 'foo'
-    equals set.size(), 4, ".add removes a value"
+    equal set.size(), 4, ".add removes a value"
 
     ok !set.contains('foo'), "confirm 'foo' is no longer in set"
     ok set.contains('def'), "confirm 'def' is in set"
@@ -52,8 +52,8 @@ $(document).ready ->
     ok $.isFunction(MITHgrid.Data.Type.initInstance), "Type is a function"
 
     type = MITHgrid.Data.Type.initInstance 'Foo'
-    equals typeof(type), "object", "Type constructor returns an object"
-    equals type.name, "Foo", "Type .name returns correct name"
+    equal typeof(type), "object", "Type constructor returns an object"
+    equal type.name, "Foo", "Type .name returns correct name"
 
   module "Data.Property.initInstance"
 
@@ -63,12 +63,12 @@ $(document).ready ->
     ok $.isFunction(MITHgrid.Data.Property.initInstance), "Property is a function"
 
     prop = MITHgrid.Data.Property.initInstance 'foo'
-    equals typeof(prop), "object", "Property constructor returns an object"
-    equals prop.name, "foo", "Property .name returns correct name"
-    equals prop.getValueType(), "text", "Property .getValueType returns correct default type"
+    equal typeof(prop), "object", "Property constructor returns an object"
+    equal prop.name, "foo", "Property .name returns correct name"
+    equal prop.getValueType(), "text", "Property .getValueType returns correct default type"
 
     prop.valueType = "item"
-    equals "item", prop.getValueType(), "Property .getValueType returns correct type"
+    equal "item", prop.getValueType(), "Property .getValueType returns correct type"
 
   module "Data.Store.initInstance"
 
@@ -90,7 +90,7 @@ $(document).ready ->
     ds = MITHgrid.Data.Store.initInstance
       source: "Data.Store.initInstance.test"
 
-    equals typeof(ds), "object", "Source constructor returns an object"
+    equal typeof(ds), "object", "Source constructor returns an object"
 
     ds2 = MITHgrid.Data.Store.initInstance
       source: "Data.Store.initInstance.test"
@@ -107,18 +107,18 @@ $(document).ready ->
     ds = MITHgrid.Data.Store.initInstance
       source: "Data.Store.initInstance.test3"
 
-    equals typeof(ds), "object", "Source constructed"
+    equal typeof(ds), "object", "Source constructed"
 
     ds.addType "Item"
     ds.addType "Foo"
 
     t = ds.getType "Item"
     ok t?, "Item type is available"
-    equals t.name, "Item", "Item type name is correct"
+    equal t.name, "Item", "Item type name is correct"
 
     t = ds.getType "Foo"
     ok t?, "Foo type is available"
-    equals t.name, "Foo", "Foo type name is correct"
+    equal t.name, "Foo", "Foo type name is correct"
 
     ds.addProperty "foo",
       valueType: "numeric"
@@ -127,16 +127,16 @@ $(document).ready ->
 
     t = ds.getProperty "foo"
     ok t?, "foo property is available"
-    equals t.getValueType(), "numeric", "foo is numeric"
+    equal t.getValueType(), "numeric", "foo is numeric"
 
     t = ds.getProperty("bar");
     ok t?, "bar property is available"
-    equals t.getValueType(), "text", "bar is text"
+    equal t.getValueType(), "text", "bar is text"
 
   test "Check data source data loading", ->
     expect 22
     ds = MITHgrid.Data.Store.initInstance({})
-    equals ds.items().length, 0, "Data source begins empty"
+    equal ds.items().length, 0, "Data source begins empty"
 
     # items require an id and a type
     raises ->
@@ -149,7 +149,7 @@ $(document).ready ->
     , "Items loaded must have an id"
 
     # we only expect the item that caused the error and subsequent items not to be loaded
-    equals ds.items().length, 0, "Data source is still empty after an error in loading"
+    equal ds.items().length, 0, "Data source is still empty after an error in loading"
 
     raises ->
       ds.loadItems [
@@ -160,7 +160,7 @@ $(document).ready ->
       ]
     , "Items loaded must have a type"
 
-    equals ds.items().length, 0, "Data source is still empty after an error in loading"
+    equal ds.items().length, 0, "Data source is still empty after an error in loading"
 
     ds.loadItems [
       id: 'item-0'
@@ -170,8 +170,8 @@ $(document).ready ->
       type: "Item"
     ]
 
-    equals ds.items().length, 1, "One item has been loaded"
-    equals ds.items()[0], 'item-0', "ID is 'item-0'"
+    equal ds.items().length, 1, "One item has been loaded"
+    equal ds.items()[0], 'item-0', "ID is 'item-0'"
 
     # test loading multiple items
     ds.loadItems [
@@ -186,7 +186,7 @@ $(document).ready ->
       type: "Item"
     ]
 
-    equals ds.items().length, 3, "Two more items have been loaded"
+    equal ds.items().length, 3, "Two more items have been loaded"
 
     item = ds.getItem 'item-0'
     ok item.id?, "ID is defined"
@@ -195,11 +195,11 @@ $(document).ready ->
     ok item.ptr?, "ptr is defined"
     ok item.type?, "type is defined"
 
-    equals item.id.length, 1, "Only one ID"
-    equals item.foo.length, 1, "One foo"
-    equals item.bar.length, 2, "Two bars"
-    equals item.ptr.length, 1, "One ptr"
-    equals item.type.length, 1, "One type"
+    equal item.id.length, 1, "Only one ID"
+    equal item.foo.length, 1, "One foo"
+    equal item.bar.length, 2, "Two bars"
+    equal item.ptr.length, 1, "One ptr"
+    equal item.type.length, 1, "One type"
 
     deepEqual item,
       id: ["item-0"]
@@ -215,11 +215,11 @@ $(document).ready ->
       type: "Item"
     ]
 
-    equals ds.items().length, 4, "Data source has two items now"
+    equal ds.items().length, 4, "Data source has two items now"
 
     ds.removeItems ["item-3"]
 
-    equals ds.items().length, 3, "One less item now"
+    equal ds.items().length, 3, "One less item now"
     item = ds.getItem 'item-3'
     deepEqual item, {}, "Nothing in the deleted item"
 
@@ -231,7 +231,7 @@ $(document).ready ->
     ds = MITHgrid.Data.Store.initInstance
       source: "Data.Store.initInstance.test5"
 
-    equals ds.items().length, 0, "Data source begins empty"
+    equal ds.items().length, 0, "Data source begins empty"
 
     ds.loadItems [
       id: "item-0"
@@ -250,7 +250,7 @@ $(document).ready ->
       type: "Item"
     ]
 
-    equals ds.items().length, 3, "All three items are loaded"
+    equal ds.items().length, 3, "All three items are loaded"
 
     ds.addProperty "ptr",
       valueType: "item"
@@ -263,8 +263,8 @@ $(document).ready ->
 
     ids = stmt.evaluate "item-0"
     ok $.isArray(ids), ".evaluate returns an array"
-    equals ids.length, 1, "There's a single item"
-    equals ids[0], "item-1", "It's the correct item"
+    equal ids.length, 1, "There's a single item"
+    equal ids[0], "item-1", "It's the correct item"
 
     # !ptr should return the item pointing to item-0 through the ptr property
     stmt = ds.prepare ["!ptr"]
@@ -274,8 +274,8 @@ $(document).ready ->
 
     ids = stmt.evaluate "item-0"
     ok $.isArray(ids), ".evaluate returns an array"
-    equals ids.length, 1, "There's a single item"
-    equals ids[0], "item-2", "It's the correct item"
+    equal ids.length, 1, "There's a single item"
+    equal ids[0], "item-2", "It's the correct item"
 
   module "Data.View.initInstance"
 

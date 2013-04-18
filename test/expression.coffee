@@ -19,12 +19,12 @@ $(document).ready ->
     list = [];
     
     ok col?, "collection object is not undefined"
-    equals 4, col.size(), ".size returns right number of values"
+    equal 4, col.size(), ".size returns right number of values"
     col.forEachValue (x) ->
       list.push x
       false
 
-    equals 4, list.length, ".forEachValue visits each element"
+    equal 4, list.length, ".forEachValue visits each element"
   
   test "Check collection construction (array)", ->
     list = []
@@ -70,7 +70,7 @@ $(document).ready ->
     } ]
 
     expect 15
-    equals 3, db.size(), "Three items in the test database"
+    equal 3, db.size(), "Three items in the test database"
 
     ex = db.prepare(['.ptr(.ptr)*'])
     ok ex, "We have something back from prepare"

@@ -35,7 +35,11 @@ To remove all built files, run `make clean`.
 How to test MITHgrid
 --------------------
 
-Once you have built MITHgrid, you can browse to the `test/` subdirectory and view the `index.html` file.  This file loads the minified version of MITHgrid by default.
+Once you have built MITHgrid, you can browse to the `test/` subdirectory 
+and view the `*.html` files.  These files load the minified version 
+of MITHgrid by default.
+
+The test scripts have been tested against PhantomJS 1.9 and grunt 0.3.17.
 
 License
 -------
