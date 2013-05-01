@@ -30,6 +30,8 @@ The following methods are available for any event management object.
 
 #### `#addListener(listener)`
 
+Adds the given function as a callback that is called when the event is fired. A function is returned that, when called, will remove the listener from the list of callbacks.
+
 #### `#removeListener(listener)`
 
 #### `#fire(args...)`
@@ -101,10 +103,112 @@ useful for scoping to a given namespace.
 
 ## Object Instance Management
 
-### Default Configurations
+MITHgrid object instances are plain JavaScript objects. All of the methods are simple functions that have been added
+as properties. These methods have access to the object instance through the JavaScript closure process, so there is no
+need to worry about calling the method with the correct instance.
 
 ### Creating Object Instances
 
+Creating a new instance is simple:
+
+    newInstance = MyApp.Component.Foo.initInstance(_el_, { _options_ });
+
+When simple instantiating an instance as a user of an object type, you simply need to call the initInstance function in the proper namespace. In the above example, this would be the "MyApp.Component.Foo" namespace.
+
+If you are creating a new object type, then the invocation is a little more complex, but not by much:
+
+    MITHgrid.globalNamespace("MyApp.Component.Foo", function(Foo) {
+      Foo.initInstance = function() {
+        return MITHgrid.initInstance(["MyApp.Component.Foo"].concat(arguments).concat([function(container, that) {
+	      var options = that.options;
+          
+          that.doSomething = function() {
+	        // we have access to the _that_ object
+          };
+        }]))
+      }
+    });
+
+This is much simpler in CoffeeScript:
+
+    MITHgrid.globalNamespace "MyApp.Component.Foo", (Foo) ->
+      Foo.initInstance = (args...) ->
+        MITHgrid.initInstance "MyApp.Component.Foo", args..., (container, that) ->
+          options = that.options
+          
+          that.doSomething = ->
+            # we have access to the _that_ object
+
+In either case, MITHgrid sorts out the parameters passed in to initInstance and provides all of the configuration information in the `that.options` object, the DOM element into which the instance can render content, and the instance itself in the call to the object configuration callback provided as the last parameter to the `MITHgrid.initInstance` call.
+
+If your object class inherits from another class, then replace the `MITHgrid.initInstance` call with a call to the appropriate `initInstance` function for the class from which your class inherits. For example, if our Foo component inherits from a Bar component, then we would use the following CoffeeScript:
+
+    MITHgrid.globalNamespace "MyApp", (MyApp) ->
+      MyApp.namespace "Component", (Component) ->
+        Component.namespace "Bar", (Bar) ->
+          # definition of MyApp.Component.Bar
+        
+        Component.namespace "Foo", (Foo) ->
+          Foo.initInstance = (args...) ->
+            Component.Bar.initInstance "MyApp.Component.Foo", args..., (container, that) ->
+              options = that.options
+              that.doSomething = ->
+                # we have access to the _that_ object
+
+In general, if you follow the boilerplate above, you'll be well on your way to creating new MITHgrid objects and instances.
+
+### Common Methods
+
+All MITHgrid instances have the following methods.
+
+#### `#_destroy()`
+
+This method calls any callbacks registered to help cleanup memory references. This helps JavaScript's garbage collection by removing references to objects that are no longer needed. This also removes all properties from the object so that any methods can be collected, thus reducing the reference count for the object being `_destroy`ed.
+
+#### `#onDestroy(callback)`
+
+Registers a function to be called when the object is `_destroy`ed. 
+
+A useful pattern when registering event listeners is:
+
+    foo.onDestroy bar.events.onSomething.addListener foo.method
+
+Since the `addListener` method returns a function that can be called to remove the added listener, we can pass this function to the `onDestroy` method so that the listener is removed when the `foo` object is `_destroy`ed.
+
+### Default Configurations
+
 ## Synchronization
+
+MITHgrid provides a synchronization facility that helps manage asynchronous processes.
+
+### Creating a Synchronizer
+
+`MITHgrid.initSynchronizer(callback)`
+
+Parameters:
+
+* callback: The optional callback will be called when the synchronizer enters the completed or done state.
+
+### Methods
+
+#### add(n)
+
+Adds _n_, either positive or negative, to the current count. This will not check for completion since the synchronizer expects _n_ to be positive. This is most useful when you know you have a number of items to run through and you don't want to call `increment` for each one.
+
+#### decrement
+
+Subtracts one from the count. If the count reaches zero and `done` has been called and the callback has not been called yet, then the appropriate callback will be called.
+
+#### done(callback)
+
+Notifies the synchronizer that no more calls to `increment`, `add`, or `process` are expected. Once sufficient calls to `decrement` have been made and current `process` calls are finished, the synchronizer will call the provided callback or the callback with which the synchronizer object was initialized.
+
+#### increment
+
+Increases the count by one. This does not check for completion since we don't expect to approach zero from the negative side.
+
+#### process(list, callback)
+
+Calls the _callback_ for each item in the list. Manages the synchronizer count by calling `add` with the number of items and `decrement` after each invocation of the callback. If the list is long, then `setTimeout` will be used to stage the processing so that browser UI events can run.
 
 ## That-ism Helpers
