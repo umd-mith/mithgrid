@@ -2,12 +2,12 @@
 layout: docco
 title: mithgrid/code/src/data.coffee.html
 ---
-<div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>data.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><p>We place most of the data-centric pieces in the MITHGrid.Data namespace.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Data&#39;</span><span class="p">,</span> <span class="nf">(Data) -&gt;</span>
+<div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/json.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">json.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>data.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><p>We place most of the data-centric pieces in the MITHgrid.Data namespace.</p>
+</td><td class="code"><div class="highlight"><pre><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Data&#39;</span><span class="p">,</span> <span class="nf">(Data) -&gt;</span>
   <span class="nx">Data</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Set&#39;</span><span class="p">,</span> <span class="nf">(Set) -&gt;</span></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><h1>Data Sets</h1>
 
 <p>Sets track membership of string item IDs.
-Sets are basic objects that do not participate in the MITHGrid.initInstance scheme.</p>
+Sets are basic objects that do not participate in the MITHgrid.initInstance scheme.</p>
 
 <h2>Set.initInstance</h2>
 
@@ -163,8 +163,9 @@ parsed expressions.</p>
           <span class="nx">that</span><span class="p">.</span><span class="nx">valueType</span> <span class="o">?</span> <span class="s">&#39;text&#39;</span>
   </pre></div></td></tr><tr id="section-12"><td class="docs"><div class="pilwrap"><a href="#section-12" class="pilcrow">&#182;</a></div><h1>Data Store</h1>
 
-<p>MITHGrid.Data.Store is a basic triple store that allows updating and deletion of triples.
-Data stores are usually used as sources for data views.</p>
+<p>MITHgrid.Data.Store is a basic triple store that allows updating and deletion of triples.
+Data stores are usually used as sources for data views.
+The data store supports export and import of JSON-LD data.</p>
 </td><td class="code"><div class="highlight"><pre>  <span class="nx">Data</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Store&#39;</span><span class="p">,</span> <span class="nf">(Store) -&gt;</span></pre></div></td></tr><tr id="section-13"><td class="docs"><div class="pilwrap"><a href="#section-13" class="pilcrow">&#182;</a></div><h2>Store.initInstance</h2>
 
 <p>Initializes a data store instance.</p>
@@ -179,7 +180,7 @@ Data stores are usually used as sources for data views.</p>
 
 <p>The configured data store instance.</p>
 </td><td class="code"><div class="highlight"><pre>    <span class="nv">Store.initInstance = </span><span class="nf">(args...) -&gt;</span>
-      <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Data.Store&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that) -&gt;</span> <span class="c1"># we don&#39;t use container</span>
+      <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHgrid.Data.Store&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that) -&gt;</span> <span class="c1"># we don&#39;t use container</span>
         <span class="nv">quiesc_events = </span><span class="kc">false</span>
         <span class="nv">set = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
         <span class="nv">types = </span><span class="p">{}</span>
@@ -379,7 +380,7 @@ one at a time, ending with null.</p>
 </code></pre>
 </td><td class="code"><div class="highlight"><pre>        <span class="nv">that.getItems = </span><span class="nf">(ids, cb) -&gt;</span>
           <span class="k">if</span> <span class="nx">cb</span><span class="o">?</span>
-            <span class="nv">sync = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initSyncronizer</span> <span class="nx">cb</span>
+            <span class="nv">sync = </span><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">initSyncronizer</span> <span class="nx">cb</span>
             <span class="k">if</span> <span class="nx">ids</span><span class="p">.</span><span class="nx">length</span><span class="o">?</span>
               <span class="k">for</span> <span class="nx">id</span> <span class="k">in</span> <span class="nx">ids</span>
                 <span class="nx">sync</span><span class="p">.</span><span class="nx">increment</span><span class="p">()</span>
@@ -618,9 +619,9 @@ we do nothing</p>
             <span class="nx">indexPut</span> <span class="nx">ops</span><span class="p">,</span> <span class="nx">o</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">s</span></pre></div></td></tr><tr id="section-43"><td class="docs"><div class="pilwrap"><a href="#section-43" class="pilcrow">&#182;</a></div><h4>loadItem (private to #loadItems)</h4>
 </td><td class="code"><div class="highlight"><pre>          <span class="nv">loadItem = </span><span class="nf">(item) -&gt;</span>
             <span class="k">if</span> <span class="o">!</span><span class="nx">item</span><span class="p">.</span><span class="nx">id</span><span class="o">?</span>
-              <span class="k">throw</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Item entry has no id: &quot;</span><span class="p">,</span> <span class="nx">item</span>
+              <span class="k">throw</span> <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Item entry has no id: &quot;</span><span class="p">,</span> <span class="nx">item</span>
             <span class="k">if</span> <span class="o">!</span><span class="nx">item</span><span class="p">.</span><span class="nx">type</span><span class="o">?</span>
-              <span class="k">throw</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Item entry has no type: &quot;</span><span class="p">,</span> <span class="nx">item</span>
+              <span class="k">throw</span> <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Item entry has no type: &quot;</span><span class="p">,</span> <span class="nx">item</span>
 
             <span class="nv">id = </span><span class="nx">item</span><span class="p">.</span><span class="nx">id</span>
 
@@ -668,7 +669,7 @@ we do nothing</p>
               <span class="nx">endFn</span><span class="p">()</span> <span class="k">if</span> <span class="nx">endFn</span><span class="o">?</span>
           <span class="nx">f</span> <span class="mi">0</span></pre></div></td></tr><tr id="section-44"><td class="docs"><div class="pilwrap"><a href="#section-44" class="pilcrow">&#182;</a></div><h3>#prepare</h3>
 </td><td class="code"><div class="highlight"><pre>        <span class="nv">that.prepare = </span><span class="nf">(expressions) -&gt;</span>
-          <span class="nv">parser = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Expression</span><span class="p">.</span><span class="nx">Basic</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
+          <span class="nv">parser = </span><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">Expression</span><span class="p">.</span><span class="nx">Basic</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
           <span class="nv">parsed = </span><span class="p">(</span><span class="nx">parser</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">ex</span><span class="p">)</span> <span class="k">for</span> <span class="nx">ex</span> <span class="k">in</span> <span class="nx">expressions</span><span class="p">)</span>
           <span class="nv">valueType = </span><span class="kc">undefined</span>
           <span class="nv">evaluate: </span><span class="nf">(id) -&gt;</span>
@@ -692,7 +693,7 @@ we do nothing</p>
 also be constrained based on item types or other simple property value expectations.</p>
 </td><td class="code"><div class="highlight"><pre>  <span class="nx">Data</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;View&#39;</span><span class="p">,</span> <span class="nf">(View) -&gt;</span></pre></div></td></tr><tr id="section-49"><td class="docs"><div class="pilwrap"><a href="#section-49" class="pilcrow">&#182;</a></div><h2>View.initInstance</h2>
 </td><td class="code"><div class="highlight"><pre>    <span class="nv">View.initInstance = </span><span class="nf">(args...) -&gt;</span>
-      <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Data.View&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that) -&gt;</span>
+      <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHgrid.Data.View&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that) -&gt;</span>
   
         <span class="nv">set = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
         <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
@@ -796,7 +797,7 @@ also be constrained based on item types or other simple property value expectati
 
         <span class="k">if</span> <span class="nx">options</span><span class="o">?</span><span class="p">.</span><span class="nx">filters</span><span class="o">?</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
           <span class="p">(</span><span class="nf">(filters) -&gt;</span>
-            <span class="nv">parser = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Expression</span><span class="p">.</span><span class="nx">Basic</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
+            <span class="nv">parser = </span><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">Expression</span><span class="p">.</span><span class="nx">Basic</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
             <span class="nv">parsedFilters = </span><span class="p">(</span><span class="nx">parser</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">ex</span><span class="p">)</span> <span class="k">for</span> <span class="nx">ex</span> <span class="k">in</span> <span class="nx">filters</span><span class="p">)</span>
             <span class="nx">that</span><span class="p">.</span><span class="nx">registerFilter</span>
               <span class="nv">eventFilterItem: </span><span class="nf">(model, id) -&gt;</span>
@@ -827,19 +828,19 @@ It needs to be quick, similar to the current propagation of changes.
 The expressions must result in itemIds that are contained in the parent dataStore.</p>
 </td><td class="code"><div class="highlight"><pre>          <span class="nv">expressions = </span><span class="nx">options</span><span class="p">.</span><span class="nx">dataStore</span><span class="p">.</span><span class="nx">prepare</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">expressions</span><span class="p">)</span>
           <span class="nv">prevEventModelChange = </span><span class="nx">that</span><span class="p">.</span><span class="nx">eventModelChange</span>
-          <span class="nv">intermediateDataStore = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Store</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">({})</span>
-          <span class="nv">subjectSet = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
+          <span class="nv">intermediateDataStore = </span><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Store</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">({})</span>
+          <span class="nv">subjectSet = </span><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
           <span class="nv">that.eventModelChange = </span><span class="nf">(model, items) -&gt;</span>
             <span class="nv">itemList = </span><span class="p">[]</span>
             <span class="nv">removedItems = </span><span class="p">[]</span>
-            <span class="nv">intermediateSet = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
+            <span class="nv">intermediateSet = </span><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
             <span class="nv">intermediateSet = </span><span class="nx">intermediateDataStore</span><span class="p">.</span><span class="nx">getObjectsUnion</span> <span class="nx">subjectSet</span><span class="p">,</span> <span class="s">&quot;mapsTo&quot;</span><span class="p">,</span> <span class="nx">intermediateSet</span>
             <span class="k">for</span> <span class="nx">id</span> <span class="k">in</span> <span class="nx">items</span>
               <span class="k">if</span> <span class="nx">intermediateSet</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
                 <span class="nx">itemList</span><span class="p">.</span><span class="nx">push</span> <span class="nx">id</span>
                 <span class="k">if</span> <span class="o">!</span><span class="nx">model</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span></pre></div></td></tr><tr id="section-59"><td class="docs"><div class="pilwrap"><a href="#section-59" class="pilcrow">&#182;</a></div><p>we need to find everything that maps to id</p>
-</td><td class="code"><div class="highlight"><pre>                  <span class="nv">idSet = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
-                  <span class="nx">intermediateDataStore</span><span class="p">.</span><span class="nx">getSubjectsUnion</span> <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">([</span><span class="nx">id</span><span class="p">]),</span> <span class="s">&quot;mapsTo&quot;</span><span class="p">,</span> <span class="nx">idSet</span>
+</td><td class="code"><div class="highlight"><pre>                  <span class="nv">idSet = </span><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
+                  <span class="nx">intermediateDataStore</span><span class="p">.</span><span class="nx">getSubjectsUnion</span> <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">([</span><span class="nx">id</span><span class="p">]),</span> <span class="s">&quot;mapsTo&quot;</span><span class="p">,</span> <span class="nx">idSet</span>
                   <span class="nx">idSet</span><span class="p">.</span><span class="nx">visit</span> <span class="nf">(x) -&gt;</span>
                     <span class="nv">item = </span><span class="nx">intermediateDataStore</span><span class="p">.</span><span class="nx">getItem</span> <span class="nx">x</span>
                     <span class="nv">mapsTo = </span><span class="nx">item</span><span class="p">.</span><span class="nx">mapsTo</span>
@@ -856,7 +857,7 @@ The expressions must result in itemIds that are contained in the parent dataStor
                         <span class="nv">mapsTo: </span><span class="nx">mapsTo</span>
                       <span class="p">]</span>     
               <span class="k">else</span> <span class="k">if</span> <span class="nx">model</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
-                <span class="nv">itemSet = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
+                <span class="nv">itemSet = </span><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
                 <span class="k">for</span> <span class="nx">v</span> <span class="k">in</span> <span class="nx">expressions</span><span class="p">.</span><span class="nx">evaluate</span><span class="p">([</span><span class="nx">id</span><span class="p">])</span>
                   <span class="nx">itemSet</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nx">intermediateDataStore</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
@@ -876,7 +877,7 @@ The expressions must result in itemIds that are contained in the parent dataStor
             <span class="k">if</span> <span class="nx">removedItems</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
               <span class="nx">intermediateDataStore</span><span class="p">.</span><span class="nx">removeItems</span><span class="p">(</span><span class="nx">removedItems</span><span class="p">)</span>
 
-            <span class="nv">intermediateSet = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
+            <span class="nv">intermediateSet = </span><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
             <span class="nx">intermediateDataStore</span><span class="p">.</span><span class="nx">getObjectsUnion</span> <span class="nx">subjectSet</span><span class="p">,</span> <span class="s">&quot;mapsTo&quot;</span><span class="p">,</span> <span class="nx">intermediateSet</span>
             <span class="nv">itemList = </span><span class="p">(</span><span class="nx">item</span> <span class="k">for</span> <span class="nx">item</span> <span class="k">in</span> <span class="nx">itemList</span> <span class="k">when</span> <span class="nx">item</span> <span class="k">in</span> <span class="nx">items</span><span class="p">)</span>
             <span class="nx">prevEventModelChange</span> <span class="nx">intermediateSet</span><span class="p">,</span> <span class="nx">itemList</span>
@@ -918,7 +919,7 @@ satisfy the expressions by producing the key value.</p>
 <p>Note that this is a fragile data view. Expressions that hop through other items may result in inconsistent
 lists of items.</p>
 </td><td class="code"><div class="highlight"><pre>    <span class="nv">SubSet.initInstance = </span><span class="nf">(args...) -&gt;</span>
-      <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Data.SubSet&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that) -&gt;</span>
+      <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHgrid.Data.SubSet&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that) -&gt;</span>
         <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
         <span class="nv">key = </span><span class="nx">options</span><span class="p">.</span><span class="nx">key</span>
   
@@ -993,7 +994,7 @@ lists of items.</p>
     </pre></div></td></tr><tr id="section-82"><td class="docs"><div class="pilwrap"><a href="#section-82" class="pilcrow">&#182;</a></div><h1>Data List Pager</h1>
 </td><td class="code"><div class="highlight"><pre>  <span class="nx">Data</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;ListPager&#39;</span><span class="p">,</span> <span class="nf">(ListPager) -&gt;</span>
     <span class="nv">ListPager.initInstance = </span><span class="nf">(args...) -&gt;</span>
-      <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Data.ListPager&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that) -&gt;</span>
+      <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHgrid.Data.ListPager&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that) -&gt;</span>
         <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
 
         <span class="nv">itemList = </span><span class="p">[]</span>
@@ -1100,7 +1101,7 @@ lists of items.</p>
           <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">that</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span></pre></div></td></tr><tr id="section-85"><td class="docs"><div class="pilwrap"><a href="#section-85" class="pilcrow">&#182;</a></div><h1>Data Pager</h1>
 </td><td class="code"><div class="highlight"><pre>  <span class="nx">Data</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;Pager&#39;</span><span class="p">,</span> <span class="nf">(Pager) -&gt;</span>
     <span class="nv">Pager.initInstance = </span><span class="nf">(args...) -&gt;</span>
-      <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Data.Pager&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that) -&gt;</span>
+      <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHgrid.Data.Pager&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that) -&gt;</span>
         <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
 
         <span class="nv">itemList = </span><span class="p">[]</span>
@@ -1266,7 +1267,7 @@ and double check set and changedItems list?</p>
           <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">that</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span></pre></div></td></tr><tr id="section-91"><td class="docs"><div class="pilwrap"><a href="#section-91" class="pilcrow">&#182;</a></div><h1>Data Range Pager</h1>
 </td><td class="code"><div class="highlight"><pre>  <span class="nx">Data</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&#39;RangePager&#39;</span><span class="p">,</span> <span class="nf">(RangePager) -&gt;</span>
     <span class="nv">RangePager.initInstance = </span><span class="nf">(args...) -&gt;</span>
-      <span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHGrid.Data.RangePager&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that) -&gt;</span>
+      <span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">initInstance</span> <span class="s">&quot;MITHgrid.Data.RangePager&quot;</span><span class="p">,</span> <span class="nx">args</span><span class="p">...,</span> <span class="nf">(that) -&gt;</span>
         <span class="nv">options = </span><span class="nx">that</span><span class="p">.</span><span class="nx">options</span>
 
         <span class="nv">leftPager = </span><span class="nx">Data</span><span class="p">.</span><span class="nx">Pager</span><span class="p">.</span><span class="nx">initInstance</span>
@@ -1324,4 +1325,4 @@ and double check set and changedItems list?</p>
           <span class="nx">ob</span><span class="p">.</span><span class="nx">onDestroy</span> <span class="nx">that</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">onModelChange</span><span class="p">.</span><span class="nx">addListener</span> <span class="nf">(m, i) -&gt;</span> <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">m</span><span class="p">,</span> <span class="nx">i</span>
           <span class="nx">ob</span><span class="p">.</span><span class="nx">eventModelChange</span> <span class="nx">that</span><span class="p">,</span> <span class="nx">that</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Tue Jan 08 2013 13:10:49 GMT-0500 (EST)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
+</pre></div></td></tr></tbody></table><div id="generated">generated Wed May 01 2013 09:27:58 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
