@@ -2,7 +2,7 @@
 layout: docco
 title: mithgrid/code/src/expression.coffee.html
 ---
-<div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>expression.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><h1>Expression Parser</h1>
+<div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="../index.html" class="source"><span class="file_name">README</span></a><a href="../src/application.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">application.coffee</span></a><a href="../src/controller.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">controller.coffee</span></a><a href="../src/core.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">core.coffee</span></a><a href="../src/data.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">data.coffee</span></a><a href="../src/expression.coffee.html" class="source selected"><span class="base_path">src / </span><span class="file_name">expression.coffee</span></a><a href="../src/facet.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">facet.coffee</span></a><a href="../src/intro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">intro.coffee</span></a><a href="../src/json.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">json.coffee</span></a><a href="../src/outro.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">outro.coffee</span></a><a href="../src/plugin.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">plugin.coffee</span></a><a href="../src/presentation.coffee.html" class="source "><span class="base_path">src / </span><span class="file_name">presentation.coffee</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"><h1>expression.coffee</h1><div class="filepath">src/</div></th><th class="code"></th></tr></thead><tbody><tr id="section-1"><td class="docs"><div class="pilwrap"><a href="#section-1" class="pilcrow">&#182;</a></div><h1>Expression Parser</h1>
 
 <p>Everything here is private except for a few exported objects and functions.</p>
 
@@ -35,6 +35,12 @@ value if we started with the item ID "book1".</p>
 <p>. and -> use a forward index and must have an item ID on the left side</p>
 
 <p>! and &lt;- use a reverse index and will result in an item ID on the right side</p>
+
+<p>.foo* means to follow the foo property until you can't any more, returning
+the ids along the way
+!foo* means to follow the foo property backward until you can't any more,
+returning the ids along the way
+(...)* means to apply the subgraph-traversal as many times as possible</p>
 </td><td class="code"><div class="highlight"><pre><span class="nx">MITHgrid</span><span class="p">.</span><span class="nx">namespace</span> <span class="s">&quot;Expression.Basic&quot;</span><span class="p">,</span> <span class="nf">(exports) -&gt;</span>
   <span class="nv">Expression = </span><span class="p">{}</span>
   <span class="nv">_operators =</span>
@@ -291,8 +297,10 @@ how to write them.</p>
     <span class="nv">that = </span><span class="p">{}</span>
     <span class="nv">_rootName = </span><span class="kc">null</span>
     <span class="nv">_segments = </span><span class="p">[]</span>
-  
-    <span class="nv">walkForward = </span><span class="nf">(collection, database) -&gt;</span>
+  </pre></div></td></tr><tr id="section-5"><td class="docs"><div class="pilwrap"><a href="#section-5" class="pilcrow">&#182;</a></div><p>If isMultiple == true (.@ or !@ instead of . or !), then we
+collect all matching values regardless of multiplicity. Otherwise,
+we only return one instance of each matching value.</p>
+</td><td class="code"><div class="highlight"><pre>    <span class="nv">walkForward = </span><span class="nf">(collection, database) -&gt;</span>
       <span class="nv">forwardArraySegmentFn = </span><span class="nf">(segment) -&gt;</span>
         <span class="nv">a = </span><span class="p">[]</span>
         <span class="nx">collection</span><span class="p">.</span><span class="nx">forEachValue</span> <span class="nf">(v) -&gt;</span>
@@ -307,7 +315,11 @@ how to write them.</p>
 
       <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span> <span class="mi">0</span> <span class="p">...</span> <span class="nx">_segments</span><span class="p">.</span><span class="nx">length</span> <span class="p">]</span>
         <span class="nv">segment = </span><span class="nx">_segments</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nx">segment</span><span class="p">.</span><span class="nx">isMultiple</span>
+        <span class="k">if</span> <span class="nx">segment</span><span class="p">.</span><span class="nx">expression</span><span class="o">?</span>
+          <span class="k">if</span> <span class="nx">segment</span><span class="p">.</span><span class="nx">forward</span></pre></div></td></tr><tr id="section-6"><td class="docs"><div class="pilwrap"><a href="#section-6" class="pilcrow">&#182;</a></div><p>simply evaluate the expressions and report the results</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="nv">collection = </span><span class="nx">segment</span><span class="p">.</span><span class="nx">expression</span><span class="p">.</span><span class="nx">evaluateOnItem</span><span class="p">(</span><span class="nx">collection</span><span class="p">.</span><span class="nx">getSet</span><span class="p">().</span><span class="nx">items</span><span class="p">(),</span> <span class="nx">database</span><span class="p">)</span>
+          <span class="k">else</span></pre></div></td></tr><tr id="section-7"><td class="docs"><div class="pilwrap"><a href="#section-7" class="pilcrow">&#182;</a></div><p>walk backward</p>
+</td><td class="code"><div class="highlight"><pre>        <span class="k">else</span> <span class="k">if</span> <span class="nx">segment</span><span class="p">.</span><span class="nx">isMultiple</span>
           <span class="nv">a = </span><span class="p">[]</span>
           <span class="k">if</span> <span class="nx">segment</span><span class="p">.</span><span class="nx">forward</span>
             <span class="nv">a = </span><span class="nx">forwardArraySegmentFn</span> <span class="nx">segment</span>
@@ -397,6 +409,12 @@ how to write them.</p>
       <span class="k">else</span>
         <span class="k">return</span> <span class="kc">null</span>
 
+    <span class="nv">that.appendSubPath = </span><span class="nf">(expression) -&gt;</span>
+      <span class="nx">_segments</span><span class="p">.</span><span class="nx">push</span>
+        <span class="nv">expression: </span><span class="nx">expression</span>
+        <span class="nv">forward: </span><span class="kc">true</span>
+        <span class="nv">isMultiple: </span><span class="kc">true</span>
+
     <span class="nv">that.getLastSegment = </span><span class="nf">() -&gt;</span> <span class="nx">that</span><span class="p">.</span><span class="nx">getSegment</span> <span class="nx">_segments</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span>
 
     <span class="nv">that.getSegmentCount = </span><span class="nf">() -&gt;</span> <span class="nx">_segments</span><span class="p">.</span><span class="nx">length</span>
@@ -458,7 +476,60 @@ how to write them.</p>
     <span class="nv">that.walkBackward = </span><span class="nf">(values, valueType, filter, database) -&gt;</span>
       <span class="nx">walkBackward</span> <span class="nx">Expression</span><span class="p">.</span><span class="nx">initCollection</span><span class="p">(</span><span class="nx">values</span><span class="p">,</span> <span class="nx">valueType</span><span class="p">),</span> <span class="nx">filter</span><span class="p">,</span> <span class="nx">database</span>
 
+    <span class="nx">that</span></pre></div></td></tr><tr id="section-8"><td class="docs"><div class="pilwrap"><a href="#section-8" class="pilcrow">&#182;</a></div><p>This allows us to do the following:
+.foo(.bar.baz)<em>.bat and follow any number of .bar.baz segments
+.foo(.bar,.baz)</em>.bat follows any number of .bar or .baz segments</p>
+</td><td class="code"><div class="highlight"><pre>  <span class="nv">Expression.initClosure = </span><span class="nf">(expressions) -&gt;</span>
+    <span class="nv">that = </span><span class="p">{}</span>
+    <span class="nv">that.isPath = </span><span class="kc">false</span>
+
+    <span class="nv">expressions = </span><span class="p">[</span> <span class="nx">expressions</span> <span class="p">]</span> <span class="nx">unless</span> <span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span> <span class="nx">expressions</span>
+
+    <span class="nv">that.evaluateOnItem = </span><span class="nf">(roots, database) -&gt;</span>
+      <span class="nv">finalSet = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
+      <span class="nv">valueType = </span><span class="kc">null</span>
+      <span class="k">for</span> <span class="nx">ex</span> <span class="k">in</span> <span class="nx">expressions</span>
+        <span class="nv">set = </span><span class="nx">ex</span><span class="p">.</span><span class="nx">evaluate</span><span class="p">({</span> <span class="s">&quot;value&quot;</span><span class="o">:</span> <span class="nx">roots</span> <span class="p">},</span> <span class="p">{</span> <span class="s">&quot;value&quot;</span><span class="o">:</span> <span class="s">&quot;item&quot;</span> <span class="p">},</span> <span class="s">&quot;value&quot;</span><span class="p">,</span> <span class="nx">database</span><span class="p">)</span>
+        <span class="nx">set</span><span class="p">.</span><span class="nx">getSet</span><span class="p">().</span><span class="nx">visit</span> <span class="nx">finalSet</span><span class="p">.</span><span class="nx">add</span>
+        <span class="nx">valueType</span> <span class="o">?=</span> <span class="nx">set</span><span class="p">.</span><span class="nx">valueType</span>
+      <span class="nv">nextRoots = </span><span class="nx">finalSet</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+      <span class="k">while</span> <span class="nx">nextRoots</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="nv">nextSet = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
+        <span class="k">for</span> <span class="nx">ex</span> <span class="k">in</span> <span class="nx">expressions</span>
+          <span class="nv">set = </span><span class="nx">ex</span><span class="p">.</span><span class="nx">evaluate</span><span class="p">({</span> <span class="s">&quot;value&quot;</span><span class="o">:</span> <span class="nx">nextRoots</span> <span class="p">},</span> <span class="p">{</span> <span class="s">&quot;value&quot;</span><span class="o">:</span> <span class="s">&quot;item&quot;</span> <span class="p">},</span> <span class="s">&quot;value&quot;</span><span class="p">,</span> <span class="nx">database</span><span class="p">)</span>
+          <span class="nx">set</span><span class="p">.</span><span class="nx">getSet</span><span class="p">().</span><span class="nx">visit</span> <span class="nf">(v) -&gt;</span>
+            <span class="k">if</span> <span class="o">!</span><span class="nx">finalSet</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span>
+              <span class="nx">nextSet</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span>
+              <span class="nx">finalSet</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span>
+        <span class="nv">nextRoots = </span><span class="nx">nextSet</span><span class="p">.</span><span class="nx">items</span><span class="p">()</span>
+
+      <span class="k">return</span> <span class="p">{</span>
+        <span class="nv">values: </span><span class="nx">finalSet</span>
+        <span class="nv">getSet: </span><span class="o">-&gt;</span> <span class="nx">finalSet</span>
+        <span class="nv">valueType: </span><span class="nx">valueType</span> <span class="o">||</span> <span class="s">&quot;text&quot;</span>
+        <span class="nv">size: </span><span class="nx">finalSet</span><span class="p">.</span><span class="nx">size</span><span class="p">()</span>
+      <span class="p">}</span>
     <span class="nx">that</span>
+
+  <span class="nv">Expression.initExpressionSet = </span><span class="nf">(expressions) -&gt;</span>
+    <span class="nv">that = </span><span class="p">{}</span>
+    <span class="nv">that.isPath = </span><span class="kc">false</span>
+
+    <span class="nv">expressions = </span><span class="p">[</span> <span class="nx">expressions</span> <span class="p">]</span> <span class="nx">unless</span> <span class="nx">$</span><span class="p">.</span><span class="nx">isArray</span> <span class="nx">expressions</span>
+
+    <span class="nv">that.evaluateOnItem = </span><span class="nf">(root, database) -&gt;</span>
+      <span class="nv">finaleSet = </span><span class="nx">MITHGrid</span><span class="p">.</span><span class="nx">Data</span><span class="p">.</span><span class="nx">Set</span><span class="p">.</span><span class="nx">initInstance</span><span class="p">()</span>
+      <span class="nv">valueType = </span><span class="kc">null</span>
+      <span class="k">for</span> <span class="nx">ex</span> <span class="k">in</span> <span class="nx">expressions</span>
+        <span class="nv">set = </span><span class="nx">ex</span><span class="p">.</span><span class="nx">evaluate</span><span class="p">({</span> <span class="s">&quot;value&quot;</span><span class="o">:</span> <span class="nx">roots</span> <span class="p">},</span> <span class="p">{</span> <span class="s">&quot;value&quot;</span><span class="o">:</span> <span class="s">&quot;item&quot;</span> <span class="p">},</span> <span class="s">&quot;value&quot;</span><span class="p">,</span> <span class="nx">database</span><span class="p">)</span>
+        <span class="nx">set</span><span class="p">.</span><span class="nx">getSet</span><span class="p">().</span><span class="nx">visit</span> <span class="nx">finalSet</span><span class="p">.</span><span class="nx">add</span>
+        <span class="nx">valueType</span> <span class="o">?=</span> <span class="nx">set</span><span class="p">.</span><span class="nx">valueType</span>
+      <span class="k">return</span> <span class="p">{</span>
+        <span class="nv">values: </span><span class="nx">finalSet</span>
+        <span class="nv">getSet: </span><span class="o">-&gt;</span> <span class="nx">finalSet</span>
+        <span class="nv">valueType: </span><span class="nx">valueType</span> <span class="o">||</span> <span class="s">&quot;text&quot;</span>
+        <span class="nv">size: </span><span class="nx">finalSet</span><span class="p">.</span><span class="nx">size</span><span class="p">()</span>
+      <span class="p">}</span>
 
   <span class="nv">Expression.initParser = exports.initInstance = </span><span class="o">-&gt;</span>
     <span class="nv">that = </span><span class="p">{}</span>
@@ -483,15 +554,31 @@ how to write them.</p>
       <span class="nv">parsePath = </span><span class="nf">() -&gt;</span>
         <span class="nv">path = </span><span class="nx">Expression</span><span class="p">.</span><span class="nx">initPath</span><span class="p">()</span>
 
-        <span class="k">while</span> <span class="nx">token</span><span class="o">?</span> <span class="o">and</span> <span class="nx">token</span><span class="p">.</span><span class="nx">type</span> <span class="o">==</span> <span class="nx">Scanner</span><span class="p">.</span><span class="nx">PATH_OPERATOR</span>
-          <span class="nv">hopOperator = </span><span class="nx">token</span><span class="p">.</span><span class="nx">value</span>
-          <span class="nx">next</span><span class="p">()</span>
-        
-          <span class="k">if</span> <span class="nx">token</span><span class="o">?</span> <span class="o">and</span> <span class="nx">token</span><span class="p">.</span><span class="nx">type</span> <span class="o">==</span> <span class="nx">Scanner</span><span class="p">.</span><span class="nx">IDENTIFIER</span>
-            <span class="nx">path</span><span class="p">.</span><span class="nx">appendSegment</span> <span class="nx">token</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span> <span class="nx">hopOperator</span>
+        <span class="k">while</span> <span class="nx">token</span><span class="o">?</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="nx">token</span><span class="p">.</span><span class="nx">type</span> <span class="o">==</span> <span class="nx">Scanner</span><span class="p">.</span><span class="nx">DELIMITER</span> <span class="o">&amp;&amp;</span> <span class="nx">token</span><span class="p">.</span><span class="nx">value</span> <span class="o">==</span> <span class="s">&#39;)&#39;</span><span class="p">)</span>
+          <span class="k">if</span> <span class="nx">token</span><span class="p">.</span><span class="nx">type</span> <span class="o">==</span> <span class="nx">Scanner</span><span class="p">.</span><span class="nx">PATH_OPERATOR</span>
+            <span class="nv">hopOperator = </span><span class="nx">token</span><span class="p">.</span><span class="nx">value</span>
             <span class="nx">next</span><span class="p">()</span>
-          <span class="k">else</span>
-            <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&quot;Missing property ID at position &quot;</span> <span class="o">+</span> <span class="nx">makePosition</span><span class="p">()</span>
+        
+            <span class="k">if</span> <span class="nx">token</span><span class="o">?</span> <span class="o">and</span> <span class="nx">token</span><span class="p">.</span><span class="nx">type</span> <span class="o">==</span> <span class="nx">Scanner</span><span class="p">.</span><span class="nx">IDENTIFIER</span>
+              <span class="nx">path</span><span class="p">.</span><span class="nx">appendSegment</span> <span class="nx">token</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span> <span class="nx">hopOperator</span>
+              <span class="nx">next</span><span class="p">()</span>
+            <span class="k">else</span>
+              <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&quot;Missing property ID at position &quot;</span> <span class="o">+</span> <span class="nx">makePosition</span><span class="p">()</span>
+          <span class="k">else</span> <span class="k">if</span> <span class="nx">token</span><span class="p">.</span><span class="nx">type</span> <span class="o">==</span> <span class="nx">Scanner</span><span class="p">.</span><span class="nx">DELIMITER</span> <span class="o">and</span> <span class="nx">token</span><span class="p">.</span><span class="nx">value</span> <span class="o">==</span> <span class="s">&#39;(&#39;</span>
+            <span class="nx">next</span><span class="p">()</span>
+            <span class="nv">expressions = </span><span class="nx">parseExpressionList</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nx">token</span> <span class="o">&amp;&amp;</span> <span class="nx">token</span><span class="p">.</span><span class="nx">type</span> <span class="o">==</span> <span class="nx">Scanner</span><span class="p">.</span><span class="nx">DELIMITER</span>
+              <span class="k">if</span> <span class="nx">token</span><span class="p">.</span><span class="nx">value</span> <span class="o">==</span> <span class="s">&#39;)&#39;</span>
+                <span class="nx">next</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nx">token</span> <span class="o">&amp;&amp;</span> <span class="nx">token</span><span class="p">.</span><span class="nx">type</span> <span class="o">==</span> <span class="nx">Scanner</span><span class="p">.</span><span class="nx">OPERATOR</span> <span class="o">and</span> <span class="nx">token</span><span class="p">.</span><span class="nx">value</span> <span class="o">==</span> <span class="s">&#39;*&#39;</span>
+                  <span class="nx">next</span><span class="p">()</span>
+                  <span class="nx">path</span><span class="p">.</span><span class="nx">appendSubPath</span> <span class="nx">Expression</span><span class="p">.</span><span class="nx">initClosure</span> <span class="nx">expressions</span>
+                <span class="k">else</span>
+                  <span class="nx">path</span><span class="p">.</span><span class="nx">appendSubPath</span> <span class="nx">Expression</span><span class="p">.</span><span class="nx">initExpressionSet</span> <span class="nx">expressions</span>
+              <span class="k">else</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&quot;Mismatched &#39;)&#39; at position &quot;</span> <span class="o">+</span> <span class="nx">makePosition</span><span class="p">()</span>
+            <span class="k">else</span>
+              <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&quot;Mismatched &#39;)&#39; at position &quot;</span> <span class="o">+</span> <span class="nx">makePosition</span><span class="p">()</span>
         <span class="nx">path</span>
 
       <span class="nv">parseExpression = </span><span class="nf">() -&gt;</span>
@@ -678,7 +765,7 @@ how to write them.</p>
             <span class="nv">start: </span><span class="nx">_index</span>
             <span class="nv">end: </span><span class="nx">_index</span> <span class="o">+</span> <span class="mi">1</span>
           <span class="nx">_index</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">else</span> <span class="k">if</span> <span class="s">&quot;\&quot;&#39;&quot;</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">c1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span></pre></div></td></tr><tr id="section-5"><td class="docs"><div class="pilwrap"><a href="#section-5" class="pilcrow">&#182;</a></div><p>quoted strings</p>
+        <span class="k">else</span> <span class="k">if</span> <span class="s">&quot;\&quot;&#39;&quot;</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">c1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span></pre></div></td></tr><tr id="section-9"><td class="docs"><div class="pilwrap"><a href="#section-9" class="pilcrow">&#182;</a></div><p>quoted strings</p>
 </td><td class="code"><div class="highlight"><pre>          <span class="nv">i = </span><span class="nx">_index</span> <span class="o">+</span> <span class="mi">1</span>
           <span class="k">while</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">_maxIndex</span>
             <span class="k">break</span> <span class="k">if</span> <span class="nx">_text</span><span class="p">.</span><span class="nx">charAt</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span> <span class="o">==</span> <span class="nx">c1</span> <span class="o">and</span> <span class="nx">_text</span><span class="p">.</span><span class="nx">charAt</span><span class="p">(</span><span class="nx">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&quot;\\&quot;</span>
@@ -693,7 +780,7 @@ how to write them.</p>
             <span class="nv">_index = </span><span class="nx">i</span> <span class="o">+</span> <span class="mi">1</span>
           <span class="k">else</span>
             <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&quot;Unterminated string starting at &quot;</span> <span class="o">+</span> <span class="nb">String</span><span class="p">(</span><span class="nx">_index</span><span class="p">)</span>
-        <span class="k">else</span> <span class="k">if</span> <span class="nx">isDigit</span> <span class="nx">c1</span></pre></div></td></tr><tr id="section-6"><td class="docs"><div class="pilwrap"><a href="#section-6" class="pilcrow">&#182;</a></div><p>number</p>
+        <span class="k">else</span> <span class="k">if</span> <span class="nx">isDigit</span> <span class="nx">c1</span></pre></div></td></tr><tr id="section-10"><td class="docs"><div class="pilwrap"><a href="#section-10" class="pilcrow">&#182;</a></div><p>number</p>
 </td><td class="code"><div class="highlight"><pre>          <span class="nv">i = </span><span class="nx">_index</span>
           <span class="nx">i</span> <span class="o">+=</span> <span class="mi">1</span> <span class="k">while</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">_maxIndex</span> <span class="o">and</span> <span class="nx">isDigit</span><span class="p">(</span><span class="nx">_text</span><span class="p">.</span><span class="nx">charAt</span> <span class="nx">i</span><span class="p">)</span>
 
@@ -707,7 +794,7 @@ how to write them.</p>
             <span class="nv">start: </span><span class="nx">_index</span>
             <span class="nv">end: </span><span class="nx">i</span>
           <span class="nv">_index = </span><span class="nx">i</span><span class="p">;</span>
-        <span class="k">else</span></pre></div></td></tr><tr id="section-7"><td class="docs"><div class="pilwrap"><a href="#section-7" class="pilcrow">&#182;</a></div><p>identifier</p>
+        <span class="k">else</span></pre></div></td></tr><tr id="section-11"><td class="docs"><div class="pilwrap"><a href="#section-11" class="pilcrow">&#182;</a></div><p>identifier</p>
 </td><td class="code"><div class="highlight"><pre>          <span class="nv">i = </span><span class="nx">_index</span>
 
           <span class="k">while</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">_maxIndex</span>
@@ -749,4 +836,4 @@ how to write them.</p>
 
         <span class="nx">Expression</span><span class="p">.</span><span class="nx">initCollection</span> <span class="nx">set</span><span class="p">,</span> <span class="nx">valueType</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Wed Jan 09 2013 09:29:23 GMT-0500 (EST)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
+</pre></div></td></tr></tbody></table><div id="generated">generated Wed May 01 2013 09:27:58 GMT-0400 (EDT)  </div><div id="projectname"><a href="../index.html">MITHgrid</a></div></div>
