@@ -539,3 +539,36 @@ $(document).ready ->
     equal dp.dataStore.items().length, 1, "One item after deletion"
     ok dp.contains("a"), "Has 'a'"
     ok !dp.contains("b"), "Doesn't have 'b'"
+  
+  module "Data.Importer"
+
+  test "Check data importation of RDF/JSON", ->
+    expect 4
+    
+    dp = MITHgrid.Data.Store.initInstance()
+    
+    di = MITHgrid.Data.Importer.RDF_JSON.initInstance dp, {
+      "http://www.example.com/ns1#": "ns1"
+    }, {
+      "http://www.example.com/ns1#pointer": "item"
+    }
+
+    stop()
+    di.import {
+      "_:deadbeef": {
+        "http://www.example.com/ns1#pointer": [{
+          "type": "uri",
+          "value": "http://www.example.org/this/that/there"
+        }],
+        "http://www.example.com/ns1#size": [{
+          "type": "literal",
+          "value": "1023"
+        }]
+      }
+    }, (ids) ->
+      start()
+      ok ("_:deadbeef" in ids), "blank node is in resulting loaded ids"
+      ok dp.contains("_:deadbeef"), "data store contains loaded id"
+      item = dp.getItem '_:deadbeef'
+      equal item["ns1pointer"]?.length, 1, "One pointer"
+      equal item["ns1size"]?.length, 1, "One size"
