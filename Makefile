@@ -17,6 +17,7 @@ COFFEE ?= `which coffee`
 
 BASE_FILES = ${SRC_DIR}/core.coffee \
 			${SRC_DIR}/data.coffee \
+			${SRC_DIR}/importer.coffee \
 			${SRC_DIR}/expression.coffee \
 			${SRC_DIR}/presentation.coffee \
 			${SRC_DIR}/facet.coffee \
