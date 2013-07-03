@@ -12,14 +12,14 @@
 if console?.log?
   MITHgrid.debug = console.log
 else 
-  MITHgrid.debug = () ->
+  MITHgrid.debug = ->
 
 # ## MITHgrid.error
 #
 # MITHgrid.error will be like MITHgrid.debug except that it will return the arguments in an object that can be thrown as
 # an error. It is used in the data store loadItems() function.
 #
-MITHgrid.error = () ->
+MITHgrid.error = ->
   MITHgrid.debug.call {}, arguments
   { 'arguments': arguments }
 
@@ -262,20 +262,21 @@ MITHgrid.initSynchronizer = (callback) ->
 
   that.process = (items, cb) ->
     n = items.length
-    that.add n
-    processItems = (start) ->
-      end = start + 100
-      end = n if end > n
-      for i in [start ... end]
-        cb(items[i])
-        that.decrement()
-      if end < n
-        setTimeout ->
-          processItems end
-        , 0
-    setTimeout ->
-      processItems 0
-    , 0
+    if n > 0
+      that.add n
+      processItems = (start) ->
+        end = start + 100
+        end = n if end > n
+        for i in [start ... end]
+          cb(items[i])
+          that.decrement()
+        if end < n
+          setTimeout ->
+            processItems end
+          , 0
+      setTimeout ->
+        processItems 0
+      , 0
 
   that
        
