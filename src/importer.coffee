@@ -37,16 +37,45 @@ MITHgrid.Data.namespace 'Importer', (I) ->
           }, (err, json) ->
             items = []
             ids = []
-            console.log json
-            return cb([])
             syncer = MITHGrid.initSynchronizer()
           
             # we allow for nested documents and lists -- we expand these
             # as needed instead of requiring conversion to RDF/JSON first
-            subjects = (s for s of json)
-            syncer.process subjects, (s) ->
-            
+            syncer.process json, (predicates) ->
+              item =
+                id: predicates['@id']
 
+              for p, os of predicates
+                values = []
+                if types[p] == "item"
+                  for o in os
+                    if o["@id"]?
+                      v = o["@id"]
+                      for ns, prefix of NS
+                        if v[0...ns.length] == ns
+                          v = prefix + v.substr(ns.length)
+                      values.push v
+                else
+                  for o in os
+                    if o["@value"]?
+                      values.push o["@value"]
+                    else if o["@id"]?
+                      if o["@id"].substr(0,1) == "(" and o["@id"].subtr(-1) == ")"
+                        values.push "_:" + o["@id"].substr(1,o["@id"].length-2)
+                      else
+                        values.push o["@id"]
+                if values.length > 0
+                  pname = p
+                  for ns, prefix of NS
+                    if p.substr(0, ns.length) == ns
+                      pname = prefix + p.substr(ns.length)
+                  item[pname] = values
+                  if p == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                    item.type = values
+              if !item.type? or item.type.length == 0
+                item.type = 'Blank'
+              items.push item
+              ids.push item.id
             syncer.done ->
               setTimeout ->
                 for item in items
