@@ -1022,7 +1022,6 @@ MITHgrid.namespace 'Data', (Data) ->
     SubSet.initInstance = (args...) ->
       MITHgrid.initInstance "MITHgrid.Data.SubSet", args..., (that) ->
         options = that.options
-        key = options.key
   
         set = Data.Set.initInstance()
 
@@ -1106,6 +1105,8 @@ MITHgrid.namespace 'Data', (Data) ->
         that.registerPresentation = (ob) ->
           ob.onDestroy that.events.onModelChange.addListener (m, i) -> ob.eventModelChange m, i
           ob.eventModelChange that, that.items()
+
+        that.setKey options.key
     
   # # Data List Pager
   #

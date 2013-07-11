@@ -180,11 +180,11 @@ MITHgrid.namespace "Expression.Basic", (exports) ->
     that.isPath = rootNode.isPath
 
     if that.isPath
-      that.getPath = () -> rootNode 
+      that.getPath = -> rootNode 
       that.testExists = (roots, rootValueTypes, defaultRootName, database) ->
         rootNode.testExists roots, rootValueTypes, defaultRootName, database
     else
-      that.getPath = () -> null
+      that.getPath = -> null
       that.testExists = (roots, rootValueTypes, defaultRootName, database) ->
         that.evaluate(roots, rootValueTypes, defaultRootName, database).values.size() > 0
   
@@ -210,15 +210,15 @@ MITHgrid.namespace "Expression.Basic", (exports) ->
           if f(v) == true
             break;
 
-      that.getSet = () -> MITHgrid.Data.Set.initInstance values
+      that.getSet = -> MITHgrid.Data.Set.initInstance values
 
       that.contains = (v) -> v in values
 
-      that.size = () -> values.length
+      that.size = -> values.length
     else
       that.forEachValue = values.visit
       that.size = values.size
-      that.getSet = () -> values
+      that.getSet = -> values
       that.contains = values.contains
 
     that.isPath = false;
@@ -422,9 +422,9 @@ MITHgrid.namespace "Expression.Basic", (exports) ->
         forward: true
         isMultiple: true
 
-    that.getLastSegment = () -> that.getSegment _segments.length - 1
+    that.getLastSegment = -> that.getSegment _segments.length - 1
 
-    that.getSegmentCount = () -> _segments.length
+    that.getSegmentCount = -> _segments.length
 
     that.rangeBackward = (from, to, filter, database) ->
       set = MITHgrid.Data.Set.initInstance()
@@ -547,23 +547,23 @@ MITHgrid.namespace "Expression.Basic", (exports) ->
       token = scanner.token()
       Scanner = Expression.initScanner
     
-      next = () ->
+      next = ->
         scanner.next()
         token = scanner.token()
 
-      parseExpressionList = () ->
+      parseExpressionList = ->
         expressions = [parseExpression()]
         while token? and token.type == Scanner.DELIMITER and token.value == ","
           next()
           expressions.push parseExpression()
         expressions
 
-      makePosition = () -> if token? then token.start else scanner.index()
+      makePosition = -> if token? then token.start else scanner.index()
 
-      parsePath = () ->
+      parsePath = ->
         path = Expression.initPath()
 
-        while token? && !(token.type == Scanner.DELIMITER && token.value == ')')
+        while token? && !(token.type == Scanner.OPERATOR || token.type == Scanner.DELIMITER && token.value == ')')
           if token.type == Scanner.PATH_OPERATOR
             hopOperator = token.value
             next()
@@ -590,14 +590,15 @@ MITHgrid.namespace "Expression.Basic", (exports) ->
               throw new Error "Mismatched ')' at position " + makePosition()
         path
 
-      parseExpression = () ->
+      parseSubExpression = ->
         result = null
         args = []
 
         if !token?
           throw new Error "Missing factor at end of expression"
-
         switch token.type
+          when Scanner.OPERATOR
+            return result
           when Scanner.NUMBER
             result = Expression.initConstant token.value, "number"
             next()
@@ -657,6 +658,14 @@ MITHgrid.namespace "Expression.Basic", (exports) ->
             throw new Error "Unexpected text " + token.value + " at position " + makePosition()
         result
 
+      parseExpression = ->
+        expression = parseSubExpression()
+        while token?.type == Scanner.OPERATOR && token.value in [ "=", "<", ">", "<>", "<=", ">=" ]
+          operator = token.value
+          next()
+          expression =  Expression.initOperator operator, [ expression, parseSubExpression() ]
+        expression
+
       if several
         roots = parseExpressionList()
         expressions = []
@@ -686,20 +695,19 @@ MITHgrid.namespace "Expression.Basic", (exports) ->
 
     isDigit = (c) -> "0123456789".indexOf(c) >= 0
 
-    that.token = () -> _token
+    that.token = -> _token
 
-    that.index = () -> _index
+    that.index = -> _index
 
-    that.next = () ->
+    that.next = ->
       _token = null
 
-      _index += 1 while _index < _maxIndex and " \t\r\n".indexOf(_text.charAt _index) >= 0
+      _index += 1 while _index < _maxIndex and " \t\r\n".indexOf(_text[_index]) >= 0
 
       if _index < _maxIndex
         c1 = _text.charAt _index
         c2 = _text.charAt _index + 1
         c3 = _text.charAt _index + 2
-
         if ".!".indexOf(c1) >= 0
           if c2 == "@"
             _token =

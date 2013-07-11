@@ -29,6 +29,7 @@ MITHgrid.Data.namespace 'Importer', (I) ->
         jsonld.expand jsonIn, {
           keepFreeFloatingNodes: true
         }, (err, json) ->
+          #console.log json
           if err?
             cb([])
             return
@@ -38,7 +39,6 @@ MITHgrid.Data.namespace 'Importer', (I) ->
             items = []
             ids = []
             syncer = MITHGrid.initSynchronizer()
-          
             # we allow for nested documents and lists -- we expand these
             # as needed instead of requiring conversion to RDF/JSON first
             syncer.process json, (predicates) ->
@@ -46,6 +46,7 @@ MITHgrid.Data.namespace 'Importer', (I) ->
                 id: predicates['@id']
 
               for p, os of predicates
+
                 values = []
                 if types[p] == "item"
                   for o in os
@@ -53,22 +54,22 @@ MITHgrid.Data.namespace 'Importer', (I) ->
                       v = o["@id"]
                       for ns, prefix of NS
                         if v[0...ns.length] == ns
-                          v = prefix + v.substr(ns.length)
+                          v = prefix + v[ns.length..]
                       values.push v
                 else
                   for o in os
                     if o["@value"]?
                       values.push o["@value"]
                     else if o["@id"]?
-                      if o["@id"].substr(0,1) == "(" and o["@id"].subtr(-1) == ")"
-                        values.push "_:" + o["@id"].substr(1,o["@id"].length-2)
+                      if o["@id"][0...1] == "(" and o["@id"][-1..] == ")"
+                        values.push "_:" + o["@id"][1...-1]
                       else
                         values.push o["@id"]
                 if values.length > 0
                   pname = p
                   for ns, prefix of NS
-                    if p.substr(0, ns.length) == ns
-                      pname = prefix + p.substr(ns.length)
+                    if p[0...ns.length] == ns
+                      pname = prefix + p[ns.length..]
                   item[pname] = values
                   if p == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
                     item.type = values
@@ -77,6 +78,7 @@ MITHgrid.Data.namespace 'Importer', (I) ->
               items.push item
               ids.push item.id
             syncer.done ->
+              #console.log items
               setTimeout ->
                 for item in items
                   if dataStore.contains(item.id)
