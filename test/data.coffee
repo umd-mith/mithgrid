@@ -606,6 +606,7 @@ $(document).ready ->
             'size': 256
     }, (ids) ->
       start()
+      #console.log ids
       ok ("http://www.example.com/item/deadbeef" in ids), "blank node is in resulting loaded ids"
       ok dp.contains("http://www.example.com/item/deadbeef")
       item = dp.getItem 'http://www.example.com/item/deadbeef'

@@ -42,6 +42,12 @@ $(document).ready ->
     col = MITHgrid.Expression.Basic.initCollection set
     checkCollection col
 
+  test "Compile equiality expression", ->
+    expect 1
+    parser = MITHgrid.Expression.Basic.initInstance()
+    ex = parser.parse(".foo = 'bar'")
+    ok ex, "We have a parse"
+
   test "Compile path alternations", ->
     expect 1
     parser = MITHgrid.Expression.Basic.initInstance()
