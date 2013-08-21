@@ -175,7 +175,7 @@ MITHgrid.namespace 'Application', (Application) ->
       #
       # Returns: Nothing.
       #
-      that.addComponent = (cName, pconfig) ->
+      that.addComponent = (cName, cconfig) ->
         coptions = $.extend(true, {}, cconfig)
         that.ready () ->
           ccontainer = $(container).find(coptions.container)
