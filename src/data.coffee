@@ -637,7 +637,7 @@ MITHgrid.namespace 'Data', (Data) ->
 
           f = (start) ->
             end = start + chunk_size;
-            end = n if end > n
+            end = n if end > n or MITHgrid.config.noTimeouts
 
             for i in [start ... end]
               entry = items[i]
@@ -702,7 +702,7 @@ MITHgrid.namespace 'Data', (Data) ->
     
           f = (start) ->
             end = start + chunk_size
-            end = n if end > n
+            end = n if end > n or MITHgrid.config.noTimeouts
 
             for i in [ start ... end ]
               entry = items[i]
@@ -784,7 +784,7 @@ MITHgrid.namespace 'Data', (Data) ->
 
           f = (start) ->
             end = start + chunk_size
-            end = n if end > n
+            end = n if end > n or MITHgrid.config.noTimeouts
 
             for i in [ start ... end ]
               id = ids[i]

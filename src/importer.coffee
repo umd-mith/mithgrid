@@ -79,14 +79,17 @@ MITHgrid.Data.namespace 'Importer', (I) ->
               ids.push item.id
             syncer.done ->
               #console.log items
-              setTimeout ->
+              f = ->
                 for item in items
                   if dataStore.contains(item.id)
                     dataStore.updateItems [ item ]
                   else
                     dataStore.loadItems [ item ]
                 cb(ids) if cb?
-              , 0
+              if MITHgrid.config.noTimeouts
+                f()
+              else
+                setTimeout f, 0
       that
         
   I.namespace 'RDF_JSON', (RDF) ->
@@ -165,12 +168,15 @@ MITHgrid.Data.namespace 'Importer', (I) ->
           items.push item
           ids.push item.id
         syncer.done ->
-          setTimeout ->
+          f = ->
             for item in items
               if dataStore.contains(item.id)
                 dataStore.updateItems [ item ]
               else
                 dataStore.loadItems [ item ]
             cb(ids) if cb?
-          , 0
+          if MITHgrid.config.noTimeouts
+            f()
+          else
+            setTimeout f, 0
       that

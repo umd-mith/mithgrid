@@ -4,9 +4,9 @@
 #
 
 ###
-# mithgrid JavaScript Library v0.13.2460
+# mithgrid JavaScript Library v0.13.3020
 #
-# Date: Wed Aug 21 10:31:31 2013 -0700
+# Date: Tue Sep 3 15:56:00 2013 -0400
 #
 # (c) Copyright University of Maryland 2011-2013.  All rights reserved.
 #
@@ -62,6 +62,19 @@ jQuery = this.jQuery ?= {}
     MITHgrid.debug = console.log
   else 
     MITHgrid.debug = ->
+  
+  # ## MITHgrid.config
+  #
+  # Various behaviors of MITHgrid can be modified by settings in this object.
+  
+  MITHgrid.config = {}
+  
+  # ### MITHgrid.config.noTimeouts
+  #
+  # If true, setTimeout will not be used unless absolutely necessary. This reduces the number of asynchronous
+  # processes and can help applications run better when browsers such as FireFox modify the setTimeout timing.
+  
+  MITHgrid.config.noTimeouts = false
   
   # ## MITHgrid.error
   #
@@ -316,6 +329,7 @@ jQuery = this.jQuery ?= {}
         processItems = (start) ->
           end = start + 100
           end = n if end > n
+          end = n if MITHgrid.config.noTimeouts
           for i in [start ... end]
             cb(items[i])
             that.decrement()
@@ -323,9 +337,12 @@ jQuery = this.jQuery ?= {}
             setTimeout ->
               processItems end
             , 0
-        setTimeout ->
+        if MITHgrid.config.noTimeouts
           processItems 0
-        , 0
+        else
+          setTimeout ->
+            processItems 0
+          , 0
   
     that
          
@@ -669,7 +686,10 @@ jQuery = this.jQuery ?= {}
     
     $(document).ready ->
       $(window).resize ->
-        setTimeout MITHgrid.events.onWindowResize.fire, 0
+        if MITHgrid.config.noTimeouts
+          MITHgrid.events.onWindowResize.fire()
+        else
+          setTimeout MITHgrid.events.onWindowResize.fire, 0
   
   # ## Mouse capture
   #
@@ -1338,7 +1358,7 @@ jQuery = this.jQuery ?= {}
   
             f = (start) ->
               end = start + chunk_size;
-              end = n if end > n
+              end = n if end > n or MITHgrid.config.noTimeouts
   
               for i in [start ... end]
                 entry = items[i]
@@ -1403,7 +1423,7 @@ jQuery = this.jQuery ?= {}
       
             f = (start) ->
               end = start + chunk_size
-              end = n if end > n
+              end = n if end > n or MITHgrid.config.noTimeouts
   
               for i in [ start ... end ]
                 entry = items[i]
@@ -1485,7 +1505,7 @@ jQuery = this.jQuery ?= {}
   
             f = (start) ->
               end = start + chunk_size
-              end = n if end > n
+              end = n if end > n or MITHgrid.config.noTimeouts
   
               for i in [ start ... end ]
                 id = ids[i]
@@ -2240,14 +2260,17 @@ jQuery = this.jQuery ?= {}
                 ids.push item.id
               syncer.done ->
                 #console.log items
-                setTimeout ->
+                f = ->
                   for item in items
                     if dataStore.contains(item.id)
                       dataStore.updateItems [ item ]
                     else
                       dataStore.loadItems [ item ]
                   cb(ids) if cb?
-                , 0
+                if MITHgrid.config.noTimeouts
+                  f()
+                else
+                  setTimeout f, 0
         that
           
     I.namespace 'RDF_JSON', (RDF) ->
@@ -2326,14 +2349,17 @@ jQuery = this.jQuery ?= {}
             items.push item
             ids.push item.id
           syncer.done ->
-            setTimeout ->
+            f = ->
               for item in items
                 if dataStore.contains(item.id)
                   dataStore.updateItems [ item ]
                 else
                   dataStore.loadItems [ item ]
               cb(ids) if cb?
-            , 0
+            if MITHgrid.config.noTimeouts
+              f()
+            else
+              setTimeout f, 0
         that
 
   # # Expression Parser
@@ -3346,7 +3372,7 @@ jQuery = this.jQuery ?= {}
           f = (start) ->
             if start < n
               end = start + step
-              end = n if end > n
+              end = n if end > n or MITHgrid.config.noTimeouts
   
               for i in [start ... end]
                 id = items[i]
