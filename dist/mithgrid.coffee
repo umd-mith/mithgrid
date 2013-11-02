@@ -4,9 +4,9 @@
 #
 
 ###
-# mithgrid JavaScript Library v0.13.3020
+# mithgrid JavaScript Library v0.13.3060
 #
-# Date: Tue Sep 3 15:56:00 2013 -0400
+# Date: Tue Oct 29 12:16:35 2013 -0400
 #
 # (c) Copyright University of Maryland 2011-2013.  All rights reserved.
 #
@@ -969,11 +969,11 @@ jQuery = this.jQuery ?= {}
                 values[y] = [ z ]
                 counts[y] = {}
                 counts[y][z] = 1
-              else 
+              else
+                values[y].push z
                 if counts[y][z]?
                   counts[y][z] += 1
                 else
-                  values[y].push z
                   counts[y][z] = 1
   
           # ### indexFillSet (private)

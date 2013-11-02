@@ -248,11 +248,11 @@ MITHgrid.namespace 'Data', (Data) ->
               values[y] = [ z ]
               counts[y] = {}
               counts[y][z] = 1
-            else 
+            else
+              values[y].push z
               if counts[y][z]?
                 counts[y][z] += 1
               else
-                values[y].push z
                 counts[y][z] = 1
 
         # ### indexFillSet (private)
