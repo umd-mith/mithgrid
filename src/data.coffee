@@ -248,11 +248,11 @@ MITHgrid.namespace 'Data', (Data) ->
               values[y] = [ z ]
               counts[y] = {}
               counts[y][z] = 1
-            else 
+            else
+              values[y].push z
               if counts[y][z]?
                 counts[y][z] += 1
               else
-                values[y].push z
                 counts[y][z] = 1
 
         # ### indexFillSet (private)
@@ -637,7 +637,7 @@ MITHgrid.namespace 'Data', (Data) ->
 
           f = (start) ->
             end = start + chunk_size;
-            end = n if end > n
+            end = n if end > n or MITHgrid.config.noTimeouts
 
             for i in [start ... end]
               entry = items[i]
@@ -702,7 +702,7 @@ MITHgrid.namespace 'Data', (Data) ->
     
           f = (start) ->
             end = start + chunk_size
-            end = n if end > n
+            end = n if end > n or MITHgrid.config.noTimeouts
 
             for i in [ start ... end ]
               entry = items[i]
@@ -784,7 +784,7 @@ MITHgrid.namespace 'Data', (Data) ->
 
           f = (start) ->
             end = start + chunk_size
-            end = n if end > n
+            end = n if end > n or MITHgrid.config.noTimeouts
 
             for i in [ start ... end ]
               id = ids[i]

@@ -14,6 +14,19 @@ if console?.log?
 else 
   MITHgrid.debug = ->
 
+# ## MITHgrid.config
+#
+# Various behaviors of MITHgrid can be modified by settings in this object.
+
+MITHgrid.config = {}
+
+# ### MITHgrid.config.noTimeouts
+#
+# If true, setTimeout will not be used unless absolutely necessary. This reduces the number of asynchronous
+# processes and can help applications run better when browsers such as FireFox modify the setTimeout timing.
+
+MITHgrid.config.noTimeouts = false
+
 # ## MITHgrid.error
 #
 # MITHgrid.error will be like MITHgrid.debug except that it will return the arguments in an object that can be thrown as
@@ -267,6 +280,7 @@ MITHgrid.initSynchronizer = (callback) ->
       processItems = (start) ->
         end = start + 100
         end = n if end > n
+        end = n if MITHgrid.config.noTimeouts
         for i in [start ... end]
           cb(items[i])
           that.decrement()
@@ -274,9 +288,12 @@ MITHgrid.initSynchronizer = (callback) ->
           setTimeout ->
             processItems end
           , 0
-      setTimeout ->
+      if MITHgrid.config.noTimeouts
         processItems 0
-      , 0
+      else
+        setTimeout ->
+          processItems 0
+        , 0
 
   that
        
@@ -620,7 +637,10 @@ MITHgrid.namespace 'events', (events) ->
   
   $(document).ready ->
     $(window).resize ->
-      setTimeout MITHgrid.events.onWindowResize.fire, 0
+      if MITHgrid.config.noTimeouts
+        MITHgrid.events.onWindowResize.fire()
+      else
+        setTimeout MITHgrid.events.onWindowResize.fire, 0
 
 # ## Mouse capture
 #

@@ -150,7 +150,7 @@ MITHgrid.namespace 'Presentation', (Presentation) ->
         f = (start) ->
           if start < n
             end = start + step
-            end = n if end > n
+            end = n if end > n or MITHgrid.config.noTimeouts
 
             for i in [start ... end]
               id = items[i]
