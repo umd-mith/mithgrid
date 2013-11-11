@@ -1,6 +1,6 @@
 {
   "name": "MITHgrid",
-  "version": "0.13.3060",
+  "version": "0.13.3061",
   "homepage": "https://github.com/umd-mith/mithgrid",
   "description": "MITHgrid is a JavaScript framework for building data-oriented, event-driven browser applications.",
   "main": "dist/mithgrid.js",
